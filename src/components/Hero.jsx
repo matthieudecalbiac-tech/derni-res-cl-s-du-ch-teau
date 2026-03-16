@@ -1,26 +1,5 @@
 import "../styles/hero.css";
 
-/*
-  VIDÉOS DISPONIBLES — choisis celle que tu préfères,
-  colle son URL dans la variable VIDEO_URL ci-dessous.
-
-  Option 1 — Château de Chambord, plan aérien été :
-  https://www.pexels.com/video/chateau-de-chambord-castle-in-summer-daytime-28858942/
-
-  Option 2 — Château approche :
-  https://www.pexels.com/video/castle-20008131/
-
-  Pour récupérer l'URL directe de la vidéo :
-  1. Va sur la page Pexels
-  2. Clique "Téléchargement gratuit"
-  3. Choisis SD ou HD
-  4. Clic droit sur le bouton → "Copier l'adresse du lien"
-  5. Colle l'URL ici
-*/
-
-const VIDEO_URL =
-  "https://videos.pexels.com/video-files/28858942/12609585_2560_1440_25fps.mp4";
-
 export default function Hero() {
   const scrollVersOffres = () => {
     document.getElementById("offres")?.scrollIntoView({ behavior: "smooth" });
@@ -36,14 +15,17 @@ export default function Hero() {
           muted
           loop
           playsInline
-          poster="https://images.unsplash.com/photo-1548267245-9c5f2e2c28b2?w=1920&q=80"
+          poster="https://images.pexels.com/videos/29961219/pexels-photo-29961219.jpeg?auto=compress&cs=tinysrgb&w=1440"
         >
-          <source src={VIDEO_URL} type="video/mp4" />
+          <source
+            src="https://videos.pexels.com/video-files/29961219/12857136_2560_1440_30fps.mp4"
+            type="video/mp4"
+          />
         </video>
         <div className="hero-video-overlay" />
       </div>
 
-      {/* Motif fleurs de lys par-dessus la vidéo */}
+      {/* Motif fleurs de lys */}
       <div className="lys-pattern">
         <svg>
           <rect width="100%" height="100%" fill="url(#lys-pattern)" />
