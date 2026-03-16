@@ -1,11 +1,13 @@
 /* ============================================================
-   FOOTER v2.1 — Brun très sombre chaud
+   FOOTER v3.0 — Bleu nuit profond · Or
    ============================================================ */
 
 .footer {
-  background: #0e0c08;
-  border-top: 1px solid rgba(196, 146, 74, 0.12);
+  background: #080e1e;
+  border-top: 1px solid rgba(200, 151, 62, 0.12);
   padding-top: var(--s-lg);
+  position: relative;
+  overflow: hidden;
 }
 
 /* ── CORPS ────────────────────────────────────────────────── */
@@ -16,6 +18,8 @@
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 3rem;
+  position: relative;
+  z-index: 2;
 }
 
 /* ── COLONNE MARQUE ───────────────────────────────────────── */
@@ -60,7 +64,7 @@
 .footer-reseau {
   width: 32px;
   height: 32px;
-  border: 1px solid rgba(196, 146, 74, 0.18);
+  border: 1px solid rgba(200, 151, 62, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -73,14 +77,14 @@
 .footer-reseau:hover {
   border-color: var(--or);
   color: var(--or);
-  background: rgba(196, 146, 74, 0.06);
+  background: rgba(200, 151, 62, 0.06);
 }
 
 /* ── COLONNES LIENS ───────────────────────────────────────── */
 .footer-colonne-titre {
-  font-family: var(--font-ui);
+  font-family: var(--font-titre);
   font-size: 0.6rem;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--or);
@@ -117,10 +121,12 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(196, 146, 74, 0.15) 20%,
-    rgba(196, 146, 74, 0.15) 80%,
+    rgba(200, 151, 62, 0.15) 20%,
+    rgba(200, 151, 62, 0.15) 80%,
     transparent
   );
+  position: relative;
+  z-index: 2;
 }
 
 /* ── BAS DE FOOTER ────────────────────────────────────────── */
@@ -133,13 +139,15 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.8rem;
+  position: relative;
+  z-index: 2;
 }
 
 .footer-copyright {
   font-family: var(--font-ui);
   font-size: 0.6rem;
   font-weight: 300;
-  color: rgba(106, 94, 80, 0.5);
+  color: rgba(74, 82, 104, 0.5);
   letter-spacing: 0.1em;
 }
 
@@ -152,7 +160,7 @@
   font-family: var(--font-ui);
   font-size: 0.6rem;
   font-weight: 300;
-  color: rgba(106, 94, 80, 0.45);
+  color: rgba(74, 82, 104, 0.45);
   cursor: pointer;
   letter-spacing: 0.08em;
   transition: var(--transition);
@@ -166,7 +174,7 @@
   font-family: var(--font-editorial);
   font-size: 0.78rem;
   font-style: italic;
-  color: rgba(196, 146, 74, 0.3);
+  color: rgba(200, 151, 62, 0.25);
 }
 
 /* ── BANDE OR ─────────────────────────────────────────────── */
@@ -180,6 +188,8 @@
     var(--or) 70%,
     transparent
   );
+  position: relative;
+  z-index: 2;
 }
 
 /* ── RESPONSIVE ───────────────────────────────────────────── */

@@ -1,17 +1,20 @@
 /* ============================================================
-   SERVICES v2.1 — Section claire sur fond crème chaud
+   SERVICES v3.0 — Crème chaude · Contraste royal
    ============================================================ */
 
 .services-section {
   background: var(--creme-chaud);
   padding: var(--s-xl) 0;
   position: relative;
+  overflow: hidden;
 }
 
 .services-inner {
   max-width: 1300px;
   margin: 0 auto;
   padding: 0 var(--s-md);
+  position: relative;
+  z-index: 2;
 }
 
 /* ── EN-TÊTE ──────────────────────────────────────────────── */
@@ -36,7 +39,7 @@
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--brun-nuit);
+  color: var(--bleu-nuit);
   margin-bottom: 0.8rem;
 }
 
@@ -44,7 +47,7 @@
   font-family: var(--font-editorial);
   font-size: var(--t-lg);
   font-style: italic;
-  color: var(--gris-pierre);
+  color: var(--gris-fonce);
   font-weight: 300;
   max-width: 620px;
   margin: 0 auto;
@@ -56,8 +59,8 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1px;
-  background: rgba(196, 146, 74, 0.2);
-  border: 1px solid rgba(196, 146, 74, 0.2);
+  background: rgba(200, 151, 62, 0.25);
+  border: 1px solid rgba(200, 151, 62, 0.25);
   margin-bottom: 3rem;
 }
 
@@ -89,9 +92,22 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--or), var(--or-clair));
+  background: linear-gradient(90deg, var(--bleu), var(--bleu-clair));
   transform: scaleX(0);
   transform-origin: left;
+  transition: var(--transition);
+}
+
+.service-carte::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--or), var(--or-clair));
+  transform: scaleX(0);
+  transform-origin: right;
   transition: var(--transition);
 }
 
@@ -102,6 +118,10 @@
 }
 
 .service-carte:hover::before {
+  transform: scaleX(1);
+}
+
+.service-carte:hover::after {
   transform: scaleX(1);
 }
 
@@ -117,7 +137,7 @@
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--brun-nuit);
+  color: var(--bleu-nuit);
   margin-bottom: 0.6rem;
   line-height: 1.3;
 }
@@ -126,7 +146,7 @@
   font-family: var(--font-ui);
   font-size: var(--t-sm);
   font-weight: 300;
-  color: var(--gris-pierre);
+  color: var(--gris-fonce);
   line-height: 1.7;
   margin-bottom: 1.2rem;
 }
@@ -145,14 +165,14 @@
   font-family: var(--font-ui);
   font-size: 0.72rem;
   font-weight: 300;
-  color: var(--brun-nuit);
+  color: var(--bleu-fonce);
   letter-spacing: 0.04em;
 }
 
 .service-detail-item::before {
-  content: "◆";
+  content: "⚜";
   color: var(--or);
-  font-size: 0.35rem;
+  font-size: 0.5rem;
   flex-shrink: 0;
 }
 
@@ -168,7 +188,7 @@
   font-family: var(--font-titre);
   font-size: 1.1rem;
   font-weight: 500;
-  color: var(--or-sombre);
+  color: var(--bleu);
   letter-spacing: 0.05em;
 }
 
@@ -176,7 +196,7 @@
   font-family: var(--font-ui);
   font-size: var(--t-xs);
   font-weight: 300;
-  color: var(--gris-pierre);
+  color: var(--gris-fonce);
   letter-spacing: 0.1em;
 }
 
@@ -184,38 +204,41 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: linear-gradient(135deg, var(--or), var(--or-clair));
-  color: var(--noir);
+  background: linear-gradient(135deg, var(--bleu), var(--bleu-clair));
+  color: var(--or-clair);
   font-family: var(--font-ui);
-  font-size: 0.58rem;
+  font-size: 0.55rem;
   font-weight: 400;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   padding: 0.2rem 0.6rem;
+  border: 1px solid rgba(200, 151, 62, 0.3);
 }
 
 /* ── BANDEAU CONCIERGERIE ─────────────────────────────────── */
 .services-transport {
-  background: var(--brun-nuit);
+  background: var(--bleu);
   padding: 2.5rem 3rem;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 2rem;
   align-items: center;
-  border: 1px solid rgba(196, 146, 74, 0.2);
+  border: 1px solid rgba(200, 151, 62, 0.25);
   position: relative;
   overflow: hidden;
 }
 
 .services-transport::before {
-  content: "🚗";
+  content: "⚜";
   position: absolute;
-  right: 2rem;
+  right: 3rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 7rem;
+  font-size: 8rem;
   opacity: 0.04;
+  color: var(--or);
   pointer-events: none;
+  line-height: 1;
 }
 
 .transport-sur-titre {
@@ -243,7 +266,7 @@
   font-family: var(--font-editorial);
   font-size: 1.02rem;
   font-style: italic;
-  color: var(--gris-pierre);
+  color: rgba(200, 151, 62, 0.55);
   font-weight: 300;
   line-height: 1.6;
 }
@@ -262,7 +285,7 @@
   font-family: var(--font-ui);
   font-size: 0.6rem;
   font-weight: 300;
-  color: var(--gris-pierre);
+  color: rgba(200, 151, 62, 0.5);
   letter-spacing: 0.1em;
 }
 

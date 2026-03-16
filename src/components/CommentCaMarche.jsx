@@ -11,7 +11,7 @@ const ETAPES = [
   },
   {
     numero: "02",
-    icone: "✦",
+    icone: "⚜",
     titre: "Nous sélectionnons",
     texte:
       "Notre équipe valide chaque offre : cadre, qualité, expérience. Seul l'exceptionnel intègre la plateforme.",

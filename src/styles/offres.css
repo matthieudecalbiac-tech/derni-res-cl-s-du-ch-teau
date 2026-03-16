@@ -1,5 +1,5 @@
 /* ============================================================
-   OFFRES v2.1 — Brun chaud, grille asymétrique
+   OFFRES v3.0 — Bleu royal · Fleurs de lys
    ============================================================ */
 
 /* ── TICKER ───────────────────────────────────────────────── */
@@ -26,12 +26,12 @@
   font-weight: 600;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: var(--noir);
+  color: var(--bleu-nuit);
   padding: 0.75rem 2rem;
   background: rgba(0, 0, 0, 0.1);
   white-space: nowrap;
   flex-shrink: 0;
-  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  border-right: 1px solid rgba(13, 22, 40, 0.2);
 }
 
 .ticker-track {
@@ -52,19 +52,19 @@
   font-size: 0.62rem;
   font-weight: 300;
   letter-spacing: 0.18em;
-  color: var(--noir);
+  color: var(--bleu-nuit);
   padding: 0.75rem 2.5rem;
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  border-right: 1px solid rgba(13, 22, 40, 0.1);
   flex-shrink: 0;
 }
 
 .ticker-dot {
   width: 4px;
   height: 4px;
-  background: var(--noir);
+  background: var(--bleu-nuit);
   border-radius: 50%;
   opacity: 0.25;
   flex-shrink: 0;
@@ -72,14 +72,18 @@
 
 /* ── SECTION OFFRES ───────────────────────────────────────── */
 .offres-section {
-  background: var(--noir);
+  background: var(--bleu-fonce);
   padding: var(--s-xl) 0;
+  position: relative;
+  overflow: hidden;
 }
 
 .offres-inner {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 var(--s-md);
+  position: relative;
+  z-index: 2;
 }
 
 /* ── EN-TÊTE ──────────────────────────────────────────────── */
@@ -116,7 +120,7 @@
   font-family: var(--font-editorial);
   font-size: var(--t-md);
   font-style: italic;
-  color: var(--gris-pierre);
+  color: rgba(200, 151, 62, 0.55);
   font-weight: 300;
 }
 
@@ -135,8 +139,8 @@
   font-weight: 300;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  border: 1px solid rgba(196, 146, 74, 0.2);
-  color: var(--gris-pierre);
+  border: 1px solid rgba(200, 151, 62, 0.2);
+  color: rgba(200, 151, 62, 0.5);
   background: transparent;
   cursor: pointer;
   transition: var(--transition);
@@ -151,7 +155,7 @@
 .filtre-pill.actif {
   background: var(--or);
   border-color: var(--or);
-  color: var(--noir);
+  color: var(--bleu-nuit);
 }
 
 /* ── GRILLE ASYMÉTRIQUE ───────────────────────────────────── */
@@ -160,7 +164,7 @@
   grid-template-columns: 1.65fr 1fr 1fr;
   grid-template-rows: auto auto;
   gap: 1px;
-  background: rgba(196, 146, 74, 0.18);
+  background: rgba(200, 151, 62, 0.2);
 }
 
 .offres-grille .carte-chateau:first-child {
@@ -188,7 +192,7 @@
 
 /* ── CARTE CHÂTEAU ────────────────────────────────────────── */
 .carte-chateau {
-  background: #1e1b13;
+  background: var(--bleu-carte);
   cursor: pointer;
   transition: var(--transition);
   position: relative;
@@ -198,7 +202,7 @@
 }
 
 .carte-chateau:hover {
-  background: #26221a;
+  background: #1e2e5a;
 }
 
 /* ── IMAGE ────────────────────────────────────────────────── */
@@ -220,18 +224,18 @@
   height: 100%;
   object-fit: cover;
   transition: var(--transition-lente);
-  filter: brightness(0.75) saturate(0.85);
+  filter: brightness(0.7) saturate(0.7);
 }
 
 .carte-chateau:hover .carte-image {
   transform: scale(1.05);
-  filter: brightness(0.88) saturate(0.95);
+  filter: brightness(0.82) saturate(0.85);
 }
 
 .carte-image-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, #1e1b13 0%, transparent 55%);
+  background: linear-gradient(to top, var(--bleu-carte) 0%, transparent 55%);
 }
 
 .carte-badges {
@@ -247,7 +251,7 @@
   font-family: var(--font-titre);
   font-size: 0.65rem;
   font-weight: 600;
-  color: var(--noir);
+  color: var(--bleu-nuit);
   background: linear-gradient(135deg, var(--or), var(--or-clair));
   padding: 0.28rem 0.65rem;
   letter-spacing: 0.08em;
@@ -261,7 +265,7 @@
   font-size: 0.58rem;
   font-weight: 300;
   letter-spacing: 0.15em;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.35);
 }
 
 /* ── CONTENU CARTE ────────────────────────────────────────── */
@@ -310,14 +314,14 @@
   font-family: var(--font-editorial);
   font-size: 0.82rem;
   font-style: italic;
-  color: var(--gris-pierre);
+  color: var(--gris);
   margin-bottom: 0.6rem;
 }
 
 .carte-accroche {
   font-family: var(--font-editorial);
   font-size: 0.9rem;
-  color: var(--gris-lin);
+  color: rgba(200, 151, 62, 0.55);
   line-height: 1.5;
   margin-bottom: 0.9rem;
   font-weight: 400;
@@ -337,15 +341,14 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--or-sombre);
-  border: 1px solid rgba(196, 146, 74, 0.2);
+  border: 1px solid rgba(200, 151, 62, 0.2);
   padding: 0.18rem 0.5rem;
 }
 
 .carte-separateur {
   height: 1px;
-  background: linear-gradient(90deg, var(--or-sombre), transparent);
+  background: linear-gradient(90deg, rgba(200, 151, 62, 0.35), transparent);
   margin-bottom: 1rem;
-  opacity: 0.3;
 }
 
 .carte-pied {
@@ -402,10 +405,10 @@
 .carte-cta {
   font-family: var(--font-ui);
   font-size: 0.6rem;
-  font-weight: 400;
+  font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--noir);
+  color: var(--bleu-nuit);
   background: linear-gradient(135deg, var(--or) 0%, var(--or-clair) 100%);
   padding: 0.65rem 1.3rem;
   transition: var(--transition);
@@ -449,7 +452,7 @@
 .stat-item {
   padding: 2rem;
   text-align: center;
-  border-right: 1px solid rgba(10, 9, 6, 0.15);
+  border-right: 1px solid rgba(13, 22, 40, 0.15);
 }
 
 .stat-item:last-child {
@@ -460,7 +463,7 @@
   font-family: var(--font-titre);
   font-size: 2rem;
   font-weight: 600;
-  color: var(--noir);
+  color: var(--bleu-nuit);
   display: block;
   line-height: 1;
   margin-bottom: 0.35rem;
@@ -472,7 +475,7 @@
   font-size: 0.58rem;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: rgba(10, 9, 6, 0.55);
+  color: rgba(13, 22, 40, 0.55);
 }
 
 @media (max-width: 600px) {
@@ -484,6 +487,6 @@
   }
   .stat-item:nth-child(3),
   .stat-item:nth-child(4) {
-    border-top: 1px solid rgba(10, 9, 6, 0.1);
+    border-top: 1px solid rgba(13, 22, 40, 0.1);
   }
 }

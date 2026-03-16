@@ -42,7 +42,7 @@ export default function OffresUrgentes({ onSelectChateau }) {
       {/* Ticker doré */}
       <div className="ticker-section">
         <div className="ticker-inner">
-          <span className="ticker-label">◆ Disponible maintenant</span>
+          <span className="ticker-label">⚜ Disponible maintenant</span>
           <div className="ticker-track">
             <div className="ticker-items">
               {[...TICKER_ITEMS, ...TICKER_ITEMS].map((item, i) => (
@@ -58,6 +58,13 @@ export default function OffresUrgentes({ onSelectChateau }) {
 
       {/* Section offres */}
       <section className="offres-section" id="offres">
+        {/* Motif fleurs de lys */}
+        <div className="lys-pattern">
+          <svg>
+            <rect width="100%" height="100%" fill="url(#lys-pattern)" />
+          </svg>
+        </div>
+
         <div className="offres-inner">
           <div className="offres-entete">
             <div className="offres-entete-gauche">

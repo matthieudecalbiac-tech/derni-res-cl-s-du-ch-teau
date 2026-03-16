@@ -1,5 +1,5 @@
 /* ============================================================
-   HERO v2.1 — Fond brun chaud rayonnant
+   HERO v3.1 — Vidéo immersive · Bleu royal · Fleurs de lys
    ============================================================ */
 
 .hero {
@@ -10,84 +10,95 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: var(--noir-doux);
+  background: var(--bleu-nuit);
 }
 
-/* ── MOTIF DE FOND ────────────────────────────────────────── */
-.hero-motif {
+/* ── VIDÉO DE FOND ────────────────────────────────────────── */
+.hero-video-wrapper {
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(
-      ellipse 80% 60% at 50% 50%,
-      rgba(196, 146, 74, 0.1) 0%,
-      transparent 65%
-    ),
-    radial-gradient(
-      ellipse 40% 30% at 20% 80%,
-      rgba(196, 146, 74, 0.05) 0%,
-      transparent 60%
-    ),
-    radial-gradient(
-      ellipse 40% 30% at 80% 20%,
-      rgba(196, 146, 74, 0.05) 0%,
-      transparent 60%
-    ),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 70px,
-      rgba(196, 146, 74, 0.03) 70px,
-      rgba(196, 146, 74, 0.03) 71px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 70px,
-      rgba(196, 146, 74, 0.03) 70px,
-      rgba(196, 146, 74, 0.03) 71px
-    );
+  z-index: 0;
+  overflow: hidden;
+}
+
+.hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.55) saturate(0.8);
+}
+
+.hero-video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--bleu-nuit) 0%, transparent 40%),
+    linear-gradient(to bottom, rgba(13, 22, 40, 0.5) 0%, transparent 30%),
+    rgba(13, 22, 40, 0.25);
+}
+
+/* ── HALO CENTRAL ─────────────────────────────────────────── */
+.hero-radial {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 75% 60% at 50% 50%,
+    rgba(200, 151, 62, 0.1) 0%,
+    transparent 65%
+  );
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* ── CADRE INTÉRIEUR ──────────────────────────────────────── */
 .hero-cadre {
   position: absolute;
   inset: 2.5rem;
-  border: 1px solid rgba(196, 146, 74, 0.12);
+  border: 1px solid rgba(200, 151, 62, 0.18);
   pointer-events: none;
-}
-
-.hero-cadre::before,
-.hero-cadre::after,
-.hero-cadre-coin-bd::before,
-.hero-cadre-coin-bg::before {
-  content: "◆";
-  position: absolute;
-  color: var(--or);
-  font-size: 0.45rem;
-  line-height: 1;
+  z-index: 2;
 }
 
 .hero-cadre::before {
+  content: "◆";
+  position: absolute;
   top: -0.3rem;
   left: -0.3rem;
+  color: var(--or);
+  font-size: 0.45rem;
 }
+
 .hero-cadre::after {
+  content: "◆";
+  position: absolute;
   top: -0.3rem;
   right: -0.3rem;
+  color: var(--or);
+  font-size: 0.45rem;
 }
+
 .hero-cadre-coin-bd::before {
+  content: "◆";
+  position: absolute;
   bottom: -0.3rem;
   right: -0.3rem;
+  color: var(--or);
+  font-size: 0.45rem;
 }
+
 .hero-cadre-coin-bg::before {
+  content: "◆";
+  position: absolute;
   bottom: -0.3rem;
   left: -0.3rem;
+  color: var(--or);
+  font-size: 0.45rem;
 }
 
 /* ── CONTENU ──────────────────────────────────────────────── */
 .hero-contenu {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   text-align: center;
   max-width: 860px;
   padding: 0 var(--s-md);
@@ -149,9 +160,10 @@
   background: linear-gradient(90deg, var(--or), transparent);
 }
 
-.hero-ornement-losange {
+.hero-ornement-lys {
   color: var(--or);
-  font-size: 0.45rem;
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
 .hero-accroche {
@@ -159,7 +171,7 @@
   font-size: clamp(1.05rem, 1.8vw, 1.35rem);
   font-weight: 300;
   font-style: italic;
-  color: var(--gris-lin);
+  color: rgba(200, 151, 62, 0.7);
   line-height: 1.7;
   max-width: 600px;
   margin: 0 auto 2.8rem;
@@ -181,7 +193,7 @@
   bottom: 2.5rem;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -195,7 +207,7 @@
   font-size: 0.55rem;
   letter-spacing: 0.45em;
   text-transform: uppercase;
-  color: var(--gris-fonce);
+  color: rgba(200, 151, 62, 0.5);
 }
 
 .hero-scroll-ligne {
@@ -205,24 +217,12 @@
   animation: scroll-pulse 2s ease-in-out infinite;
 }
 
-@keyframes scroll-pulse {
-  0%,
-  100% {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-  50% {
-    opacity: 0.3;
-    transform: scaleY(0.6);
-  }
-}
-
 /* ── STATS COINS ──────────────────────────────────────────── */
 .hero-stats {
   position: absolute;
   bottom: 3rem;
   right: 3.5rem;
-  z-index: 2;
+  z-index: 3;
   text-align: right;
   animation: fadeIn 1s 1.3s both;
 }
@@ -241,14 +241,15 @@
   font-size: 0.55rem;
   letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: var(--gris-fonce);
+  color: rgba(200, 151, 62, 0.45);
 }
 
+/* ── RÉGIONS ──────────────────────────────────────────────── */
 .hero-regions {
   position: absolute;
   bottom: 3rem;
   left: 3.5rem;
-  z-index: 2;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
@@ -260,7 +261,7 @@
   font-size: 0.55rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--gris-fonce);
+  color: rgba(200, 151, 62, 0.45);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -271,9 +272,10 @@
   width: 16px;
   height: 1px;
   background: var(--or);
-  opacity: 0.5;
+  opacity: 0.4;
 }
 
+/* ── RESPONSIVE ───────────────────────────────────────────── */
 @media (max-width: 768px) {
   .hero-stats,
   .hero-regions,
