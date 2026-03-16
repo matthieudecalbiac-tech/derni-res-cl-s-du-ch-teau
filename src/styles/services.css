@@ -1,0 +1,287 @@
+/* ============================================================
+   SERVICES & PRESTATIONS
+   ============================================================ */
+
+.services-section {
+  background: var(--blanc-casse);
+  padding: var(--s-xl) 0;
+  position: relative;
+}
+
+.services-inner {
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 var(--s-md);
+}
+
+.services-entete {
+  text-align: center;
+  margin-bottom: var(--s-lg);
+}
+
+.services-entete .sur-titre {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--or);
+  display: block;
+  margin-bottom: 0.8rem;
+}
+
+.services-entete h2 {
+  font-family: var(--font-titre);
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--noir);
+  margin-bottom: 0.8rem;
+}
+
+.services-entete p {
+  font-family: var(--font-editorial);
+  font-size: var(--t-lg);
+  font-style: italic;
+  color: var(--gris-pierre);
+  font-weight: 300;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ── GRILLE SERVICES ──────────────────────────────────────── */
+.services-grille {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+@media (max-width: 900px) {
+  .services-grille {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 580px) {
+  .services-grille {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── CARTE SERVICE ────────────────────────────────────────── */
+.service-carte {
+  background: white;
+  padding: 2rem 1.8rem;
+  border: 1px solid rgba(184, 150, 90, 0.12);
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.service-carte::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--or), var(--or-clair));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: var(--transition);
+}
+
+.service-carte:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--ombre-carte);
+  border-color: rgba(184, 150, 90, 0.25);
+}
+
+.service-carte:hover::before {
+  transform: scaleX(1);
+}
+
+.service-icone {
+  font-size: 2.2rem;
+  margin-bottom: 1.2rem;
+  display: block;
+}
+
+.service-titre {
+  font-family: var(--font-titre);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--noir);
+  margin-bottom: 0.6rem;
+}
+
+.service-description {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 300;
+  color: var(--gris-pierre);
+  line-height: 1.7;
+  margin-bottom: 1.2rem;
+}
+
+.service-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1.4rem;
+}
+
+.service-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: var(--brun-nuit);
+  letter-spacing: 0.05em;
+}
+
+.service-detail-item::before {
+  content: "◆";
+  color: var(--or);
+  font-size: 0.35rem;
+  flex-shrink: 0;
+}
+
+.service-prix {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--creme-chaud);
+}
+
+.service-prix-montant {
+  font-family: var(--font-titre);
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: var(--or);
+  letter-spacing: 0.05em;
+}
+
+.service-prix-label {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  color: var(--gris-pierre);
+  letter-spacing: 0.1em;
+}
+
+.service-badge-nouveau {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--or);
+  color: var(--noir);
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
+}
+
+/* ── BANDEAU TRANSPORT ────────────────────────────────────── */
+.services-transport {
+  background: var(--noir-doux);
+  padding: 2.5rem 3rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: center;
+  border: 1px solid rgba(184, 150, 90, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.services-transport::before {
+  content: "🚗";
+  position: absolute;
+  right: 3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 8rem;
+  opacity: 0.04;
+  pointer-events: none;
+}
+
+.transport-texte {
+}
+
+.transport-sur-titre {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--or);
+  display: block;
+  margin-bottom: 0.6rem;
+}
+
+.transport-titre {
+  font-family: var(--font-titre);
+  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blanc-casse);
+  margin-bottom: 0.6rem;
+}
+
+.transport-description {
+  font-family: var(--font-editorial);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--gris-pierre);
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+.transport-options {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.transport-option {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  color: var(--gris-lin);
+  letter-spacing: 0.1em;
+}
+
+.transport-option::before {
+  content: "✓";
+  color: var(--or);
+  font-size: 0.7rem;
+}
+
+.transport-cta {
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .services-transport {
+    grid-template-columns: 1fr;
+    padding: 2rem 1.5rem;
+  }
+
+  .services-transport::before {
+    display: none;
+  }
+}

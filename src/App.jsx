@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import OffresUrgentes from "./components/OffresUrgentes";
+import Services from "./components/Services";
 import CommentCaMarche from "./components/CommentCaMarche";
 import Temoignages from "./components/Temoignages";
 import Newsletter from "./components/Newsletter";
@@ -22,6 +23,7 @@ function App() {
           filtresActifs={filtresActifs}
           onFiltresChange={setFiltresActifs}
         />
+        <Services />
         <CommentCaMarche />
         <Temoignages />
         <Newsletter />

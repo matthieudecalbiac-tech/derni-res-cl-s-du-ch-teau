@@ -19,46 +19,50 @@
   transition: var(--transition);
 }
 
-/* Header transparent sur le Hero */
 .header--transparent .header-inner {
   background: transparent;
 }
 
-/* Header solide au scroll */
 .header--solide .header-inner {
   background: rgba(10, 9, 6, 0.96);
   backdrop-filter: blur(12px);
-  padding: 1.2rem 3rem;
+  padding: 1rem 3rem;
   border-bottom: 1px solid rgba(184, 150, 90, 0.2);
 }
 
 /* ── LOGO ─────────────────────────────────────────────────── */
 .header-logo {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.1rem;
+  align-items: center;
+  gap: 0.8rem;
   cursor: pointer;
+  flex-shrink: 0;
+}
+
+.header-logo-texte {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 
 .logo-principale {
   font-family: var(--font-titre);
-  font-size: 1.05rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--or-clair);
-  line-height: 1;
+  line-height: 1.2;
   white-space: nowrap;
 }
 
 .logo-secondaire {
   font-family: var(--font-editorial);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-style: italic;
   font-weight: 300;
   color: var(--gris-lin);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   white-space: nowrap;
 }
 
@@ -66,19 +70,20 @@
 .header-nav {
   display: flex;
   align-items: center;
-  gap: 2.8rem;
+  gap: 2.2rem;
 }
 
 .nav-lien {
   font-family: var(--font-ui);
   font-size: var(--t-xs);
   font-weight: 300;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gris-lin);
   transition: var(--transition);
   position: relative;
   padding-bottom: 2px;
+  white-space: nowrap;
 }
 
 .nav-lien::after {
@@ -104,20 +109,23 @@
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 1.2rem;
+  gap: 1rem;
+  flex-shrink: 0;
 }
 
 .header-cta {
   font-family: var(--font-ui);
   font-size: var(--t-xs);
   font-weight: 400;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--noir);
   background: linear-gradient(135deg, var(--or) 0%, var(--or-clair) 100%);
-  padding: 0.65rem 1.6rem;
+  padding: 0.6rem 1.3rem;
   transition: var(--transition);
   white-space: nowrap;
+  border: none;
+  cursor: pointer;
 }
 
 .header-cta:hover {
@@ -130,11 +138,12 @@
   font-family: var(--font-ui);
   font-size: var(--t-xs);
   font-weight: 300;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gris-lin);
   transition: var(--transition);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .header-connexion:hover {
@@ -148,18 +157,74 @@
   gap: 5px;
   cursor: pointer;
   padding: 4px;
+  flex-shrink: 0;
 }
 
 .header-burger span {
   display: block;
-  width: 24px;
+  width: 22px;
   height: 1px;
   background: var(--or);
   transition: var(--transition);
 }
 
+/* ── MENU MOBILE ──────────────────────────────────────────── */
+.header-menu-mobile {
+  display: none;
+  flex-direction: column;
+  background: rgba(10, 9, 6, 0.98);
+  border-top: 1px solid rgba(184, 150, 90, 0.2);
+  padding: 1.5rem 2rem;
+  gap: 1.2rem;
+}
+
+.header-menu-mobile.ouvert {
+  display: flex;
+}
+
+.nav-lien-mobile {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gris-lin);
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(184, 150, 90, 0.1);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.nav-lien-mobile:hover {
+  color: var(--or-clair);
+  padding-left: 0.5rem;
+}
+
+.nav-lien-mobile:last-child {
+  border-bottom: none;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .header-nav {
+    gap: 1.5rem;
+  }
+
+  .header-inner {
+    padding: 1.4rem 2rem;
+  }
+
+  .header--solide .header-inner {
+    padding: 0.9rem 2rem;
+  }
+}
+
 @media (max-width: 900px) {
   .header-nav {
+    display: none;
+  }
+
+  .header-actions {
     display: none;
   }
 
@@ -168,10 +233,25 @@
   }
 
   .header-inner {
-    padding: 1.4rem 1.5rem;
+    padding: 1.2rem 1.5rem;
   }
 
   .header--solide .header-inner {
-    padding: 1rem 1.5rem;
+    padding: 0.9rem 1.5rem;
+  }
+
+  .logo-principale {
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-secondaire {
+    display: none;
+  }
+
+  .logo-principale {
+    font-size: 0.7rem;
   }
 }
