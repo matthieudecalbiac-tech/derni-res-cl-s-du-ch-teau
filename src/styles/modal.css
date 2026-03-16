@@ -1,0 +1,511 @@
+/* ============================================================
+   MODAL DÉTAIL CHÂTEAU
+   ============================================================ */
+
+/* ── OVERLAY ──────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(10, 9, 6, 0.75);
+  backdrop-filter: blur(6px);
+  animation: fadeIn 0.3s ease both;
+  padding-top: 2rem;
+}
+
+/* ── CONTENEUR MODAL ──────────────────────────────────────── */
+.modal {
+  background: var(--blanc-casse);
+  width: 100%;
+  max-width: 1100px;
+  max-height: 92vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideUp 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+  scrollbar-width: thin;
+  scrollbar-color: var(--or) var(--creme);
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── BOUTON FERMER ────────────────────────────────────────── */
+.modal-fermer {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(to bottom, var(--blanc-casse) 70%, transparent);
+  pointer-events: none;
+}
+
+.modal-fermer-btn {
+  pointer-events: all;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--noir);
+  color: var(--or);
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1px solid rgba(184, 150, 90, 0.3);
+}
+
+.modal-fermer-btn:hover {
+  background: var(--or);
+  color: var(--noir);
+}
+
+/* ── GALERIE ──────────────────────────────────────────────── */
+.modal-galerie {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 3px;
+  height: 420px;
+  margin-top: -44px;
+}
+
+.modal-galerie-principale {
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-galerie-principale img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.modal-galerie-secondaires {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.modal-galerie-secondaires img {
+  flex: 1;
+  width: 100%;
+  object-fit: cover;
+  min-height: 0;
+}
+
+.modal-galerie-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10, 9, 6, 0.6) 0%, transparent 50%);
+}
+
+/* ── BADGE URGENCE SUR GALERIE ────────────────────────────── */
+.modal-badge-urgence {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 2;
+}
+
+.modal-reduction {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 2;
+  background: var(--rouge-velours);
+  color: white;
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  padding: 0.4rem 0.9rem;
+}
+
+/* ── CORPS MODAL ──────────────────────────────────────────── */
+.modal-corps {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 3rem;
+  padding: 2.5rem 2.5rem 3rem;
+}
+
+/* ── COLONNE GAUCHE ───────────────────────────────────────── */
+.modal-gauche {
+}
+
+.modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.modal-region {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--or);
+}
+
+.modal-distance {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  color: var(--gris-pierre);
+}
+
+.modal-note {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--gris-pierre);
+  margin-left: auto;
+}
+
+.modal-note-etoile {
+  color: var(--or);
+}
+
+.modal-nom {
+  font-family: var(--font-titre);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--noir);
+  line-height: 1.1;
+  margin-bottom: 0.4rem;
+}
+
+.modal-style {
+  font-family: var(--font-editorial);
+  font-size: 1.05rem;
+  font-style: italic;
+  color: var(--gris-pierre);
+  margin-bottom: 1.5rem;
+}
+
+.modal-separateur {
+  height: 1px;
+  background: linear-gradient(90deg, var(--or), transparent);
+  margin-bottom: 1.5rem;
+  opacity: 0.4;
+}
+
+.modal-accroche {
+  font-family: var(--font-editorial);
+  font-size: 1.25rem;
+  font-style: italic;
+  color: var(--brun-nuit);
+  line-height: 1.6;
+  margin-bottom: 1.2rem;
+}
+
+.modal-description {
+  font-family: var(--font-ui);
+  font-size: var(--t-base);
+  font-weight: 300;
+  color: var(--brun-nuit);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+
+/* ── EXPÉRIENCES ──────────────────────────────────────────── */
+.modal-experiences-titre {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--or);
+  margin-bottom: 1rem;
+}
+
+.modal-experiences {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+
+.modal-experience-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 300;
+  color: var(--brun-nuit);
+}
+
+.modal-experience-item::before {
+  content: "◆";
+  color: var(--or);
+  font-size: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* ── ÉQUIPEMENTS ──────────────────────────────────────────── */
+.modal-equipements {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.modal-equipement {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  color: var(--gris-pierre);
+}
+
+.modal-equipement.inclus {
+  color: var(--vert-lierre);
+}
+
+/* ── COLONNE DROITE — RÉSERVATION ─────────────────────────── */
+.modal-droite {
+}
+
+.modal-reservation {
+  position: sticky;
+  top: 4rem;
+  background: white;
+  border: 1px solid rgba(184, 150, 90, 0.2);
+  padding: 2rem;
+  box-shadow: var(--ombre-carte);
+}
+
+.modal-reservation-titre {
+  font-family: var(--font-titre);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--noir);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.modal-prix-bloc {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--creme-chaud);
+}
+
+.modal-prix-barre {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--gris-pierre);
+  text-decoration: line-through;
+  display: block;
+}
+
+.modal-prix {
+  font-family: var(--font-titre);
+  font-size: 2.8rem;
+  font-weight: 500;
+  color: var(--noir);
+  letter-spacing: 0.05em;
+  line-height: 1;
+  display: block;
+}
+
+.modal-prix-nuit {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  color: var(--gris-pierre);
+  letter-spacing: 0.15em;
+}
+
+.modal-economie {
+  display: inline-block;
+  margin-top: 0.6rem;
+  background: rgba(122, 44, 44, 0.08);
+  color: var(--rouge-velours);
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  padding: 0.3rem 0.8rem;
+  border-radius: 2px;
+}
+
+/* ── SÉLECTEURS DATE ──────────────────────────────────────── */
+.modal-champs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.modal-champ {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.modal-champ label {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gris-pierre);
+}
+
+.modal-champ input,
+.modal-champ select {
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--creme-chaud);
+  background: var(--blanc-casse);
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 300;
+  color: var(--noir);
+  outline: none;
+  transition: var(--transition);
+  border-radius: 2px;
+}
+
+.modal-champ input:focus,
+.modal-champ select:focus {
+  border-color: var(--or);
+}
+
+/* ── CTA RÉSERVATION ──────────────────────────────────────── */
+.modal-cta-reserver {
+  width: 100%;
+  padding: 1.1rem;
+  background: linear-gradient(135deg, var(--or) 0%, var(--or-clair) 100%);
+  color: var(--noir);
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  margin-bottom: 0.8rem;
+}
+
+.modal-cta-reserver:hover {
+  background: linear-gradient(135deg, var(--or-clair) 0%, var(--or) 100%);
+  transform: translateY(-1px);
+  box-shadow: var(--ombre-or);
+}
+
+.modal-cta-contact {
+  width: 100%;
+  padding: 0.9rem;
+  background: transparent;
+  color: var(--or);
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  border: 1px solid var(--or);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.modal-cta-contact:hover {
+  background: var(--or);
+  color: var(--noir);
+}
+
+.modal-garanties {
+  margin-top: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.modal-garantie {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: var(--gris-pierre);
+  letter-spacing: 0.05em;
+}
+
+.modal-garantie::before {
+  content: "✓";
+  color: var(--vert-lierre);
+  font-size: 0.7rem;
+}
+
+/* ── URGENCE ALERTE ───────────────────────────────────────── */
+.modal-urgence-alerte {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(122, 44, 44, 0.06);
+  border: 1px solid rgba(122, 44, 44, 0.2);
+  padding: 0.8rem 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.modal-urgence-alerte-texte {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: var(--rouge-velours);
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .modal-galerie {
+    grid-template-columns: 1fr;
+    height: 280px;
+  }
+
+  .modal-galerie-secondaires {
+    display: none;
+  }
+
+  .modal-corps {
+    grid-template-columns: 1fr;
+    padding: 1.5rem;
+    gap: 2rem;
+  }
+
+  .modal-reservation {
+    position: static;
+  }
+
+  .modal-experiences {
+    grid-template-columns: 1fr;
+  }
+}

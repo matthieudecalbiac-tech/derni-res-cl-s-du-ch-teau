@@ -1,0 +1,475 @@
+/* ============================================================
+   LES DERNIÈRES CLÉS DU CHÂTEAU
+   Système de design global — v1.0
+   ============================================================ */
+
+/* ── VARIABLES ─────────────────────────────────────────────── */
+:root {
+  /* Palette principale */
+  --noir: #0a0906;
+  --noir-doux: #1a1814;
+  --brun-nuit: #2c2520;
+  --or: #b8965a;
+  --or-clair: #d4af72;
+  --or-pale: #e8d5a3;
+  --creme: #f5f0e8;
+  --creme-chaud: #ede5d4;
+  --blanc-casse: #faf8f4;
+  --gris-pierre: #8a8278;
+  --gris-lin: #c4bdb3;
+  --rouge-velours: #7a2c2c;
+  --vert-lierre: #2d4a3e;
+
+  /* Typographie */
+  --font-titre: "Cinzel", serif;
+  --font-editorial: "Cormorant Garamond", serif;
+  --font-ui: "Jost", sans-serif;
+
+  /* Tailles typographiques */
+  --t-xs: 0.7rem;
+  --t-sm: 0.85rem;
+  --t-base: 1rem;
+  --t-md: 1.15rem;
+  --t-lg: 1.4rem;
+  --t-xl: 1.8rem;
+  --t-2xl: 2.4rem;
+  --t-3xl: 3.2rem;
+  --t-4xl: 4.5rem;
+  --t-5xl: 6rem;
+
+  /* Espacements */
+  --s-xs: 0.5rem;
+  --s-sm: 1rem;
+  --s-md: 2rem;
+  --s-lg: 4rem;
+  --s-xl: 7rem;
+  --s-2xl: 12rem;
+
+  /* Effets */
+  --ombre-carte: 0 8px 40px rgba(10, 9, 6, 0.18);
+  --ombre-forte: 0 20px 80px rgba(10, 9, 6, 0.35);
+  --ombre-or: 0 4px 24px rgba(184, 150, 90, 0.25);
+  --rayon-sm: 4px;
+  --rayon-md: 8px;
+  --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --transition-lente: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* ── RESET & BASE ───────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-weight: 300;
+  color: var(--noir);
+  background-color: var(--blanc-casse);
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  background: var(--creme-chaud);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+/* ── TYPOGRAPHIE GLOBALE ────────────────────────────────────── */
+.titre-cinzel {
+  font-family: var(--font-titre);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  line-height: 1.2;
+}
+
+.titre-cormorant {
+  font-family: var(--font-editorial);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.25;
+}
+
+.label-ui {
+  font-family: var(--font-ui);
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-size: var(--t-xs);
+}
+
+/* ── ORNEMENTS & SÉPARATEURS ────────────────────────────────── */
+.ornement {
+  display: flex;
+  align-items: center;
+  gap: var(--s-sm);
+  color: var(--or);
+}
+
+.ornement::before,
+.ornement::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--or), transparent);
+}
+
+.fleche-or {
+  color: var(--or);
+  font-size: var(--t-lg);
+  line-height: 1;
+}
+
+/* ── BOUTONS GLOBAUX ────────────────────────────────────────── */
+.btn-or {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-xs);
+  padding: 0.9rem 2.4rem;
+  background: linear-gradient(135deg, var(--or) 0%, var(--or-clair) 100%);
+  color: var(--noir);
+  font-family: var(--font-ui);
+  font-weight: 400;
+  font-size: var(--t-xs);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-or::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--or-clair) 0%, var(--or) 100%);
+  opacity: 0;
+  transition: var(--transition);
+}
+
+.btn-or:hover::before {
+  opacity: 1;
+}
+
+.btn-or span {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-contour {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-xs);
+  padding: 0.85rem 2.2rem;
+  background: transparent;
+  color: var(--or);
+  font-family: var(--font-ui);
+  font-weight: 300;
+  font-size: var(--t-xs);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  border: 1px solid var(--or);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-contour:hover {
+  background: var(--or);
+  color: var(--noir);
+}
+
+/* ── BADGES URGENCE ─────────────────────────────────────────── */
+.badge-urgence {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border-radius: 2px;
+}
+
+.badge-j15 {
+  background: rgba(45, 74, 62, 0.15);
+  color: var(--vert-lierre);
+  border: 1px solid rgba(45, 74, 62, 0.3);
+}
+
+.badge-j10 {
+  background: rgba(184, 150, 90, 0.15);
+  color: var(--or);
+  border: 1px solid rgba(184, 150, 90, 0.4);
+}
+
+.badge-j7 {
+  background: rgba(122, 44, 44, 0.12);
+  color: var(--rouge-velours);
+  border: 1px solid rgba(122, 44, 44, 0.3);
+}
+
+/* ── SECTIONS GLOBALES ──────────────────────────────────────── */
+.section {
+  padding: var(--s-xl) var(--s-md);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section-titre {
+  text-align: center;
+  margin-bottom: var(--s-lg);
+}
+
+.section-titre .sur-titre {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--or);
+  display: block;
+  margin-bottom: var(--s-sm);
+}
+
+.section-titre h2 {
+  font-family: var(--font-titre);
+  font-size: var(--t-3xl);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--noir);
+  margin-bottom: var(--s-sm);
+}
+
+.section-titre .sous-titre {
+  font-family: var(--font-editorial);
+  font-size: var(--t-lg);
+  font-style: italic;
+  color: var(--gris-pierre);
+  font-weight: 300;
+}
+
+/* ── SÉPARATEUR OR ──────────────────────────────────────────── */
+.separateur {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--or) 30%,
+    var(--or-clair) 50%,
+    var(--or) 70%,
+    transparent 100%
+  );
+  margin: var(--s-lg) 0;
+  position: relative;
+}
+
+.separateur::after {
+  content: "◆";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--or);
+  font-size: 0.6rem;
+  background: var(--blanc-casse);
+  padding: 0 0.5rem;
+}
+
+/* ── ANIMATIONS ─────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes pulse-or {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease both;
+}
+
+.delay-1 {
+  animation-delay: 0.1s;
+}
+.delay-2 {
+  animation-delay: 0.2s;
+}
+.delay-3 {
+  animation-delay: 0.3s;
+}
+.delay-4 {
+  animation-delay: 0.4s;
+}
+.delay-5 {
+  animation-delay: 0.6s;
+}
+
+/* ── TEXTURE DE FOND ────────────────────────────────────────── */
+.fond-texture {
+  background-color: var(--creme);
+  background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 40px,
+      rgba(184, 150, 90, 0.03) 40px,
+      rgba(184, 150, 90, 0.03) 41px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 40px,
+      rgba(184, 150, 90, 0.03) 40px,
+      rgba(184, 150, 90, 0.03) 41px
+    );
+}
+
+.fond-sombre {
+  background-color: var(--noir-doux);
+  color: var(--creme);
+}
+
+/* ── SCROLLBAR PERSONNALISÉE ────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--creme);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--or);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--or-clair);
+}
+
+/* ── SÉLECTION DE TEXTE ─────────────────────────────────────── */
+::selection {
+  background: var(--or);
+  color: var(--noir);
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --t-3xl: 2.2rem;
+    --t-4xl: 3rem;
+    --t-5xl: 3.8rem;
+    --s-xl: 4rem;
+    --s-2xl: 7rem;
+  }
+
+  .section {
+    padding: var(--s-lg) var(--s-sm);
+  }
+}
+
+/* ── CURSOR PERSONNALISÉ ────────────────────────────────────── */
+* {
+  cursor: default;
+}
+
+button,
+a,
+[onClick],
+.carte-chateau,
+.nav-lien,
+.filtre-pill,
+.footer-lien,
+.footer-reseau,
+.header-connexion,
+.hero-scroll {
+  cursor: pointer;
+}
+
+/* ── FOCUS VISIBLE ACCESSIBLE ───────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--or);
+  outline-offset: 3px;
+}
+
+/* ── SMOOTH TRANSITIONS GLOBALES ────────────────────────────── */
+.carte-chateau,
+.temoignage-carte,
+.modal,
+.filtre-pill,
+.btn-or,
+.btn-contour {
+  will-change: transform;
+}
+
+/* ── SÉPARATEUR DORÉ ENTRE SECTIONS ─────────────────────────── */
+.offres-section {
+  border-top: 1px solid rgba(184, 150, 90, 0.12);
+}
+
+.temoignages-section {
+  border-top: 1px solid rgba(184, 150, 90, 0.12);
+}

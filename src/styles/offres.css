@@ -1,0 +1,354 @@
+/* ============================================================
+   OFFRES URGENTES
+   ============================================================ */
+
+.offres-section {
+  background: var(--blanc-casse);
+  padding: var(--s-xl) 0;
+}
+
+.offres-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--s-md);
+}
+
+/* ── EN-TÊTE SECTION ──────────────────────────────────────── */
+.offres-entete {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: var(--s-lg);
+  gap: var(--s-md);
+}
+
+.offres-entete-gauche .sur-titre {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--or);
+  display: block;
+  margin-bottom: 0.6rem;
+}
+
+.offres-entete-gauche h2 {
+  font-family: var(--font-titre);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--noir);
+  line-height: 1.1;
+  margin-bottom: 0.8rem;
+}
+
+.offres-entete-gauche p {
+  font-family: var(--font-editorial);
+  font-size: var(--t-md);
+  font-style: italic;
+  color: var(--gris-pierre);
+  font-weight: 300;
+}
+
+.offres-entete-droite {
+  flex-shrink: 0;
+}
+
+/* ── FILTRES RAPIDES ──────────────────────────────────────── */
+.filtres-rapides {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: var(--s-lg);
+  flex-wrap: wrap;
+}
+
+.filtre-pill {
+  padding: 0.5rem 1.2rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: 1px solid var(--gris-lin);
+  color: var(--gris-pierre);
+  background: transparent;
+  cursor: pointer;
+  transition: var(--transition);
+  border-radius: 2px;
+}
+
+.filtre-pill:hover {
+  border-color: var(--or);
+  color: var(--or);
+}
+
+.filtre-pill.actif {
+  background: var(--or);
+  border-color: var(--or);
+  color: var(--noir);
+}
+
+/* ── GRILLE CARTES ────────────────────────────────────────── */
+.offres-grille {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+@media (max-width: 1100px) {
+  .offres-grille {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .offres-grille {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── CARTE CHÂTEAU ────────────────────────────────────────── */
+.carte-chateau {
+  background: white;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 20px rgba(10, 9, 6, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.carte-chateau:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--ombre-carte);
+}
+
+/* ── IMAGE CARTE ──────────────────────────────────────────── */
+.carte-image-wrapper {
+  position: relative;
+  height: 240px;
+  overflow: hidden;
+}
+
+.carte-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition-lente);
+}
+
+.carte-chateau:hover .carte-image {
+  transform: scale(1.06);
+}
+
+.carte-image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(10, 9, 6, 0.5) 0%, transparent 60%);
+}
+
+/* ── BADGES SUR IMAGE ─────────────────────────────────────── */
+.carte-badges {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.carte-reduction {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--rouge-velours);
+  color: white;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  padding: 0.3rem 0.6rem;
+  border-radius: 2px;
+}
+
+.carte-chambres {
+  position: absolute;
+  bottom: 1rem;
+  left: 1rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ── CONTENU CARTE ────────────────────────────────────────── */
+.carte-contenu {
+  padding: 1.5rem;
+}
+
+.carte-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.carte-region {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gris-pierre);
+}
+
+.carte-distance {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  color: var(--gris-pierre);
+}
+
+.carte-nom {
+  font-family: var(--font-titre);
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--noir);
+  margin-bottom: 0.4rem;
+  line-height: 1.2;
+}
+
+.carte-style {
+  font-family: var(--font-editorial);
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--gris-pierre);
+  margin-bottom: 0.8rem;
+}
+
+.carte-accroche {
+  font-family: var(--font-editorial);
+  font-size: 0.95rem;
+  color: var(--brun-nuit);
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  font-weight: 400;
+}
+
+/* ── TAGS ─────────────────────────────────────────────────── */
+.carte-tags {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.2rem;
+}
+
+.carte-tag {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--or);
+  border: 1px solid rgba(184, 150, 90, 0.3);
+  padding: 0.2rem 0.6rem;
+  border-radius: 2px;
+}
+
+/* ── SÉPARATEUR CARTE ─────────────────────────────────────── */
+.carte-separateur {
+  height: 1px;
+  background: linear-gradient(90deg, var(--or), transparent);
+  margin-bottom: 1.2rem;
+  opacity: 0.3;
+}
+
+/* ── PRIX & CTA ───────────────────────────────────────────── */
+.carte-pied {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.carte-prix-bloc {
+  display: flex;
+  flex-direction: column;
+}
+
+.carte-prix-barre {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  color: var(--gris-pierre);
+  text-decoration: line-through;
+}
+
+.carte-prix {
+  font-family: var(--font-titre);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--noir);
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.carte-prix-nuit {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  color: var(--gris-pierre);
+  letter-spacing: 0.1em;
+}
+
+.carte-note {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--gris-pierre);
+}
+
+.carte-note-etoile {
+  color: var(--or);
+}
+
+.carte-cta {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--noir);
+  background: linear-gradient(135deg, var(--or) 0%, var(--or-clair) 100%);
+  padding: 0.7rem 1.4rem;
+  transition: var(--transition);
+  border: none;
+  cursor: pointer;
+}
+
+.carte-cta:hover {
+  background: linear-gradient(135deg, var(--or-clair) 0%, var(--or) 100%);
+  transform: translateY(-1px);
+}
+
+/* ── BANDE URGENCE BAS DE CARTE ───────────────────────────── */
+.carte-urgence-bande {
+  height: 3px;
+  width: 100%;
+}
+
+.carte-urgence-bande.j7 {
+  background: linear-gradient(90deg, var(--rouge-velours), transparent);
+}
+
+.carte-urgence-bande.j10 {
+  background: linear-gradient(90deg, var(--or), transparent);
+}
+
+.carte-urgence-bande.j15 {
+  background: linear-gradient(90deg, var(--vert-lierre), transparent);
+}

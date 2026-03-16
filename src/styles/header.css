@@ -1,0 +1,177 @@
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: var(--transition);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.8rem 3rem;
+  transition: var(--transition);
+}
+
+/* Header transparent sur le Hero */
+.header--transparent .header-inner {
+  background: transparent;
+}
+
+/* Header solide au scroll */
+.header--solide .header-inner {
+  background: rgba(10, 9, 6, 0.96);
+  backdrop-filter: blur(12px);
+  padding: 1.2rem 3rem;
+  border-bottom: 1px solid rgba(184, 150, 90, 0.2);
+}
+
+/* ── LOGO ─────────────────────────────────────────────────── */
+.header-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  cursor: pointer;
+}
+
+.logo-principale {
+  font-family: var(--font-titre);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--or-clair);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.logo-secondaire {
+  font-family: var(--font-editorial);
+  font-size: 0.72rem;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--gris-lin);
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+}
+
+/* ── NAVIGATION ───────────────────────────────────────────── */
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 2.8rem;
+}
+
+.nav-lien {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gris-lin);
+  transition: var(--transition);
+  position: relative;
+  padding-bottom: 2px;
+}
+
+.nav-lien::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--or);
+  transition: var(--transition);
+}
+
+.nav-lien:hover {
+  color: var(--or-clair);
+}
+
+.nav-lien:hover::after {
+  width: 100%;
+}
+
+/* ── ACTIONS HEADER ───────────────────────────────────────── */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.header-cta {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 400;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--noir);
+  background: linear-gradient(135deg, var(--or) 0%, var(--or-clair) 100%);
+  padding: 0.65rem 1.6rem;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.header-cta:hover {
+  background: linear-gradient(135deg, var(--or-clair) 0%, var(--or) 100%);
+  transform: translateY(-1px);
+  box-shadow: var(--ombre-or);
+}
+
+.header-connexion {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gris-lin);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.header-connexion:hover {
+  color: var(--or-clair);
+}
+
+/* ── BURGER MOBILE ────────────────────────────────────────── */
+.header-burger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.header-burger span {
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--or);
+  transition: var(--transition);
+}
+
+@media (max-width: 900px) {
+  .header-nav {
+    display: none;
+  }
+
+  .header-burger {
+    display: flex;
+  }
+
+  .header-inner {
+    padding: 1.4rem 1.5rem;
+  }
+
+  .header--solide .header-inner {
+    padding: 1rem 1.5rem;
+  }
+}

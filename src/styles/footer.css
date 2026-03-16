@@ -1,0 +1,222 @@
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+.footer {
+  background: var(--noir);
+  border-top: 1px solid rgba(184, 150, 90, 0.15);
+  padding-top: var(--s-lg);
+}
+
+/* ── CORPS FOOTER ─────────────────────────────────────────── */
+.footer-corps {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--s-md) var(--s-lg);
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 3rem;
+}
+
+/* ── COLONNE MARQUE ───────────────────────────────────────── */
+.footer-marque {
+}
+
+.footer-logo {
+  margin-bottom: 1.5rem;
+}
+
+.footer-logo-principale {
+  font-family: var(--font-titre);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--or-clair);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.footer-logo-secondaire {
+  font-family: var(--font-editorial);
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--gris-pierre);
+  letter-spacing: 0.08em;
+}
+
+.footer-manifeste {
+  font-family: var(--font-editorial);
+  font-size: 0.95rem;
+  font-style: italic;
+  color: var(--gris-pierre);
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  font-weight: 300;
+}
+
+.footer-reseaux {
+  display: flex;
+  gap: 0.8rem;
+}
+
+.footer-reseau {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(184, 150, 90, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  color: var(--gris-pierre);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.footer-reseau:hover {
+  border-color: var(--or);
+  color: var(--or);
+  background: rgba(184, 150, 90, 0.08);
+}
+
+/* ── COLONNES LIENS ───────────────────────────────────────── */
+.footer-colonne {
+}
+
+.footer-colonne-titre {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--or);
+  display: block;
+  margin-bottom: 1.2rem;
+}
+
+.footer-liens {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.footer-lien {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 300;
+  color: var(--gris-pierre);
+  cursor: pointer;
+  transition: var(--transition);
+  letter-spacing: 0.05em;
+}
+
+.footer-lien:hover {
+  color: var(--or-clair);
+  padding-left: 0.3rem;
+}
+
+/* ── SÉPARATEUR ───────────────────────────────────────────── */
+.footer-separateur {
+  max-width: 1400px;
+  margin: 0 auto;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(184, 150, 90, 0.2) 20%,
+    rgba(184, 150, 90, 0.2) 80%,
+    transparent
+  );
+}
+
+/* ── BAS DE FOOTER ────────────────────────────────────────── */
+.footer-bas {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem var(--s-md);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footer-copyright {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  color: var(--gris-pierre);
+  opacity: 0.6;
+  letter-spacing: 0.1em;
+}
+
+.footer-mentions {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.footer-mention {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  color: var(--gris-pierre);
+  opacity: 0.6;
+  cursor: pointer;
+  letter-spacing: 0.08em;
+  transition: var(--transition);
+}
+
+.footer-mention:hover {
+  opacity: 1;
+  color: var(--or);
+}
+
+.footer-signature {
+  font-family: var(--font-editorial);
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--or);
+  opacity: 0.5;
+}
+
+/* ── BANDE OR TOUT EN BAS ─────────────────────────────────── */
+.footer-bande {
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--or) 30%,
+    var(--or-clair) 50%,
+    var(--or) 70%,
+    transparent
+  );
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .footer-corps {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  .footer-marque {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 540px) {
+  .footer-corps {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-bas {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .footer-mentions {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+}
