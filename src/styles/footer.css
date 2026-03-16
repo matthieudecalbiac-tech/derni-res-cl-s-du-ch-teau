@@ -1,14 +1,14 @@
 /* ============================================================
-   FOOTER
+   FOOTER v2.1 — Brun très sombre chaud
    ============================================================ */
 
 .footer {
-  background: var(--noir);
-  border-top: 1px solid rgba(184, 150, 90, 0.15);
+  background: #0e0c08;
+  border-top: 1px solid rgba(196, 146, 74, 0.12);
   padding-top: var(--s-lg);
 }
 
-/* ── CORPS FOOTER ─────────────────────────────────────────── */
+/* ── CORPS ────────────────────────────────────────────────── */
 .footer-corps {
   max-width: 1400px;
   margin: 0 auto;
@@ -19,18 +19,15 @@
 }
 
 /* ── COLONNE MARQUE ───────────────────────────────────────── */
-.footer-marque {
-}
-
 .footer-logo {
   margin-bottom: 1.5rem;
 }
 
 .footer-logo-principale {
   font-family: var(--font-titre);
-  font-size: 1rem;
+  font-size: 0.85rem;
   font-weight: 600;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--or-clair);
   display: block;
@@ -39,17 +36,17 @@
 
 .footer-logo-secondaire {
   font-family: var(--font-editorial);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-style: italic;
-  color: var(--gris-pierre);
+  color: var(--gris-fonce);
   letter-spacing: 0.08em;
 }
 
 .footer-manifeste {
   font-family: var(--font-editorial);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   font-style: italic;
-  color: var(--gris-pierre);
+  color: var(--gris-fonce);
   line-height: 1.8;
   margin-bottom: 1.5rem;
   font-weight: 300;
@@ -57,18 +54,18 @@
 
 .footer-reseaux {
   display: flex;
-  gap: 0.8rem;
+  gap: 0.6rem;
 }
 
 .footer-reseau {
-  width: 36px;
-  height: 36px;
-  border: 1px solid rgba(184, 150, 90, 0.25);
+  width: 32px;
+  height: 32px;
+  border: 1px solid rgba(196, 146, 74, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
-  color: var(--gris-pierre);
+  font-size: 0.75rem;
+  color: var(--gris-fonce);
   cursor: pointer;
   transition: var(--transition);
 }
@@ -76,18 +73,15 @@
 .footer-reseau:hover {
   border-color: var(--or);
   color: var(--or);
-  background: rgba(184, 150, 90, 0.08);
+  background: rgba(196, 146, 74, 0.06);
 }
 
 /* ── COLONNES LIENS ───────────────────────────────────────── */
-.footer-colonne {
-}
-
 .footer-colonne-titre {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.6rem;
   font-weight: 400;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--or);
   display: block;
@@ -97,14 +91,14 @@
 .footer-liens {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.65rem;
 }
 
 .footer-lien {
   font-family: var(--font-ui);
   font-size: var(--t-sm);
   font-weight: 300;
-  color: var(--gris-pierre);
+  color: var(--gris-fonce);
   cursor: pointer;
   transition: var(--transition);
   letter-spacing: 0.05em;
@@ -123,8 +117,8 @@
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(184, 150, 90, 0.2) 20%,
-    rgba(184, 150, 90, 0.2) 80%,
+    rgba(196, 146, 74, 0.15) 20%,
+    rgba(196, 146, 74, 0.15) 80%,
     transparent
   );
 }
@@ -133,20 +127,19 @@
 .footer-bas {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 1.5rem var(--s-md);
+  padding: 1.4rem var(--s-md);
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.8rem;
 }
 
 .footer-copyright {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.6rem;
   font-weight: 300;
-  color: var(--gris-pierre);
-  opacity: 0.6;
+  color: rgba(106, 94, 80, 0.5);
   letter-spacing: 0.1em;
 }
 
@@ -157,31 +150,28 @@
 
 .footer-mention {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.6rem;
   font-weight: 300;
-  color: var(--gris-pierre);
-  opacity: 0.6;
+  color: rgba(106, 94, 80, 0.45);
   cursor: pointer;
   letter-spacing: 0.08em;
   transition: var(--transition);
 }
 
 .footer-mention:hover {
-  opacity: 1;
   color: var(--or);
 }
 
 .footer-signature {
   font-family: var(--font-editorial);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-style: italic;
-  color: var(--or);
-  opacity: 0.5;
+  color: rgba(196, 146, 74, 0.3);
 }
 
-/* ── BANDE OR TOUT EN BAS ─────────────────────────────────── */
+/* ── BANDE OR ─────────────────────────────────────────────── */
 .footer-bande {
-  height: 3px;
+  height: 2px;
   background: linear-gradient(
     90deg,
     transparent,
@@ -198,7 +188,6 @@
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
   }
-
   .footer-marque {
     grid-column: 1 / -1;
   }
@@ -208,13 +197,10 @@
   .footer-corps {
     grid-template-columns: 1fr;
   }
-
   .footer-bas {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.6rem;
   }
-
   .footer-mentions {
     flex-wrap: wrap;
     gap: 1rem;

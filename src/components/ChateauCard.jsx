@@ -17,10 +17,8 @@ export default function ChateauCard({ chateau, onClick }) {
 
   return (
     <article className="carte-chateau" onClick={onClick}>
-      {/* Bande urgence haut */}
       <div className={`carte-urgence-bande ${classeBande}`} />
 
-      {/* Image */}
       <div className="carte-image-wrapper">
         <img
           className="carte-image"
@@ -29,18 +27,12 @@ export default function ChateauCard({ chateau, onClick }) {
           loading="lazy"
         />
         <div className="carte-image-overlay" />
-
-        {/* Badges */}
         <div className="carte-badges">
           <span className={`badge-urgence ${classBadge}`}>
             ◆ {chateau.urgence}
           </span>
         </div>
-
-        {/* Réduction */}
         <span className="carte-reduction">−{chateau.reduction}%</span>
-
-        {/* Chambres restantes */}
         <span className="carte-chambres">
           {chateau.chambresRestantes} chambre
           {chateau.chambresRestantes > 1 ? "s" : ""} restante
@@ -48,7 +40,6 @@ export default function ChateauCard({ chateau, onClick }) {
         </span>
       </div>
 
-      {/* Contenu */}
       <div className="carte-contenu">
         <div className="carte-meta">
           <span className="carte-region">{chateau.region}</span>
@@ -61,7 +52,6 @@ export default function ChateauCard({ chateau, onClick }) {
         </p>
         <p className="carte-accroche">{chateau.accroche}</p>
 
-        {/* Tags */}
         <div className="carte-tags">
           {chateau.tags.map((tag) => (
             <span key={tag} className="carte-tag">
@@ -72,26 +62,24 @@ export default function ChateauCard({ chateau, onClick }) {
 
         <div className="carte-separateur" />
 
-        {/* Pied de carte */}
         <div className="carte-pied">
           <div className="carte-prix-bloc">
             <span className="carte-prix-barre">{chateau.prixBarre} €</span>
             <span className="carte-prix">{chateau.prix} €</span>
             <span className="carte-prix-nuit">/ nuit</span>
           </div>
-
           <div
             style={{
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-end",
-              gap: "0.5rem",
+              gap: "0.4rem",
             }}
           >
             <div className="carte-note">
               <span className="carte-note-etoile">★</span>
               <span>
-                {chateau.noteSur5} ({chateau.nbAvis} avis)
+                {chateau.noteSur5} ({chateau.nbAvis})
               </span>
             </div>
             <button className="carte-cta">Découvrir</button>

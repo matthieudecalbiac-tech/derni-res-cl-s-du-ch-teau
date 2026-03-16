@@ -7,23 +7,21 @@ export default function Hero() {
 
   return (
     <section className="hero">
-      {/* Image de fond */}
-      <div className="hero-bg" />
+      <div className="hero-motif" />
 
-      {/* Overlays */}
-      <div className="hero-overlay-haut" />
-      <div className="hero-overlay-bas" />
+      {/* Cadre décoratif */}
+      <div className="hero-cadre">
+        <div className="hero-cadre-coin-bd" />
+        <div className="hero-cadre-coin-bg" />
+      </div>
 
-      {/* Contenu central */}
       <div className="hero-contenu">
         <span className="hero-sur-titre">
-          Échappées aristocratiques · Dernière minute
+          Club privé · Dernière minute · Châteaux de France
         </span>
 
-        <h1 className="hero-titre">
-          La vie de château
-          <em>vous attend ce week-end</em>
-        </h1>
+        <span className="hero-titre-ligne1">La vie de château</span>
+        <span className="hero-titre-ligne2">vous attend ce week-end</span>
 
         <div className="hero-ornement">
           <div className="hero-ornement-ligne" />
@@ -32,9 +30,8 @@ export default function Hero() {
         </div>
 
         <p className="hero-accroche">
-          Quittez Paris. Prenez la route. Arrivez dans un domaine chargé
-          d'histoire. Des chambres d'exception à saisir dans les 15 jours, dans
-          les plus beaux châteaux à moins de 3 heures de la capitale.
+          Des chambres d'exception à saisir dans les 15 jours, dans les plus
+          beaux châteaux à moins de 3 heures de Paris.
         </p>
 
         <div className="hero-actions">
@@ -47,19 +44,16 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Indicateur scroll */}
       <div className="hero-scroll" onClick={scrollVersOffres}>
         <span className="hero-scroll-label">Découvrir</span>
         <div className="hero-scroll-ligne" />
       </div>
 
-      {/* Stats coin droit */}
       <div className="hero-stats">
         <span className="hero-stats-nombre">24</span>
         <span className="hero-stats-label">Châteaux partenaires</span>
       </div>
 
-      {/* Régions coin gauche */}
       <div className="hero-regions">
         <span className="hero-region-tag">Île-de-France</span>
         <span className="hero-region-tag">Normandie</span>

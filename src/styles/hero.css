@@ -1,131 +1,146 @@
 /* ============================================================
-   HERO
+   HERO v2.1 — Fond brun chaud rayonnant
    ============================================================ */
 
 .hero {
   position: relative;
   height: 100vh;
-  min-height: 700px;
+  min-height: 680px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: var(--noir);
+  background: var(--noir-doux);
 }
 
-/* ── IMAGE DE FOND ────────────────────────────────────────── */
-.hero-bg {
+/* ── MOTIF DE FOND ────────────────────────────────────────── */
+.hero-motif {
   position: absolute;
   inset: 0;
-  background-image: url("https://images.unsplash.com/photo-1548267245-9c5f2e2c28b2?w=1920&q=80&auto=format&fit=crop");
-  background-size: cover;
-  background-position: center 30%;
-  opacity: 0.55;
-  transform: scale(1.05);
-  animation: hero-zoom 18s ease-out forwards;
+  background-image: radial-gradient(
+      ellipse 80% 60% at 50% 50%,
+      rgba(196, 146, 74, 0.1) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      ellipse 40% 30% at 20% 80%,
+      rgba(196, 146, 74, 0.05) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 40% 30% at 80% 20%,
+      rgba(196, 146, 74, 0.05) 0%,
+      transparent 60%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 70px,
+      rgba(196, 146, 74, 0.03) 70px,
+      rgba(196, 146, 74, 0.03) 71px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 70px,
+      rgba(196, 146, 74, 0.03) 70px,
+      rgba(196, 146, 74, 0.03) 71px
+    );
 }
 
-@keyframes hero-zoom {
-  from {
-    transform: scale(1.05);
-  }
-  to {
-    transform: scale(1);
-  }
-}
-
-/* ── DÉGRADÉS OVERLAY ─────────────────────────────────────── */
-.hero-overlay-bas {
+/* ── CADRE INTÉRIEUR ──────────────────────────────────────── */
+.hero-cadre {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 45%;
-  background: linear-gradient(to top, var(--noir) 0%, transparent 100%);
+  inset: 2.5rem;
+  border: 1px solid rgba(196, 146, 74, 0.12);
+  pointer-events: none;
 }
 
-.hero-overlay-haut {
+.hero-cadre::before,
+.hero-cadre::after,
+.hero-cadre-coin-bd::before,
+.hero-cadre-coin-bg::before {
+  content: "◆";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 30%;
-  background: linear-gradient(
-    to bottom,
-    rgba(10, 9, 6, 0.5) 0%,
-    transparent 100%
-  );
+  color: var(--or);
+  font-size: 0.45rem;
+  line-height: 1;
 }
 
-/* ── CONTENU HERO ─────────────────────────────────────────── */
+.hero-cadre::before {
+  top: -0.3rem;
+  left: -0.3rem;
+}
+.hero-cadre::after {
+  top: -0.3rem;
+  right: -0.3rem;
+}
+.hero-cadre-coin-bd::before {
+  bottom: -0.3rem;
+  right: -0.3rem;
+}
+.hero-cadre-coin-bg::before {
+  bottom: -0.3rem;
+  left: -0.3rem;
+}
+
+/* ── CONTENU ──────────────────────────────────────────────── */
 .hero-contenu {
   position: relative;
   z-index: 2;
   text-align: center;
-  color: var(--blanc-casse);
-  max-width: 900px;
+  max-width: 860px;
   padding: 0 var(--s-md);
 }
 
 .hero-sur-titre {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.6rem;
   font-weight: 300;
-  letter-spacing: 0.5em;
+  letter-spacing: 0.55em;
   text-transform: uppercase;
   color: var(--or);
   display: block;
-  margin-bottom: 1.8rem;
+  margin-bottom: 2rem;
   animation: fadeInUp 1s 0.3s both;
 }
 
-.hero-titre {
+.hero-titre-ligne1 {
   font-family: var(--font-titre);
-  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-size: clamp(2.5rem, 5.5vw, 5rem);
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  line-height: 1.1;
   color: var(--blanc-casse);
-  margin-bottom: 1.5rem;
+  line-height: 1.05;
+  display: block;
   animation: fadeInUp 1s 0.5s both;
 }
 
-.hero-titre em {
+.hero-titre-ligne2 {
   font-family: var(--font-editorial);
-  font-style: italic;
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
   font-weight: 300;
-  font-size: 1.1em;
-  color: var(--or-pale);
-  letter-spacing: 0.05em;
-  text-transform: none;
+  font-style: italic;
+  color: var(--or-clair);
+  letter-spacing: 0.04em;
   display: block;
+  line-height: 1.1;
+  margin-bottom: 2rem;
+  animation: fadeInUp 1s 0.6s both;
 }
 
-.hero-accroche {
-  font-family: var(--font-editorial);
-  font-size: clamp(1.1rem, 2vw, 1.45rem);
-  font-weight: 300;
-  font-style: italic;
-  color: var(--gris-lin);
-  line-height: 1.7;
-  max-width: 640px;
-  margin: 0 auto 2.5rem;
-  animation: fadeInUp 1s 0.7s both;
-}
-
-/* ── ORNEMENT CENTRAL ─────────────────────────────────────── */
 .hero-ornement {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  margin-bottom: 2.5rem;
-  animation: fadeInUp 1s 0.6s both;
+  gap: 1.2rem;
+  margin-bottom: 2rem;
+  animation: fadeInUp 1s 0.65s both;
 }
 
 .hero-ornement-ligne {
-  width: 60px;
+  width: 90px;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--or));
 }
@@ -136,20 +151,31 @@
 
 .hero-ornement-losange {
   color: var(--or);
-  font-size: 0.5rem;
+  font-size: 0.45rem;
 }
 
-/* ── ACTIONS HERO ─────────────────────────────────────────── */
+.hero-accroche {
+  font-family: var(--font-editorial);
+  font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--gris-lin);
+  line-height: 1.7;
+  max-width: 600px;
+  margin: 0 auto 2.8rem;
+  animation: fadeInUp 1s 0.8s both;
+}
+
 .hero-actions {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1.5rem;
+  gap: 1.2rem;
   flex-wrap: wrap;
-  animation: fadeInUp 1s 0.9s both;
+  animation: fadeInUp 1s 1s both;
 }
 
-/* ── SCROLL INDICATOR ─────────────────────────────────────── */
+/* ── SCROLL ───────────────────────────────────────────────── */
 .hero-scroll {
   position: absolute;
   bottom: 2.5rem;
@@ -159,22 +185,22 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   animation: fadeIn 1s 1.5s both;
   cursor: pointer;
 }
 
 .hero-scroll-label {
   font-family: var(--font-ui);
-  font-size: 0.6rem;
-  letter-spacing: 0.4em;
+  font-size: 0.55rem;
+  letter-spacing: 0.45em;
   text-transform: uppercase;
-  color: var(--gris-lin);
+  color: var(--gris-fonce);
 }
 
 .hero-scroll-ligne {
   width: 1px;
-  height: 40px;
+  height: 42px;
   background: linear-gradient(to bottom, var(--or), transparent);
   animation: scroll-pulse 2s ease-in-out infinite;
 }
@@ -186,24 +212,24 @@
     transform: scaleY(1);
   }
   50% {
-    opacity: 0.4;
-    transform: scaleY(0.7);
+    opacity: 0.3;
+    transform: scaleY(0.6);
   }
 }
 
-/* ── COMPTEUR OFFRES ──────────────────────────────────────── */
+/* ── STATS COINS ──────────────────────────────────────────── */
 .hero-stats {
   position: absolute;
   bottom: 3rem;
-  right: 3rem;
+  right: 3.5rem;
   z-index: 2;
   text-align: right;
-  animation: fadeIn 1s 1.2s both;
+  animation: fadeIn 1s 1.3s both;
 }
 
 .hero-stats-nombre {
   font-family: var(--font-titre);
-  font-size: 2.8rem;
+  font-size: 2.4rem;
   font-weight: 600;
   color: var(--or);
   line-height: 1;
@@ -212,30 +238,29 @@
 
 .hero-stats-label {
   font-family: var(--font-ui);
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: var(--gris-lin);
+  color: var(--gris-fonce);
 }
 
-/* ── RÉGION TAGS ──────────────────────────────────────────── */
 .hero-regions {
   position: absolute;
   bottom: 3rem;
-  left: 3rem;
+  left: 3.5rem;
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  animation: fadeIn 1s 1.2s both;
+  gap: 0.45rem;
+  animation: fadeIn 1s 1.3s both;
 }
 
 .hero-region-tag {
   font-family: var(--font-ui);
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--gris-lin);
+  color: var(--gris-fonce);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -243,19 +268,19 @@
 
 .hero-region-tag::before {
   content: "";
-  width: 20px;
+  width: 16px;
   height: 1px;
   background: var(--or);
+  opacity: 0.5;
 }
 
 @media (max-width: 768px) {
   .hero-stats,
-  .hero-regions {
+  .hero-regions,
+  .hero-cadre {
     display: none;
   }
-
   .hero-actions {
     flex-direction: column;
-    align-items: center;
   }
 }

@@ -1,31 +1,31 @@
 /* ============================================================
-   LES DERNIÈRES CLÉS DU CHÂTEAU
-   Système de design global — v1.0
+   LES DERNIÈRES CLÉS DU CHÂTEAU — Design v2.1
+   Chaud · Or ambré · Aristocratique français
    ============================================================ */
 
-/* ── VARIABLES ─────────────────────────────────────────────── */
 :root {
-  /* Palette principale */
-  --noir: #0a0906;
-  --noir-doux: #1a1814;
-  --brun-nuit: #2c2520;
-  --or: #b8965a;
-  --or-clair: #d4af72;
-  --or-pale: #e8d5a3;
-  --creme: #f5f0e8;
-  --creme-chaud: #ede5d4;
-  --blanc-casse: #faf8f4;
-  --gris-pierre: #8a8278;
-  --gris-lin: #c4bdb3;
-  --rouge-velours: #7a2c2c;
+  --noir: #12100e;
+  --noir-doux: #1a1710;
+  --noir-carte: #211e16;
+  --brun-nuit: #2d2618;
+  --or: #c4924a;
+  --or-clair: #ddb96a;
+  --or-pale: #edd99a;
+  --or-sombre: #9a6e32;
+  --creme: #f7f2e8;
+  --creme-chaud: #ede0c4;
+  --blanc-casse: #faf6ee;
+  --gris-pierre: #a89880;
+  --gris-lin: #cfc4b0;
+  --gris-fonce: #6a5e50;
+  --rouge-velours: #8a3030;
   --vert-lierre: #2d4a3e;
+  --bleu-royal: #1a2d5a;
 
-  /* Typographie */
   --font-titre: "Cinzel", serif;
   --font-editorial: "Cormorant Garamond", serif;
   --font-ui: "Jost", sans-serif;
 
-  /* Tailles typographiques */
   --t-xs: 0.7rem;
   --t-sm: 0.85rem;
   --t-base: 1rem;
@@ -37,7 +37,6 @@
   --t-4xl: 4.5rem;
   --t-5xl: 6rem;
 
-  /* Espacements */
   --s-xs: 0.5rem;
   --s-sm: 1rem;
   --s-md: 2rem;
@@ -45,17 +44,14 @@
   --s-xl: 7rem;
   --s-2xl: 12rem;
 
-  /* Effets */
-  --ombre-carte: 0 8px 40px rgba(10, 9, 6, 0.18);
-  --ombre-forte: 0 20px 80px rgba(10, 9, 6, 0.35);
-  --ombre-or: 0 4px 24px rgba(184, 150, 90, 0.25);
-  --rayon-sm: 4px;
-  --rayon-md: 8px;
+  --ombre-carte: 0 8px 40px rgba(0, 0, 0, 0.4);
+  --ombre-forte: 0 20px 80px rgba(0, 0, 0, 0.6);
+  --ombre-or: 0 4px 28px rgba(196, 146, 74, 0.35);
+  --ombre-chaude: 0 8px 40px rgba(196, 146, 74, 0.12);
   --transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --transition-lente: all 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-/* ── RESET & BASE ───────────────────────────────────────────── */
 *,
 *::before,
 *::after {
@@ -74,8 +70,8 @@ html {
 body {
   font-family: var(--font-ui);
   font-weight: 300;
-  color: var(--noir);
-  background-color: var(--blanc-casse);
+  color: var(--blanc-casse);
+  background-color: var(--noir-doux);
   line-height: 1.7;
   overflow-x: hidden;
 }
@@ -83,7 +79,7 @@ body {
 img {
   display: block;
   max-width: 100%;
-  background: var(--creme-chaud);
+  background: var(--brun-nuit);
 }
 
 a {
@@ -98,53 +94,7 @@ button {
   font-family: inherit;
 }
 
-/* ── TYPOGRAPHIE GLOBALE ────────────────────────────────────── */
-.titre-cinzel {
-  font-family: var(--font-titre);
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  line-height: 1.2;
-}
-
-.titre-cormorant {
-  font-family: var(--font-editorial);
-  font-weight: 400;
-  font-style: italic;
-  line-height: 1.25;
-}
-
-.label-ui {
-  font-family: var(--font-ui);
-  font-weight: 300;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  font-size: var(--t-xs);
-}
-
-/* ── ORNEMENTS & SÉPARATEURS ────────────────────────────────── */
-.ornement {
-  display: flex;
-  align-items: center;
-  gap: var(--s-sm);
-  color: var(--or);
-}
-
-.ornement::before,
-.ornement::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--or), transparent);
-}
-
-.fleche-or {
-  color: var(--or);
-  font-size: var(--t-lg);
-  line-height: 1;
-}
-
-/* ── BOUTONS GLOBAUX ────────────────────────────────────────── */
+/* ── BOUTONS ────────────────────────────────────────────────── */
 .btn-or {
   display: inline-flex;
   align-items: center;
@@ -155,7 +105,7 @@ button {
   font-family: var(--font-ui);
   font-weight: 400;
   font-size: var(--t-xs);
-  letter-spacing: 0.25em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   border: none;
   cursor: pointer;
@@ -176,7 +126,6 @@ button {
 .btn-or:hover::before {
   opacity: 1;
 }
-
 .btn-or span {
   position: relative;
   z-index: 1;
@@ -192,9 +141,9 @@ button {
   font-family: var(--font-ui);
   font-weight: 300;
   font-size: var(--t-xs);
-  letter-spacing: 0.25em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  border: 1px solid var(--or);
+  border: 1px solid rgba(196, 146, 74, 0.5);
   cursor: pointer;
   transition: var(--transition);
 }
@@ -202,105 +151,64 @@ button {
 .btn-contour:hover {
   background: var(--or);
   color: var(--noir);
+  border-color: var(--or);
 }
 
-/* ── BADGES URGENCE ─────────────────────────────────────────── */
+/* ── BADGES ─────────────────────────────────────────────────── */
 .badge-urgence {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.3rem 0.8rem;
+  padding: 0.28rem 0.7rem;
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.58rem;
   font-weight: 400;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  border-radius: 2px;
+  border-radius: 1px;
 }
 
 .badge-j15 {
-  background: rgba(45, 74, 62, 0.15);
-  color: var(--vert-lierre);
-  border: 1px solid rgba(45, 74, 62, 0.3);
+  background: rgba(45, 74, 62, 0.3);
+  color: #7ab89a;
+  border: 1px solid rgba(45, 74, 62, 0.5);
 }
 
 .badge-j10 {
-  background: rgba(184, 150, 90, 0.15);
-  color: var(--or);
-  border: 1px solid rgba(184, 150, 90, 0.4);
+  background: rgba(196, 146, 74, 0.15);
+  color: var(--or-clair);
+  border: 1px solid rgba(196, 146, 74, 0.4);
 }
 
 .badge-j7 {
-  background: rgba(122, 44, 44, 0.12);
-  color: var(--rouge-velours);
-  border: 1px solid rgba(122, 44, 44, 0.3);
-}
-
-/* ── SECTIONS GLOBALES ──────────────────────────────────────── */
-.section {
-  padding: var(--s-xl) var(--s-md);
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.section-titre {
-  text-align: center;
-  margin-bottom: var(--s-lg);
-}
-
-.section-titre .sur-titre {
-  font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  color: var(--or);
-  display: block;
-  margin-bottom: var(--s-sm);
-}
-
-.section-titre h2 {
-  font-family: var(--font-titre);
-  font-size: var(--t-3xl);
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--noir);
-  margin-bottom: var(--s-sm);
-}
-
-.section-titre .sous-titre {
-  font-family: var(--font-editorial);
-  font-size: var(--t-lg);
-  font-style: italic;
-  color: var(--gris-pierre);
-  font-weight: 300;
+  background: rgba(138, 48, 48, 0.5);
+  color: #f5c4c4;
+  border: 1px solid rgba(138, 48, 48, 0.6);
 }
 
 /* ── SÉPARATEUR OR ──────────────────────────────────────────── */
-.separateur {
-  width: 100%;
+.separateur-or {
   height: 1px;
   background: linear-gradient(
     90deg,
-    transparent 0%,
+    transparent,
     var(--or) 30%,
     var(--or-clair) 50%,
     var(--or) 70%,
-    transparent 100%
+    transparent
   );
-  margin: var(--s-lg) 0;
   position: relative;
 }
 
-.separateur::after {
+.separateur-or::after {
   content: "◆";
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   color: var(--or);
-  font-size: 0.6rem;
-  background: var(--blanc-casse);
+  font-size: 0.5rem;
+  background: var(--noir-doux);
   padding: 0 0.5rem;
 }
 
@@ -325,22 +233,12 @@ button {
   }
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
+@keyframes tickerScroll {
+  from {
+    transform: translateX(0);
   }
-  100% {
-    background-position: 200% center;
-  }
-}
-
-@keyframes pulse-or {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
+  to {
+    transform: translateX(-50%);
   }
 }
 
@@ -352,92 +250,37 @@ button {
   animation: fadeIn 0.6s ease both;
 }
 
-.delay-1 {
-  animation-delay: 0.1s;
-}
-.delay-2 {
-  animation-delay: 0.2s;
-}
-.delay-3 {
-  animation-delay: 0.3s;
-}
-.delay-4 {
-  animation-delay: 0.4s;
-}
-.delay-5 {
-  animation-delay: 0.6s;
-}
-
-/* ── TEXTURE DE FOND ────────────────────────────────────────── */
-.fond-texture {
-  background-color: var(--creme);
-  background-image: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 40px,
-      rgba(184, 150, 90, 0.03) 40px,
-      rgba(184, 150, 90, 0.03) 41px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 40px,
-      rgba(184, 150, 90, 0.03) 40px,
-      rgba(184, 150, 90, 0.03) 41px
-    );
-}
-
-.fond-sombre {
-  background-color: var(--noir-doux);
-  color: var(--creme);
-}
-
-/* ── SCROLLBAR PERSONNALISÉE ────────────────────────────────── */
+/* ── SCROLLBAR ──────────────────────────────────────────────── */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
-
 ::-webkit-scrollbar-track {
-  background: var(--creme);
+  background: var(--noir-doux);
 }
-
 ::-webkit-scrollbar-thumb {
-  background: var(--or);
-  border-radius: 3px;
+  background: var(--or-sombre);
+  border-radius: 2px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--or-clair);
+  background: var(--or);
 }
 
-/* ── SÉLECTION DE TEXTE ─────────────────────────────────────── */
 ::selection {
   background: var(--or);
   color: var(--noir);
 }
 
-/* ── RESPONSIVE ─────────────────────────────────────────────── */
-@media (max-width: 768px) {
-  :root {
-    --t-3xl: 2.2rem;
-    --t-4xl: 3rem;
-    --t-5xl: 3.8rem;
-    --s-xl: 4rem;
-    --s-2xl: 7rem;
-  }
-
-  .section {
-    padding: var(--s-lg) var(--s-sm);
-  }
+/* ── FOCUS ──────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 1px solid var(--or);
+  outline-offset: 3px;
 }
 
-/* ── CURSOR PERSONNALISÉ ────────────────────────────────────── */
+/* ── CURSOR ─────────────────────────────────────────────────── */
 * {
   cursor: default;
 }
-
 button,
-a,
 [onClick],
 .carte-chateau,
 .nav-lien,
@@ -449,27 +292,11 @@ a,
   cursor: pointer;
 }
 
-/* ── FOCUS VISIBLE ACCESSIBLE ───────────────────────────────── */
-:focus-visible {
-  outline: 2px solid var(--or);
-  outline-offset: 3px;
-}
-
-/* ── SMOOTH TRANSITIONS GLOBALES ────────────────────────────── */
-.carte-chateau,
-.temoignage-carte,
-.modal,
-.filtre-pill,
-.btn-or,
-.btn-contour {
-  will-change: transform;
-}
-
-/* ── SÉPARATEUR DORÉ ENTRE SECTIONS ─────────────────────────── */
-.offres-section {
-  border-top: 1px solid rgba(184, 150, 90, 0.12);
-}
-
-.temoignages-section {
-  border-top: 1px solid rgba(184, 150, 90, 0.12);
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  :root {
+    --t-3xl: 2rem;
+    --t-4xl: 2.8rem;
+    --s-xl: 4rem;
+  }
 }

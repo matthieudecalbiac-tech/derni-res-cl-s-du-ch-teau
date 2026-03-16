@@ -1,9 +1,78 @@
 /* ============================================================
-   OFFRES URGENTES
+   OFFRES v2.1 — Brun chaud, grille asymétrique
    ============================================================ */
 
+/* ── TICKER ───────────────────────────────────────────────── */
+.ticker-section {
+  background: linear-gradient(
+    135deg,
+    var(--or) 0%,
+    var(--or-clair) 50%,
+    var(--or) 100%
+  );
+  overflow: hidden;
+  position: relative;
+}
+
+.ticker-inner {
+  display: flex;
+  align-items: center;
+  padding: 0;
+}
+
+.ticker-label {
+  font-family: var(--font-titre);
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--noir);
+  padding: 0.75rem 2rem;
+  background: rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.ticker-track {
+  display: flex;
+  overflow: hidden;
+  flex: 1;
+}
+
+.ticker-items {
+  display: flex;
+  gap: 0;
+  animation: tickerScroll 30s linear infinite;
+  white-space: nowrap;
+}
+
+.ticker-item {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  color: var(--noir);
+  padding: 0.75rem 2.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+}
+
+.ticker-dot {
+  width: 4px;
+  height: 4px;
+  background: var(--noir);
+  border-radius: 50%;
+  opacity: 0.25;
+  flex-shrink: 0;
+}
+
+/* ── SECTION OFFRES ───────────────────────────────────────── */
 .offres-section {
-  background: var(--blanc-casse);
+  background: var(--noir);
   padding: var(--s-xl) 0;
 }
 
@@ -13,7 +82,7 @@
   padding: 0 var(--s-md);
 }
 
-/* ── EN-TÊTE SECTION ──────────────────────────────────────── */
+/* ── EN-TÊTE ──────────────────────────────────────────────── */
 .offres-entete {
   display: flex;
   align-items: flex-end;
@@ -24,8 +93,8 @@
 
 .offres-entete-gauche .sur-titre {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  letter-spacing: 0.35em;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--or);
   display: block;
@@ -34,13 +103,13 @@
 
 .offres-entete-gauche h2 {
   font-family: var(--font-titre);
-  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--noir);
+  color: var(--blanc-casse);
   line-height: 1.1;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.5rem;
 }
 
 .offres-entete-gauche p {
@@ -51,31 +120,27 @@
   font-weight: 300;
 }
 
-.offres-entete-droite {
-  flex-shrink: 0;
-}
-
-/* ── FILTRES RAPIDES ──────────────────────────────────────── */
+/* ── FILTRES ──────────────────────────────────────────────── */
 .filtres-rapides {
   display: flex;
-  gap: 0.6rem;
+  gap: 0.5rem;
   margin-bottom: var(--s-lg);
   flex-wrap: wrap;
 }
 
 .filtre-pill {
-  padding: 0.5rem 1.2rem;
+  padding: 0.45rem 1.1rem;
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.6rem;
   font-weight: 300;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  border: 1px solid var(--gris-lin);
+  border: 1px solid rgba(196, 146, 74, 0.2);
   color: var(--gris-pierre);
   background: transparent;
   cursor: pointer;
   transition: var(--transition);
-  border-radius: 2px;
+  border-radius: 1px;
 }
 
 .filtre-pill:hover {
@@ -89,45 +154,65 @@
   color: var(--noir);
 }
 
-/* ── GRILLE CARTES ────────────────────────────────────────── */
+/* ── GRILLE ASYMÉTRIQUE ───────────────────────────────────── */
 .offres-grille {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
+  grid-template-columns: 1.65fr 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 1px;
+  background: rgba(196, 146, 74, 0.18);
 }
 
-@media (max-width: 1100px) {
+.offres-grille .carte-chateau:first-child {
+  grid-row: span 2;
+}
+
+@media (max-width: 1000px) {
   .offres-grille {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr;
+  }
+  .offres-grille .carte-chateau:first-child {
+    grid-row: span 1;
+    grid-column: span 2;
   }
 }
 
-@media (max-width: 680px) {
+@media (max-width: 600px) {
   .offres-grille {
     grid-template-columns: 1fr;
+  }
+  .offres-grille .carte-chateau:first-child {
+    grid-column: span 1;
   }
 }
 
 /* ── CARTE CHÂTEAU ────────────────────────────────────────── */
 .carte-chateau {
-  background: white;
+  background: #1e1b13;
   cursor: pointer;
   transition: var(--transition);
-  box-shadow: 0 2px 20px rgba(10, 9, 6, 0.06);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .carte-chateau:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--ombre-carte);
+  background: #26221a;
 }
 
-/* ── IMAGE CARTE ──────────────────────────────────────────── */
+/* ── IMAGE ────────────────────────────────────────────────── */
 .carte-image-wrapper {
   position: relative;
-  height: 240px;
+  height: 230px;
   overflow: hidden;
+  flex-shrink: 0;
+}
+
+.offres-grille .carte-chateau:first-child .carte-image-wrapper {
+  height: 100%;
+  min-height: 320px;
+  flex: 1;
 }
 
 .carte-image {
@@ -135,142 +220,139 @@
   height: 100%;
   object-fit: cover;
   transition: var(--transition-lente);
+  filter: brightness(0.75) saturate(0.85);
 }
 
 .carte-chateau:hover .carte-image {
-  transform: scale(1.06);
+  transform: scale(1.05);
+  filter: brightness(0.88) saturate(0.95);
 }
 
 .carte-image-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(10, 9, 6, 0.5) 0%, transparent 60%);
+  background: linear-gradient(to top, #1e1b13 0%, transparent 55%);
 }
 
-/* ── BADGES SUR IMAGE ─────────────────────────────────────── */
 .carte-badges {
   position: absolute;
   top: 1rem;
   left: 1rem;
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
 }
 
 .carte-reduction {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: var(--rouge-velours);
-  color: white;
-  font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  font-weight: 400;
-  letter-spacing: 0.1em;
-  padding: 0.3rem 0.6rem;
-  border-radius: 2px;
+  font-family: var(--font-titre);
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--noir);
+  background: linear-gradient(135deg, var(--or), var(--or-clair));
+  padding: 0.28rem 0.65rem;
+  letter-spacing: 0.08em;
 }
 
 .carte-chambres {
   position: absolute;
-  bottom: 1rem;
+  bottom: 0.8rem;
   left: 1rem;
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.58rem;
   font-weight: 300;
   letter-spacing: 0.15em;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.4);
 }
 
 /* ── CONTENU CARTE ────────────────────────────────────────── */
 .carte-contenu {
-  padding: 1.5rem;
+  padding: 1.4rem 1.6rem 1.6rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .carte-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.45rem;
 }
 
 .carte-region {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.58rem;
   font-weight: 300;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: var(--gris-pierre);
+  color: var(--or);
 }
 
 .carte-distance {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.58rem;
   font-weight: 300;
-  color: var(--gris-pierre);
+  color: var(--gris-fonce);
 }
 
 .carte-nom {
   font-family: var(--font-titre);
-  font-size: 1.1rem;
+  font-size: 0.88rem;
   font-weight: 500;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--noir);
-  margin-bottom: 0.4rem;
-  line-height: 1.2;
+  color: var(--blanc-casse);
+  margin-bottom: 0.35rem;
+  line-height: 1.25;
 }
 
 .carte-style {
   font-family: var(--font-editorial);
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-style: italic;
   color: var(--gris-pierre);
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.6rem;
 }
 
 .carte-accroche {
   font-family: var(--font-editorial);
-  font-size: 0.95rem;
-  color: var(--brun-nuit);
+  font-size: 0.9rem;
+  color: var(--gris-lin);
   line-height: 1.5;
-  margin-bottom: 1rem;
+  margin-bottom: 0.9rem;
   font-weight: 400;
 }
 
-/* ── TAGS ─────────────────────────────────────────────────── */
 .carte-tags {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.35rem;
   flex-wrap: wrap;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1rem;
 }
 
 .carte-tag {
   font-family: var(--font-ui);
-  font-size: 0.65rem;
+  font-size: 0.58rem;
   font-weight: 300;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--or);
-  border: 1px solid rgba(184, 150, 90, 0.3);
-  padding: 0.2rem 0.6rem;
-  border-radius: 2px;
+  color: var(--or-sombre);
+  border: 1px solid rgba(196, 146, 74, 0.2);
+  padding: 0.18rem 0.5rem;
 }
 
-/* ── SÉPARATEUR CARTE ─────────────────────────────────────── */
 .carte-separateur {
   height: 1px;
-  background: linear-gradient(90deg, var(--or), transparent);
-  margin-bottom: 1.2rem;
+  background: linear-gradient(90deg, var(--or-sombre), transparent);
+  margin-bottom: 1rem;
   opacity: 0.3;
 }
 
-/* ── PRIX & CTA ───────────────────────────────────────────── */
 .carte-pied {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
+  margin-top: auto;
 }
 
 .carte-prix-bloc {
@@ -280,36 +362,37 @@
 
 .carte-prix-barre {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.6rem;
   font-weight: 300;
-  color: var(--gris-pierre);
+  color: var(--gris-fonce);
   text-decoration: line-through;
 }
 
 .carte-prix {
   font-family: var(--font-titre);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 500;
-  color: var(--noir);
+  color: var(--blanc-casse);
   letter-spacing: 0.05em;
   line-height: 1;
 }
 
 .carte-prix-nuit {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.58rem;
   font-weight: 300;
-  color: var(--gris-pierre);
+  color: var(--gris-fonce);
   letter-spacing: 0.1em;
 }
 
 .carte-note {
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.25rem;
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  color: var(--gris-pierre);
+  font-size: 0.58rem;
+  color: var(--gris-fonce);
+  margin-bottom: 0.5rem;
 }
 
 .carte-note-etoile {
@@ -318,13 +401,13 @@
 
 .carte-cta {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.6rem;
   font-weight: 400;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--noir);
   background: linear-gradient(135deg, var(--or) 0%, var(--or-clair) 100%);
-  padding: 0.7rem 1.4rem;
+  padding: 0.65rem 1.3rem;
   transition: var(--transition);
   border: none;
   cursor: pointer;
@@ -332,23 +415,75 @@
 
 .carte-cta:hover {
   background: linear-gradient(135deg, var(--or-clair) 0%, var(--or) 100%);
-  transform: translateY(-1px);
 }
 
-/* ── BANDE URGENCE BAS DE CARTE ───────────────────────────── */
+/* ── BANDE URGENCE ────────────────────────────────────────── */
 .carte-urgence-bande {
-  height: 3px;
+  height: 2px;
   width: 100%;
+  flex-shrink: 0;
 }
 
 .carte-urgence-bande.j7 {
   background: linear-gradient(90deg, var(--rouge-velours), transparent);
 }
-
 .carte-urgence-bande.j10 {
   background: linear-gradient(90deg, var(--or), transparent);
 }
-
 .carte-urgence-bande.j15 {
   background: linear-gradient(90deg, var(--vert-lierre), transparent);
+}
+
+/* ── STATS BANDE OR ───────────────────────────────────────── */
+.stats-bande {
+  background: linear-gradient(
+    135deg,
+    var(--or) 0%,
+    var(--or-clair) 50%,
+    var(--or) 100%
+  );
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.stat-item {
+  padding: 2rem;
+  text-align: center;
+  border-right: 1px solid rgba(10, 9, 6, 0.15);
+}
+
+.stat-item:last-child {
+  border-right: none;
+}
+
+.stat-nombre {
+  font-family: var(--font-titre);
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--noir);
+  display: block;
+  line-height: 1;
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.05em;
+}
+
+.stat-label {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(10, 9, 6, 0.55);
+}
+
+@media (max-width: 600px) {
+  .stats-bande {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .stat-item:nth-child(2) {
+    border-right: none;
+  }
+  .stat-item:nth-child(3),
+  .stat-item:nth-child(4) {
+    border-top: 1px solid rgba(10, 9, 6, 0.1);
+  }
 }

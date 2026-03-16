@@ -1,5 +1,5 @@
 /* ============================================================
-   SECTIONS ÉDITORIALES
+   SECTIONS ÉDITORIALES v2.1 — Brun chaud rayonnant
    ============================================================ */
 
 /* ── COMMENT ÇA MARCHE ────────────────────────────────────── */
@@ -13,14 +13,14 @@
 .comment-section::before {
   content: "";
   position: absolute;
-  top: -200px;
-  right: -200px;
-  width: 600px;
-  height: 600px;
+  top: -300px;
+  right: -300px;
+  width: 800px;
+  height: 800px;
   border-radius: 50%;
   background: radial-gradient(
     circle,
-    rgba(184, 150, 90, 0.06) 0%,
+    rgba(196, 146, 74, 0.05) 0%,
     transparent 70%
   );
   pointer-events: none;
@@ -39,8 +39,8 @@
 
 .comment-entete .sur-titre {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  letter-spacing: 0.35em;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--or);
   display: block;
@@ -49,12 +49,12 @@
 
 .comment-entete h2 {
   font-family: var(--font-titre);
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--blanc-casse);
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.7rem;
 }
 
 .comment-entete p {
@@ -76,15 +76,15 @@
 .comment-etapes::before {
   content: "";
   position: absolute;
-  top: 2.2rem;
+  top: 1.35rem;
   left: 12.5%;
   right: 12.5%;
   height: 1px;
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(184, 150, 90, 0.4) 20%,
-    rgba(184, 150, 90, 0.4) 80%,
+    rgba(196, 146, 74, 0.25) 20%,
+    rgba(196, 146, 74, 0.25) 80%,
     transparent
   );
 }
@@ -95,18 +95,17 @@
   align-items: center;
   text-align: center;
   padding: 0 1.5rem;
-  position: relative;
 }
 
 .comment-etape-numero {
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--or);
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(196, 146, 74, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-titre);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.1em;
   color: var(--or);
@@ -117,19 +116,19 @@
 }
 
 .comment-etape-icone {
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
+  font-size: 1.6rem;
+  margin-bottom: 0.9rem;
   display: block;
 }
 
 .comment-etape-titre {
   font-family: var(--font-titre);
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--blanc-casse);
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.7rem;
 }
 
 .comment-etape-texte {
@@ -144,7 +143,7 @@
 .comment-promesse {
   margin-top: var(--s-lg);
   padding: 2.5rem 3rem;
-  border: 1px solid rgba(184, 150, 90, 0.2);
+  border: 1px solid rgba(196, 146, 74, 0.15);
   text-align: center;
   position: relative;
 }
@@ -152,18 +151,18 @@
 .comment-promesse::before {
   content: "◆";
   position: absolute;
-  top: -0.6rem;
+  top: -0.5rem;
   left: 50%;
   transform: translateX(-50%);
   color: var(--or);
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   background: var(--noir-doux);
   padding: 0 0.8rem;
 }
 
 .comment-promesse-texte {
   font-family: var(--font-editorial);
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-size: clamp(1rem, 2vw, 1.3rem);
   font-style: italic;
   color: var(--or-pale);
   line-height: 1.7;
@@ -173,13 +172,11 @@
 @media (max-width: 768px) {
   .comment-etapes {
     grid-template-columns: repeat(2, 1fr);
-    gap: 2rem;
+    gap: 2.5rem;
   }
-
   .comment-etapes::before {
     display: none;
   }
-
   .comment-promesse {
     padding: 1.5rem;
   }
@@ -187,8 +184,10 @@
 
 /* ── TÉMOIGNAGES ──────────────────────────────────────────── */
 .temoignages-section {
-  background: var(--creme);
+  background: var(--brun-nuit);
   padding: var(--s-xl) 0;
+  border-top: 1px solid rgba(196, 146, 74, 0.08);
+  border-bottom: 1px solid rgba(196, 146, 74, 0.08);
 }
 
 .temoignages-inner {
@@ -204,8 +203,8 @@
 
 .temoignages-entete .sur-titre {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  letter-spacing: 0.35em;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--or);
   display: block;
@@ -214,174 +213,118 @@
 
 .temoignages-entete h2 {
   font-family: var(--font-titre);
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--noir);
-  margin-bottom: 0.8rem;
+  color: var(--blanc-casse);
 }
 
+/* ── GRILLE AVEC SÉPARATEURS ──────────────────────────────── */
 .temoignages-grille {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: 1fr 1px 1fr 1px 1fr;
+  gap: 0;
   margin-bottom: var(--s-lg);
 }
 
-/* ── CARTE TÉMOIGNAGE ─────────────────────────────────────── */
+.temoignage-separateur {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(196, 146, 74, 0.25),
+    transparent
+  );
+  min-height: 180px;
+}
+
 .temoignage-carte {
-  background: white;
-  padding: 2rem;
-  box-shadow: 0 2px 20px rgba(10, 9, 6, 0.05);
-  position: relative;
+  padding: 0 3rem;
   transition: var(--transition);
 }
 
-.temoignage-carte:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--ombre-carte);
+.temoignage-carte:first-child {
+  padding-left: 0;
 }
-
-.temoignage-carte::before {
-  content: "❝";
-  position: absolute;
-  top: 1.2rem;
-  right: 1.5rem;
-  font-size: 3rem;
-  color: var(--or);
-  opacity: 0.15;
-  font-family: Georgia, serif;
-  line-height: 1;
+.temoignage-carte:last-child {
+  padding-right: 0;
 }
 
 .temoignage-etoiles {
   display: flex;
   gap: 0.2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.2rem;
 }
 
 .temoignage-etoile {
   color: var(--or);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
 .temoignage-texte {
   font-family: var(--font-editorial);
   font-size: 1.05rem;
   font-style: italic;
-  color: var(--brun-nuit);
-  line-height: 1.7;
+  color: var(--gris-lin);
+  line-height: 1.75;
   margin-bottom: 1.5rem;
-  font-weight: 400;
+  font-weight: 300;
 }
 
 .temoignage-auteur {
   display: flex;
   align-items: center;
   gap: 0.8rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--creme-chaud);
 }
 
 .temoignage-avatar {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--or), var(--or-clair));
+  background: linear-gradient(135deg, var(--or-sombre), var(--or));
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-titre);
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--noir);
   font-weight: 600;
   flex-shrink: 0;
 }
 
-.temoignage-auteur-info {
-}
-
 .temoignage-auteur-nom {
   font-family: var(--font-ui);
-  font-size: var(--t-sm);
+  font-size: var(--t-xs);
   font-weight: 400;
-  color: var(--noir);
+  color: var(--blanc-casse);
   display: block;
+  letter-spacing: 0.1em;
 }
 
 .temoignage-auteur-detail {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.62rem;
   font-weight: 300;
-  color: var(--gris-pierre);
+  color: var(--gris-fonce);
   letter-spacing: 0.1em;
-}
-
-/* ── CHIFFRES CLÉS ────────────────────────────────────────── */
-.temoignages-chiffres {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  border: 1px solid rgba(184, 150, 90, 0.2);
-  background: white;
-}
-
-.chiffre-item {
-  padding: 2rem;
-  text-align: center;
-  border-right: 1px solid rgba(184, 150, 90, 0.15);
-}
-
-.chiffre-item:last-child {
-  border-right: none;
-}
-
-.chiffre-nombre {
-  font-family: var(--font-titre);
-  font-size: 2.4rem;
-  font-weight: 500;
-  color: var(--or);
-  letter-spacing: 0.05em;
-  display: block;
-  line-height: 1;
-  margin-bottom: 0.4rem;
-}
-
-.chiffre-label {
-  font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  font-weight: 300;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gris-pierre);
 }
 
 @media (max-width: 900px) {
   .temoignages-grille {
     grid-template-columns: 1fr;
+    gap: 2.5rem;
   }
-
-  .temoignages-chiffres {
-    grid-template-columns: repeat(2, 1fr);
+  .temoignage-separateur {
+    display: none;
   }
-
-  .chiffre-item:nth-child(2) {
-    border-right: none;
-  }
-
-  .chiffre-item:nth-child(3) {
-    border-top: 1px solid rgba(184, 150, 90, 0.15);
-  }
-
-  .chiffre-item:nth-child(4) {
-    border-top: 1px solid rgba(184, 150, 90, 0.15);
+  .temoignage-carte {
+    padding: 0;
   }
 }
 
 /* ── NEWSLETTER ───────────────────────────────────────────── */
 .newsletter-section {
-  background: var(--noir);
+  background: var(--noir-doux);
   padding: var(--s-xl) 0;
   position: relative;
   overflow: hidden;
@@ -391,17 +334,23 @@
   content: "";
   position: absolute;
   inset: 0;
-  background-image: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 60px,
-    rgba(184, 150, 90, 0.02) 60px,
-    rgba(184, 150, 90, 0.02) 61px
-  );
+  background-image: radial-gradient(
+      ellipse 60% 50% at 50% 50%,
+      rgba(196, 146, 74, 0.05) 0%,
+      transparent 70%
+    ),
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 80px,
+      rgba(196, 146, 74, 0.015) 80px,
+      rgba(196, 146, 74, 0.015) 81px
+    );
+  pointer-events: none;
 }
 
 .newsletter-inner {
-  max-width: 700px;
+  max-width: 660px;
   margin: 0 auto;
   padding: 0 var(--s-md);
   text-align: center;
@@ -409,16 +358,46 @@
   z-index: 1;
 }
 
+.newsletter-cadre {
+  border: 1px solid rgba(196, 146, 74, 0.2);
+  padding: 3.5rem;
+  position: relative;
+}
+
+.newsletter-cadre::before {
+  content: "◆";
+  position: absolute;
+  top: -0.45rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--or);
+  font-size: 0.55rem;
+  background: var(--noir-doux);
+  padding: 0 0.7rem;
+}
+
+.newsletter-cadre::after {
+  content: "◆";
+  position: absolute;
+  bottom: -0.45rem;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--or);
+  font-size: 0.55rem;
+  background: var(--noir-doux);
+  padding: 0 0.7rem;
+}
+
 .newsletter-ornement {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  margin-bottom: 1.2rem;
   display: block;
 }
 
 .newsletter-sur-titre {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  letter-spacing: 0.4em;
+  font-size: 0.6rem;
+  letter-spacing: 0.45em;
   text-transform: uppercase;
   color: var(--or);
   display: block;
@@ -427,47 +406,70 @@
 
 .newsletter-titre {
   font-family: var(--font-titre);
-  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--blanc-casse);
   margin-bottom: 1rem;
-  line-height: 1.15;
+  line-height: 1.2;
 }
 
 .newsletter-sous-titre {
   font-family: var(--font-editorial);
-  font-size: var(--t-lg);
+  font-size: 1.05rem;
   font-style: italic;
   color: var(--gris-pierre);
   font-weight: 300;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
   line-height: 1.6;
 }
 
 .newsletter-detail {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.6rem;
   font-weight: 300;
-  letter-spacing: 0.15em;
-  color: var(--gris-pierre);
-  margin-bottom: 2.5rem;
-  opacity: 0.7;
+  letter-spacing: 0.2em;
+  color: var(--gris-fonce);
+  margin-bottom: 2rem;
+  text-transform: uppercase;
 }
 
-/* ── FORMULAIRE NEWSLETTER ────────────────────────────────── */
+.newsletter-avantages {
+  display: flex;
+  justify-content: center;
+  gap: 1.8rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.newsletter-avantage {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  font-weight: 300;
+  color: var(--gris-pierre);
+  letter-spacing: 0.1em;
+}
+
+.newsletter-avantage::before {
+  content: "◆";
+  color: var(--or);
+  font-size: 0.35rem;
+}
+
 .newsletter-form {
   display: flex;
-  gap: 0;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .newsletter-input {
   flex: 1;
-  padding: 1rem 1.5rem;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(184, 150, 90, 0.3);
+  padding: 0.95rem 1.3rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(196, 146, 74, 0.22);
   border-right: none;
   color: var(--blanc-casse);
   font-family: var(--font-ui);
@@ -478,23 +480,23 @@
 }
 
 .newsletter-input::placeholder {
-  color: var(--gris-pierre);
+  color: var(--gris-fonce);
   font-style: italic;
 }
 
 .newsletter-input:focus {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(196, 146, 74, 0.05);
   border-color: var(--or);
 }
 
 .newsletter-btn {
-  padding: 1rem 2rem;
+  padding: 0.95rem 1.8rem;
   background: linear-gradient(135deg, var(--or) 0%, var(--or-clair) 100%);
   color: var(--noir);
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.6rem;
   font-weight: 400;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   border: none;
   cursor: pointer;
@@ -508,51 +510,26 @@
 
 .newsletter-promesse {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.6rem;
   font-weight: 300;
-  color: var(--gris-pierre);
-  letter-spacing: 0.1em;
-  opacity: 0.6;
-}
-
-.newsletter-avantages {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-bottom: 2.5rem;
-  flex-wrap: wrap;
-}
-
-.newsletter-avantage {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  font-weight: 300;
-  color: var(--gris-lin);
-  letter-spacing: 0.1em;
-}
-
-.newsletter-avantage::before {
-  content: "◆";
-  color: var(--or);
-  font-size: 0.4rem;
+  color: var(--gris-fonce);
+  letter-spacing: 0.12em;
 }
 
 @media (max-width: 600px) {
+  .newsletter-cadre {
+    padding: 2rem 1.5rem;
+  }
   .newsletter-form {
     flex-direction: column;
   }
-
   .newsletter-input {
-    border-right: 1px solid rgba(184, 150, 90, 0.3);
+    border-right: 1px solid rgba(196, 146, 74, 0.22);
     border-bottom: none;
   }
-
   .newsletter-avantages {
     flex-direction: column;
     align-items: center;
-    gap: 0.8rem;
+    gap: 0.7rem;
   }
 }

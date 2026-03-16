@@ -1,9 +1,9 @@
 /* ============================================================
-   SERVICES & PRESTATIONS
+   SERVICES v2.1 — Section claire sur fond crème chaud
    ============================================================ */
 
 .services-section {
-  background: var(--blanc-casse);
+  background: var(--creme-chaud);
   padding: var(--s-xl) 0;
   position: relative;
 }
@@ -14,6 +14,7 @@
   padding: 0 var(--s-md);
 }
 
+/* ── EN-TÊTE ──────────────────────────────────────────────── */
 .services-entete {
   text-align: center;
   margin-bottom: var(--s-lg);
@@ -21,21 +22,21 @@
 
 .services-entete .sur-titre {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  letter-spacing: 0.35em;
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: var(--or);
+  color: var(--or-sombre);
   display: block;
   margin-bottom: 0.8rem;
 }
 
 .services-entete h2 {
   font-family: var(--font-titre);
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--noir);
+  color: var(--brun-nuit);
   margin-bottom: 0.8rem;
 }
 
@@ -45,15 +46,18 @@
   font-style: italic;
   color: var(--gris-pierre);
   font-weight: 300;
-  max-width: 600px;
+  max-width: 620px;
   margin: 0 auto;
+  line-height: 1.6;
 }
 
 /* ── GRILLE SERVICES ──────────────────────────────────────── */
 .services-grille {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  gap: 1px;
+  background: rgba(196, 146, 74, 0.2);
+  border: 1px solid rgba(196, 146, 74, 0.2);
   margin-bottom: 3rem;
 }
 
@@ -71,12 +75,11 @@
 
 /* ── CARTE SERVICE ────────────────────────────────────────── */
 .service-carte {
-  background: white;
+  background: var(--blanc-casse);
   padding: 2rem 1.8rem;
-  border: 1px solid rgba(184, 150, 90, 0.12);
-  transition: var(--transition);
   position: relative;
   overflow: hidden;
+  transition: var(--transition);
 }
 
 .service-carte::before {
@@ -93,9 +96,9 @@
 }
 
 .service-carte:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--ombre-carte);
-  border-color: rgba(184, 150, 90, 0.25);
+  transform: translateY(-4px);
+  box-shadow: var(--ombre-chaude);
+  background: var(--creme);
 }
 
 .service-carte:hover::before {
@@ -103,19 +106,20 @@
 }
 
 .service-icone {
-  font-size: 2.2rem;
+  font-size: 2rem;
   margin-bottom: 1.2rem;
   display: block;
 }
 
 .service-titre {
   font-family: var(--font-titre);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--noir);
+  color: var(--brun-nuit);
   margin-bottom: 0.6rem;
+  line-height: 1.3;
 }
 
 .service-description {
@@ -142,7 +146,7 @@
   font-size: 0.72rem;
   font-weight: 300;
   color: var(--brun-nuit);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 .service-detail-item::before {
@@ -162,9 +166,9 @@
 
 .service-prix-montant {
   font-family: var(--font-titre);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 500;
-  color: var(--or);
+  color: var(--or-sombre);
   letter-spacing: 0.05em;
 }
 
@@ -180,26 +184,25 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: var(--or);
+  background: linear-gradient(135deg, var(--or), var(--or-clair));
   color: var(--noir);
   font-family: var(--font-ui);
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 400;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   padding: 0.2rem 0.6rem;
-  border-radius: 2px;
 }
 
-/* ── BANDEAU TRANSPORT ────────────────────────────────────── */
+/* ── BANDEAU CONCIERGERIE ─────────────────────────────────── */
 .services-transport {
-  background: var(--noir-doux);
+  background: var(--brun-nuit);
   padding: 2.5rem 3rem;
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 2rem;
   align-items: center;
-  border: 1px solid rgba(184, 150, 90, 0.2);
+  border: 1px solid rgba(196, 146, 74, 0.2);
   position: relative;
   overflow: hidden;
 }
@@ -207,21 +210,18 @@
 .services-transport::before {
   content: "🚗";
   position: absolute;
-  right: 3rem;
+  right: 2rem;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 8rem;
+  font-size: 7rem;
   opacity: 0.04;
   pointer-events: none;
 }
 
-.transport-texte {
-}
-
 .transport-sur-titre {
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  letter-spacing: 0.3em;
+  font-size: 0.6rem;
+  letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--or);
   display: block;
@@ -230,17 +230,18 @@
 
 .transport-titre {
   font-family: var(--font-titre);
-  font-size: clamp(1.1rem, 2vw, 1.5rem);
+  font-size: clamp(1rem, 2vw, 1.4rem);
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--blanc-casse);
   margin-bottom: 0.6rem;
+  line-height: 1.2;
 }
 
 .transport-description {
   font-family: var(--font-editorial);
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   font-style: italic;
   color: var(--gris-pierre);
   font-weight: 300;
@@ -249,7 +250,7 @@
 
 .transport-options {
   display: flex;
-  gap: 1rem;
+  gap: 1.2rem;
   margin-top: 1.2rem;
   flex-wrap: wrap;
 }
@@ -259,9 +260,9 @@
   align-items: center;
   gap: 0.4rem;
   font-family: var(--font-ui);
-  font-size: var(--t-xs);
+  font-size: 0.6rem;
   font-weight: 300;
-  color: var(--gris-lin);
+  color: var(--gris-pierre);
   letter-spacing: 0.1em;
 }
 
@@ -280,7 +281,6 @@
     grid-template-columns: 1fr;
     padding: 2rem 1.5rem;
   }
-
   .services-transport::before {
     display: none;
   }
