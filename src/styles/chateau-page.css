@@ -23,32 +23,37 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 2rem;
-  background: rgba(13, 22, 40, 0.95);
+  padding: 0.8rem 1.2rem;
+  background: rgba(13, 22, 40, 0.97);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(200, 151, 62, 0.15);
+  gap: 0.8rem;
 }
 
 .chateau-page-header-gauche {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.8rem;
+  min-width: 0;
 }
 
 .chateau-page-retour {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
   font-family: var(--font-ui);
   font-size: var(--t-xs);
   font-weight: 300;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--gris);
   cursor: pointer;
   transition: var(--transition);
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.8rem;
   border: 1px solid rgba(200, 151, 62, 0.2);
+  white-space: nowrap;
+  flex-shrink: 0;
+  background: none;
 }
 
 .chateau-page-retour:hover {
@@ -58,39 +63,45 @@
 
 .chateau-page-nom-header {
   font-family: var(--font-titre);
-  font-size: 0.78rem;
+  font-size: 0.7rem;
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--or-clair);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .chateau-page-header-droite {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.8rem;
+  flex-shrink: 0;
 }
 
 .chateau-page-prix-header {
   font-family: var(--font-titre);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 500;
   color: var(--blanc-casse);
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .chateau-page-reserver-header {
   font-family: var(--font-ui);
   font-size: var(--t-xs);
   font-weight: 500;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--bleu-nuit);
   background: linear-gradient(135deg, var(--or), var(--or-clair));
-  padding: 0.65rem 1.6rem;
+  padding: 0.6rem 1.2rem;
   border: none;
   cursor: pointer;
   transition: var(--transition);
+  white-space: nowrap;
 }
 
 .chateau-page-reserver-header:hover {
@@ -101,8 +112,8 @@
 /* ── GALERIE HERO ─────────────────────────────────────────── */
 .chateau-galerie {
   position: relative;
-  height: 70vh;
-  min-height: 480px;
+  height: 65vh;
+  min-height: 320px;
   overflow: hidden;
   cursor: pointer;
 }
@@ -130,42 +141,43 @@
 .chateau-galerie-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, var(--bleu-nuit) 0%, transparent 50%),
-    linear-gradient(to bottom, rgba(13, 22, 40, 0.4) 0%, transparent 30%);
+  background: linear-gradient(to top, var(--bleu-nuit) 0%, transparent 55%),
+    linear-gradient(to bottom, rgba(13, 22, 40, 0.5) 0%, transparent 35%);
 }
 
 .chateau-galerie-info {
   position: absolute;
-  bottom: 3rem;
-  left: 3rem;
+  bottom: 2.5rem;
+  left: 2rem;
+  right: 6rem;
   z-index: 2;
 }
 
 .chateau-galerie-region {
   font-family: var(--font-ui);
-  font-size: 0.6rem;
-  letter-spacing: 0.4em;
+  font-size: 0.55rem;
+  letter-spacing: 0.35em;
   text-transform: uppercase;
   color: var(--or);
   display: block;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.4rem;
 }
 
 .chateau-galerie-titre {
   font-family: var(--font-titre);
-  font-size: clamp(2rem, 5vw, 4rem);
+  font-size: clamp(1.4rem, 4vw, 3.5rem);
   font-weight: 500;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--blanc-casse);
-  line-height: 1.05;
-  margin-bottom: 0.5rem;
+  line-height: 1.1;
+  margin-bottom: 0.4rem;
   display: block;
 }
 
 .chateau-galerie-style {
   font-family: var(--font-editorial);
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 2vw, 1.1rem);
   font-style: italic;
   color: rgba(200, 151, 62, 0.7);
 }
@@ -173,15 +185,15 @@
 /* ── NAVIGATION GALERIE ───────────────────────────────────── */
 .chateau-galerie-nav {
   position: absolute;
-  bottom: 3rem;
-  right: 3rem;
+  bottom: 1.5rem;
+  right: 1.5rem;
   z-index: 2;
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .chateau-galerie-dot {
-  width: 28px;
+  width: 22px;
   height: 3px;
   background: rgba(255, 255, 255, 0.3);
   cursor: pointer;
@@ -191,7 +203,7 @@
 
 .chateau-galerie-dot.actif {
   background: var(--or);
-  width: 40px;
+  width: 34px;
 }
 
 .chateau-galerie-prev,
@@ -200,12 +212,12 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   background: rgba(13, 22, 40, 0.7);
   border: 1px solid rgba(200, 151, 62, 0.3);
   color: var(--or);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -214,10 +226,10 @@
 }
 
 .chateau-galerie-prev {
-  left: 1.5rem;
+  left: 1rem;
 }
 .chateau-galerie-next {
-  right: 1.5rem;
+  right: 1rem;
 }
 
 .chateau-galerie-prev:hover,
@@ -230,15 +242,11 @@
 .chateau-page-corps {
   max-width: 1300px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 3rem 1.5rem;
   display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 4rem;
+  grid-template-columns: 1fr 360px;
+  gap: 3rem;
   align-items: start;
-}
-
-/* ── COLONNE GAUCHE ───────────────────────────────────────── */
-.chateau-page-gauche {
 }
 
 /* ── SECTION TITRE ────────────────────────────────────────── */
@@ -246,11 +254,11 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .chateau-section-titre-ligne {
-  width: 40px;
+  width: 32px;
   height: 1px;
   background: var(--or);
   flex-shrink: 0;
@@ -258,24 +266,24 @@
 
 .chateau-section-label {
   font-family: var(--font-ui);
-  font-size: 0.6rem;
-  letter-spacing: 0.35em;
+  font-size: 0.58rem;
+  letter-spacing: 0.32em;
   text-transform: uppercase;
   color: var(--or);
 }
 
 /* ── HISTOIRE ─────────────────────────────────────────────── */
 .chateau-histoire {
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 }
 
 .chateau-histoire-accroche {
   font-family: var(--font-editorial);
-  font-size: clamp(1.1rem, 2vw, 1.4rem);
+  font-size: clamp(1rem, 2vw, 1.3rem);
   font-style: italic;
   color: var(--or-pale);
   line-height: 1.7;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
   font-weight: 300;
 }
 
@@ -290,13 +298,13 @@
 .chateau-histoire-separateur {
   height: 1px;
   background: linear-gradient(90deg, var(--or), transparent);
-  margin: 2rem 0;
+  margin: 1.5rem 0;
   opacity: 0.3;
 }
 
 /* ── ACTIVITÉS ────────────────────────────────────────────── */
 .chateau-activites {
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 }
 
 .chateau-activites-grille {
@@ -309,7 +317,7 @@
 
 .chateau-activite-item {
   background: var(--bleu-fonce);
-  padding: 1.5rem;
+  padding: 1.2rem;
   transition: var(--transition);
   position: relative;
   overflow: hidden;
@@ -331,22 +339,22 @@
 .chateau-activite-item:hover {
   background: #1a2848;
 }
-
 .chateau-activite-item:hover::before {
   transform: scaleX(1);
 }
 
 .chateau-activite-icone {
-  font-size: 1.6rem;
-  margin-bottom: 0.8rem;
+  font-size: 1.2rem;
+  margin-bottom: 0.6rem;
   display: block;
+  color: var(--or);
 }
 
 .chateau-activite-nom {
   font-family: var(--font-titre);
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 500;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--blanc-casse);
   margin-bottom: 0.4rem;
@@ -354,21 +362,59 @@
 
 .chateau-activite-desc {
   font-family: var(--font-ui);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 300;
   color: var(--gris);
-  line-height: 1.6;
+  line-height: 1.5;
+}
+
+/* ── ÉQUIPEMENTS ──────────────────────────────────────────── */
+.chateau-equipements {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+  padding: 1.2rem;
+  border: 1px solid rgba(200, 151, 62, 0.15);
+}
+
+.chateau-equipement {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+}
+
+.chateau-equipement.inclus {
+  color: #7ac4a0;
+}
+.chateau-equipement.non-inclus {
+  color: var(--gris-fonce);
+}
+
+/* ── CARTE ────────────────────────────────────────────────── */
+.chateau-carte-section {
+  margin-bottom: 3rem;
+}
+
+.chateau-carte-wrapper {
+  height: 300px;
+  border: 1px solid rgba(200, 151, 62, 0.2);
+  overflow: hidden;
+  position: relative;
 }
 
 /* ── ALENTOURS ────────────────────────────────────────────── */
 .chateau-alentours {
-  margin-bottom: 4rem;
+  margin-bottom: 3rem;
 }
 
 .chateau-alentours-liste {
   display: flex;
   flex-direction: column;
-  gap: 0;
   border: 1px solid rgba(200, 151, 62, 0.15);
 }
 
@@ -376,7 +422,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.5rem;
+  padding: 0.9rem 1.2rem;
   border-bottom: 1px solid rgba(200, 151, 62, 0.08);
   transition: var(--transition);
 }
@@ -384,7 +430,6 @@
 .chateau-alentour-item:last-child {
   border-bottom: none;
 }
-
 .chateau-alentour-item:hover {
   background: rgba(200, 151, 62, 0.04);
 }
@@ -396,8 +441,8 @@
 }
 
 .chateau-alentour-type {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
   background: var(--or);
   flex-shrink: 0;
@@ -408,7 +453,7 @@
   font-size: var(--t-sm);
   font-weight: 300;
   color: var(--blanc-casse);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 .chateau-alentour-distance {
@@ -417,104 +462,56 @@
   font-weight: 300;
   color: rgba(200, 151, 62, 0.6);
   letter-spacing: 0.1em;
+  white-space: nowrap;
+  margin-left: 1rem;
 }
 
-/* ── CARTE ────────────────────────────────────────────────── */
-.chateau-carte-section {
-  margin-bottom: 4rem;
-}
-
-.chateau-carte-wrapper {
-  height: 360px;
-  border: 1px solid rgba(200, 151, 62, 0.2);
-  overflow: hidden;
-  position: relative;
-}
-
-.chateau-carte-wrapper .leaflet-container {
-  height: 100%;
-  width: 100%;
-  background: var(--bleu-nuit);
-}
-
-/* ── ÉQUIPEMENTS ──────────────────────────────────────────── */
-.chateau-equipements {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  margin-bottom: 4rem;
-  padding: 1.5rem;
-  border: 1px solid rgba(200, 151, 62, 0.15);
-}
-
-.chateau-equipement {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  font-weight: 300;
-  letter-spacing: 0.1em;
-}
-
-.chateau-equipement.inclus {
-  color: #7ac4a0;
-}
-.chateau-equipement.non-inclus {
-  color: var(--gris-fonce);
-}
-
-/* ── COLONNE DROITE — RÉSERVATION ─────────────────────────── */
-.chateau-page-droite {
-}
-
+/* ── RÉSERVATION ──────────────────────────────────────────── */
 .chateau-reservation-card {
   position: sticky;
   top: 5rem;
   background: var(--bleu-fonce);
   border: 1px solid rgba(200, 151, 62, 0.2);
-  padding: 2rem;
+  padding: 1.8rem;
   box-shadow: var(--ombre-forte);
 }
 
 .chateau-resa-titre {
   font-family: var(--font-titre);
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--blanc-casse);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
   text-align: center;
 }
 
-/* ── BADGE URGENCE ────────────────────────────────────────── */
 .chateau-urgence-bloc {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  padding: 0.8rem 1rem;
-  margin-bottom: 1.5rem;
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 1.2rem;
   border: 1px solid rgba(138, 48, 48, 0.4);
   background: rgba(138, 48, 48, 0.08);
 }
 
 .chateau-urgence-texte {
   font-family: var(--font-ui);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 300;
   color: #f5c4c4;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   line-height: 1.5;
 }
 
-/* ── PRIX ─────────────────────────────────────────────────── */
 .chateau-prix-bloc {
   text-align: center;
-  padding: 1.5rem 0;
+  padding: 1.2rem 0;
   border-top: 1px solid rgba(200, 151, 62, 0.1);
   border-bottom: 1px solid rgba(200, 151, 62, 0.1);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.2rem;
 }
 
 .chateau-prix-barre {
@@ -528,7 +525,7 @@
 
 .chateau-prix {
   font-family: var(--font-titre);
-  font-size: 2.8rem;
+  font-size: 2.4rem;
   font-weight: 500;
   color: var(--blanc-casse);
   letter-spacing: 0.05em;
@@ -541,29 +538,28 @@
   font-size: var(--t-xs);
   font-weight: 300;
   color: var(--gris-fonce);
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   display: block;
   margin-top: 0.2rem;
 }
 
 .chateau-economie {
   display: inline-block;
-  margin-top: 0.6rem;
+  margin-top: 0.5rem;
   background: rgba(138, 48, 48, 0.15);
   color: #f5c4c4;
   font-family: var(--font-ui);
   font-size: var(--t-xs);
   font-weight: 400;
-  letter-spacing: 0.1em;
-  padding: 0.3rem 0.8rem;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.7rem;
 }
 
-/* ── CHAMPS ───────────────────────────────────────────────── */
 .chateau-champs {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
-  margin-bottom: 1.2rem;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
 }
 
 .chateau-champ {
@@ -576,14 +572,14 @@
   font-family: var(--font-ui);
   font-size: var(--t-xs);
   font-weight: 300;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gris-fonce);
 }
 
 .chateau-champ input,
 .chateau-champ select {
-  padding: 0.7rem 1rem;
+  padding: 0.65rem 0.9rem;
   border: 1px solid rgba(200, 151, 62, 0.2);
   background: rgba(255, 255, 255, 0.04);
   font-family: var(--font-ui);
@@ -592,7 +588,8 @@
   color: var(--blanc-casse);
   outline: none;
   transition: var(--transition);
-  border-radius: 1px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .chateau-champ input:focus,
@@ -606,21 +603,20 @@
   color: var(--blanc-casse);
 }
 
-/* ── BOUTONS ──────────────────────────────────────────────── */
 .chateau-btn-reserver {
   width: 100%;
-  padding: 1.1rem;
+  padding: 1rem;
   background: linear-gradient(135deg, var(--or) 0%, var(--or-clair) 100%);
   color: var(--bleu-nuit);
   font-family: var(--font-ui);
   font-size: var(--t-xs);
   font-weight: 500;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
   border: none;
   cursor: pointer;
   transition: var(--transition);
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.7rem;
 }
 
 .chateau-btn-reserver:hover {
@@ -631,13 +627,13 @@
 
 .chateau-btn-contact {
   width: 100%;
-  padding: 0.9rem;
+  padding: 0.85rem;
   background: transparent;
   color: var(--or);
   font-family: var(--font-ui);
   font-size: var(--t-xs);
   font-weight: 300;
-  letter-spacing: 0.25em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   border: 1px solid rgba(200, 151, 62, 0.4);
   cursor: pointer;
@@ -647,15 +643,13 @@
 .chateau-btn-contact:hover {
   background: var(--or);
   color: var(--bleu-nuit);
-  border-color: var(--or);
 }
 
-/* ── GARANTIES ────────────────────────────────────────────── */
 .chateau-garanties {
-  margin-top: 1.2rem;
+  margin-top: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
 .chateau-garantie {
@@ -663,53 +657,57 @@
   align-items: center;
   gap: 0.5rem;
   font-family: var(--font-ui);
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 300;
   color: var(--gris-fonce);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
 }
 
 .chateau-garantie::before {
   content: "✓";
   color: #7ac4a0;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
 }
 
-/* ── SUCCÈS RÉSERVATION ───────────────────────────────────── */
 .chateau-succes {
   text-align: center;
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 .chateau-succes-icon {
-  font-size: 2.5rem;
+  font-size: 2rem;
   display: block;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
 .chateau-succes-titre {
   font-family: var(--font-titre);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 500;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--or-clair);
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.6rem;
 }
 
 .chateau-succes-texte {
   font-family: var(--font-editorial);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-style: italic;
   color: var(--gris);
   line-height: 1.6;
 }
 
-/* ── RESPONSIVE ───────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════ */
+
+/* ── TABLETTE ─────────────────────────────────────────────── */
 @media (max-width: 1000px) {
   .chateau-page-corps {
     grid-template-columns: 1fr;
     gap: 2rem;
+    padding: 2rem 1.2rem;
   }
 
   .chateau-reservation-card {
@@ -717,25 +715,104 @@
   }
 
   .chateau-activites-grille {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .chateau-page-droite {
+    order: -1;
   }
 }
 
+/* ── MOBILE ───────────────────────────────────────────────── */
 @media (max-width: 600px) {
-  .chateau-galerie {
-    height: 50vh;
-  }
-
-  .chateau-galerie-info {
-    left: 1.5rem;
-    bottom: 2rem;
-  }
-
   .chateau-page-header {
-    padding: 0.8rem 1rem;
+    padding: 0.6rem 0.8rem;
   }
 
   .chateau-page-nom-header {
     display: none;
+  }
+
+  .chateau-page-prix-header {
+    font-size: 0.9rem;
+  }
+
+  .chateau-page-reserver-header {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.55rem;
+    letter-spacing: 0.12em;
+  }
+
+  .chateau-galerie {
+    height: 45vh;
+    min-height: 260px;
+  }
+
+  .chateau-galerie-info {
+    left: 1rem;
+    bottom: 1.2rem;
+    right: 4rem;
+  }
+
+  .chateau-galerie-nav {
+    bottom: 1rem;
+    right: 1rem;
+  }
+
+  .chateau-galerie-prev,
+  .chateau-galerie-next {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+
+  .chateau-page-corps {
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
+  }
+
+  .chateau-activites-grille {
+    grid-template-columns: 1fr;
+  }
+
+  .chateau-activite-item {
+    padding: 1rem;
+  }
+
+  .chateau-equipements {
+    gap: 0.8rem;
+    padding: 1rem;
+  }
+
+  .chateau-carte-wrapper {
+    height: 240px;
+  }
+
+  .chateau-reservation-card {
+    padding: 1.2rem;
+  }
+
+  .chateau-prix {
+    font-size: 2rem;
+  }
+
+  .chateau-histoire-accroche {
+    font-size: 1rem;
+  }
+}
+
+/* ── TRÈS PETIT MOBILE ────────────────────────────────────── */
+@media (max-width: 380px) {
+  .chateau-page-reserver-header {
+    display: none;
+  }
+
+  .chateau-galerie {
+    height: 40vh;
+    min-height: 220px;
+  }
+
+  .chateau-galerie-titre {
+    font-size: 1.2rem;
   }
 }

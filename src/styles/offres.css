@@ -27,7 +27,7 @@
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--bleu-nuit);
-  padding: 0.75rem 2rem;
+  padding: 0.75rem 1.2rem;
   background: rgba(0, 0, 0, 0.1);
   white-space: nowrap;
   flex-shrink: 0;
@@ -53,7 +53,7 @@
   font-weight: 300;
   letter-spacing: 0.18em;
   color: var(--bleu-nuit);
-  padding: 0.75rem 2.5rem;
+  padding: 0.75rem 2rem;
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -93,6 +93,7 @@
   justify-content: space-between;
   margin-bottom: var(--s-lg);
   gap: var(--s-md);
+  flex-wrap: wrap;
 }
 
 .offres-entete-gauche .sur-titre {
@@ -107,7 +108,7 @@
 
 .offres-entete-gauche h2 {
   font-family: var(--font-titre);
-  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-size: clamp(1.4rem, 3vw, 2.4rem);
   font-weight: 500;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -133,7 +134,7 @@
 }
 
 .filtre-pill {
-  padding: 0.45rem 1.1rem;
+  padding: 0.45rem 1rem;
   font-family: var(--font-ui);
   font-size: 0.6rem;
   font-weight: 300;
@@ -169,25 +170,6 @@
 
 .offres-grille .carte-chateau:first-child {
   grid-row: span 2;
-}
-
-@media (max-width: 1000px) {
-  .offres-grille {
-    grid-template-columns: 1fr 1fr;
-  }
-  .offres-grille .carte-chateau:first-child {
-    grid-row: span 1;
-    grid-column: span 2;
-  }
-}
-
-@media (max-width: 600px) {
-  .offres-grille {
-    grid-template-columns: 1fr;
-  }
-  .offres-grille .carte-chateau:first-child {
-    grid-column: span 1;
-  }
 }
 
 /* ── CARTE CHÂTEAU ────────────────────────────────────────── */
@@ -270,7 +252,7 @@
 
 /* ── CONTENU CARTE ────────────────────────────────────────── */
 .carte-contenu {
-  padding: 1.4rem 1.6rem 1.6rem;
+  padding: 1.2rem 1.4rem 1.4rem;
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -281,6 +263,8 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.45rem;
+  flex-wrap: wrap;
+  gap: 0.3rem;
 }
 
 .carte-region {
@@ -356,6 +340,8 @@
   align-items: flex-end;
   justify-content: space-between;
   margin-top: auto;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .carte-prix-bloc {
@@ -410,10 +396,11 @@
   text-transform: uppercase;
   color: var(--bleu-nuit);
   background: linear-gradient(135deg, var(--or) 0%, var(--or-clair) 100%);
-  padding: 0.65rem 1.3rem;
+  padding: 0.65rem 1.2rem;
   transition: var(--transition);
   border: none;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .carte-cta:hover {
@@ -450,7 +437,7 @@
 }
 
 .stat-item {
-  padding: 2rem;
+  padding: 1.5rem 1rem;
   text-align: center;
   border-right: 1px solid rgba(13, 22, 40, 0.15);
 }
@@ -478,15 +465,129 @@
   color: rgba(13, 22, 40, 0.55);
 }
 
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════════ */
+
+/* ── TABLETTE ─────────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  .offres-grille {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .offres-grille .carte-chateau:first-child {
+    grid-row: span 1;
+    grid-column: span 2;
+  }
+
+  .offres-entete {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ── MOBILE ───────────────────────────────────────────────── */
 @media (max-width: 600px) {
+  .offres-section {
+    padding: 3rem 0;
+  }
+
+  .offres-inner {
+    padding: 0 1rem;
+  }
+
+  .offres-grille {
+    grid-template-columns: 1fr;
+    gap: 1px;
+  }
+
+  .offres-grille .carte-chateau:first-child {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+
+  .offres-grille .carte-chateau:first-child .carte-image-wrapper {
+    height: 220px;
+    flex: none;
+  }
+
+  .carte-image-wrapper {
+    height: 200px;
+  }
+
+  .carte-contenu {
+    padding: 1rem 1.2rem 1.2rem;
+  }
+
+  .carte-nom {
+    font-size: 0.82rem;
+  }
+
+  .carte-accroche {
+    font-size: 0.82rem;
+  }
+
+  .carte-pied {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: nowrap;
+  }
+
+  .filtres-rapides {
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .filtre-pill {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.55rem;
+  }
+
+  .ticker-label {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.52rem;
+  }
+
+  .ticker-item {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.58rem;
+  }
+
   .stats-bande {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  .stat-item {
+    padding: 1.2rem 0.8rem;
+  }
+
+  .stat-nombre {
+    font-size: 1.6rem;
+  }
+
   .stat-item:nth-child(2) {
     border-right: none;
   }
+
   .stat-item:nth-child(3),
   .stat-item:nth-child(4) {
     border-top: 1px solid rgba(13, 22, 40, 0.1);
+  }
+}
+
+/* ── TRÈS PETIT MOBILE ────────────────────────────────────── */
+@media (max-width: 380px) {
+  .carte-cta {
+    padding: 0.55rem 0.8rem;
+    font-size: 0.52rem;
+    letter-spacing: 0.12em;
+  }
+
+  .carte-prix {
+    font-size: 1.2rem;
+  }
+
+  .offres-entete-gauche h2 {
+    font-size: 1.3rem;
   }
 }
