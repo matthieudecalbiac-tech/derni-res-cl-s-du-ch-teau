@@ -125,10 +125,22 @@
   transform: scaleX(1);
 }
 
+/* ── ICÔNE LOSANGE ────────────────────────────────────────── */
 .service-icone {
-  font-size: 2rem;
-  margin-bottom: 1.2rem;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 1.4rem;
+  border: 1px solid rgba(200, 151, 62, 0.25);
+  padding: 10px;
+  transition: var(--transition);
+}
+
+.service-carte:hover .service-icone {
+  border-color: var(--or);
+  background: rgba(200, 151, 62, 0.05);
 }
 
 .service-titre {
