@@ -1,0 +1,366 @@
+/* ============================================================
+   CARTE EXPLORER — Modal plein écran
+   ============================================================ */
+
+.carte-explorer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: var(--bleu-nuit);
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.3s ease both;
+}
+
+/* ── HEADER ───────────────────────────────────────────────── */
+.carte-explorer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.5rem;
+  background: rgba(13, 22, 40, 0.97);
+  border-bottom: 1px solid rgba(200, 151, 62, 0.15);
+  flex-shrink: 0;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.carte-explorer-header-gauche {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.carte-explorer-retour {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gris);
+  cursor: pointer;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(200, 151, 62, 0.2);
+  background: none;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.carte-explorer-retour:hover {
+  color: var(--or);
+  border-color: var(--or);
+}
+
+.carte-explorer-titre {
+  font-family: var(--font-titre);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--or-clair);
+}
+
+.carte-explorer-sous-titre {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  color: var(--gris-fonce);
+  letter-spacing: 0.1em;
+}
+
+/* ── CORPS ────────────────────────────────────────────────── */
+.carte-explorer-corps {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── PANNEAU GAUCHE ───────────────────────────────────────── */
+.carte-explorer-panneau {
+  background: var(--bleu-fonce);
+  border-right: 1px solid rgba(200, 151, 62, 0.1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--or-sombre) var(--bleu-fonce);
+}
+
+.carte-section-label {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--or);
+  margin-bottom: 0.8rem;
+  display: block;
+}
+
+/* ── RECHERCHE ────────────────────────────────────────────── */
+.carte-explorer-recherche {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(200, 151, 62, 0.08);
+}
+
+.carte-input-wrapper {
+  display: flex;
+  gap: 0;
+}
+
+.carte-input {
+  flex: 1;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(200, 151, 62, 0.2);
+  border-right: none;
+  background: rgba(255, 255, 255, 0.04);
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 300;
+  color: var(--blanc-casse);
+  outline: none;
+  transition: var(--transition);
+}
+
+.carte-input:focus {
+  border-color: var(--or);
+  background: rgba(200, 151, 62, 0.05);
+}
+
+.carte-input::placeholder {
+  color: var(--gris-fonce);
+  font-size: 0.78rem;
+}
+
+.carte-btn-recherche {
+  padding: 0.7rem 1.1rem;
+  background: linear-gradient(135deg, var(--or), var(--or-clair));
+  color: var(--bleu-nuit);
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.carte-btn-recherche:hover {
+  background: linear-gradient(135deg, var(--or-clair), var(--or));
+}
+
+.carte-btn-recherche:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.carte-erreur {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: #f5c4c4;
+  margin-top: 0.5rem;
+  font-weight: 300;
+}
+
+.carte-succes-adresse {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: #7ac4a0;
+  margin-top: 0.5rem;
+  font-weight: 300;
+}
+
+/* ── FILTRES RAYON ────────────────────────────────────────── */
+.carte-explorer-filtres {
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(200, 151, 62, 0.08);
+}
+
+.carte-rayons {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.carte-rayon-pill {
+  padding: 0.4rem 0.9rem;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  border: 1px solid rgba(200, 151, 62, 0.2);
+  color: rgba(200, 151, 62, 0.5);
+  background: transparent;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.carte-rayon-pill:hover:not(.desactive) {
+  border-color: var(--or);
+  color: var(--or);
+}
+
+.carte-rayon-pill.actif {
+  background: var(--or);
+  border-color: var(--or);
+  color: var(--bleu-nuit);
+  font-weight: 500;
+}
+
+.carte-rayon-pill.desactive {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.carte-hint {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  color: var(--gris-fonce);
+  margin-top: 0.6rem;
+  font-style: italic;
+  font-weight: 300;
+}
+
+/* ── LISTE CHÂTEAUX ───────────────────────────────────────── */
+.carte-explorer-liste {
+  padding: 1.5rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.carte-vide {
+  text-align: center;
+  padding: 2rem;
+  color: var(--gris-fonce);
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.carte-chateau-item {
+  display: flex;
+  gap: 0.8rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid rgba(200, 151, 62, 0.08);
+  cursor: pointer;
+  transition: var(--transition);
+  align-items: center;
+}
+
+.carte-chateau-item:last-child {
+  border-bottom: none;
+}
+
+.carte-chateau-item:hover {
+  background: rgba(200, 151, 62, 0.04);
+  margin: 0 -1.5rem;
+  padding: 0.9rem 1.5rem;
+}
+
+.carte-chateau-item-img {
+  width: 64px;
+  height: 52px;
+  object-fit: cover;
+  flex-shrink: 0;
+  filter: brightness(0.85);
+}
+
+.carte-chateau-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.carte-urgence-mini {
+  font-family: var(--font-ui);
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.4rem;
+  display: inline-block;
+  margin-bottom: 0.2rem;
+}
+
+.badge-j7 {
+  background: rgba(138, 48, 48, 0.3);
+  color: #f5c4c4;
+}
+.badge-j10 {
+  background: rgba(200, 151, 62, 0.2);
+  color: var(--or-clair);
+}
+.badge-j15 {
+  background: rgba(74, 140, 90, 0.2);
+  color: #7ac4a0;
+}
+
+.carte-chateau-item-nom {
+  font-family: var(--font-titre);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blanc-casse);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.carte-chateau-item-meta {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 300;
+  color: var(--gris-fonce);
+  margin-top: 0.15rem;
+}
+
+.carte-chateau-item-dist {
+  color: var(--or);
+}
+
+.carte-chateau-item-prix {
+  font-family: var(--font-titre);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--or-clair);
+  margin-top: 0.2rem;
+  letter-spacing: 0.05em;
+}
+
+/* ── CARTE LEAFLET ────────────────────────────────────────── */
+.carte-explorer-map {
+  position: relative;
+  overflow: hidden;
+}
+
+.carte-explorer-map .leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: var(--bleu-nuit);
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .carte-explorer-corps {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .carte-explorer-panneau {
+    max-height: 45vh;
+    border-right: none;
+    border-bottom: 1px solid rgba(200, 151, 62, 0.1);
+  }
+
+  .carte-explorer-map {
+    min-height: 55vw;
+  }
+
+  .carte-explorer-titre {
+    display: none;
+  }
+}

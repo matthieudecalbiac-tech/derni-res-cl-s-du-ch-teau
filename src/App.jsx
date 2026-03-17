@@ -8,6 +8,7 @@ import Temoignages from "./components/Temoignages";
 import Newsletter from "./components/Newsletter";
 import Footer from "./components/Footer";
 import ChateauModal from "./components/ChateauModal";
+import CarteExplorer from "./components/CarteExplorer";
 
 const LysPattern = () => (
   <svg
@@ -70,12 +71,17 @@ const LysPattern = () => (
 function App() {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [filtresActifs, setFiltresActifs] = useState({});
+  const [carteOuverte, setCarteOuverte] = useState(false);
+
+  const ouvrirChateau = (chateau) => {
+    setCarteOuverte(false);
+    setChateauSelectionne(chateau);
+  };
 
   return (
     <div className="app">
       <LysPattern />
-
-      <Header />
+      <Header onOuvrirCarte={() => setCarteOuverte(true)} />
       <main>
         <Hero />
         <OffresUrgentes
@@ -89,10 +95,18 @@ function App() {
         <Newsletter />
       </main>
       <Footer />
+
       {chateauSelectionne && (
         <ChateauModal
           chateau={chateauSelectionne}
           onClose={() => setChateauSelectionne(null)}
+        />
+      )}
+
+      {carteOuverte && (
+        <CarteExplorer
+          onClose={() => setCarteOuverte(false)}
+          onOuvrirChateau={ouvrirChateau}
         />
       )}
     </div>

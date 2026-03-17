@@ -63,7 +63,7 @@ const LogoChateau = () => (
   </svg>
 );
 
-export default function Header() {
+export default function Header({ onOuvrirCarte }) {
   const [solide, setSolide] = useState(false);
   const [menuOuvert, setMenuOuvert] = useState(false);
 
@@ -112,6 +112,9 @@ export default function Header() {
           </span>
           <span className="nav-lien" onClick={() => scrollVers("newsletter")}>
             Le club
+          </span>
+          <span className="nav-lien nav-lien--carte" onClick={onOuvrirCarte}>
+            ◆ Carte
           </span>
         </nav>
 
@@ -165,6 +168,15 @@ export default function Header() {
           onClick={() => scrollVers("newsletter")}
         >
           Le club
+        </span>
+        <span
+          className="nav-lien-mobile nav-lien--carte"
+          onClick={() => {
+            onOuvrirCarte();
+            setMenuOuvert(false);
+          }}
+        >
+          ◆ Explorer la carte
         </span>
         <span className="nav-lien-mobile" onClick={() => scrollVers("offres")}>
           Voir les offres →
