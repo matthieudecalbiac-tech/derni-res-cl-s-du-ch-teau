@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
-import OffresUrgentes from "./components/OffresUrgentes";
+import ClesAlaUne from "./components/ClesAlaUne";
+import TousLesChateaux from "./components/TousLesChateaux";
 import Services from "./components/Services";
 import CommentCaMarche from "./components/CommentCaMarche";
 import Temoignages from "./components/Temoignages";
@@ -9,6 +10,8 @@ import Newsletter from "./components/Newsletter";
 import Footer from "./components/Footer";
 import ChateauModal from "./components/ChateauModal";
 import CarteExplorer from "./components/CarteExplorer";
+import AuthModal from "./components/AuthModal";
+import CompteUser from "./components/CompteUser";
 
 const LysPattern = () => (
   <svg
@@ -70,29 +73,41 @@ const LysPattern = () => (
 
 function App() {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
-  const [filtresActifs, setFiltresActifs] = useState({});
   const [carteOuverte, setCarteOuverte] = useState(false);
+  const [tousOuvert, setTousOuvert] = useState(false);
+  const [authOuvert, setAuthOuvert] = useState(false);
+  const [authMode, setAuthMode] = useState("inscription");
+  const [compteOuvert, setCompteOuvert] = useState(false);
+  const [userConnecte, setUserConnecte] = useState(null);
+
+  const ouvrirAuth = (mode = "inscription") => {
+    setAuthMode(mode);
+    setAuthOuvert(true);
+  };
 
   const ouvrirChateau = (chateau) => {
     setCarteOuverte(false);
+    setTousOuvert(false);
     setChateauSelectionne(chateau);
   };
 
   return (
     <div className="app">
       <LysPattern />
-      <Header onOuvrirCarte={() => setCarteOuverte(true)} />
+      <Header
+        onOuvrirCarte={() => setCarteOuverte(true)}
+        onOuvrirTous={() => setTousOuvert(true)}
+        onOuvrirAuth={ouvrirAuth}
+        onOuvrirCompte={() => setCompteOuvert(true)}
+        userConnecte={userConnecte}
+      />
       <main>
-        <Hero />
-        <OffresUrgentes
-          onSelectChateau={setChateauSelectionne}
-          filtresActifs={filtresActifs}
-          onFiltresChange={setFiltresActifs}
-        />
+        <Hero onOuvrirAuth={() => ouvrirAuth("inscription")} />
+        <ClesAlaUne onSelectChateau={ouvrirChateau} />
         <Services />
         <CommentCaMarche />
         <Temoignages />
-        <Newsletter />
+        <Newsletter onOuvrirAuth={() => ouvrirAuth("inscription")} />
       </main>
       <Footer />
 
@@ -107,6 +122,32 @@ function App() {
         <CarteExplorer
           onClose={() => setCarteOuverte(false)}
           onOuvrirChateau={ouvrirChateau}
+        />
+      )}
+
+      {tousOuvert && (
+        <TousLesChateaux
+          onClose={() => setTousOuvert(false)}
+          onSelectChateau={ouvrirChateau}
+        />
+      )}
+
+      {authOuvert && (
+        <AuthModal
+          modeInitial={authMode}
+          onClose={() => setAuthOuvert(false)}
+          onConnexion={(user) => setUserConnecte(user)}
+        />
+      )}
+
+      {compteOuvert && userConnecte && (
+        <CompteUser
+          user={userConnecte}
+          onClose={() => setCompteOuvert(false)}
+          onDeconnexion={() => {
+            setUserConnecte(null);
+            setCompteOuvert(false);
+          }}
         />
       )}
     </div>

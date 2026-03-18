@@ -63,7 +63,13 @@ const LogoChateau = () => (
   </svg>
 );
 
-export default function Header({ onOuvrirCarte }) {
+export default function Header({
+  onOuvrirCarte,
+  onOuvrirTous,
+  onOuvrirAuth,
+  onOuvrirCompte,
+  userConnecte,
+}) {
   const [solide, setSolide] = useState(false);
   const [menuOuvert, setMenuOuvert] = useState(false);
 
@@ -104,14 +110,14 @@ export default function Header({ onOuvrirCarte }) {
           <span className="nav-lien" onClick={() => scrollVers("offres")}>
             Offres du moment
           </span>
+          <span className="nav-lien" onClick={onOuvrirTous}>
+            Nos Châteaux
+          </span>
           <span className="nav-lien" onClick={() => scrollVers("services")}>
             Services
           </span>
           <span className="nav-lien" onClick={() => scrollVers("comment")}>
             Comment ça marche
-          </span>
-          <span className="nav-lien" onClick={() => scrollVers("newsletter")}>
-            Le club
           </span>
           <span className="nav-lien nav-lien--carte" onClick={onOuvrirCarte}>
             ◆ Carte
@@ -120,10 +126,32 @@ export default function Header({ onOuvrirCarte }) {
 
         {/* Actions desktop */}
         <div className="header-actions">
-          <span className="header-connexion">Connexion</span>
-          <button className="header-cta" onClick={() => scrollVers("offres")}>
-            Voir les offres
-          </button>
+          {userConnecte ? (
+            <button
+              className="header-connexion header-membre"
+              onClick={onOuvrirCompte}
+            >
+              <span
+                className={`header-niveau-dot niveau-${userConnecte.niveau.toLowerCase()}`}
+              />
+              {userConnecte.prenom}
+            </button>
+          ) : (
+            <>
+              <span
+                className="header-connexion"
+                onClick={() => onOuvrirAuth("connexion")}
+              >
+                Connexion
+              </span>
+              <button
+                className="header-cta"
+                onClick={() => onOuvrirAuth("inscription")}
+              >
+                Rejoindre le club
+              </button>
+            </>
+          )}
         </div>
 
         {/* Burger mobile */}
@@ -156,18 +184,21 @@ export default function Header({ onOuvrirCarte }) {
         </span>
         <span
           className="nav-lien-mobile"
+          onClick={() => {
+            onOuvrirTous();
+            setMenuOuvert(false);
+          }}
+        >
+          Nos Châteaux
+        </span>
+        <span
+          className="nav-lien-mobile"
           onClick={() => scrollVers("services")}
         >
           Services & prestations
         </span>
         <span className="nav-lien-mobile" onClick={() => scrollVers("comment")}>
           Comment ça marche
-        </span>
-        <span
-          className="nav-lien-mobile"
-          onClick={() => scrollVers("newsletter")}
-        >
-          Le club
         </span>
         <span
           className="nav-lien-mobile nav-lien--carte"
@@ -178,9 +209,38 @@ export default function Header({ onOuvrirCarte }) {
         >
           ◆ Explorer la carte
         </span>
-        <span className="nav-lien-mobile" onClick={() => scrollVers("offres")}>
-          Voir les offres →
-        </span>
+        {userConnecte ? (
+          <span
+            className="nav-lien-mobile"
+            onClick={() => {
+              onOuvrirCompte();
+              setMenuOuvert(false);
+            }}
+          >
+            Mon compte · {userConnecte.prenom}
+          </span>
+        ) : (
+          <>
+            <span
+              className="nav-lien-mobile"
+              onClick={() => {
+                onOuvrirAuth("connexion");
+                setMenuOuvert(false);
+              }}
+            >
+              Connexion
+            </span>
+            <span
+              className="nav-lien-mobile"
+              onClick={() => {
+                onOuvrirAuth("inscription");
+                setMenuOuvert(false);
+              }}
+            >
+              Rejoindre le club →
+            </span>
+          </>
+        )}
       </div>
     </header>
   );

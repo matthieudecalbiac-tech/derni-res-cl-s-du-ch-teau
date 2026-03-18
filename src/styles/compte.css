@@ -1,0 +1,558 @@
+/* ============================================================
+   COMPTE USER — Dashboard membre
+   ============================================================ */
+
+.compte-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: var(--bleu-nuit);
+  animation: fadeIn 0.3s ease both;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--or-sombre) var(--bleu-nuit);
+}
+
+/* ── HEADER ───────────────────────────────────────────────── */
+.compte-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 2rem;
+  background: rgba(13, 22, 40, 0.97);
+  border-bottom: 1px solid rgba(200, 151, 62, 0.15);
+  backdrop-filter: blur(12px);
+  gap: 1rem;
+}
+
+.compte-header-gauche {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.compte-retour {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gris);
+  cursor: pointer;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(200, 151, 62, 0.2);
+  background: none;
+  transition: var(--transition);
+}
+
+.compte-retour:hover {
+  color: var(--or);
+  border-color: var(--or);
+}
+
+.compte-header-titre {
+  font-family: var(--font-titre);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--or-clair);
+}
+
+.compte-deconnexion {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gris-fonce);
+  cursor: pointer;
+  transition: var(--transition);
+  background: none;
+  border: none;
+  padding: 0.5rem;
+}
+
+.compte-deconnexion:hover {
+  color: #f5c4c4;
+}
+
+/* ── HERO MEMBRE ──────────────────────────────────────────── */
+.compte-hero {
+  background: linear-gradient(
+    135deg,
+    var(--bleu-nuit) 0%,
+    var(--bleu-fonce) 100%
+  );
+  border-bottom: 1px solid rgba(200, 151, 62, 0.1);
+  padding: 3rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.compte-hero::before {
+  content: "⚜";
+  position: absolute;
+  right: 3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10rem;
+  opacity: 0.04;
+  color: var(--or);
+  pointer-events: none;
+}
+
+.compte-hero-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.compte-hero-gauche {
+}
+
+.compte-hero-numero {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--or);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.compte-hero-nom {
+  font-family: var(--font-titre);
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blanc-casse);
+  margin-bottom: 0.4rem;
+}
+
+.compte-hero-email {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  color: var(--gris-fonce);
+  letter-spacing: 0.08em;
+}
+
+.compte-hero-droite {
+  text-align: center;
+}
+
+.compte-badge-niveau {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 1.2rem 2rem;
+  border: 1px solid rgba(200, 151, 62, 0.2);
+  background: rgba(200, 151, 62, 0.04);
+}
+
+.compte-badge-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.compte-badge-dot.blue {
+  background: #4a90d9;
+  box-shadow: 0 0 12px rgba(74, 144, 217, 0.4);
+}
+.compte-badge-dot.silver {
+  background: #a8b8c8;
+  box-shadow: 0 0 12px rgba(168, 184, 200, 0.4);
+}
+.compte-badge-dot.gold {
+  background: #c8973e;
+  box-shadow: 0 0 12px rgba(200, 151, 62, 0.4);
+}
+.compte-badge-dot.platinum {
+  background: linear-gradient(135deg, #e8d5b0, #fff);
+  box-shadow: 0 0 12px rgba(232, 213, 176, 0.6);
+}
+
+.compte-badge-nom {
+  font-family: var(--font-titre);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--blanc-casse);
+}
+
+.compte-badge-membre {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  font-weight: 300;
+  color: var(--gris-fonce);
+  letter-spacing: 0.15em;
+}
+
+/* ── PROGRESSION ──────────────────────────────────────────── */
+.compte-progression {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.compte-progression-titre {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--or);
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.compte-progression-niveaux {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(200, 151, 62, 0.1);
+  border: 1px solid rgba(200, 151, 62, 0.1);
+  margin-bottom: 1rem;
+}
+
+.compte-progression-niveau {
+  background: var(--bleu-fonce);
+  padding: 1rem;
+  text-align: center;
+  position: relative;
+  transition: var(--transition);
+}
+
+.compte-progression-niveau.actif {
+  background: rgba(200, 151, 62, 0.06);
+}
+
+.compte-progression-niveau.actif::after {
+  content: "✓";
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  font-size: 0.6rem;
+  color: var(--or);
+}
+
+.compte-prog-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin: 0 auto 0.5rem;
+}
+
+.compte-prog-dot.blue {
+  background: #4a90d9;
+}
+.compte-prog-dot.silver {
+  background: #a8b8c8;
+}
+.compte-prog-dot.gold {
+  background: #c8973e;
+}
+.compte-prog-dot.platinum {
+  background: linear-gradient(135deg, #e8d5b0, #fff);
+}
+
+.compte-prog-nom {
+  font-family: var(--font-titre);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blanc-casse);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.compte-prog-seuil {
+  font-family: var(--font-ui);
+  font-size: 0.52rem;
+  font-weight: 300;
+  color: var(--gris-fonce);
+}
+
+.compte-barre-progression {
+  height: 3px;
+  background: rgba(200, 151, 62, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.compte-barre-remplie {
+  height: 100%;
+  background: linear-gradient(90deg, var(--or), var(--or-clair));
+  border-radius: 2px;
+  transition: width 1s ease;
+}
+
+.compte-progression-texte {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 300;
+  color: var(--gris-fonce);
+  letter-spacing: 0.08em;
+}
+
+/* ── CORPS DASHBOARD ──────────────────────────────────────── */
+.compte-corps {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* ── CARTE INFO ───────────────────────────────────────────── */
+.compte-carte {
+  background: var(--bleu-fonce);
+  border: 1px solid rgba(200, 151, 62, 0.12);
+  padding: 1.5rem;
+}
+
+.compte-carte-titre {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--or);
+  display: block;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(200, 151, 62, 0.08);
+}
+
+/* ── INFOS MEMBRE ─────────────────────────────────────────── */
+.compte-infos-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.compte-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid rgba(200, 151, 62, 0.05);
+}
+
+.compte-info-item:last-child {
+  border-bottom: none;
+}
+
+.compte-info-label {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 300;
+  color: var(--gris-fonce);
+  letter-spacing: 0.1em;
+}
+
+.compte-info-valeur {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: var(--blanc-casse);
+  letter-spacing: 0.05em;
+}
+
+.compte-info-valeur.or {
+  color: var(--or);
+  font-weight: 500;
+}
+
+/* ── PARRAINAGE ───────────────────────────────────────────── */
+.compte-parrainage {
+  background: rgba(200, 151, 62, 0.03);
+}
+
+.compte-parrainage-code {
+  font-family: var(--font-titre);
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: var(--or);
+  letter-spacing: 0.25em;
+  text-align: center;
+  padding: 1rem;
+  border: 1px solid rgba(200, 151, 62, 0.2);
+  margin-bottom: 0.8rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.compte-parrainage-code:hover {
+  background: rgba(200, 151, 62, 0.06);
+}
+
+.compte-parrainage-desc {
+  font-family: var(--font-editorial);
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--gris-fonce);
+  line-height: 1.6;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.compte-parrainage-copie {
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  color: #7ac4a0;
+  text-align: center;
+  letter-spacing: 0.1em;
+}
+
+/* ── AVANTAGES ────────────────────────────────────────────── */
+.compte-avantages-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.compte-avantage {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  font-weight: 300;
+  color: var(--gris);
+  letter-spacing: 0.05em;
+}
+
+.compte-avantage::before {
+  content: "✦";
+  color: var(--or);
+  font-size: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* ── RÉSERVATIONS ─────────────────────────────────────────── */
+.compte-reservations-vide {
+  text-align: center;
+  padding: 1.5rem;
+  font-family: var(--font-editorial);
+  font-style: italic;
+  color: var(--gris-fonce);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+.compte-reserver-btn {
+  display: block;
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.8rem;
+  background: linear-gradient(135deg, var(--or), var(--or-clair));
+  color: var(--bleu-nuit);
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.compte-reserver-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--ombre-or);
+}
+
+/* ── HEADER NIVEAU ────────────────────────────────────────── */
+.header-niveau-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.3rem;
+}
+
+.niveau-blue {
+  background: #4a90d9;
+}
+.niveau-silver {
+  background: #a8b8c8;
+}
+.niveau-gold {
+  background: #c8973e;
+}
+.niveau-platinum {
+  background: linear-gradient(135deg, #e8d5b0, #fff);
+}
+
+.header-membre {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: var(--or-clair);
+  background: none;
+  border: 1px solid rgba(200, 151, 62, 0.25);
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.header-membre:hover {
+  border-color: var(--or);
+  background: rgba(200, 151, 62, 0.06);
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .compte-corps {
+    grid-template-columns: 1fr;
+    padding: 0 1rem 3rem;
+  }
+
+  .compte-hero {
+    padding: 2rem 1rem;
+  }
+
+  .compte-hero::before {
+    display: none;
+  }
+
+  .compte-hero-inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .compte-progression {
+    padding: 1.5rem 1rem;
+  }
+
+  .compte-progression-niveaux {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .compte-header {
+    padding: 0.7rem 1rem;
+  }
+
+  .compte-header-titre {
+    display: none;
+  }
+}

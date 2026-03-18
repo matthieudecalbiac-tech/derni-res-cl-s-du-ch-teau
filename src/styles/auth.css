@@ -1,0 +1,396 @@
+/* ============================================================
+   AUTH MODAL — Inscription & Connexion
+   ============================================================ */
+
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  background: rgba(8, 14, 30, 0.92);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.25s ease both;
+}
+
+.auth-modal {
+  background: var(--bleu-fonce);
+  border: 1px solid rgba(200, 151, 62, 0.2);
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+  animation: slideUp 0.3s ease both;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── HEADER MODAL ─────────────────────────────────────────── */
+.auth-modal-header {
+  padding: 2rem 2rem 0;
+  text-align: center;
+  position: relative;
+}
+
+.auth-modal-fermer {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: 1px solid rgba(200, 151, 62, 0.2);
+  color: var(--gris-fonce);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.auth-modal-fermer:hover {
+  border-color: var(--or);
+  color: var(--or);
+}
+
+.auth-modal-logo {
+  font-size: 1.5rem;
+  margin-bottom: 0.8rem;
+}
+
+.auth-modal-titre {
+  font-family: var(--font-titre);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--blanc-casse);
+  margin-bottom: 0.4rem;
+}
+
+.auth-modal-sous-titre {
+  font-family: var(--font-editorial);
+  font-size: 0.88rem;
+  font-style: italic;
+  color: rgba(200, 151, 62, 0.6);
+  font-weight: 300;
+}
+
+/* ── ONGLETS ──────────────────────────────────────────────── */
+.auth-onglets {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid rgba(200, 151, 62, 0.12);
+  margin: 1.5rem 0 0;
+}
+
+.auth-onglet {
+  padding: 0.9rem;
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gris-fonce);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+
+.auth-onglet.actif {
+  color: var(--or);
+  border-bottom-color: var(--or);
+}
+
+.auth-onglet:hover:not(.actif) {
+  color: var(--gris);
+}
+
+/* ── FORMULAIRE ───────────────────────────────────────────── */
+.auth-form {
+  padding: 1.8rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.auth-champ {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.auth-champ label {
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gris-fonce);
+}
+
+.auth-champ input {
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(200, 151, 62, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 300;
+  color: var(--blanc-casse);
+  outline: none;
+  transition: var(--transition);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.auth-champ input:focus {
+  border-color: var(--or);
+  background: rgba(200, 151, 62, 0.04);
+}
+
+.auth-champ input::placeholder {
+  color: var(--gris-fonce);
+  font-size: 0.8rem;
+}
+
+.auth-champ-double {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+/* ── PARRAIN ──────────────────────────────────────────────── */
+.auth-parrain {
+  padding: 1rem;
+  border: 1px solid rgba(200, 151, 62, 0.1);
+  background: rgba(200, 151, 62, 0.03);
+}
+
+.auth-parrain-label {
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--or);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.auth-parrain-desc {
+  font-family: var(--font-editorial);
+  font-size: 0.78rem;
+  font-style: italic;
+  color: var(--gris-fonce);
+  margin-bottom: 0.6rem;
+  line-height: 1.5;
+}
+
+/* ── NIVEAUX CLUB ─────────────────────────────────────────── */
+.auth-niveaux {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(200, 151, 62, 0.1);
+  border: 1px solid rgba(200, 151, 62, 0.1);
+  margin-bottom: 0.5rem;
+}
+
+.auth-niveau {
+  background: var(--bleu-nuit);
+  padding: 0.7rem 0.4rem;
+  text-align: center;
+}
+
+.auth-niveau-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin: 0 auto 0.4rem;
+}
+
+.auth-niveau-dot.blue {
+  background: #4a90d9;
+}
+.auth-niveau-dot.silver {
+  background: #a8b8c8;
+}
+.auth-niveau-dot.gold {
+  background: #c8973e;
+}
+.auth-niveau-dot.platinum {
+  background: linear-gradient(135deg, #e8d5b0, #fff8f0);
+}
+
+.auth-niveau-nom {
+  font-family: var(--font-titre);
+  font-size: 0.5rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blanc-casse);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+.auth-niveau-seuil {
+  font-family: var(--font-ui);
+  font-size: 0.48rem;
+  font-weight: 300;
+  color: var(--gris-fonce);
+  letter-spacing: 0.05em;
+}
+
+/* ── CGU ──────────────────────────────────────────────────── */
+.auth-cgu {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 300;
+  color: var(--gris-fonce);
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+.auth-cgu input {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  accent-color: var(--or);
+  cursor: pointer;
+}
+
+.auth-cgu span {
+  color: var(--or);
+}
+
+/* ── BOUTON SUBMIT ────────────────────────────────────────── */
+.auth-btn-submit {
+  width: 100%;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--or), var(--or-clair));
+  color: var(--bleu-nuit);
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.auth-btn-submit:hover {
+  background: linear-gradient(135deg, var(--or-clair), var(--or));
+  transform: translateY(-1px);
+  box-shadow: var(--ombre-or);
+}
+
+.auth-btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── ERREUR ───────────────────────────────────────────────── */
+.auth-erreur {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: #f5c4c4;
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(138, 48, 48, 0.1);
+  border: 1px solid rgba(138, 48, 48, 0.2);
+}
+
+/* ── SUCCÈS ───────────────────────────────────────────────── */
+.auth-succes {
+  padding: 2.5rem 2rem;
+  text-align: center;
+}
+
+.auth-succes-numero {
+  font-family: var(--font-titre);
+  font-size: 1.6rem;
+  font-weight: 500;
+  color: var(--or);
+  letter-spacing: 0.2em;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.auth-succes-titre {
+  font-family: var(--font-titre);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--blanc-casse);
+  margin-bottom: 0.8rem;
+}
+
+.auth-succes-texte {
+  font-family: var(--font-editorial);
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--gris);
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+.auth-succes-niveau {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.2rem;
+  border: 1px solid rgba(74, 144, 217, 0.4);
+  background: rgba(74, 144, 217, 0.08);
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #4a90d9;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .auth-modal {
+    max-height: 95vh;
+  }
+
+  .auth-form {
+    padding: 1.2rem 1.2rem 1.5rem;
+  }
+
+  .auth-modal-header {
+    padding: 1.5rem 1.2rem 0;
+  }
+
+  .auth-champ-double {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-niveaux {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
