@@ -196,6 +196,8 @@ export default function Header({
   onOuvrirAuth,
   onOuvrirCompte,
   onOuvrirClub,
+  onOuvrirEvenementiel,
+  onOuvrirAPropos,
   userConnecte,
 }) {
   const [solide, setSolide] = useState(false);
@@ -236,10 +238,10 @@ export default function Header({
         {/* Navigation desktop */}
         <nav className="header-nav">
           <span className="nav-lien" onClick={() => scrollVers("offres")}>
-            Offres du moment
+            Offres
           </span>
           <span className="nav-lien" onClick={onOuvrirTous}>
-            Nos Châteaux
+            Châteaux
           </span>
           <span className="nav-lien" onClick={() => scrollVers("services")}>
             Services
@@ -248,7 +250,19 @@ export default function Header({
             ◆ Carte
           </span>
           <span className="nav-lien nav-lien--club" onClick={onOuvrirClub}>
-            ⚜ Club des Châtelains
+            ⚜ Club
+          </span>
+          <span
+            className="nav-lien nav-lien--event"
+            onClick={onOuvrirEvenementiel}
+          >
+            ◆ Événementiel
+          </span>
+          <span
+            className="nav-lien nav-lien--apropos"
+            onClick={onOuvrirAPropos}
+          >
+            À propos
           </span>
         </nav>
 
@@ -320,7 +334,7 @@ export default function Header({
           className="nav-lien-mobile"
           onClick={() => scrollVers("services")}
         >
-          Services & prestations
+          Services
         </span>
         <span
           className="nav-lien-mobile nav-lien--carte"
@@ -339,6 +353,24 @@ export default function Header({
           }}
         >
           ⚜ Club des Châtelains
+        </span>
+        <span
+          className="nav-lien-mobile nav-lien--event"
+          onClick={() => {
+            onOuvrirEvenementiel();
+            setMenuOuvert(false);
+          }}
+        >
+          ◆ Clés de l'Événementiel
+        </span>
+        <span
+          className="nav-lien-mobile nav-lien--apropos"
+          onClick={() => {
+            onOuvrirAPropos();
+            setMenuOuvert(false);
+          }}
+        >
+          À propos
         </span>
         {userConnecte ? (
           <span
@@ -362,7 +394,7 @@ export default function Header({
               Connexion
             </span>
             <span
-              className="nav-lien-mobile"
+              className="nav-lien-mobile nav-lien--club"
               onClick={() => {
                 onOuvrirClub();
                 setMenuOuvert(false);

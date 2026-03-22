@@ -13,6 +13,8 @@ import CarteExplorer from "./components/CarteExplorer";
 import AuthModal from "./components/AuthModal";
 import CompteUser from "./components/CompteUser";
 import ClubChatelains from "./components/ClubChatelains";
+import ClesEvenementiel from "./components/ClesEvenementiel";
+import APropos from "./components/APropos";
 
 const LysPattern = () => (
   <svg
@@ -81,6 +83,8 @@ function App() {
   const [compteOuvert, setCompteOuvert] = useState(false);
   const [userConnecte, setUserConnecte] = useState(null);
   const [clubOuvert, setClubOuvert] = useState(false);
+  const [evenementielOuvert, setEvenementielOuvert] = useState(false);
+  const [aProposOuvert, setAProposOuvert] = useState(false);
 
   const ouvrirAuth = (mode = "inscription") => {
     setAuthMode(mode);
@@ -103,6 +107,8 @@ function App() {
         onOuvrirAuth={ouvrirAuth}
         onOuvrirCompte={() => setCompteOuvert(true)}
         onOuvrirClub={() => setClubOuvert(true)}
+        onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
+        onOuvrirAPropos={() => setAProposOuvert(true)}
         userConnecte={userConnecte}
       />
       <main>
@@ -159,6 +165,10 @@ function App() {
           onOuvrirAuth={ouvrirAuth}
         />
       )}
+      {evenementielOuvert && (
+        <ClesEvenementiel onClose={() => setEvenementielOuvert(false)} />
+      )}
+      {aProposOuvert && <APropos onClose={() => setAProposOuvert(false)} />}
     </div>
   );
 }

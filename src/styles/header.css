@@ -1,5 +1,5 @@
 /* ============================================================
-   HEADER
+   HEADER v3.0
    ============================================================ */
 
 .header {
@@ -70,7 +70,7 @@
 .header-nav {
   display: flex;
   align-items: center;
-  gap: 2.2rem;
+  gap: 1.5rem;
 }
 
 .nav-lien {
@@ -84,6 +84,7 @@
   position: relative;
   padding-bottom: 2px;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .nav-lien::after {
@@ -100,12 +101,66 @@
 .nav-lien:hover {
   color: var(--or-clair);
 }
-
 .nav-lien:hover::after {
   width: 100%;
 }
 
-/* ── ACTIONS HEADER ───────────────────────────────────────── */
+/* Carte */
+.nav-lien--carte {
+  color: var(--or) !important;
+  border: 1px solid rgba(200, 151, 62, 0.3);
+  padding: 0.35rem 0.9rem;
+  letter-spacing: 0.2em;
+}
+
+.nav-lien--carte:hover {
+  background: rgba(200, 151, 62, 0.08);
+  border-color: var(--or);
+}
+
+.nav-lien--carte::after {
+  display: none;
+}
+
+/* Club */
+.nav-lien--club {
+  color: var(--or) !important;
+  font-weight: 400;
+}
+
+.nav-lien--club::after {
+  background: var(--or);
+}
+
+/* Événementiel */
+.nav-lien--event {
+  color: rgba(200, 151, 62, 0.7) !important;
+  font-style: italic;
+  font-family: var(--font-editorial);
+  letter-spacing: 0.06em;
+  text-transform: none;
+  font-size: 0.82rem;
+}
+
+.nav-lien--event:hover {
+  color: var(--or) !important;
+}
+
+/* À propos */
+.nav-lien--apropos {
+  font-style: italic;
+  font-family: var(--font-editorial);
+  letter-spacing: 0.06em;
+  text-transform: none;
+  font-size: 0.82rem;
+  color: rgba(240, 230, 210, 0.5) !important;
+}
+
+.nav-lien--apropos:hover {
+  color: var(--or-clair) !important;
+}
+
+/* ── ACTIONS ──────────────────────────────────────────────── */
 .header-actions {
   display: flex;
   align-items: center;
@@ -144,10 +199,55 @@
   transition: var(--transition);
   cursor: pointer;
   white-space: nowrap;
+  background: none;
+  border: none;
 }
 
 .header-connexion:hover {
   color: var(--or-clair);
+}
+
+/* ── MEMBRE CONNECTÉ ──────────────────────────────────────── */
+.header-niveau-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.3rem;
+}
+
+.niveau-blue {
+  background: #4a90d9;
+}
+.niveau-silver {
+  background: #a8b8c8;
+}
+.niveau-gold {
+  background: #c8973e;
+}
+.niveau-platinum {
+  background: linear-gradient(135deg, #e8d5b0, #fff);
+}
+
+.header-membre {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  color: var(--or-clair);
+  background: none;
+  border: 1px solid rgba(200, 151, 62, 0.25);
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.header-membre:hover {
+  border-color: var(--or);
+  background: rgba(200, 151, 62, 0.06);
 }
 
 /* ── BURGER MOBILE ────────────────────────────────────────── */
@@ -205,41 +305,46 @@
 }
 
 /* ── RESPONSIVE ───────────────────────────────────────────── */
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
   .header-nav {
-    gap: 1.5rem;
+    gap: 1rem;
   }
-
   .header-inner {
     padding: 1.4rem 2rem;
   }
-
   .header--solide .header-inner {
     padding: 0.9rem 2rem;
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
+  .logo-secondaire {
+    display: none;
+  }
+  .header-nav {
+    gap: 0.8rem;
+  }
+  .nav-lien {
+    font-size: 0.58rem;
+  }
+}
+
+@media (max-width: 1000px) {
   .header-nav {
     display: none;
   }
-
   .header-actions {
     display: none;
   }
-
   .header-burger {
     display: flex;
   }
-
   .header-inner {
     padding: 1.2rem 1.5rem;
   }
-
   .header--solide .header-inner {
     padding: 0.9rem 1.5rem;
   }
-
   .logo-principale {
     font-size: 0.75rem;
     letter-spacing: 0.1em;
@@ -250,7 +355,6 @@
   .logo-secondaire {
     display: none;
   }
-
   .logo-principale {
     font-size: 0.7rem;
   }
