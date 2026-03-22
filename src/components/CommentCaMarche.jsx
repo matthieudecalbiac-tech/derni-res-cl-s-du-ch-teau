@@ -1,45 +1,78 @@
 import "../styles/editorial.css";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 
-const ETAPES = [
+const ACCES = [
   {
-    numero: "01",
-    icone: "🏰",
-    titre: "Nos châteaux signalent",
-    texte:
-      "Chaque semaine, nos châteaux partenaires nous confient leurs dernières disponibilités à J-15, J-10 ou J-7.",
+    type: "dernières-clés",
+    label: "Accès libre",
+    icone: "⏳",
+    titre: "Dernières Clés du Château",
+    sous_titre: "Pour saisir l'instant",
+    description:
+      "Sans inscription, sans engagement. Chaque semaine, nos châteaux partenaires nous confient leurs disponibilités last-minute — J-7, J-10 ou J-15. Jusqu'à −40% sur des séjours d'exception.",
+    points: [
+      "Offres publiées chaque semaine",
+      "Disponibles 7 à 15 jours à l'avance",
+      "Jusqu'à −40% sur le tarif habituel",
+      "Accessible à tous, sans inscription",
+    ],
+    cta: "Voir les offres du moment",
   },
   {
-    numero: "02",
+    type: "club",
+    label: "Sur inscription · Gratuit",
     icone: "⚜",
-    titre: "Nous sélectionnons",
-    texte:
-      "Notre équipe valide chaque offre : cadre, qualité, expérience. Seul l'exceptionnel intègre la plateforme.",
-  },
-  {
-    numero: "03",
-    icone: "📩",
-    titre: "Vous êtes alertés",
-    texte:
-      "Les membres du club reçoivent une invitation discrète : une sélection, une durée limitée, une décision à prendre.",
-  },
-  {
-    numero: "04",
-    icone: "🗝",
-    titre: "Vous vivez le château",
-    texte:
-      "Vous arrivez. Le domaine vous appartient le temps d'un week-end. C'est tout ce qui compte.",
+    titre: "Club des Châtelains",
+    sous_titre: "Pour aller plus loin",
+    description:
+      "Rejoignez le club pour accéder aux vitrines permanentes de chaque château, aux packages exclusifs réservés aux membres, et aux offres que les propriétaires ne publient nulle part ailleurs.",
+    points: [
+      "Vitrines permanentes de chaque château",
+      "Packages exclusifs hors last-minute",
+      "Alertes avant-première sur les offres",
+      "Progression Blue → Silver → Gold → Platinum",
+    ],
+    cta: "Rejoindre le Club",
   },
 ];
 
-export default function CommentCaMarche() {
+const ETAPES = [
+  {
+    numero: "01",
+    titre: "Les châteaux nous confient leurs clés",
+    texte:
+      "Chaque château partenaire choisit son mode de distribution — last-minute, vitrine permanente ou les deux. Notre équipe valide chaque offre : cadre, qualité, authenticité.",
+  },
+  {
+    numero: "02",
+    titre: "Nous sélectionnons l'exceptionnel",
+    texte:
+      "Seuls les domaines qui répondent à nos critères éditoriaux intègrent la plateforme. Nous visitons chaque lieu avant de le référencer.",
+  },
+  {
+    numero: "03",
+    titre: "Vous accédez selon votre choix",
+    texte:
+      "En accès libre pour les offres last-minute, ou via le Club pour les vitrines permanentes et packages exclusifs. À vous de choisir votre porte d'entrée.",
+  },
+  {
+    numero: "04",
+    titre: "Vous vivez le château",
+    texte:
+      "Vous arrivez. Le domaine vous appartient le temps d'un week-end. Les propriétaires vous accueillent. C'est tout ce qui compte.",
+  },
+];
+
+export default function CommentCaMarche({ onOuvrirClub, scrollVersOffres }) {
   const [refEntete, visibleEntete] = useScrollAnimation();
+  const [refAcces, visibleAcces] = useScrollAnimation();
   const [refEtapes, visibleEtapes] = useScrollAnimation();
   const [refPromesse, visiblePromesse] = useScrollAnimation();
 
   return (
     <section className="comment-section" id="comment">
       <div className="comment-inner">
+        {/* En-tête */}
         <div
           ref={refEntete}
           className="comment-entete"
@@ -49,11 +82,57 @@ export default function CommentCaMarche() {
             transition: "opacity 0.8s ease, transform 0.8s ease",
           }}
         >
-          <span className="sur-titre">Le club · Fonctionnement</span>
-          <h2>Comment ça marche</h2>
+          <span className="sur-titre">La plateforme · Comment ça marche</span>
+          <h2>La vie de château de A à Z</h2>
           <p>
-            Un accès privilégié, une sélection exigeante, une expérience rare
+            Deux façons d'accéder aux plus beaux domaines de France, à moins de
+            3h de Paris
           </p>
+        </div>
+
+        {/* Les deux accès */}
+        <div
+          ref={refAcces}
+          className="comment-acces"
+          style={{
+            opacity: visibleAcces ? 1 : 0,
+            transform: visibleAcces ? "translateY(0)" : "translateY(30px)",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
+          }}
+        >
+          {ACCES.map((acces, i) => (
+            <div
+              key={i}
+              className={`comment-acces-carte comment-acces-carte--${acces.type}`}
+            >
+              <div className="comment-acces-badge">{acces.label}</div>
+              <div className="comment-acces-icone">{acces.icone}</div>
+              <h3 className="comment-acces-titre">{acces.titre}</h3>
+              <p className="comment-acces-sous-titre">{acces.sous_titre}</p>
+              <p className="comment-acces-desc">{acces.description}</p>
+              <ul className="comment-acces-points">
+                {acces.points.map((p, j) => (
+                  <li key={j} className="comment-acces-point">
+                    <span className="comment-acces-point-puce">✦</span>
+                    {p}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* Séparateur */}
+        <div className="comment-separateur">
+          <div className="comment-separateur-ligne" />
+          <span className="comment-separateur-lys">⚜</span>
+          <div className="comment-separateur-ligne" />
+        </div>
+
+        {/* Étapes */}
+        <div className="comment-etapes-titre">
+          <span className="sur-titre">Le processus</span>
+          <h3>De la sélection à votre arrivée</h3>
         </div>
 
         <div ref={refEtapes} className="comment-etapes">
@@ -70,13 +149,13 @@ export default function CommentCaMarche() {
               }}
             >
               <div className="comment-etape-numero">{etape.numero}</div>
-              <span className="comment-etape-icone">{etape.icone}</span>
               <h3 className="comment-etape-titre">{etape.titre}</h3>
               <p className="comment-etape-texte">{etape.texte}</p>
             </div>
           ))}
         </div>
 
+        {/* Promesse */}
         <div
           ref={refPromesse}
           className="comment-promesse"

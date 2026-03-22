@@ -1,5 +1,5 @@
 /* ============================================================
-   SECTIONS ÉDITORIALES v3.0 — Bleu royal · Fleurs de lys
+   SECTIONS ÉDITORIALES v4.0 — Bleu royal · Fleurs de lys
    ============================================================ */
 
 /* ── COMMENT ÇA MARCHE ────────────────────────────────────── */
@@ -67,12 +67,176 @@
   font-weight: 300;
 }
 
+/* ── DEUX ACCÈS ───────────────────────────────────────────── */
+.comment-acces {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  margin-bottom: 4rem;
+  background: rgba(200, 151, 62, 0.15);
+  border: 1px solid rgba(200, 151, 62, 0.15);
+}
+
+.comment-acces-carte {
+  padding: 2.5rem 2.5rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  position: relative;
+  transition: var(--transition);
+}
+
+.comment-acces-carte--dernières-clés {
+  background: var(--bleu-fonce);
+}
+
+.comment-acces-carte--club {
+  background: #1e2d1e;
+}
+
+.comment-acces-carte--dernières-clés:hover {
+  background: #1a2848;
+}
+
+.comment-acces-carte--club:hover {
+  background: #243524;
+}
+
+.comment-acces-badge {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.52rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--or);
+  border: 1px solid rgba(200, 151, 62, 0.3);
+  padding: 0.2rem 0.7rem;
+  width: fit-content;
+  margin-bottom: 0.4rem;
+  background: rgba(200, 151, 62, 0.08);
+}
+
+.comment-acces-icone {
+  font-size: 1.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.comment-acces-titre {
+  font-family: var(--font-titre);
+  font-size: clamp(1rem, 1.8vw, 1.3rem);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blanc-casse);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.comment-acces-sous-titre {
+  font-family: var(--font-editorial);
+  font-size: 0.9rem;
+  font-style: italic;
+  color: rgba(200, 151, 62, 0.5);
+  margin: 0;
+}
+
+.comment-acces-desc {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 300;
+  color: var(--gris);
+  line-height: 1.8;
+  margin: 0.4rem 0 0.8rem;
+}
+
+.comment-acces-points {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(200, 151, 62, 0.1);
+}
+
+.comment-acces-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: var(--gris);
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+
+.comment-acces-point-puce {
+  color: var(--or);
+  font-size: 0.5rem;
+  flex-shrink: 0;
+  margin-top: 0.2rem;
+}
+
+/* ── SÉPARATEUR ───────────────────────────────────────────── */
+.comment-separateur {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 3rem;
+}
+
+.comment-separateur-ligne {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(200, 151, 62, 0.2),
+    transparent
+  );
+}
+
+.comment-separateur-lys {
+  color: var(--or);
+  font-size: 0.9rem;
+  opacity: 0.5;
+}
+
+/* ── ÉTAPES TITRE ─────────────────────────────────────────── */
+.comment-etapes-titre {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.comment-etapes-titre .sur-titre {
+  font-family: var(--font-ui);
+  font-size: 0.6rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--or);
+  display: block;
+  margin-bottom: 0.6rem;
+}
+
+.comment-etapes-titre h3 {
+  font-family: var(--font-titre);
+  font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--blanc-casse);
+}
+
 /* ── ÉTAPES ───────────────────────────────────────────────── */
 .comment-etapes {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0;
   position: relative;
+  margin-bottom: var(--s-lg);
 }
 
 .comment-etapes::before {
@@ -172,6 +336,13 @@
   font-weight: 300;
 }
 
+/* ── RESPONSIVE COMMENT ───────────────────────────────────── */
+@media (max-width: 900px) {
+  .comment-acces {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 768px) {
   .comment-etapes {
     grid-template-columns: repeat(2, 1fr);
@@ -182,6 +353,9 @@
   }
   .comment-promesse {
     padding: 1.5rem;
+  }
+  .comment-acces-carte {
+    padding: 1.8rem 1.5rem;
   }
 }
 
@@ -227,7 +401,6 @@
   color: var(--blanc-casse);
 }
 
-/* ── GRILLE AVEC SÉPARATEURS VERTICAUX ───────────────────── */
 .temoignages-grille {
   display: grid;
   grid-template-columns: 1fr 1px 1fr 1px 1fr;

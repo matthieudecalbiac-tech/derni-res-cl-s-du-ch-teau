@@ -12,6 +12,7 @@ import ChateauModal from "./components/ChateauModal";
 import CarteExplorer from "./components/CarteExplorer";
 import AuthModal from "./components/AuthModal";
 import CompteUser from "./components/CompteUser";
+import ClubChatelains from "./components/ClubChatelains";
 
 const LysPattern = () => (
   <svg
@@ -79,9 +80,11 @@ function App() {
   const [authMode, setAuthMode] = useState("inscription");
   const [compteOuvert, setCompteOuvert] = useState(false);
   const [userConnecte, setUserConnecte] = useState(null);
+  const [clubOuvert, setClubOuvert] = useState(false);
 
   const ouvrirAuth = (mode = "inscription") => {
     setAuthMode(mode);
+    setClubOuvert(false);
     setAuthOuvert(true);
   };
 
@@ -99,15 +102,19 @@ function App() {
         onOuvrirTous={() => setTousOuvert(true)}
         onOuvrirAuth={ouvrirAuth}
         onOuvrirCompte={() => setCompteOuvert(true)}
+        onOuvrirClub={() => setClubOuvert(true)}
         userConnecte={userConnecte}
       />
       <main>
-        <Hero onOuvrirAuth={() => ouvrirAuth("inscription")} />
+        <Hero
+          onOuvrirAuth={ouvrirAuth}
+          onOuvrirClub={() => setClubOuvert(true)}
+        />
         <ClesAlaUne onSelectChateau={ouvrirChateau} />
         <Services />
-        <CommentCaMarche />
+        <CommentCaMarche onOuvrirClub={() => setClubOuvert(true)} />
         <Temoignages />
-        <Newsletter onOuvrirAuth={() => ouvrirAuth("inscription")} />
+        <Newsletter onOuvrirClub={() => setClubOuvert(true)} />
       </main>
       <Footer />
 
@@ -117,21 +124,18 @@ function App() {
           onClose={() => setChateauSelectionne(null)}
         />
       )}
-
       {carteOuverte && (
         <CarteExplorer
           onClose={() => setCarteOuverte(false)}
           onOuvrirChateau={ouvrirChateau}
         />
       )}
-
       {tousOuvert && (
         <TousLesChateaux
           onClose={() => setTousOuvert(false)}
           onSelectChateau={ouvrirChateau}
         />
       )}
-
       {authOuvert && (
         <AuthModal
           modeInitial={authMode}
@@ -139,7 +143,6 @@ function App() {
           onConnexion={(user) => setUserConnecte(user)}
         />
       )}
-
       {compteOuvert && userConnecte && (
         <CompteUser
           user={userConnecte}
@@ -148,6 +151,12 @@ function App() {
             setUserConnecte(null);
             setCompteOuvert(false);
           }}
+        />
+      )}
+      {clubOuvert && (
+        <ClubChatelains
+          onClose={() => setClubOuvert(false)}
+          onOuvrirAuth={ouvrirAuth}
         />
       )}
     </div>

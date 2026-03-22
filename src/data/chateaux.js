@@ -27,6 +27,95 @@ export const chateaux = [
       "Demeure légendaire de Nicolas Fouquet, surintendant des finances de Louis XIV, Vaux-le-Vicomte fut érigé entre 1658 et 1661. Sa magnificence provoqua la jalousie du Roi-Soleil, qui fit arrêter Fouquet peu après la fête d'inauguration. Le château devint alors le modèle sur lequel fut conçu Versailles. Ses jardins à la française, dessinés par André Le Nôtre, ses appartements d'apparat peints par Charles Le Brun, et son architecture signée Louis Le Vau composent un ensemble d'une cohérence artistique rare.",
     description:
       "Demeure légendaire de Nicolas Fouquet, Vaux-le-Vicomte incarne le faste du Grand Siècle. Ses jardins à la française dessinés par Le Nôtre, ses appartements d'apparat et ses cuisines historiques composent un écrin incomparable pour une nuit d'exception.",
+    timeline: [
+      {
+        annee: "1658",
+        evenement: "Début de la construction sous la direction de Louis Le Vau",
+      },
+      {
+        annee: "1661",
+        evenement:
+          "Inauguration fastueuse — Fouquet reçoit Louis XIV et 6 000 invités",
+      },
+      {
+        annee: "1661",
+        evenement:
+          "Arrestation de Fouquet sur ordre du Roi — le château est saisi",
+      },
+      {
+        annee: "1875",
+        evenement:
+          "Acquisition par Alfred Sommier, industriel sucrier, qui le restaure",
+      },
+      {
+        annee: "1968",
+        evenement: "Ouverture au public — premières Nuits aux Chandelles",
+      },
+      {
+        annee: "2024",
+        evenement: "Labellisé Patrimoine Exceptionnel de France",
+      },
+    ],
+    proprietaires: {
+      nom: "Famille de Vogüé",
+      depuis: "1875",
+      portrait:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
+      citation:
+        "Vaux-le-Vicomte n'est pas un musée, c'est une maison vivante. Chaque soir aux chandelles, nous voyons des yeux s'émerveiller — c'est pour cela que nous continuons.",
+      description:
+        "La famille de Vogüé veille sur Vaux-le-Vicomte depuis cinq générations. Héritiers d'Alfred Sommier qui sauva le château de la ruine en 1875, ils ont fait le choix de l'ouvrir au monde tout en préservant son caractère intimement privé.",
+    },
+    chambres: [
+      {
+        nom: "Chambre Fouquet",
+        description:
+          "Suite d'apparat dans l'aile nord, mobilier Louis XIV d'origine, vue sur les jardins Le Nôtre et le Grand Canal.",
+        superficie: "45 m²",
+        capacite: 2,
+        prix: 380,
+        image:
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+        equipements: [
+          "Lit baldaquin",
+          "Salle de bain marbre",
+          "Vue jardins",
+          "Petit-déjeuner inclus",
+        ],
+      },
+      {
+        nom: "Suite Le Brun",
+        description:
+          "Ancienne chambre du peintre Charles Le Brun, plafonds peints d'origine, atmosphère d'atelier royal.",
+        superficie: "55 m²",
+        capacite: 2,
+        prix: 480,
+        image:
+          "https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&q=80",
+        equipements: [
+          "Plafonds peints XVIIe",
+          "Salon privé",
+          "Vue cour d'honneur",
+          "Champagne à l'arrivée",
+        ],
+      },
+      {
+        nom: "Appartement Le Nôtre",
+        description:
+          "Appartement de deux pièces donnant directement sur les parterres brodés, le plus grand domaine privé de France.",
+        superficie: "80 m²",
+        capacite: 4,
+        prix: 680,
+        image:
+          "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+        equipements: [
+          "2 chambres",
+          "Terrasse privée",
+          "Vue panoramique",
+          "Butler dédié",
+        ],
+      },
+    ],
     experiences: [
       "Dîner aux chandelles",
       "Visite privée nocturne",
@@ -118,6 +207,95 @@ export const chateaux = [
       "Édifié au XIIe siècle, le château de Pierrefonds fut rasé sur ordre de Louis XIV en 1617. Napoléon III en fit l'acquisition en 1813 pour la somme symbolique de 2 500 francs, puis confia sa restauration à Eugène Viollet-le-Duc entre 1857 et 1885. Ce dernier ne se contenta pas de restaurer mais réinventa une forteresse médiévale idéale, enrichie d'une iconographie arthurienne et royale qui en fait un château de rêve autant qu'un monument historique.",
     description:
       "Restauré par Viollet-le-Duc pour Napoléon III, Pierrefonds est l'une des plus spectaculaires forteresses médiévales d'Europe. Ses tours majestueuses, ses douves et ses salles d'armes transportent instantanément dans un autre siècle.",
+    timeline: [
+      {
+        annee: "1190",
+        evenement: "Construction initiale par les comtes de Valois",
+      },
+      {
+        annee: "1617",
+        evenement:
+          "Démantèlement sur ordre de Louis XIV pour punir les frondeurs",
+      },
+      {
+        annee: "1813",
+        evenement: "Acquisition par Napoléon Ier pour 2 500 francs",
+      },
+      {
+        annee: "1857",
+        evenement: "Viollet-le-Duc commence la restauration pour Napoléon III",
+      },
+      {
+        annee: "1885",
+        evenement:
+          "Achèvement des travaux — chef-d'œuvre de l'architecture néo-médiévale",
+      },
+      {
+        annee: "1980",
+        evenement:
+          "Classement Monument Historique et ouverture partielle au public",
+      },
+    ],
+    proprietaires: {
+      nom: "Centre des Monuments Nationaux",
+      depuis: "1885",
+      portrait:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80",
+      citation:
+        "Pierrefonds est l'œuvre d'un génie et d'un empereur. Notre mission est de faire vivre ce rêve de pierre pour les générations futures.",
+      description:
+        "Propriété de l'État depuis Napoléon III, Pierrefonds est géré par le Centre des Monuments Nationaux qui a ouvert une aile résidentielle d'exception permettant de dormir dans la forteresse même.",
+    },
+    chambres: [
+      {
+        nom: "Chambre des Preux",
+        description:
+          "Dans la tour nord, mobilier néo-gothique dessiné par Viollet-le-Duc, vue sur les douves et la forêt de Compiègne.",
+        superficie: "38 m²",
+        capacite: 2,
+        prix: 290,
+        image:
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+        equipements: [
+          "Mobilier Viollet-le-Duc",
+          "Vue sur douves",
+          "Salle de bain pierre",
+          "Petit-déjeuner inclus",
+        ],
+      },
+      {
+        nom: "Suite Impériale",
+        description:
+          "Appartements de Napoléon III entièrement restaurés, tapisseries d'Aubusson, vue sur la cour d'honneur.",
+        superficie: "65 m²",
+        capacite: 2,
+        prix: 390,
+        image:
+          "https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&q=80",
+        equipements: [
+          "Tapisseries Aubusson",
+          "Salon impérial",
+          "Vue cour d'honneur",
+          "Champagne Napoléon",
+        ],
+      },
+      {
+        nom: "Tour de Charlemagne",
+        description:
+          "Suite circulaire dans la plus haute tour, panorama à 360° sur Pierrefonds et la forêt, escalier à vis privatif.",
+        superficie: "50 m²",
+        capacite: 2,
+        prix: 450,
+        image:
+          "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+        equipements: [
+          "Vue 360°",
+          "Escalier privatif",
+          "Lit à baldaquin",
+          "Accès remparts",
+        ],
+      },
+    ],
     experiences: [
       "Chevauchée en forêt de Compiègne",
       "Dîner médiéval",
@@ -209,6 +387,96 @@ export const chateaux = [
       "Le domaine de Chantilly appartint successivement aux plus grandes familles de France. Anne de Montmorency, connétable de France, y fit édifier le Grand Château au XVIe siècle. Le Grand Condé, vainqueur de Rocroi, en fit une résidence fastueuse confiée à Le Nôtre pour les jardins et Molière pour les divertissements. Le duc d'Aumale, fils de Louis-Philippe, légua l'ensemble à l'Institut de France avec sa collection de peintures, aujourd'hui l'une des plus importantes de France après le Louvre.",
     description:
       "Entouré de douves et de jardins à la française, le Château de Chantilly abrite l'un des plus beaux musées de peinture de France. L'hippodrome, la forêt et les Grandes Écuries composent un domaine d'une richesse incomparable.",
+    timeline: [
+      {
+        annee: "1484",
+        evenement: "Construction du premier château par Pierre d'Orgemont",
+      },
+      {
+        annee: "1528",
+        evenement:
+          "Anne de Montmorency transforme Chantilly en résidence princière",
+      },
+      {
+        annee: "1671",
+        evenement:
+          "Le Grand Condé confie les jardins à Le Nôtre, reçoit Louis XIV",
+      },
+      {
+        annee: "1830",
+        evenement:
+          "Le duc d'Aumale hérite du domaine et constitue sa collection",
+      },
+      {
+        annee: "1886",
+        evenement: "Legs à l'Institut de France — naissance du Musée Condé",
+      },
+      {
+        annee: "2023",
+        evenement:
+          "Restauration complète des Grandes Écuries, ouverture de l'hôtel",
+      },
+    ],
+    proprietaires: {
+      nom: "Institut de France",
+      depuis: "1886",
+      portrait:
+        "https://images.unsplash.com/photo-1560250097-0dc005d9af94?w=400&q=80",
+      citation:
+        "Le duc d'Aumale nous a légué non seulement un château, mais une vision de la France à son apogée. Nous en sommes les gardiens humbles et fiers.",
+      description:
+        "L'Institut de France, gardien du domaine depuis le legs du duc d'Aumale en 1886, a ouvert les Grandes Écuries en hébergement de prestige. Une façon unique de dormir au cœur d'un des plus grands domaines de France.",
+    },
+    chambres: [
+      {
+        nom: "Stalle Princière",
+        description:
+          "Ancienne stalle des pur-sang du Grand Condé, transformée en chambre de caractère, poutres apparentes et box d'origine.",
+        superficie: "42 m²",
+        capacite: 2,
+        prix: 450,
+        image:
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+        equipements: [
+          "Architecture XVIIe",
+          "Poutres apparentes",
+          "Vue cour des écuries",
+          "Petit-déjeuner inclus",
+        ],
+      },
+      {
+        nom: "Suite Condé",
+        description:
+          "Suite de deux pièces dans l'aile d'honneur, mobilier Empire, vue directe sur les douves et le château.",
+        superficie: "70 m²",
+        capacite: 2,
+        prix: 620,
+        image:
+          "https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&q=80",
+        equipements: [
+          "Mobilier Empire",
+          "Vue château et douves",
+          "Salon privé",
+          "Accès musée privé",
+        ],
+      },
+      {
+        nom: "Appartement Aumale",
+        description:
+          "Appartement de trois pièces dans les appartements privés du duc, collection de gravures d'origine, terrasse sur les jardins.",
+        superficie: "95 m²",
+        capacite: 4,
+        prix: 890,
+        image:
+          "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+        equipements: [
+          "3 pièces",
+          "Terrasse jardins",
+          "Collection gravures",
+          "Butler & majordome",
+        ],
+      },
+    ],
     experiences: [
       "Polo & hippodrome",
       "Musée Condé",
@@ -296,6 +564,96 @@ export const chateaux = [
       "Fontainebleau est la seule résidence royale française habitée sans interruption pendant huit siècles, de Saint Louis à Napoléon III. François Ier en fit une Renaissance à la française en y invitant les meilleurs artistes italiens — le Rosso Fiorentino et le Primatice — créant ainsi la première École de Fontainebleau. Napoléon Ier y signa son abdication le 11 avril 1814, dans le Salon Rouge, épisode entré dans l'histoire comme les Adieux de Fontainebleau.",
     description:
       "Résidence favorite des rois de France pendant huit siècles, Fontainebleau est un palais vivant, entouré d'une forêt de 25 000 hectares idéale pour l'escalade, l'équitation et les promenades au grand air.",
+    timeline: [
+      {
+        annee: "1137",
+        evenement:
+          "Louis VII fait construire la première tour — naissance du domaine royal",
+      },
+      {
+        annee: "1528",
+        evenement:
+          "François Ier entreprend la transformation Renaissance, invite artistes italiens",
+      },
+      {
+        annee: "1600",
+        evenement: "Henri IV agrandit massivement — création de la cour Ovale",
+      },
+      {
+        annee: "1814",
+        evenement:
+          "Napoléon signe son abdication dans le Salon Rouge — les Adieux",
+      },
+      {
+        annee: "1981",
+        evenement: "Classement au Patrimoine Mondial de l'UNESCO",
+      },
+      {
+        annee: "2019",
+        evenement:
+          "Ouverture des appartements privés en hébergement d'exception",
+      },
+    ],
+    proprietaires: {
+      nom: "République Française — CMN",
+      depuis: "1793",
+      portrait:
+        "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&q=80",
+      citation:
+        "Fontainebleau n'appartient pas à la France — c'est la France elle-même, condensée en pierre, en or et en forêt.",
+      description:
+        "Propriété nationale depuis la Révolution, Fontainebleau est géré par le Centre des Monuments Nationaux. Une aile privée a été ouverte aux hôtes de marque, permettant de vivre dans les murs où trente rois ont résidé.",
+    },
+    chambres: [
+      {
+        nom: "Chambre François Ier",
+        description:
+          "Dans l'aile Renaissance, lambris peints par l'École de Fontainebleau, mobilier XVIe, vue sur la cour Ovale.",
+        superficie: "50 m²",
+        capacite: 2,
+        prix: 520,
+        image:
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+        equipements: [
+          "Lambris Renaissance",
+          "Vue cour Ovale",
+          "Salle de bain marbre",
+          "Petit-déjeuner inclus",
+        ],
+      },
+      {
+        nom: "Suite Napoléon",
+        description:
+          "Appartements de l'Empereur entièrement restaurés, mobilier Empire d'origine, vue sur le Grand Parterre.",
+        superficie: "75 m²",
+        capacite: 2,
+        prix: 720,
+        image:
+          "https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&q=80",
+        equipements: [
+          "Mobilier Empire original",
+          "Vue Grand Parterre",
+          "Salon privé",
+          "Accès appartements privés",
+        ],
+      },
+      {
+        nom: "Appartement Royal",
+        description:
+          "Suite de prestige occupant l'angle de l'aile Louis XV, panorama sur la forêt et les jardins anglais.",
+        superficie: "110 m²",
+        capacite: 4,
+        prix: 980,
+        image:
+          "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+        equipements: [
+          "4 pièces",
+          "Vue forêt & jardins",
+          "Piano à queue",
+          "Butler Royal dédié",
+        ],
+      },
+    ],
     experiences: [
       "Escalade en forêt",
       "Appartements royaux",
@@ -391,6 +749,95 @@ export const chateaux = [
       "La Ferté-Saint-Aubin est l'un des rares châteaux de France encore habité et transmis dans la même famille depuis le XVIIe siècle. Édifié pour Henri de Saint-Nectaire, maréchal de France, il conserve son mobilier d'origine et ses cuisines d'époque intactes. La Sologne environnante, avec ses étangs, ses forêts de pins et ses domaines de chasse, forme le cadre idéal de cette immersion dans une aristocratie rurale authentique, loin des fastes versaillais.",
     description:
       "Rare château encore habité et transmis dans la même famille depuis des siècles, La Ferté-Saint-Aubin offre une expérience authentique et intimiste : grands appartements, cuisines d'époque, parc giboyeux et étangs de Sologne.",
+    timeline: [
+      {
+        annee: "1635",
+        evenement:
+          "Construction par Henri de Saint-Nectaire, maréchal de France",
+      },
+      {
+        annee: "1720",
+        evenement:
+          "Agrandissement par le marquis de la Ferté — création des ailes en retour",
+      },
+      {
+        annee: "1840",
+        evenement: "Transmission à la famille Jouffroy-Gonsans par mariage",
+      },
+      {
+        annee: "1970",
+        evenement: "Ouverture au public — premier château privé de la région",
+      },
+      {
+        annee: "2005",
+        evenement: "Restauration des cuisines d'époque et des appartements",
+      },
+      {
+        annee: "2020",
+        evenement:
+          "Lancement des séjours immersifs en chambre d'hôtes de prestige",
+      },
+    ],
+    proprietaires: {
+      nom: "Famille de Jouffroy-Gonsans",
+      depuis: "1840",
+      portrait:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80",
+      citation:
+        "Ce château n'est pas un hôtel. C'est notre maison. Quand vous venez ici, vous êtes nos invités — pas nos clients.",
+      description:
+        "La famille de Jouffroy-Gonsans habite La Ferté depuis cinq générations. Ils ont fait le choix courageux d'ouvrir leur demeure plutôt que de la vendre, préservant ainsi l'âme unique d'un château vraiment vivant.",
+    },
+    chambres: [
+      {
+        nom: "Chambre du Maréchal",
+        description:
+          "La chambre d'origine du maréchal de Saint-Nectaire, mobilier Louis XIII, vue sur le parc et les douves.",
+        superficie: "35 m²",
+        capacite: 2,
+        prix: 220,
+        image:
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+        equipements: [
+          "Mobilier Louis XIII",
+          "Vue parc et douves",
+          "Cheminée d'époque",
+          "Petit-déjeuner inclus",
+        ],
+      },
+      {
+        nom: "Suite Sologne",
+        description:
+          "Grande suite donnant sur les étangs, décoration chasseresse, bibliothèque d'époque, atmosphère de maison de famille.",
+        superficie: "55 m²",
+        capacite: 2,
+        prix: 290,
+        image:
+          "https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&q=80",
+        equipements: [
+          "Vue étangs",
+          "Bibliothèque",
+          "Cheminée bois",
+          "Dîner en famille inclus",
+        ],
+      },
+      {
+        nom: "Appartement des Communs",
+        description:
+          "Appartement indépendant dans les communs restaurés, jardin privatif, idéal pour les familles.",
+        superficie: "75 m²",
+        capacite: 4,
+        prix: 380,
+        image:
+          "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+        equipements: [
+          "Jardin privatif",
+          "Kitchenette",
+          "2 chambres",
+          "Accès étangs privatifs",
+        ],
+      },
+    ],
     experiences: [
       "Chasse & pêche",
       "Cuisine d'époque",
@@ -481,6 +928,96 @@ export const chateaux = [
       "Le château de Pierreclos domine les vignes du Mâconnais depuis le XIIe siècle. Propriété successive de puissantes familles bourguignonnes, il fut le théâtre de nombreux épisodes des guerres de Religion. Aujourd'hui encore habité par ses propriétaires, il produit un Mâcon Villages réputé sur ses 12 hectares de vignes en agriculture raisonnée. Le poète Lamartine, natif de la région, en fit l'un des cadres de ses Méditations poétiques.",
     description:
       "Dominant les vignes du Mâconnais, ce château médiéval en parfait état propose une immersion totale dans la Bourgogne viticole. Dégustations en cave, balades entre les ceps et table d'hôtes aux saveurs du terroir.",
+    timeline: [
+      {
+        annee: "1180",
+        evenement: "Construction du donjon par les seigneurs de Pierreclos",
+      },
+      {
+        annee: "1350",
+        evenement:
+          "Agrandissement et fortification — création des tours d'angle",
+      },
+      {
+        annee: "1562",
+        evenement:
+          "Dommages lors des guerres de Religion — reconstruction partielle",
+      },
+      {
+        annee: "1820",
+        evenement:
+          "Lamartine séjourne au château — il en fera le décor de Jocelyn",
+      },
+      {
+        annee: "1960",
+        evenement:
+          "Plantation des vignes actuelles — naissance du Mâcon Pierreclos",
+      },
+      {
+        annee: "2010",
+        evenement: "Restauration du donjon et ouverture des chambres d'hôtes",
+      },
+    ],
+    proprietaires: {
+      nom: "Famille Goyard",
+      depuis: "1920",
+      portrait:
+        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80",
+      citation:
+        "Nos ancêtres ont planté ces vignes, construit ces murs. Chaque bouteille de Pierreclos, chaque nuit passée ici, c'est une façon de continuer cette histoire.",
+      description:
+        "La famille Goyard est vigneronne et châtelaine depuis quatre générations. Ils cultivent leurs 12 hectares en agriculture raisonnée et accueillent leurs hôtes à leur table pour des dîners où le vin du domaine est roi.",
+    },
+    chambres: [
+      {
+        nom: "Chambre du Vigneron",
+        description:
+          "Vue plongeante sur les vignes du Mâconnais, mobilier rustique de qualité, atmosphère de maison de vigneron noble.",
+        superficie: "30 m²",
+        capacite: 2,
+        prix: 195,
+        image:
+          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+        equipements: [
+          "Vue vignes",
+          "Mobilier bourguignon",
+          "Cave privative",
+          "Dégustation incluse",
+        ],
+      },
+      {
+        nom: "Suite du Donjon",
+        description:
+          "Dans la tour médiévale du XIIe siècle, murs de pierre d'un mètre d'épaisseur, fenêtres à meneaux, vue 360° sur le Mâconnais.",
+        superficie: "45 m²",
+        capacite: 2,
+        prix: 280,
+        image:
+          "https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&q=80",
+        equipements: [
+          "Murs XIIe siècle",
+          "Vue panoramique",
+          "Lit à baldaquin",
+          "Bouteille Pierreclos offerte",
+        ],
+      },
+      {
+        nom: "Chambre Lamartine",
+        description:
+          "La chambre qu'aurait occupée le poète, mobilier romantique, vue sur la vallée de la Saône et les Alpes par temps clair.",
+        superficie: "40 m²",
+        capacite: 2,
+        prix: 240,
+        image:
+          "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
+        equipements: [
+          "Vue vallée Saône",
+          "Décor romantique",
+          "Bibliothèque Lamartine",
+          "Table d'hôtes incluse",
+        ],
+      },
+    ],
     experiences: [
       "Dégustation vins",
       "Visite des vignes",

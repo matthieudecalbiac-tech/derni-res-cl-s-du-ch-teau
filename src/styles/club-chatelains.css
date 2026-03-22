@@ -1,0 +1,624 @@
+/* ============================================================
+   CLUB DES CHÂTELAINS — Landing page
+   Ambiance crème chaude · Or aristocratique
+   ============================================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.club-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: #f7f2e8;
+  overflow-y: auto;
+  overflow-x: hidden;
+  animation: fadeIn 0.3s ease both;
+  scrollbar-width: thin;
+  scrollbar-color: #c8973e #f0e8d8;
+}
+
+/* ── HEADER ───────────────────────────────────────────────── */
+.club-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 2rem;
+  background: rgba(247, 242, 232, 0.97);
+  border-bottom: 1px solid rgba(200, 151, 62, 0.2);
+  backdrop-filter: blur(12px);
+  gap: 1rem;
+}
+
+.club-header-gauche {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.club-retour {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #5a4a3a;
+  cursor: pointer;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid rgba(200, 151, 62, 0.3);
+  background: none;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.club-retour:hover {
+  color: #8b6914;
+  border-color: #c8973e;
+}
+
+.club-header-titre {
+  font-family: var(--font-titre);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #2c1f0e;
+}
+
+.club-header-cta {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #fff;
+  background: linear-gradient(135deg, #8b6914, #c8973e);
+  padding: 0.6rem 1.4rem;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.club-header-cta:hover {
+  background: linear-gradient(135deg, #c8973e, #e0b85a);
+  transform: translateY(-1px);
+}
+
+/* ── HERO ─────────────────────────────────────────────────── */
+.club-hero {
+  background: var(--bleu-nuit);
+  position: relative;
+  overflow: hidden;
+  padding: 6rem 2rem;
+  text-align: center;
+}
+
+.club-hero-lys {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.club-hero-contenu {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.club-hero-sur-titre {
+  font-family: var(--font-ui);
+  font-size: 0.58rem;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--or);
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.club-hero-titre {
+  font-family: var(--font-titre);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--blanc-casse);
+  margin-bottom: 1rem;
+  line-height: 1.1;
+}
+
+.club-hero-accroche {
+  font-family: var(--font-editorial);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  font-style: italic;
+  color: rgba(200, 151, 62, 0.6);
+  font-weight: 300;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.club-hero-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.club-btn-or {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #fff;
+  background: linear-gradient(135deg, #8b6914, #c8973e);
+  padding: 0.9rem 2rem;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.club-btn-or:hover {
+  background: linear-gradient(135deg, #c8973e, #e0b85a);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(139, 105, 20, 0.35);
+}
+
+.club-btn-contour {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--or);
+  background: transparent;
+  padding: 0.9rem 2rem;
+  border: 1px solid rgba(200, 151, 62, 0.4);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.club-btn-contour:hover {
+  background: rgba(200, 151, 62, 0.08);
+  border-color: var(--or);
+}
+
+/* ── ONGLETS ──────────────────────────────────────────────── */
+.club-onglets {
+  display: flex;
+  border-bottom: 1px solid rgba(200, 151, 62, 0.2);
+  background: #faf6ee;
+  overflow-x: auto;
+  scrollbar-width: none;
+  position: sticky;
+  top: 56px;
+  z-index: 50;
+}
+
+.club-onglet {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8a7a6a;
+  padding: 1.2rem 2rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+
+.club-onglet:hover {
+  color: #5a3e1e;
+}
+
+.club-onglet.actif {
+  color: #8b6914;
+  border-bottom-color: #c8973e;
+  font-weight: 400;
+}
+
+/* ── CONTENU ──────────────────────────────────────────────── */
+.club-contenu {
+  background: #f7f2e8;
+}
+
+.club-section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 4rem 2rem 5rem;
+}
+
+.club-section-label {
+  font-family: var(--font-ui);
+  font-size: 0.56rem;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: #8b6914;
+  display: block;
+  margin-bottom: 0.8rem;
+}
+
+.club-section-titre {
+  font-family: var(--font-titre);
+  font-size: clamp(1.4rem, 3vw, 2.2rem);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #2c1f0e;
+  margin-bottom: 2rem;
+  line-height: 1.2;
+}
+
+.club-texte {
+  font-family: var(--font-ui);
+  font-size: var(--t-base);
+  font-weight: 300;
+  color: #5a4a3a;
+  line-height: 1.9;
+  margin-bottom: 1.2rem;
+}
+
+.club-texte strong {
+  color: #2c1f0e;
+  font-weight: 500;
+}
+
+/* ── TABLEAU DIFFÉRENCIATION ──────────────────────────────── */
+.club-deux-colonnes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+
+.club-diff-tableau {
+  background: #fff;
+  border: 1px solid rgba(200, 151, 62, 0.18);
+  overflow: hidden;
+}
+
+.club-diff-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  background: #faf6ee;
+  border-bottom: 1px solid rgba(200, 151, 62, 0.15);
+  padding: 0.8rem 1rem;
+}
+
+.club-diff-col {
+  font-family: var(--font-titre);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.club-diff-col--bleu {
+  color: var(--bleu);
+}
+.club-diff-col--or {
+  color: #8b6914;
+}
+
+.club-diff-ligne {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid rgba(200, 151, 62, 0.07);
+  align-items: center;
+}
+
+.club-diff-ligne:last-child {
+  border-bottom: none;
+}
+
+.club-diff-label {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 300;
+  color: #5a4a3a;
+  letter-spacing: 0.04em;
+}
+
+.club-diff-val {
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  font-weight: 300;
+  text-align: center;
+}
+
+.club-diff-val.oui {
+  color: #3a6a4a;
+}
+.club-diff-val.non {
+  color: #aaa;
+}
+.club-diff-val--or.oui {
+  color: #8b6914;
+  font-weight: 500;
+}
+
+/* ── AVANTAGES ────────────────────────────────────────────── */
+.club-avantages-grille {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.club-avantage {
+  background: #fff;
+  border: 1px solid rgba(200, 151, 62, 0.12);
+  padding: 2rem 1.5rem;
+  transition: var(--transition);
+}
+
+.club-avantage:hover {
+  border-color: rgba(200, 151, 62, 0.3);
+  box-shadow: 0 8px 30px rgba(139, 105, 20, 0.08);
+  transform: translateY(-3px);
+}
+
+.club-avantage-icone {
+  font-size: 1.2rem;
+  color: #c8973e;
+  display: block;
+  margin-bottom: 0.8rem;
+}
+
+.club-avantage-titre {
+  font-family: var(--font-titre);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #2c1f0e;
+  margin-bottom: 0.6rem;
+}
+
+.club-avantage-desc {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 300;
+  color: #5a4a3a;
+  line-height: 1.7;
+}
+
+/* ── NIVEAUX ──────────────────────────────────────────────── */
+.club-niveaux {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(200, 151, 62, 0.15);
+  border: 1px solid rgba(200, 151, 62, 0.15);
+  margin-bottom: 3rem;
+}
+
+.club-niveau {
+  background: #fff;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.club-niveau-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-bottom: 0.3rem;
+}
+
+.club-niveau-nom {
+  font-family: var(--font-titre);
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #2c1f0e;
+}
+
+.club-niveau-seuil {
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 300;
+  color: #8b6914;
+  letter-spacing: 0.08em;
+}
+
+.club-niveau-avantage {
+  font-family: var(--font-ui);
+  font-size: 0.72rem;
+  font-weight: 300;
+  color: #5a4a3a;
+  line-height: 1.6;
+  margin-top: 0.3rem;
+}
+
+.club-parrainage-bloc {
+  background: #fff;
+  border: 1px solid rgba(200, 151, 62, 0.15);
+  padding: 2rem;
+}
+
+/* ── APERÇUS ──────────────────────────────────────────────── */
+.club-apercus-grille {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.club-apercu-carte {
+  background: #fff;
+  border: 1px solid rgba(200, 151, 62, 0.15);
+  overflow: hidden;
+}
+
+.club-apercu-flou {
+  position: relative;
+  padding: 2rem;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.club-apercu-flou::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(247, 242, 232, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 2;
+}
+
+.club-apercu-badge {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 0.52rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8b6914;
+  background: rgba(200, 151, 62, 0.15);
+  border: 1px solid rgba(200, 151, 62, 0.3);
+  padding: 0.2rem 0.6rem;
+  width: fit-content;
+  position: relative;
+  z-index: 1;
+}
+
+.club-apercu-contenu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.club-apercu-region {
+  font-family: var(--font-ui);
+  font-size: 0.56rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #8b6914;
+}
+
+.club-apercu-nom {
+  font-family: var(--font-titre);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #2c1f0e;
+}
+
+.club-apercu-offre {
+  font-family: var(--font-editorial);
+  font-size: 0.88rem;
+  font-style: italic;
+  color: #8b6914;
+}
+
+.club-apercu-lock {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5a3e1e;
+}
+
+.club-apercu-lock span:first-child {
+  font-size: 1.5rem;
+}
+
+.club-cta-final {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: var(--bleu-nuit);
+  border: 1px solid rgba(200, 151, 62, 0.15);
+}
+
+.club-cta-texte {
+  font-family: var(--font-editorial);
+  font-size: 1rem;
+  font-style: italic;
+  color: rgba(200, 151, 62, 0.6);
+  margin-bottom: 1.5rem;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .club-deux-colonnes {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .club-avantages-grille {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .club-niveaux {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .club-apercus-grille {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .club-hero {
+    padding: 4rem 1.2rem;
+  }
+  .club-section {
+    padding: 2.5rem 1.2rem 3rem;
+  }
+  .club-avantages-grille {
+    grid-template-columns: 1fr;
+  }
+  .club-niveaux {
+    grid-template-columns: 1fr 1fr;
+  }
+  .club-onglet {
+    padding: 1rem 1.2rem;
+    font-size: 0.55rem;
+  }
+  .club-header {
+    padding: 0.7rem 1rem;
+  }
+  .club-header-titre {
+    display: none;
+  }
+  .club-hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+}

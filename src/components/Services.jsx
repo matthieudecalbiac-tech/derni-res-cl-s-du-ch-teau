@@ -72,20 +72,6 @@ const SERVICES = [
     prixLabel: "/ personne",
     nouveau: false,
   },
-  {
-    titre: "Expériences sur mesure",
-    description:
-      "Équitation à l'aube, fauconnerie, tir à l'arc, chasse photographique… Nous composons votre journée comme une partition unique.",
-    details: [
-      "Programme entièrement personnalisé",
-      "Guides & maîtres certifiés",
-      "Équipements de prestige fournis",
-      "Reportage photo professionnel inclus",
-    ],
-    prix: "Sur devis",
-    prixLabel: "/ expérience",
-    nouveau: true,
-  },
 ];
 
 const LosangeSvg = () => (
@@ -113,7 +99,7 @@ const LosangeSvg = () => (
 export default function Services() {
   const [refEntete, visibleEntete] = useScrollAnimation();
   const [refGrille, visibleGrille] = useScrollAnimation();
-  const [refTransport, visibleTransport] = useScrollAnimation();
+  const [refBandeau, visibleBandeau] = useScrollAnimation();
 
   return (
     <section className="services-section" id="services">
@@ -131,10 +117,10 @@ export default function Services() {
           <span className="sur-titre">
             L'art de vivre · Prestations exclusives
           </span>
-          <h2>La vie de château, de A à Z</h2>
+          <h2>Pour sublimer votre séjour</h2>
           <p>
-            De votre porte parisienne jusqu'aux appartements du domaine, nous
-            orchestrons chaque détail de votre escapade aristocratique
+            Des prestations à la carte pour transformer votre escapade en
+            expérience inoubliable
           </p>
         </div>
 
@@ -175,32 +161,32 @@ export default function Services() {
           ))}
         </div>
 
-        {/* Bandeau conciergerie */}
+        {/* Bandeau contact */}
         <div
-          ref={refTransport}
+          ref={refBandeau}
           className="services-transport"
           style={{
-            opacity: visibleTransport ? 1 : 0,
-            transform: visibleTransport ? "translateY(0)" : "translateY(20px)",
+            opacity: visibleBandeau ? 1 : 0,
+            transform: visibleBandeau ? "translateY(0)" : "translateY(20px)",
             transition: "opacity 0.8s ease, transform 0.8s ease",
           }}
         >
           <div className="transport-texte">
             <span className="transport-sur-titre">
-              Service conciergerie · Sur mesure
+              Prestations · Sur mesure
             </span>
-            <h3 className="transport-titre">
-              Nous gérons tout, vous profitez de tout
-            </h3>
+            <h3 className="transport-titre">Composez votre séjour idéal</h3>
             <p className="transport-description">
-              Notre équipe de conciergerie prend en charge l'intégralité de
-              votre escapade : du transfert depuis Paris jusqu'au bouquet de
-              fleurs dans votre chambre. Vous n'avez qu'une chose à faire —
-              partir.
+              Chaque prestation est disponible à la réservation, en complément
+              de votre séjour dans l'un de nos châteaux partenaires. Notre
+              équipe coordonne tout avec le domaine pour que votre arrivée soit
+              parfaite.
             </p>
             <div className="transport-options">
-              <span className="transport-option">Disponible 7j/7</span>
-              <span className="transport-option">Réponse sous 2h</span>
+              <span className="transport-option">Réservation à la carte</span>
+              <span className="transport-option">
+                Coordonné avec le château
+              </span>
               <span className="transport-option">
                 Paiement à la réservation
               </span>
@@ -209,7 +195,7 @@ export default function Services() {
           </div>
           <div className="transport-cta">
             <button className="btn-or">
-              <span>Contacter la conciergerie</span>
+              <span>Nous contacter</span>
             </button>
           </div>
         </div>

@@ -103,61 +103,61 @@
 .cle-carte {
   position: relative;
   cursor: pointer;
-  overflow: hidden;
   background: var(--bleu-fonce);
   transition: transform 0.4s ease, box-shadow 0.4s ease;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(200, 151, 62, 0.08);
+  border: 1px solid rgba(200, 151, 62, 0.1);
 }
 
 .cle-carte:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(200, 151, 62, 0.2);
+  transform: translateY(-8px);
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(200, 151, 62, 0.25),
+    inset 0 0 0 1px rgba(200, 151, 62, 0.05);
 }
 
-/* Cadres décoratifs aux coins */
+/* Cadres décoratifs aux coins — sur la carte entière */
 .cle-cadre-tl,
 .cle-cadre-tr,
 .cle-cadre-bl,
 .cle-cadre-br {
   position: absolute;
-  width: 24px;
-  height: 24px;
-  z-index: 10;
+  width: 20px;
+  height: 20px;
+  z-index: 20;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.4s ease;
 }
 
-.cle-carte.hover .cle-cadre-tl,
-.cle-carte.hover .cle-cadre-tr,
-.cle-carte.hover .cle-cadre-bl,
-.cle-carte.hover .cle-cadre-br {
+.cle-carte:hover .cle-cadre-tl,
+.cle-carte:hover .cle-cadre-tr,
+.cle-carte:hover .cle-cadre-bl,
+.cle-carte:hover .cle-cadre-br {
   opacity: 1;
 }
 
 .cle-cadre-tl {
-  top: 16px;
-  left: 16px;
+  top: 10px;
+  left: 10px;
   border-top: 1px solid var(--or);
   border-left: 1px solid var(--or);
 }
 .cle-cadre-tr {
-  top: 16px;
-  right: 16px;
+  top: 10px;
+  right: 10px;
   border-top: 1px solid var(--or);
   border-right: 1px solid var(--or);
 }
 .cle-cadre-bl {
-  bottom: 16px;
-  left: 16px;
+  bottom: 10px;
+  left: 10px;
   border-bottom: 1px solid var(--or);
   border-left: 1px solid var(--or);
 }
 .cle-cadre-br {
-  bottom: 16px;
-  right: 16px;
+  bottom: 10px;
+  right: 10px;
   border-bottom: 1px solid var(--or);
   border-right: 1px solid var(--or);
 }
@@ -167,6 +167,8 @@
   height: 3px;
   width: 100%;
   flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .cle-urgence-bande.j7 {
@@ -193,6 +195,7 @@
   object-fit: cover;
   transition: transform 0.8s ease, filter 0.4s ease;
   filter: brightness(0.65) saturate(0.75);
+  display: block;
 }
 
 .cle-carte:hover .cle-photo {
@@ -203,18 +206,19 @@
 .cle-photo-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, var(--bleu-fonce) 0%, transparent 55%),
-    linear-gradient(to bottom, rgba(13, 22, 40, 0.4) 0%, transparent 35%);
+  background: linear-gradient(to top, var(--bleu-fonce) 0%, transparent 60%),
+    linear-gradient(to bottom, rgba(13, 22, 40, 0.5) 0%, transparent 40%);
 }
 
-/* ── BADGES ───────────────────────────────────────────────── */
+/* ── BADGES — bien dans la photo ─────────────────────────── */
 .cle-badges-top {
   position: absolute;
-  top: 1.2rem;
-  left: 1.2rem;
+  top: 1rem;
+  left: 1rem;
   display: flex;
   gap: 0.5rem;
   align-items: center;
+  z-index: 5;
 }
 
 .cle-reduction {
@@ -225,25 +229,27 @@
   background: linear-gradient(135deg, var(--or), var(--or-clair));
   padding: 0.25rem 0.6rem;
   letter-spacing: 0.08em;
+  display: inline-block;
 }
 
-/* ── NUMÉRO ÉDITORIAL ─────────────────────────────────────── */
+/* ── NUMÉRO ÉDITORIAL — bien dans la photo ────────────────── */
 .cle-numero {
   position: absolute;
-  bottom: 1.2rem;
-  right: 1.5rem;
+  bottom: 1rem;
+  right: 1.2rem;
   font-family: var(--font-titre);
-  font-size: 4rem;
+  font-size: 3.5rem;
   font-weight: 600;
-  color: rgba(200, 151, 62, 0.1);
+  color: rgba(200, 151, 62, 0.12);
   letter-spacing: 0.05em;
   line-height: 1;
   pointer-events: none;
+  z-index: 3;
   transition: var(--transition);
 }
 
 .cle-carte:hover .cle-numero {
-  color: rgba(200, 151, 62, 0.2);
+  color: rgba(200, 151, 62, 0.22);
 }
 
 /* ── CONTENU ──────────────────────────────────────────────── */
@@ -252,13 +258,15 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  position: relative;
+  z-index: 2;
 }
 
 .cle-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.7rem;
+  margin-bottom: 0.6rem;
 }
 
 .cle-region {
@@ -285,7 +293,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--blanc-casse);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.3rem;
   line-height: 1.2;
 }
 
@@ -305,7 +313,7 @@
 
 .cle-accroche {
   font-family: var(--font-editorial);
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: rgba(200, 151, 62, 0.5);
   line-height: 1.7;
   margin-bottom: 1.2rem;
@@ -415,6 +423,7 @@
   font-weight: 300;
   color: var(--gris-fonce);
   letter-spacing: 0.1em;
+  opacity: 0.6;
 }
 
 /* ── STATS ────────────────────────────────────────────────── */

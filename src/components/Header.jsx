@@ -3,63 +3,190 @@ import "../styles/header.css";
 
 const LogoChateau = () => (
   <svg
-    width="38"
-    height="38"
-    viewBox="0 0 42 42"
+    width="52"
+    height="52"
+    viewBox="0 0 80 80"
     xmlns="http://www.w3.org/2000/svg"
     style={{ flexShrink: 0 }}
   >
-    <rect width="42" height="42" fill="#1a2d5a" />
+    <rect width="80" height="80" fill="#1a2d5a" />
     <rect
-      x="1.5"
-      y="1.5"
-      width="39"
-      height="39"
+      x="2"
+      y="2"
+      width="76"
+      height="76"
       fill="none"
-      stroke="#b8965a"
+      stroke="#c8973e"
       strokeWidth="1"
     />
-    <g transform="translate(7, 6) scale(0.28)" fill="#d4af72">
-      <path d="M14,0 C14,0 11,6 11,10 C11,13 13,14 14,14 C15,14 17,13 17,10 C17,6 14,0 14,0 Z" />
-      <path d="M14,10 C14,10 8,10 5,13 C3,15 4,18 6,18 C8,18 10,16 14,14 C18,16 20,18 22,18 C24,18 25,15 23,13 C20,10 14,10 14,10 Z" />
-      <ellipse cx="14" cy="20" rx="3" ry="2" />
-      <rect x="12.5" y="22" width="3" height="5" rx="1" />
-    </g>
-    <g transform="translate(22, 6) scale(0.28)" fill="#d4af72">
-      <path d="M14,0 C14,0 11,6 11,10 C11,13 13,14 14,14 C15,14 17,13 17,10 C17,6 14,0 14,0 Z" />
-      <path d="M14,10 C14,10 8,10 5,13 C3,15 4,18 6,18 C8,18 10,16 14,14 C18,16 20,18 22,18 C24,18 25,15 23,13 C20,10 14,10 14,10 Z" />
-      <ellipse cx="14" cy="20" rx="3" ry="2" />
-      <rect x="12.5" y="22" width="3" height="5" rx="1" />
+    <rect
+      x="5"
+      y="5"
+      width="70"
+      height="70"
+      fill="none"
+      stroke="#c8973e"
+      strokeWidth="0.3"
+      opacity="0.4"
+    />
+    <line
+      x1="2"
+      y1="2"
+      x2="9"
+      y2="9"
+      stroke="#c8973e"
+      strokeWidth="0.5"
+      opacity="0.5"
+    />
+    <line
+      x1="78"
+      y1="2"
+      x2="71"
+      y2="9"
+      stroke="#c8973e"
+      strokeWidth="0.5"
+      opacity="0.5"
+    />
+    <line
+      x1="2"
+      y1="78"
+      x2="9"
+      y2="71"
+      stroke="#c8973e"
+      strokeWidth="0.5"
+      opacity="0.5"
+    />
+    <line
+      x1="78"
+      y1="78"
+      x2="71"
+      y2="71"
+      stroke="#c8973e"
+      strokeWidth="0.5"
+      opacity="0.5"
+    />
+    <text
+      x="40"
+      y="20"
+      textAnchor="middle"
+      fontSize="14"
+      fill="#c8973e"
+      fontFamily="serif"
+    >
+      ⚜
+    </text>
+    <text
+      x="16"
+      y="18"
+      textAnchor="middle"
+      fontSize="9"
+      fill="#c8973e"
+      fontFamily="serif"
+      opacity="0.7"
+    >
+      ⚜
+    </text>
+    <text
+      x="64"
+      y="18"
+      textAnchor="middle"
+      fontSize="9"
+      fill="#c8973e"
+      fontFamily="serif"
+      opacity="0.7"
+    >
+      ⚜
+    </text>
+    <line
+      x1="8"
+      y1="24"
+      x2="72"
+      y2="24"
+      stroke="#c8973e"
+      strokeWidth="0.5"
+      opacity="0.5"
+    />
+    <g fill="#d4af72">
+      <path d="M9,34 L14,26 L19,34Z" fill="#c8973e" opacity="0.9" />
+      <rect x="10" y="33" width="8" height="18" />
+      <rect x="10" y="31" width="2" height="4" />
+      <rect x="13" y="31" width="2" height="4" />
+      <rect x="16" y="31" width="2" height="4" />
+      <path d="M13,39 L13,44 Q14.5,41.5 16,44 L16,39Z" fill="#1a2d5a" />
     </g>
     <g fill="#d4af72">
-      <rect x="7" y="22" width="6" height="14" />
-      <rect x="29" y="22" width="6" height="14" />
-      <rect x="7" y="19" width="2" height="4" />
-      <rect x="10" y="19" width="2" height="4" />
-      <rect x="29" y="19" width="2" height="4" />
-      <rect x="32" y="19" width="2" height="4" />
-      <rect x="13" y="24" width="16" height="12" />
-      <rect x="13" y="21" width="2" height="4" />
-      <rect x="16" y="21" width="2" height="4" />
-      <rect x="19" y="21" width="2" height="4" />
-      <rect x="22" y="21" width="2" height="4" />
-      <rect x="25" y="21" width="2" height="4" />
-      <rect x="18" y="30" width="6" height="6" rx="3" fill="#1a2d5a" />
-      <rect x="9" y="25" width="2" height="3" rx="1" fill="#1a2d5a" />
-      <rect x="31" y="25" width="2" height="3" rx="1" fill="#1a2d5a" />
+      <path d="M61,34 L66,26 L71,34Z" fill="#c8973e" opacity="0.9" />
+      <rect x="62" y="33" width="8" height="18" />
+      <rect x="62" y="31" width="2" height="4" />
+      <rect x="65" y="31" width="2" height="4" />
+      <rect x="68" y="31" width="2" height="4" />
+      <path d="M65,39 L65,44 Q66.5,41.5 68,44 L68,39Z" fill="#1a2d5a" />
     </g>
-    <g transform="translate(7, 28) scale(0.28)" fill="#d4af72">
-      <path d="M14,0 C14,0 11,6 11,10 C11,13 13,14 14,14 C15,14 17,13 17,10 C17,6 14,0 14,0 Z" />
-      <path d="M14,10 C14,10 8,10 5,13 C3,15 4,18 6,18 C8,18 10,16 14,14 C18,16 20,18 22,18 C24,18 25,15 23,13 C20,10 14,10 14,10 Z" />
-      <ellipse cx="14" cy="20" rx="3" ry="2" />
-      <rect x="12.5" y="22" width="3" height="5" rx="1" />
+    <g fill="#d4af72">
+      <path d="M33,30 L40,20 L47,30Z" fill="#c8973e" opacity="0.95" />
+      <rect x="34" y="29" width="12" height="22" />
+      <rect x="34" y="27" width="2" height="4" />
+      <rect x="37" y="27" width="2" height="4" />
+      <rect x="40" y="27" width="2" height="4" />
+      <rect x="43" y="27" width="2" height="4" />
+      <path d="M37,35 L37,42 Q40,38 43,42 L43,35Z" fill="#1a2d5a" />
     </g>
-    <g transform="translate(22, 28) scale(0.28)" fill="#d4af72">
-      <path d="M14,0 C14,0 11,6 11,10 C11,13 13,14 14,14 C15,14 17,13 17,10 C17,6 14,0 14,0 Z" />
-      <path d="M14,10 C14,10 8,10 5,13 C3,15 4,18 6,18 C8,18 10,16 14,14 C18,16 20,18 22,18 C24,18 25,15 23,13 C20,10 14,10 14,10 Z" />
-      <ellipse cx="14" cy="20" rx="3" ry="2" />
-      <rect x="12.5" y="22" width="3" height="5" rx="1" />
+    <g fill="#d4af72">
+      <rect x="18" y="37" width="44" height="14" />
+      <rect x="18" y="34" width="3" height="5" />
+      <rect x="22" y="34" width="3" height="5" />
+      <rect x="26" y="34" width="3" height="5" />
+      <rect x="51" y="34" width="3" height="5" />
+      <rect x="55" y="34" width="3" height="5" />
+      <rect x="59" y="34" width="3" height="5" />
+      <path d="M36,51 L36,44 Q40,39 44,44 L44,51Z" fill="#1a2d5a" />
+      <path d="M21,40 L21,46 Q23,43.5 25,46 L25,40Z" fill="#1a2d5a" />
+      <path d="M55,40 L55,46 Q57,43.5 59,46 L59,40Z" fill="#1a2d5a" />
     </g>
+    <rect x="8" y="51" width="64" height="1.5" fill="#c8973e" opacity="0.5" />
+    <text
+      x="22"
+      y="64"
+      textAnchor="middle"
+      fontSize="8"
+      fill="#c8973e"
+      fontFamily="serif"
+      opacity="0.65"
+    >
+      ⚜
+    </text>
+    <text
+      x="40"
+      y="66"
+      textAnchor="middle"
+      fontSize="10"
+      fill="#c8973e"
+      fontFamily="serif"
+      opacity="0.5"
+    >
+      ⚜
+    </text>
+    <text
+      x="58"
+      y="64"
+      textAnchor="middle"
+      fontSize="8"
+      fill="#c8973e"
+      fontFamily="serif"
+      opacity="0.65"
+    >
+      ⚜
+    </text>
+    <line
+      x1="8"
+      y1="70"
+      x2="72"
+      y2="70"
+      stroke="#c8973e"
+      strokeWidth="0.5"
+      opacity="0.4"
+    />
+    <path d="M40,73 L42,75 L40,77 L38,75Z" fill="#c8973e" opacity="0.4" />
   </svg>
 );
 
@@ -68,6 +195,7 @@ export default function Header({
   onOuvrirTous,
   onOuvrirAuth,
   onOuvrirCompte,
+  onOuvrirClub,
   userConnecte,
 }) {
   const [solide, setSolide] = useState(false);
@@ -116,11 +244,11 @@ export default function Header({
           <span className="nav-lien" onClick={() => scrollVers("services")}>
             Services
           </span>
-          <span className="nav-lien" onClick={() => scrollVers("comment")}>
-            Comment ça marche
-          </span>
           <span className="nav-lien nav-lien--carte" onClick={onOuvrirCarte}>
             ◆ Carte
+          </span>
+          <span className="nav-lien nav-lien--club" onClick={onOuvrirClub}>
+            ⚜ Club des Châtelains
           </span>
         </nav>
 
@@ -144,11 +272,8 @@ export default function Header({
               >
                 Connexion
               </span>
-              <button
-                className="header-cta"
-                onClick={() => onOuvrirAuth("inscription")}
-              >
-                Rejoindre le club
+              <button className="header-cta" onClick={onOuvrirClub}>
+                Club des Châtelains
               </button>
             </>
           )}
@@ -197,9 +322,6 @@ export default function Header({
         >
           Services & prestations
         </span>
-        <span className="nav-lien-mobile" onClick={() => scrollVers("comment")}>
-          Comment ça marche
-        </span>
         <span
           className="nav-lien-mobile nav-lien--carte"
           onClick={() => {
@@ -208,6 +330,15 @@ export default function Header({
           }}
         >
           ◆ Explorer la carte
+        </span>
+        <span
+          className="nav-lien-mobile nav-lien--club"
+          onClick={() => {
+            onOuvrirClub();
+            setMenuOuvert(false);
+          }}
+        >
+          ⚜ Club des Châtelains
         </span>
         {userConnecte ? (
           <span
@@ -233,11 +364,11 @@ export default function Header({
             <span
               className="nav-lien-mobile"
               onClick={() => {
-                onOuvrirAuth("inscription");
+                onOuvrirClub();
                 setMenuOuvert(false);
               }}
             >
-              Rejoindre le club →
+              ⚜ Club des Châtelains →
             </span>
           </>
         )}
