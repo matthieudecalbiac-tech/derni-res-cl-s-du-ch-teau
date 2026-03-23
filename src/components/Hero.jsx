@@ -54,23 +54,10 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub }) {
           <div className="hero-ornement-ligne" />
         </div>
         <p className="hero-accroche">
-          Les plus beaux domaines de France, à moins de 3h de Paris. Accès libre
-          ou Club privé — à vous de choisir.
+          Les plus beaux domaines de France, à moins de 3h de Paris.
+          <br />
+          Accès libre ou Club privé — à vous de choisir.
         </p>
-        <div className="hero-actions">
-          <button className="btn-or" onClick={scrollVersOffres}>
-            <span>Découvrir les offres du moment</span>
-          </button>
-          <button className="btn-contour" onClick={onOuvrirClub}>
-            <span>⚜ Club des Châtelains</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Scroll indicator */}
-      <div className="hero-scroll" onClick={scrollVersOffres}>
-        <span className="hero-scroll-label">Découvrir</span>
-        <div className="hero-scroll-ligne" />
       </div>
 
       {/* Stats */}
@@ -88,9 +75,8 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub }) {
         <span className="hero-region-tag">Picardie</span>
       </div>
 
-      {/* ── DEUX PORTES EN OVERLAY BAS ── */}
+      {/* Deux portes overlay bas */}
       <div className="hero-portes-overlay">
-        {/* Porte Last Minute — bas gauche */}
         <div
           className="hero-porte-overlay hero-porte-overlay--gauche"
           onClick={scrollVersOffres}
@@ -102,8 +88,6 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub }) {
           </div>
           <div className="hero-porte-overlay-cta">Voir les offres →</div>
         </div>
-
-        {/* Porte Club — bas droite */}
         <div
           className="hero-porte-overlay hero-porte-overlay--droite"
           onClick={onOuvrirClub}

@@ -6,7 +6,6 @@ import TousLesChateaux from "./components/TousLesChateaux";
 import Services from "./components/Services";
 import CommentCaMarche from "./components/CommentCaMarche";
 import Temoignages from "./components/Temoignages";
-import Newsletter from "./components/Newsletter";
 import Footer from "./components/Footer";
 import ChateauModal from "./components/ChateauModal";
 import CarteExplorer from "./components/CarteExplorer";
@@ -120,7 +119,6 @@ function App() {
         <Services />
         <CommentCaMarche onOuvrirClub={() => setClubOuvert(true)} />
         <Temoignages />
-        <Newsletter onOuvrirClub={() => setClubOuvert(true)} />
       </main>
       <Footer />
 

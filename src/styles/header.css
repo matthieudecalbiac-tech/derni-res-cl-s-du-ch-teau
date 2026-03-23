@@ -1,5 +1,5 @@
 /* ============================================================
-   HEADER v3.0
+   HEADER v3.1 — Responsive fixes
    ============================================================ */
 
 .header {
@@ -37,12 +37,14 @@
   gap: 0.8rem;
   cursor: pointer;
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .header-logo-texte {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+  min-width: 0;
 }
 
 .logo-principale {
@@ -71,6 +73,10 @@
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .nav-lien {
@@ -85,6 +91,7 @@
   padding-bottom: 2px;
   white-space: nowrap;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .nav-lien::after {
@@ -275,7 +282,10 @@
   background: rgba(10, 9, 6, 0.98);
   border-top: 1px solid rgba(184, 150, 90, 0.2);
   padding: 1.5rem 2rem;
-  gap: 1.2rem;
+  gap: 0;
+  /* Fix chevauchement hero : le menu pousse le contenu vers le bas */
+  position: relative;
+  z-index: 999;
 }
 
 .header-menu-mobile.ouvert {
@@ -289,10 +299,12 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gris-lin);
-  padding: 0.6rem 0;
+  padding: 0.9rem 0;
   border-bottom: 1px solid rgba(184, 150, 90, 0.1);
   transition: var(--transition);
   cursor: pointer;
+  display: block;
+  line-height: 1.4;
 }
 
 .nav-lien-mobile:hover {
@@ -304,10 +316,39 @@
   border-bottom: none;
 }
 
+/* Styles spéciaux dans le menu mobile */
+.header-menu-mobile .nav-lien--club {
+  color: var(--or) !important;
+}
+
+.header-menu-mobile .nav-lien--event {
+  color: rgba(200, 151, 62, 0.7) !important;
+  font-style: italic;
+  font-family: var(--font-editorial);
+  text-transform: none;
+  letter-spacing: 0.08em;
+}
+
+.header-menu-mobile .nav-lien--apropos {
+  color: rgba(240, 230, 210, 0.45) !important;
+  font-style: italic;
+  font-family: var(--font-editorial);
+  text-transform: none;
+  letter-spacing: 0.08em;
+}
+
 /* ── RESPONSIVE ───────────────────────────────────────────── */
-@media (max-width: 1200px) {
+
+/* Réduire les gaps à partir de 1400px pour éviter les chevauchements */
+@media (max-width: 1400px) {
   .header-nav {
-    gap: 1rem;
+    gap: 1.2rem;
+  }
+}
+
+@media (max-width: 1280px) {
+  .header-nav {
+    gap: 0.9rem;
   }
   .header-inner {
     padding: 1.4rem 2rem;
@@ -315,21 +356,35 @@
   .header--solide .header-inner {
     padding: 0.9rem 2rem;
   }
+  .nav-lien {
+    font-size: 0.6rem;
+  }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1150px) {
+  /* Cacher logo secondaire + réduire encore */
   .logo-secondaire {
     display: none;
   }
   .header-nav {
-    gap: 0.8rem;
+    gap: 0.7rem;
   }
   .nav-lien {
-    font-size: 0.58rem;
+    font-size: 0.56rem;
+    letter-spacing: 0.1em;
+  }
+  .nav-lien--event,
+  .nav-lien--apropos {
+    font-size: 0.72rem;
+  }
+  /* Cacher "Connexion" pour libérer de la place, garder le CTA */
+  .header-connexion {
+    display: none;
   }
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 980px) {
+  /* Passage au menu burger */
   .header-nav {
     display: none;
   }
@@ -340,22 +395,38 @@
     display: flex;
   }
   .header-inner {
-    padding: 1.2rem 1.5rem;
+    padding: 1rem 1.5rem;
   }
   .header--solide .header-inner {
-    padding: 0.9rem 1.5rem;
+    padding: 0.8rem 1.5rem;
   }
   .logo-principale {
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
   }
 }
 
-@media (max-width: 480px) {
-  .logo-secondaire {
-    display: none;
+@media (max-width: 600px) {
+  .header-inner {
+    padding: 0.9rem 1.2rem;
   }
   .logo-principale {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+  }
+  /* Logo SVG plus petit sur mobile */
+  .header-logo svg {
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .logo-principale {
+    font-size: 0.6rem;
+    letter-spacing: 0.06em;
+  }
+  .header-logo svg {
+    width: 32px !important;
+    height: 32px !important;
   }
 }
