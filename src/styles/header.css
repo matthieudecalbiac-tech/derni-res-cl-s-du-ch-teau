@@ -341,46 +341,25 @@
 
 /* Réduire les gaps à partir de 1400px pour éviter les chevauchements */
 @media (max-width: 1400px) {
-  .header-nav {
-    gap: 1.2rem;
-  }
+  .header-nav { gap: 1.4rem; }
+  .header-inner { padding: 1.8rem 2.5rem; }
 }
 
-@media (max-width: 1280px) {
-  .header-nav {
-    gap: 0.9rem;
-  }
-  .header-inner {
-    padding: 1.4rem 2rem;
-  }
-  .header--solide .header-inner {
-    padding: 0.9rem 2rem;
-  }
-  .nav-lien {
-    font-size: 0.6rem;
-  }
+@media (max-width: 1200px) {
+  .header-nav { gap: 1.1rem; }
+  .header-inner { padding: 1.6rem 2rem; }
+  .header--solide .header-inner { padding: 1rem 2rem; }
+  .nav-lien { font-size: 0.62rem; letter-spacing: 0.13em; }
+  .nav-lien--apropos { font-size: 0.78rem; }
+  .logo-secondaire { display: none; }
 }
 
-@media (max-width: 1150px) {
-  /* Cacher logo secondaire + réduire encore */
-  .logo-secondaire {
-    display: none;
-  }
-  .header-nav {
-    gap: 0.7rem;
-  }
-  .nav-lien {
-    font-size: 0.56rem;
-    letter-spacing: 0.1em;
-  }
-  .nav-lien--event,
-  .nav-lien--apropos {
-    font-size: 0.72rem;
-  }
-  /* Cacher "Connexion" pour libérer de la place, garder le CTA */
-  .header-connexion {
-    display: none;
-  }
+@media (max-width: 1050px) {
+  .header-nav { gap: 0.9rem; }
+  .nav-lien { font-size: 0.58rem; letter-spacing: 0.1em; }
+  .nav-lien--apropos { font-size: 0.74rem; }
+  .header-cta { padding: 0.5rem 1rem; font-size: 0.58rem; }
+  .header-connexion { display: none; }
 }
 
 @media (max-width: 980px) {

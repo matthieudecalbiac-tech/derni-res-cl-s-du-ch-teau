@@ -128,17 +128,8 @@ export default function Header({
           <span className="nav-lien" onClick={() => scrollVers("services")}>
             Services
           </span>
-          <span className="nav-lien nav-lien--carte" onClick={onOuvrirCarte}>
-            ◆ Carte
-          </span>
           <span className="nav-lien nav-lien--club" onClick={onOuvrirClub}>
             ⚜ Club
-          </span>
-          <span
-            className="nav-lien nav-lien--event"
-            onClick={onOuvrirEvenementiel}
-          >
-            ◆ Événementiel
           </span>
           <span
             className="nav-lien nav-lien--apropos"
