@@ -122,7 +122,7 @@ function App() {
         <PartenairesChateaux />
         <Temoignages />
       </main>
-      <Footer />
+      <Footer onOuvrirCarte={() => setCarteOuverte(true)} />
 
       {chateauSelectionne && (
         <ChateauModal

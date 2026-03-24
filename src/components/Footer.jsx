@@ -27,7 +27,7 @@ const LIENS = {
   ],
 };
 
-export default function Footer() {
+export default function Footer({ onOuvrirCarte }) {
   return (
     <footer className="footer">
       <div className="footer-corps">
@@ -68,6 +68,9 @@ export default function Footer() {
         <div className="footer-colonne">
           <span className="footer-colonne-titre">Explorer</span>
           <div className="footer-liens">
+            <span className="footer-lien footer-lien--carte" onClick={onOuvrirCarte}>
+              ◆ Explorer la carte
+            </span>
             {LIENS.explorer.map((lien) => (
               <span key={lien} className="footer-lien">
                 {lien}
