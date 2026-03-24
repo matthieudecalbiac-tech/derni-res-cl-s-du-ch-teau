@@ -146,6 +146,12 @@ export default function Header({
           >
             À propos
           </span>
+          <span
+            className="nav-lien nav-lien--partenaires"
+            onClick={() => scrollVers("partenaires")}
+          >
+            ⚜ Propriétaires
+          </span>
         </nav>
 
         {/* Actions desktop */}
@@ -253,6 +259,12 @@ export default function Header({
           }}
         >
           À propos
+        </span>
+        <span
+          className="nav-lien-mobile nav-lien--partenaires"
+          onClick={() => scrollVers("partenaires")}
+        >
+          ⚜ Votre domaine sur LDCC
         </span>
         {userConnecte ? (
           <span

@@ -430,3 +430,12 @@
     height: 32px !important;
   }
 }
+
+.nav-lien--partenaires {
+  color: #C09840 !important;
+  font-style: italic;
+  opacity: 0.85;
+}
+.nav-lien--partenaires:hover {
+  opacity: 1;
+}
