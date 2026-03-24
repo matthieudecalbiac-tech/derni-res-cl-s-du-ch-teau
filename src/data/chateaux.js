@@ -924,11 +924,11 @@ export const chateaux = [
     style: "Médiéval bourguignon",
     siecle: "XIIe–XVe",
     accroche:
-      "Vignes, donjon et Mâconnais : la Bourgogne dans toute sa splendeur",
+      "Huit siècles de pierre, douze hectares de vignes, une famille — le château le plus vivant de Bourgogne",
     histoire:
-      "Le château de Pierreclos domine les vignes du Mâconnais depuis le XIIe siècle. Propriété successive de puissantes familles bourguignonnes, il fut le théâtre de nombreux épisodes des guerres de Religion. Aujourd'hui encore habité par ses propriétaires, il produit un Mâcon Villages réputé sur ses 12 hectares de vignes en agriculture raisonnée. Le poète Lamartine, natif de la région, en fit l'un des cadres de ses Méditations poétiques.",
+      "Depuis le XIIe siècle, le château de Pierreclos domine en silence les vignes du Mâconnais. Ses murs épais d'un mètre ont traversé les guerres de Religion, la Révolution, deux conflits mondiaux — sans jamais changer de nature. C'est un château de travail autant que de prestige : la famille Goyard y cultive ses 12 hectares de vignes en agriculture raisonnée depuis quatre générations, produisant un Mâcon Villages que les amateurs s'arrachent. Lamartine, enfant du pays, venait s'y ressourcer et y puisa l'inspiration de ses plus belles Méditations. Aujourd'hui comme hier, Pierreclos est un château qui vit — qui produit, qui reçoit, qui transmet. Pas un monument figé dans l'ambre, mais une demeure où chaque saison a son rythme, ses vendanges, ses lumières.",
     description:
-      "Dominant les vignes du Mâconnais, ce château médiéval en parfait état propose une immersion totale dans la Bourgogne viticole. Dégustations en cave, balades entre les ceps et table d'hôtes aux saveurs du terroir.",
+      "Juché sur les hauteurs du Mâconnais, entre Pouilly-Fuissé et Cluny, le château de Pierreclos est à la fois une forteresse médiévale du XIIe siècle, un domaine viticole en activité et une maison de famille habitée depuis des générations. La famille Goyard vous reçoit à leur table, vous emmène dans leurs vignes et vous ouvre leur cave du Moyen Âge. À 3h de Paris, c'est la Bourgogne dans son état le plus pur — celle d'avant les guides et les circuits touristiques.",
     timeline: [
       {
         annee: "1180",
@@ -965,47 +965,47 @@ export const chateaux = [
       portrait:
         "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80",
       citation:
-        "Nos ancêtres ont planté ces vignes, construit ces murs. Chaque bouteille de Pierreclos, chaque nuit passée ici, c'est une façon de continuer cette histoire.",
+        "Mon grand-père vendangeait ces vignes à la main. Je fais pareil. Et quand nos hôtes descendent à la cave avec moi le soir, ils comprennent pourquoi on ne vendra jamais — ni le château, ni les vignes.",
       description:
-        "La famille Goyard est vigneronne et châtelaine depuis quatre générations. Ils cultivent leurs 12 hectares en agriculture raisonnée et accueillent leurs hôtes à leur table pour des dîners où le vin du domaine est roi.",
+        "Quatre générations de Goyard ont cultivé ces vignes et habité ces murs sans jamais envisager autre chose. Vignerons le matin, châtelains le soir — ils incarnent un art de vivre bourguignon qui ne se trouve plus dans les brochures. Leurs hôtes ne sont pas des touristes : ce sont des gens à qui ils choisissent d'ouvrir leur maison, leur cave et leur table.",
     },
     chambres: [
       {
         nom: "Chambre du Vigneron",
         description:
-          "Vue plongeante sur les vignes du Mâconnais, mobilier rustique de qualité, atmosphère de maison de vigneron noble.",
+          "La chambre la plus authentique du château — celle où dormaient les maîtres de chai au XVIIIe siècle. Vue plongeante sur les rangs de vigne du Mâconnais, mobilier bourguignon massif, tomettes anciennes. Le matin, vous vous réveillez avec l'odeur de la pierre et des ceps. Il n'existe pas d'hôtel au monde qui puisse reproduire ça.",
         superficie: "30 m²",
         capacite: 2,
         prix: 195,
         image:
           "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
         equipements: [
-          "Vue vignes",
-          "Mobilier bourguignon",
-          "Cave privative",
-          "Dégustation incluse",
+          "Vue vignes Mâconnais",
+          "Mobilier bourguignon XVIIIe",
+          "Tomettes d'origine",
+          "Dégustation cave incluse",
         ],
       },
       {
         nom: "Suite du Donjon",
         description:
-          "Dans la tour médiévale du XIIe siècle, murs de pierre d'un mètre d'épaisseur, fenêtres à meneaux, vue 360° sur le Mâconnais.",
+          "Dormir dans un donjon du XIIe siècle — pas une métaphore, une réalité. Les murs ont un mètre d'épaisseur. Les fenêtres à meneaux d'origine cadrent un panorama sur les vignes, la vallée de la Saône et, par temps clair, les Alpes. Le lit à baldaquin du XVIIe siècle n'a jamais quitté cette pièce. C'est la chambre la plus demandée du château — réservez tôt.",
         superficie: "45 m²",
         capacite: 2,
         prix: 280,
         image:
           "https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&q=80",
         equipements: [
-          "Murs XIIe siècle",
-          "Vue panoramique",
-          "Lit à baldaquin",
-          "Bouteille Pierreclos offerte",
+          "Donjon XIIe · murs 1m",
+          "Vue Alpes par temps clair",
+          "Lit baldaquin XVIIe",
+          "Verticale Pierreclos offerte",
         ],
       },
       {
         nom: "Chambre Lamartine",
         description:
-          "La chambre qu'aurait occupée le poète, mobilier romantique, vue sur la vallée de la Saône et les Alpes par temps clair.",
+          "Alphonse de Lamartine venait régulièrement à Pierreclos chercher l'inspiration que Paris ne lui donnait plus. Cette chambre est celle qu'il occupait — mobilier romantique d'époque, bibliothèque rassemblant ses œuvres complètes, vue sur la vallée de la Saône que le poète décrivait comme 'la plus douce de France'. Une nuit ici, c'est une nuit dans un poème.",
         superficie: "40 m²",
         capacite: 2,
         prix: 240,
@@ -1013,9 +1013,9 @@ export const chateaux = [
           "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
         equipements: [
           "Vue vallée Saône",
-          "Décor romantique",
-          "Bibliothèque Lamartine",
-          "Table d'hôtes incluse",
+          "Bibliothèque Lamartine complète",
+          "Mobilier romantique d'époque",
+          "Table d'hôtes & vins du domaine",
         ],
       },
     ],
