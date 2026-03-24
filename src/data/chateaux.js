@@ -741,6 +741,7 @@ export const chateaux = [
     images: [
       "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1200&q=80",
       "https://images.unsplash.com/photo-1548267245-9c5f2e2c28b2?w=1200&q=80",
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80",
     ],
     style: "Classique ligérien",
     siecle: "XVIIe",
@@ -784,57 +785,57 @@ export const chateaux = [
       portrait:
         "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80",
       citation:
-        "Ce château n'est pas un hôtel. C'est notre maison. Quand vous venez ici, vous êtes nos invités — pas nos clients.",
+        "Mon arrière-grand-père aurait pu vendre. Mon grand-père aurait pu transformer en hôtel. Nous avons choisi de rester. Ce château vit parce que nous y vivons — et nos hôtes le sentent dès qu'ils franchissent le pont-levis.",
       description:
-        "La famille de Jouffroy-Gonsans habite La Ferté depuis cinq générations. Ils ont fait le choix courageux d'ouvrir leur demeure plutôt que de la vendre, préservant ainsi l'âme unique d'un château vraiment vivant.",
+        "Cinq générations. Une seule famille. La famille de Jouffroy-Gonsans n'a jamais cédé à la tentation de la vente ni à celle de la chaîne hôtelière. Ils habitent La Ferté à l'année, reçoivent leurs hôtes à leur table et transmettent, saison après saison, l'art de vivre d'une aristocratie rurale française qui n'existe plus nulle part ailleurs avec cette authenticité.",
     },
     chambres: [
       {
         nom: "Chambre du Maréchal",
         description:
-          "La chambre d'origine du maréchal de Saint-Nectaire, mobilier Louis XIII, vue sur le parc et les douves.",
+          "La chambre d'apparat du maréchal Henri de Saint-Nectaire, inchangée depuis 1635. Baldaquin d'origine, lambris peints, cheminée en pierre de taille. La vue sur les douves et le parc centenaire est celle qu'avait le maréchal lui-même au lever du soleil.",
         superficie: "35 m²",
         capacite: 2,
         prix: 220,
         image:
           "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
         equipements: [
-          "Mobilier Louis XIII",
-          "Vue parc et douves",
-          "Cheminée d'époque",
-          "Petit-déjeuner inclus",
+          "Mobilier Louis XIII d'origine",
+          "Vue douves & parc centenaire",
+          "Cheminée pierre de taille",
+          "Petit-déjeuner servi en chambre",
         ],
       },
       {
         nom: "Suite Sologne",
         description:
-          "Grande suite donnant sur les étangs, décoration chasseresse, bibliothèque d'époque, atmosphère de maison de famille.",
+          "La plus belle suite du château, tournée vers les étangs privés et la forêt de pins. Décoration de maison de chasse noble — trophées anciens, bibliothèque du XVIIIe, cheminée en marbre. Le matin, les brumes de Sologne effacent le monde extérieur. C'est exactement pour cela qu'on vient ici.",
         superficie: "55 m²",
         capacite: 2,
         prix: 290,
         image:
           "https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=800&q=80",
         equipements: [
-          "Vue étangs",
-          "Bibliothèque",
-          "Cheminée bois",
-          "Dîner en famille inclus",
+          "Vue étangs privés & forêt",
+          "Bibliothèque XVIIIe",
+          "Cheminée marbre",
+          "Dîner à la table des propriétaires",
         ],
       },
       {
         nom: "Appartement des Communs",
         description:
-          "Appartement indépendant dans les communs restaurés, jardin privatif, idéal pour les familles.",
+          "Dans les communs du XVIIe siècle entièrement restaurés, cet appartement indépendant dispose de son propre jardin clos, d'une entrée privée sur le parc et d'un accès direct aux étangs. Idéal pour un séjour en couple cherchant l'isolement total, ou pour deux couples voyageant ensemble.",
         superficie: "75 m²",
         capacite: 4,
         prix: 380,
         image:
           "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80",
         equipements: [
-          "Jardin privatif",
-          "Kitchenette",
-          "2 chambres",
-          "Accès étangs privatifs",
+          "Jardin clos privatif",
+          "Entrée indépendante",
+          "2 chambres & salon",
+          "Accès étangs & barque",
         ],
       },
     ],
