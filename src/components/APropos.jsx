@@ -5,19 +5,19 @@ const FONDATEURS = [
   {
     prenom: "Dimitri",
     role: "Stratégie & Développement",
-    specialite: "Avocat",
+    specialite: "Stratégie",
     initiales: "D",
   },
   {
     prenom: "Julien",
     role: "SEO & Go-to-market",
-    specialite: "Avocat",
+    specialite: "Stratégie",
     initiales: "J",
   },
   {
     prenom: "Matthieu",
     role: "Développement & CRM",
-    specialite: "Avocat",
+    specialite: "Tech",
     initiales: "M",
   },
   {
@@ -54,15 +54,15 @@ const VALEURS = [
 const CHIFFRES = [
   { nombre: "81", label: "Domaines sélectionnés" },
   { nombre: "4", label: "Fondateurs" },
-  { nombre: "3", label: "Fondateurs avocats" },
+  { nombre: "7", label: "Régions couvertes" },
   { nombre: "<3h", label: "De Paris" },
 ];
 
 const GARANTIES = [
   {
     icone: "⚖",
-    titre: "3 fondateurs avocats",
-    desc: "Contrats partenaires, CGV, conformité ATOUT France, protection de votre image — tout est géré en interne, sans frais juridiques pour vous ni pour nous.",
+    titre: "Un cadre rigoureux",
+    desc: "Chaque partenariat est formalisé avec soin. Les conditions sont claires, équilibrées et pensées pour protéger autant les propriétaires que les clients.",
   },
   {
     icone: "◆",
@@ -279,10 +279,7 @@ export default function APropos({ onClose }) {
               </div>
             ))}
           </div>
-          <div className="ap-fondateurs-note">
-            <span className="ap-fondateurs-note-lys">⚜</span>
-            <p>Trois fondateurs avocats — zéro frais juridiques externes. Les contrats, CGV et conformité réglementaire sont gérés en interne, dès le premier jour.</p>
-          </div>
+
         </div>
       </section>
 
