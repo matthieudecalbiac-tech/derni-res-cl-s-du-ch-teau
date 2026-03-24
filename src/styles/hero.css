@@ -474,3 +474,26 @@
     padding: 4rem 0.8rem 0;
   }
 }
+
+.hero-proprietaires-link {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: transparent;
+  border: none;
+  color: rgba(245, 240, 232, 0.4);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.8rem;
+  font-weight: 300;
+  font-style: italic;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: color 0.25s ease;
+  white-space: nowrap;
+  z-index: 10;
+}
+.hero-proprietaires-link:hover { color: rgba(192, 152, 64, 0.85); }
+.hero-proprietaires-link-fleche { display: inline-block; transition: transform 0.2s ease; font-style: normal; }
+.hero-proprietaires-link:hover .hero-proprietaires-link-fleche { transform: translateX(4px); }

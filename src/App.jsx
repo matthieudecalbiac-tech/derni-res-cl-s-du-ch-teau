@@ -14,6 +14,7 @@ import CompteUser from "./components/CompteUser";
 import ClubChatelains from "./components/ClubChatelains";
 import ClesEvenementiel from "./components/ClesEvenementiel";
 import APropos from "./components/APropos";
+import PartenairesChateaux from "./components/PartenairesChateaux";
 
 const LysPattern = () => (
   <svg
@@ -118,6 +119,7 @@ function App() {
         <ClesAlaUne onSelectChateau={ouvrirChateau} />
         <Services />
         <CommentCaMarche onOuvrirClub={() => setClubOuvert(true)} />
+        <PartenairesChateaux />
         <Temoignages />
       </main>
       <Footer />
