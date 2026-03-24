@@ -3,23 +3,27 @@ import "../styles/a-propos.css";
 
 const FONDATEURS = [
   {
-    prenom: "Matthieu",
-    role: "Co-fondateur",
-    initiales: "M",
-  },
-  {
     prenom: "Dimitri",
-    role: "Co-fondateur",
+    role: "Stratégie & Développement",
+    specialite: "Avocat",
     initiales: "D",
   },
   {
     prenom: "Julien",
-    role: "Co-fondateur",
+    role: "SEO & Go-to-market",
+    specialite: "Avocat",
     initiales: "J",
   },
   {
+    prenom: "Matthieu",
+    role: "Développement & CRM",
+    specialite: "Avocat",
+    initiales: "M",
+  },
+  {
     prenom: "Tanguy",
-    role: "Co-fondateur",
+    role: "Direction artistique",
+    specialite: "Design",
     initiales: "T",
   },
 ];
@@ -48,10 +52,33 @@ const VALEURS = [
 ];
 
 const CHIFFRES = [
-  { nombre: "24", label: "Châteaux partenaires" },
+  { nombre: "81", label: "Domaines sélectionnés" },
   { nombre: "4", label: "Fondateurs" },
-  { nombre: "45 000", label: "Châteaux en France" },
+  { nombre: "3", label: "Fondateurs avocats" },
   { nombre: "<3h", label: "De Paris" },
+];
+
+const GARANTIES = [
+  {
+    icone: "⚖",
+    titre: "3 fondateurs avocats",
+    desc: "Contrats partenaires, CGV, conformité ATOUT France, protection de votre image — tout est géré en interne, sans frais juridiques pour vous ni pour nous.",
+  },
+  {
+    icone: "◆",
+    titre: "Votre image protégée",
+    desc: "Nous ne publions rien sans votre accord. Chaque fiche est validée avec vous avant mise en ligne. Vous gardez le contrôle total sur votre présence sur la plateforme.",
+  },
+  {
+    icone: "✦",
+    titre: "Plateforme déjà opérationnelle",
+    desc: "Le site est construit, testé et prêt. Vous n'attendez pas un projet en cours de développement — vous rejoignez une plateforme qui fonctionne aujourd'hui.",
+  },
+  {
+    icone: "⚜",
+    titre: "Sélection exigeante",
+    desc: "Nous visitons chaque lieu avant de le référencer. Votre domaine ne sera jamais mis en concurrence avec un hébergement quelconque — uniquement avec des lieux de même niveau d'excellence.",
+  },
 ];
 
 export default function APropos({ onClose }) {
@@ -248,8 +275,13 @@ export default function APropos({ onClose }) {
                 </div>
                 <h3 className="ap-fondateur-prenom">{f.prenom}</h3>
                 <span className="ap-fondateur-role">{f.role}</span>
+                <span className="ap-fondateur-specialite">{f.specialite}</span>
               </div>
             ))}
+          </div>
+          <div className="ap-fondateurs-note">
+            <span className="ap-fondateurs-note-lys">⚜</span>
+            <p>Trois fondateurs avocats — zéro frais juridiques externes. Les contrats, CGV et conformité réglementaire sont gérés en interne, dès le premier jour.</p>
           </div>
         </div>
       </section>
@@ -290,6 +322,25 @@ export default function APropos({ onClose }) {
                 <span className="ap-patrimoine-nombre">{p.nombre}</span>
                 <span className="ap-patrimoine-label">{p.label}</span>
                 <span className="ap-patrimoine-detail">{p.detail}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── POURQUOI NOUS FAIRE CONFIANCE ── */}
+      <section className="ap-section ap-section--creme">
+        <div className="ap-section-inner">
+          <div className="ap-section-label ap-section-label--sombre">⚜ Pour les propriétaires</div>
+          <h2 className="ap-section-titre ap-section-titre--sombre">
+            Pourquoi nous<br />faire confiance
+          </h2>
+          <div className="ap-valeurs-grille">
+            {GARANTIES.map((g, i) => (
+              <div key={i} className="ap-valeur ap-valeur--sombre">
+                <span className="ap-valeur-icone ap-valeur-icone--or">{g.icone}</span>
+                <h3 className="ap-valeur-titre ap-valeur-titre--sombre">{g.titre}</h3>
+                <p className="ap-valeur-desc ap-valeur-desc--sombre">{g.desc}</p>
               </div>
             ))}
           </div>
