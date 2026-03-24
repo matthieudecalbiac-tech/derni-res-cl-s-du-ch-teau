@@ -384,50 +384,50 @@
 }
 
 @media (max-width: 980px) {
-  /* Passage au menu burger */
-  .header-nav {
-    display: none;
-  }
-  .header-actions {
-    display: none;
-  }
-  .header-burger {
-    display: flex;
-  }
-  .header-inner {
-    padding: 1rem 1.5rem;
-  }
-  .header--solide .header-inner {
-    padding: 0.8rem 1.5rem;
-  }
-  .logo-principale {
-    font-size: 0.72rem;
-    letter-spacing: 0.08em;
-  }
+  .header-nav { display: none; }
+  .header-actions { display: none; }
+  .header-burger { display: flex; }
+  .header-inner { padding: 1rem 1.5rem; }
+  .header--solide .header-inner { padding: 0.8rem 1.5rem; }
+  .logo-principale { font-size: 0.72rem; letter-spacing: 0.08em; }
 }
 
 @media (max-width: 600px) {
-  .header-inner {
-    padding: 0.9rem 1.2rem;
-  }
-  .logo-principale {
-    font-size: 0.65rem;
-  }
-  /* Logo SVG plus petit sur mobile */
+  .header-inner { padding: 0.85rem 1rem; }
+  .header--solide .header-inner { padding: 0.7rem 1rem; }
+
+  /* Logo : icône seule, texte masqué */
+  .header-logo-texte { display: none; }
   .header-logo svg {
-    width: 38px !important;
-    height: 38px !important;
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  /* Burger plus visible */
+  .header-burger span { width: 24px; }
+
+  /* Menu mobile plein écran */
+  .header-menu-mobile {
+    padding: 1rem 1.2rem 2rem;
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
+
+  .nav-lien-mobile {
+    font-size: 0.75rem;
+    padding: 1rem 0;
+    letter-spacing: 0.15em;
   }
 }
 
 @media (max-width: 380px) {
-  .logo-principale {
-    font-size: 0.6rem;
-    letter-spacing: 0.06em;
-  }
   .header-logo svg {
-    width: 32px !important;
-    height: 32px !important;
+    width: 34px !important;
+    height: 34px !important;
+  }
+  .nav-lien-mobile {
+    font-size: 0.7rem;
+    padding: 0.85rem 0;
   }
 }
 
