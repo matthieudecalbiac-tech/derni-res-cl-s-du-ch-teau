@@ -16,6 +16,7 @@ import ClesEvenementiel from "./components/ClesEvenementiel";
 import APropos from "./components/APropos";
 import EspaceMembre from "./components/EspaceMembre";
 import VitrinePermanente from "./components/VitrinePermanente";
+import DernieresClés from "./components/DernieresClés";
 import PartenairesChateaux from "./components/PartenairesChateaux";
 
 const LysPattern = () => (
@@ -89,6 +90,7 @@ function App() {
   const [aProposOuvert, setAProposOuvert] = useState(false);
   const [espaceMembreOuvert, setEspaceMembreOuvert] = useState(false);
   const [vitrinesOuvert, setVitrinesOuvert] = useState(false);
+  const [dernieresOuvert, setDernieresOuvert] = useState(false);
 
   const ouvrirAuth = (mode = "inscription") => {
     setAuthMode(mode);
@@ -119,7 +121,7 @@ function App() {
         onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
         onOuvrirAPropos={() => setAProposOuvert(true)}
         onOuvrirVitrines={() => setVitrinesOuvert(true)}
-        onOuvrirDernieresClefs={() => document.getElementById("offres")?.scrollIntoView({behavior:"smooth"})}
+        onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
         onConnexion={() => ouvrirAuth("connexion")}
         userConnecte={userConnecte}
       />
@@ -138,6 +140,9 @@ function App() {
 
       {vitrinesOuvert && (
         <VitrinePermanente onClose={() => setVitrinesOuvert(false)} />
+      )}
+      {dernieresOuvert && (
+        <DernieresClés onClose={() => setDernieresOuvert(false)} />
       )}
       {chateauSelectionne && (
         <ChateauModal

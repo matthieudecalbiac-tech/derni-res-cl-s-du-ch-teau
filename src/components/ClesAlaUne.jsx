@@ -26,7 +26,7 @@ export default function ClesAlaUne({ onSelectChateau }) {
               <span className="cles-une-trait" />
             </div>
             <span className="cles-une-sur-titre">
-              Sélection · Dernière minute
+              Sélection · Cette semaine · Dernière minute
             </span>
             <div className="cles-une-ornement">
               <span className="cles-une-trait" />
@@ -34,7 +34,7 @@ export default function ClesAlaUne({ onSelectChateau }) {
               <span className="cles-une-trait" />
             </div>
           </div>
-          <h2 className="cles-une-titre">Les Clés à la Une</h2>
+          <h2 className="cles-une-titre">Les Dernières Clés à la Une</h2>
           <p className="cles-une-sous-titre">
             Quatre demeures d'exception sélectionnées cette semaine — à saisir
             avant qu'elles ne ferment leurs portes
