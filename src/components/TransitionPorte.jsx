@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "../styles/transition-porte.css";
 
-export default function TransitionPorte({ onTermine }) {
+export default function TransitionPorte({ onTermine, chateau }) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
@@ -18,7 +18,8 @@ export default function TransitionPorte({ onTermine }) {
       <div className={"tp-battant tp-droite " + (phase >= 1 ? "tp-ouvert" : "")} />
       <div className={"tp-centre " + (phase === 1 ? "tp-centre--visible" : "")}>
         <span className="tp-lys">&#x269C;</span>
-        <span className="tp-label">Bienvenue</span>
+        <span className="tp-label">Ouverture du Château</span>
+        {chateau && <span className="tp-nom">{chateau.nom}</span>}
         <svg className="tp-cle" viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%">

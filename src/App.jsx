@@ -148,16 +148,19 @@ function App() {
       {dernieresOuvert && (
         <DernieresClés onClose={() => setDernieresOuvert(false)} />
       )}
-      {transitionChateau && (
-        <TransitionPorte onTermine={() => {
-          setChateauSelectionne(transitionChateau);
-          setTransitionChateau(null);
-        }} />
-      )}
-      {chateauSelectionne && (
+      {(transitionChateau || chateauSelectionne) && (
         <ChateauModal
-          chateau={chateauSelectionne}
-          onClose={() => setChateauSelectionne(null)}
+          chateau={transitionChateau || chateauSelectionne}
+          onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }}
+        />
+      )}
+      {transitionChateau && (
+        <TransitionPorte
+          chateau={transitionChateau}
+          onTermine={() => {
+            setChateauSelectionne(transitionChateau);
+            setTransitionChateau(null);
+          }}
         />
       )}
       {carteOuverte && (

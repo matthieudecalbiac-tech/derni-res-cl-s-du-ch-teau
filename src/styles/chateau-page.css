@@ -1152,4 +1152,4 @@
 .chateau-page--visible { opacity: 1; transition: opacity 0.6s ease 0.1s; }
 
 .cp-hidden { opacity: 0; }
-.cp-visible { opacity: 1; transition: opacity 0.7s ease; }
+.cp-visible { opacity: 1; transition: opacity 0.8s ease 0.3s; }
