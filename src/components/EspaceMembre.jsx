@@ -109,8 +109,8 @@ export default function EspaceMembre({ user, onClose, onDeconnexion }) {
             </div>
             <div className="em-manifeste-sep" />
             <div className="em-manifeste-chiffre">
-              <span className="em-manifeste-nombre">0</span>
-              <span className="em-manifeste-label-ch">Sur Booking.com</span>
+              <span className="em-manifeste-nombre">∞</span>
+              <span className="em-manifeste-label-ch">Histoire & patrimoine</span>
             </div>
           </div>
         </div>
