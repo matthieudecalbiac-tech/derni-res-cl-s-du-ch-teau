@@ -227,7 +227,7 @@
 /* ── STATS ────────────────────────────────────────────────── */
 .hero-stats {
   position: absolute;
-  bottom: 11rem;
+  bottom: calc(220px + 3rem);
   right: 3rem;
   z-index: 3;
   text-align: right;
@@ -255,12 +255,14 @@
 /* ── RÉGIONS ──────────────────────────────────────────────── */
 .hero-regions {
   position: absolute;
-  bottom: 11rem;
+  bottom: calc(220px + 3rem);
   left: 3rem;
   z-index: 3;
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-width: 45%;
 }
 
 .hero-region-tag {
