@@ -1103,16 +1103,13 @@ export const chateaux = [
       "https://cdn.prod.website-files.com/668c039e26d1cccd00445552/683da31538d51839b74ea817_Cha%E2%95%A0%C3%A9teau-des-Briottie%E2%95%A0%C3%87res-119.avif",
       "https://cdn.prod.website-files.com/668c039e26d1cccd00445552/683da3266dec9ea539d22e49_Cha%E2%95%A0%C3%A9teau-des-Briottie%E2%95%A0%C3%87res-171.avif",
     ],
-    proprietaires: [
-      {
-        prenom: "François & Hedwige",
-        nom: "de Valbray",
-        depuis: "1989",
-        citation: "Nous sommes loin de tout et loin de nulle part. Ce château est notre maison depuis sept générations — et chaque soir, quand nous ouvrons notre table à nos hôtes, c’est cette histoire que nous partageons.",
-        description: "François de Valbray gère les Briottières depuis plus de trente-cinq ans. Lui et Hedwige ont fait le choix courageux d’ouvrir leur demeure plutôt que de la fermer — et d’y rester, de recevoir, de transmettre. Ils accueillent personnellement chaque hôte, proposent chaque soir un dîner familial aux chandelles et veillent à ce que le château reste ce qu’il a toujours été : une maison vivante.",
-        photo: "https://cdn.prod.website-files.com/668c039e26d1cccd00445552/683da50f9270d192222e0b5b_Cha%E2%95%A0%C3%A9teau-des-Briottie%E2%95%A0%C3%87res-270.avif",
-      },
-    ],
+    proprietaires: {
+      nom: "François & Hedwige de Valbray",
+      depuis: "1989",
+      portrait: "https://cdn.prod.website-files.com/668c039e26d1cccd00445552/683da50f9270d192222e0b5b_Cha%E2%95%A0%C3%A9teau-des-Briottie%E2%95%A0%C3%87res-270.avif",
+      citation: "Nous sommes loin de tout et loin de nulle part. Ce château est notre maison depuis sept générations — et chaque soir, quand nous ouvrons notre table à nos hôtes, c’est cette histoire que nous partageons.",
+      description: "François de Valbray gère les Briottières depuis plus de trente-cinq ans. Lui et Hedwige ont fait le choix courageux d’ouvrir leur demeure plutôt que de la fermer. Ils accueillent personnellement chaque hôte, proposent chaque soir un dîner familial aux chandelles et veillent à ce que le château reste une maison vivante.",
+    },
     timeline: [
       { annee: "XVIIIe s.", evenement: "Construction du château en Anjou" },
       { annee: "1850", evenement: "Construction de l’orangerie" },
