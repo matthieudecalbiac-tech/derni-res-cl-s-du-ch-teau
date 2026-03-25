@@ -75,7 +75,7 @@ export const chateaux = [
         capacite: 2,
         prix: 380,
         image:
-          "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&q=80",
+          "https://images.unsplash.com/photo-1560185127-6a207d4bb8e0?w=800&q=80",
         equipements: [
           "Lit baldaquin",
           "Salle de bain marbre",
@@ -1177,9 +1177,9 @@ export const chateaux = [
     histoire: "En 1290, sous le règne de Philippe le Bel, Colinet Lecomte fait édifier le Blanc Buisson pour protéger les paysans du Pays d’Ouche contre les brigands. Sept siècles ont passé. Le château n’a appartenu qu’à trois familles, transmis presque toujours par mariage ou héritage. Au XIVe siècle, les troupes du roi Jean II assiègent la demeure et détruisent son premier étage. Il faudra attendre le XVe siècle pour que Marie Colinet Le Conte et Jean II du Merle le reconstruisent, mélant douves, tourelles, pont-levis et échauguéttes dans un style à la charnière du Góthique et de la Renaissance. En 1801, vendu pour la première et unique fois, il entre dans la famille Pillons de Saint-Philbert, ancêtres des propriétaires actuels. Aujourd’hui, Maïté et Éric de la Fresnaye l’habitent, le restaurent et l’animent avec une passion intègre. Le château n’est pas un musée : c’est une maison vivante, où chaque pièce semble habitée, comme si le temps s’y était arrêté.",
     description: "Au cœur du Pays d’Ouche normand, niché dans un parc de 8 hectares classé pour ses essences rares, le Château du Blanc Buisson est un chef-d'œuvre de l’architecture féodale tardive. Douves intégrales, pont-levis, donjon carré, tourelles de garde — tout est intact depuis 1290. Maïté et Éric de la Fresnaye y accueillent leurs hôtes dans la Suite du Donjon et dans La Réserve, avec la chaleur d’une maison de famille.",
     images: [
-      "https://static.wixstatic.com/media/feca80_0c4b5e7e8b4e4b0a9c5d3f2e1a6b7c8d~mv2.jpg",
-      "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1200&q=80",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Blanc_Buisson_27.jpg/1280px-Blanc_Buisson_27.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Blanc_Buisson_2.jpg/1280px-Blanc_Buisson_2.jpg",
+      "https://images.unsplash.com/photo-1548267245-9c5f2e2c28b2?w=1200&q=80",
     ],
     proprietaires: {
       nom: "Maïté & Éric de la Fresnaye",
