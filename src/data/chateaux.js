@@ -1158,6 +1158,8 @@ export const chateaux = [
       "Visite des châteaux de la Loire (à partir de 45 min)",
     ],
     style: "Demeure familiale · Art de vivre anjouvin",
+    siecle: "XVIIIe siècle",
+    distanceParis: "2h15 de Paris",
     parking: true,
     wifi: true,
     animaux: true,
