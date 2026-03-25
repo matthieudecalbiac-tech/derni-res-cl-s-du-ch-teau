@@ -62,17 +62,19 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClef
 
       {/* Stats */}
       <div className="hero-stats">
-        <span className="hero-stats-nombre">24</span>
-        <span className="hero-stats-label">Châteaux partenaires</span>
+        <span className="hero-stats-nombre">81</span>
+        <span className="hero-stats-label">Domaines sélectionnés</span>
       </div>
 
       {/* Régions */}
       <div className="hero-regions">
         <span className="hero-region-tag">Île-de-France</span>
+        <span className="hero-region-tag">Centre-Val de Loire</span>
         <span className="hero-region-tag">Normandie</span>
-        <span className="hero-region-tag">Loire</span>
+        <span className="hero-region-tag">Hauts-de-France</span>
         <span className="hero-region-tag">Bourgogne</span>
-        <span className="hero-region-tag">Picardie</span>
+        <span className="hero-region-tag">Pays de la Loire</span>
+        <span className="hero-region-tag">Grand Est</span>
       </div>
 
       {/* Deux portes overlay bas */}
