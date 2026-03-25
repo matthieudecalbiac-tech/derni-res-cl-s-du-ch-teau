@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { chateaux } from "../data/chateaux";
 import ChateauModal from "./ChateauModal";
+import TransitionPorte from "./TransitionPorte";
 import "../styles/espace-membre.css";
 import "../styles/vitrines.css";
 
 export default function VitrinePermanente({ onClose }) {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
+  const [transitionChateau, setTransitionChateau] = useState(null);
   const [filtre, setFiltre] = useState("tous");
   const [visible, setVisible] = useState(false);
 
@@ -76,7 +78,7 @@ export default function VitrinePermanente({ onClose }) {
 
         <div className="vit-grille">
           {chateauxFiltres.map(c => (
-            <div key={c.id} className="vit-carte" onClick={() => setChateauSelectionne(c)}>
+            <div key={c.id} className="vit-carte" onClick={() => setTransitionChateau(c)}>
               <div className="vit-carte-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
                 <div className="vit-carte-img-overlay" />
                 <span className="vit-carte-region">{c.region}</span>
@@ -101,8 +103,11 @@ export default function VitrinePermanente({ onClose }) {
         </div>
       </div>
 
-      {chateauSelectionne && (
-        <ChateauModal chateau={chateauSelectionne} onClose={() => setChateauSelectionne(null)} />
+      {transitionChateau && (
+        <TransitionPorte chateau={transitionChateau} onTermine={() => { setChateauSelectionne(transitionChateau); setTransitionChateau(null); }} />
+      )}
+      {(transitionChateau || chateauSelectionne) && (
+        <ChateauModal chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}
     </div>
   );

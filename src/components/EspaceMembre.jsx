@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { chateaux } from "../data/chateaux";
 import ChateauModal from "./ChateauModal";
+import TransitionPorte from "./TransitionPorte";
 import "../styles/espace-membre.css";
 
 const NIVEAUX_COULEURS = {
@@ -15,6 +16,7 @@ const INTRO_TEXTE = [
 
 export default function EspaceMembre({ user, onClose, onDeconnexion }) {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
+  const [transitionChateau, setTransitionChateau] = useState(null);
   const [filtre, setFiltre] = useState("tous");
   const [visible, setVisible] = useState(false);
 
@@ -180,14 +182,14 @@ export default function EspaceMembre({ user, onClose, onDeconnexion }) {
                     <span className="em-entree-prix-val">{c.prix} €</span>
                     <span className="em-entree-prix-nuit">/ nuit</span>
                   </div>
-                  <button className="em-entree-cta" onClick={() => setChateauSelectionne(c)}>
+                  <button className="em-entree-cta" onClick={() => setTransitionChateau(c)}>
                     Ouvrir la vitrine <span className="em-entree-cta-fleche">→</span>
                   </button>
                 </div>
               </div>
 
               {/* Colonne photo */}
-              <div className="em-entree-photo-col" onClick={() => setChateauSelectionne(c)}>
+              <div className="em-entree-photo-col" onClick={() => setTransitionChateau(c)}>
                 <div className="em-entree-photo-wrapper">
                   <img src={c.image} alt={c.nom} className="em-entree-photo" loading="lazy" />
                   <div className="em-entree-photo-overlay" />
@@ -234,8 +236,11 @@ export default function EspaceMembre({ user, onClose, onDeconnexion }) {
       </div>
 
       {/* ── MODAL ── */}
-      {chateauSelectionne && (
-        <ChateauModal chateau={chateauSelectionne} onClose={() => setChateauSelectionne(null)} />
+      {transitionChateau && (
+        <TransitionPorte chateau={transitionChateau} onTermine={() => { setChateauSelectionne(transitionChateau); setTransitionChateau(null); }} />
+      )}
+      {(transitionChateau || chateauSelectionne) && (
+        <ChateauModal chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}
     </div>
   );

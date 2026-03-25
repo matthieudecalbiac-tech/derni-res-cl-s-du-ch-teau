@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { chateaux } from "../data/chateaux";
 import ChateauModal from "./ChateauModal";
+import TransitionPorte from "./TransitionPorte";
 import "../styles/espace-membre.css";
 import "../styles/dernieres-cles.css";
 
 export default function DernieresClés({ onClose }) {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
+  const [transitionChateau, setTransitionChateau] = useState(null);
   const [filtre, setFiltre] = useState("tous");
   const [visible, setVisible] = useState(false);
 
@@ -75,7 +77,7 @@ export default function DernieresClés({ onClose }) {
             const classBadge = { "J-7": "dk-badge-j7", "J-10": "dk-badge-j10", "J-15": "dk-badge-j15" }[c.urgence] || "dk-badge-j15";
             const prixFinal = c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100)) : c.chambres?.[0]?.prix;
             return (
-              <div key={c.id} className="dk-carte" onClick={() => setChateauSelectionne(c)}>
+              <div key={c.id} className="dk-carte" onClick={() => setTransitionChateau(c)}>
                 <div className="dk-carte-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
                   <div className="dk-carte-img-overlay" />
                   {c.urgence && <span className={"dk-badge " + classBadge}>{c.urgence}</span>}
@@ -99,8 +101,11 @@ export default function DernieresClés({ onClose }) {
         </div>
       </div>
 
-      {chateauSelectionne && (
-        <ChateauModal chateau={chateauSelectionne} onClose={() => setChateauSelectionne(null)} />
+      {transitionChateau && (
+        <TransitionPorte chateau={transitionChateau} onTermine={() => { setChateauSelectionne(transitionChateau); setTransitionChateau(null); }} />
+      )}
+      {(transitionChateau || chateauSelectionne) && (
+        <ChateauModal chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}
     </div>
   );
