@@ -129,6 +129,7 @@ function App() {
         <Hero
           onOuvrirAuth={ouvrirAuth}
           onOuvrirClub={() => setClubOuvert(true)}
+          onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
         />
         <ClesAlaUne onSelectChateau={ouvrirChateau} />
         <Services />

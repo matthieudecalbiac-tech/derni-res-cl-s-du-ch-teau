@@ -1,6 +1,6 @@
 import "../styles/hero.css";
 
-export default function Hero({ onOuvrirAuth, onOuvrirClub }) {
+export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClefs }) {
   const scrollVersOffres = () => {
     document.getElementById("offres")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -79,7 +79,7 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub }) {
       <div className="hero-portes-overlay">
         <div
           className="hero-porte-overlay hero-porte-overlay--gauche"
-          onClick={scrollVersOffres}
+          onClick={onOuvrirDernieresClefs}
         >
           <div className="hero-porte-overlay-badge">Accès libre</div>
           <div className="hero-porte-overlay-titre">⏳ Dernières Clés</div>
