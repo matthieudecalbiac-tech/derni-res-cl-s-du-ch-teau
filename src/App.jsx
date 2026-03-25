@@ -14,6 +14,7 @@ import CompteUser from "./components/CompteUser";
 import ClubChatelains from "./components/ClubChatelains";
 import ClesEvenementiel from "./components/ClesEvenementiel";
 import APropos from "./components/APropos";
+import EspaceMembre from "./components/EspaceMembre";
 import PartenairesChateaux from "./components/PartenairesChateaux";
 
 const LysPattern = () => (
@@ -85,11 +86,17 @@ function App() {
   const [clubOuvert, setClubOuvert] = useState(false);
   const [evenementielOuvert, setEvenementielOuvert] = useState(false);
   const [aProposOuvert, setAProposOuvert] = useState(false);
+  const [espaceMembreOuvert, setEspaceMembreOuvert] = useState(false);
 
   const ouvrirAuth = (mode = "inscription") => {
     setAuthMode(mode);
     setClubOuvert(false);
     setAuthOuvert(true);
+  };
+
+  const gererConnexion = (user) => {
+    setUserConnecte(user);
+    setEspaceMembreOuvert(true);
   };
 
   const ouvrirChateau = (chateau) => {
@@ -146,7 +153,7 @@ function App() {
         <AuthModal
           modeInitial={authMode}
           onClose={() => setAuthOuvert(false)}
-          onConnexion={(user) => setUserConnecte(user)}
+          onConnexion={gererConnexion}
         />
       )}
       {compteOuvert && userConnecte && (
@@ -169,6 +176,16 @@ function App() {
         <ClesEvenementiel onClose={() => setEvenementielOuvert(false)} />
       )}
       {aProposOuvert && <APropos onClose={() => setAProposOuvert(false)} />}
+      {espaceMembreOuvert && userConnecte && (
+        <EspaceMembre
+          user={userConnecte}
+          onClose={() => setEspaceMembreOuvert(false)}
+          onDeconnexion={() => {
+            setUserConnecte(null);
+            setEspaceMembreOuvert(false);
+          }}
+        />
+      )}
     </div>
   );
 }
