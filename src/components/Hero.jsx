@@ -107,13 +107,7 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub }) {
         </div>
       </div>
 
-      <button
-        className="hero-proprietaires-link"
-        onClick={() => document.getElementById("partenaires")?.scrollIntoView({ behavior: "smooth" })}
-      >
-        Vous êtes propriétaire d'un domaine ?{" "}
-        <span className="hero-proprietaires-link-fleche">→</span>
-      </button>
+      
     </section>
   );
 }
