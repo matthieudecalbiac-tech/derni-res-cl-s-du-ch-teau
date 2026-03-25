@@ -46,26 +46,26 @@ export default function Header({ onOuvrirClub, onOuvrirAPropos, onOuvrirVitrines
         <button className="header-logo" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="Accueil">
           <LogoChateau />
           <div className="logo-texte">
-            <span className="logo-principal">Les Cl\u00e9s du Ch\u00e2teau</span>
-            <span className="logo-secondaire">Patrimoine \u00b7 Art de vivre fran\u00e7ais</span>
+            <span className="logo-principal">Les Clés du Château</span>
+            <span className="logo-secondaire">Patrimoine · Art de vivre français</span>
           </div>
         </button>
 
         <nav className="header-nav" role="navigation" aria-label="Navigation principale">
           <span className="nav-lien nav-lien--vitrines" onClick={onOuvrirVitrines} role="button" tabIndex={0}>
-            \u25c6 Vitrines permanentes
+            ◆ Vitrines permanentes
           </span>
           <span className="nav-lien nav-lien--dernieres" onClick={onOuvrirDernieresClefs} role="button" tabIndex={0}>
-            \u25c6 Derni\u00e8res Cl\u00e9s
+            ◆ Dernières Clés
           </span>
           <span className="nav-lien nav-lien--club" onClick={onOuvrirClub} role="button" tabIndex={0}>
-            \u269c Club des Ch\u00e2telains
+            ⚜ Club des Châtelains
           </span>
           <span className="nav-lien nav-lien--apropos" onClick={onOuvrirAPropos} role="button" tabIndex={0}>
-            \u00c0 propos
+            À propos
           </span>
           <span className="nav-lien nav-lien--partenaires" onClick={() => scrollVers("partenaires")} role="button" tabIndex={0}>
-            \u269c Propri\u00e9taires
+            ⚜ Propriétaires
           </span>
         </nav>
 
@@ -81,19 +81,19 @@ export default function Header({ onOuvrirClub, onOuvrirAPropos, onOuvrirVitrines
       <div className={`header-menu-mobile${menuOuvert ? " ouvert" : ""}`} role="dialog" aria-label="Menu mobile">
         <nav>
           <span className="nav-lien-mobile nav-lien-mobile--vitrines" onClick={() => { onOuvrirVitrines?.(); setMenuOuvert(false); }}>
-            \u25c6 Vitrines permanentes
+            ◆ Vitrines permanentes
           </span>
           <span className="nav-lien-mobile nav-lien-mobile--dernieres" onClick={() => { onOuvrirDernieresClefs?.(); setMenuOuvert(false); }}>
-            \u25c6 Derni\u00e8res Cl\u00e9s du Ch\u00e2teau
+            ◆ Dernières Clés du Château
           </span>
           <span className="nav-lien-mobile nav-lien-mobile--club" onClick={() => { onOuvrirClub(); setMenuOuvert(false); }}>
-            \u269c Club des Ch\u00e2telains
+            ⚜ Club des Châtelains
           </span>
           <span className="nav-lien-mobile" onClick={() => { onOuvrirAPropos(); setMenuOuvert(false); }}>
-            \u00c0 propos
+            À propos
           </span>
           <span className="nav-lien-mobile nav-lien--partenaires" onClick={() => scrollVers("partenaires")}>
-            \u269c Votre domaine sur LCC
+            ⚜ Votre domaine sur LCC
           </span>
           <button className="nav-mobile-cta" onClick={() => { onOuvrirClub(); setMenuOuvert(false); }}>
             Rejoindre le Club
