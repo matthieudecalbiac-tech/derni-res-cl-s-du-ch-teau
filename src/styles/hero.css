@@ -418,19 +418,23 @@
     bottom: 10rem;
   }
   .hero-portes-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: grid;
-  grid-template-columns: 1fr 1.1fr 1fr;
-  z-index: 10;
-}
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 }
 
 @media (max-width: 768px) {
   .hero {
     min-height: 100svh;
+  }
+  .hero-portes-overlay {
+    grid-template-columns: 1fr;
+    position: relative;
+    bottom: auto;
+  }
+  .hero-porte-overlay {
+    border-top: 1px solid rgba(192,152,64,0.15);
+    border-left: none;
+    border-right: none;
   }
   .hero-cadre {
     display: none;
@@ -459,6 +463,9 @@
 @media (max-width: 480px) {
   .hero-porte-overlay-desc {
     display: none;
+  }
+  .hero-portes-overlay {
+    grid-template-columns: 1fr;
   }
   .hero-porte-overlay {
     padding: 1rem 0.8rem;

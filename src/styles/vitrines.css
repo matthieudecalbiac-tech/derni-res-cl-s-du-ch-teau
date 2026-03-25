@@ -212,3 +212,12 @@
   transition: letter-spacing 0.2s ease;
 }
 .vit-carte:hover .vit-carte-lien { letter-spacing: 0.08em; }
+
+@media (max-width: 768px) {
+  .vit-hero { min-height: auto; padding: 60px 16px 40px; }
+  .vit-titre { font-size: 2rem; }
+  .vit-corps { padding: 40px 16px 60px; }
+  .vit-stats { gap: 0; }
+  .vit-stat { padding: 0 12px; }
+  .vit-stat-nb { font-size: 1.5rem; }
+}

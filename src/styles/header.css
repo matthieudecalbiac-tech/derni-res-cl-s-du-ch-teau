@@ -368,7 +368,8 @@
   .header--solide .header-inner { padding: 0.7rem 1rem; }
 
   /* Logo : icône seule, texte masqué */
-  .header-logo-texte { display: none; }
+  .logo-texte { display: none; }
+  .logo-lys { font-size: 1.6rem; }
   .header-logo svg {
     width: 40px !important;
     height: 40px !important;

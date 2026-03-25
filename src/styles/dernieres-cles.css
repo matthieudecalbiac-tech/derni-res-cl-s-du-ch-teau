@@ -49,3 +49,11 @@
 .dk-prix-nuit { font-family:'Crimson Pro',serif; font-size:0.75rem; font-weight:300; color:rgba(245,240,232,0.4); }
 .dk-carte-lien { font-family:'Crimson Pro',serif; font-size:0.82rem; font-weight:400; color:#C09840; letter-spacing:0.04em; transition:letter-spacing 0.2s ease; }
 .dk-carte:hover .dk-carte-lien { letter-spacing:0.08em; }
+
+@media (max-width: 768px) {
+  .dk-hero { min-height: auto; padding: 60px 16px 40px; }
+  .dk-titre { font-size: 2rem; }
+  .dk-corps { padding: 40px 16px 60px; }
+  .dk-urgence-intro { gap: 6px; }
+  .dk-urgence-item { padding: 10px 16px; }
+}
