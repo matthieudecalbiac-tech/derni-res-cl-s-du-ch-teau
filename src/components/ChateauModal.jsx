@@ -52,7 +52,7 @@ export default function ChateauModal({ chateau, onClose }) {
   const chambre = chateau.chambres?.[chambreSelectionnee];
 
   return (
-    <div className="cp-overlay">
+    <div className={"cp-overlay " + (visible ? "cp-visible" : "cp-hidden")}>
       {/* ── HEADER STICKY ── */}
       <header className="cp-header">
         <div className="cp-header-gauche">
