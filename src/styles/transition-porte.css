@@ -1,158 +1,85 @@
 
-/* ── BASE ── */
-.tp-overlay {
+.tp-wrap {
   position: fixed;
   inset: 0;
   z-index: 9999;
   overflow: hidden;
-  perspective: 1200px;
+  background: #07101E;
 }
 
 .tp-fond {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 50%, #0D1C30 0%, #07101E 100%);
+  background: radial-gradient(ellipse at 50% 40%, #0D1C30 0%, #07101E 100%);
 }
 
-/* ── BATTANTS ── */
-.tp-porte-gauche,
-.tp-porte-droite {
+/* Battants */
+.tp-battant {
   position: absolute;
   top: 0;
   bottom: 0;
   width: 50%;
-  z-index: 3;
-  will-change: transform;
-  transition: transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  background: #1a0e05;
+  z-index: 2;
+  transition: transform 1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tp-porte-gauche {
+.tp-gauche {
   left: 0;
   transform-origin: left center;
-  background: linear-gradient(105deg, #2a1505 0%, #1a0e05 50%, #0f0803 100%);
-  border-right: 3px solid rgba(192,152,64,0.5);
-  box-shadow: inset -20px 0 40px rgba(0,0,0,0.4);
+  background: linear-gradient(to right, #2a1505, #1a0e05);
+  border-right: 2px solid rgba(192,152,64,0.5);
 }
-.tp-porte-droite {
+.tp-droite {
   right: 0;
   transform-origin: right center;
-  background: linear-gradient(75deg, #0f0803 0%, #1a0e05 50%, #2a1505 100%);
-  border-left: 3px solid rgba(192,152,64,0.5);
-  box-shadow: inset 20px 0 40px rgba(0,0,0,0.4);
+  background: linear-gradient(to left, #2a1505, #1a0e05);
+  border-left: 2px solid rgba(192,152,64,0.5);
 }
 
-/* Moulures */
-.tp-porte-detail {
-  position: absolute;
-  inset: 20px;
-  border: 1px solid rgba(192,152,64,0.2);
-}
-.tp-porte-detail::before {
-  content: "";
-  position: absolute;
-  inset: 14px;
-  border: 1px solid rgba(192,152,64,0.12);
-}
-.tp-porte-detail::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 14px;
-  right: 14px;
-  height: 1px;
-  background: rgba(192,152,64,0.12);
-}
+.tp-gauche--ferme { transform: translateX(0); }
+.tp-gauche--ouvert { transform: translateX(-100%); }
+.tp-droite--ferme { transform: translateX(0); }
+.tp-droite--ouvert { transform: translateX(100%); }
 
-/* Poignées */
-.tp-porte-poignee--g,
-.tp-porte-poignee--d {
-  position: absolute;
-  top: 50%;
-  width: 12px;
-  height: 52px;
-  transform: translateY(-50%);
-  background: linear-gradient(180deg, #EDD880 0%, #C09840 40%, #8B6014 100%);
-  border-radius: 6px;
-  box-shadow: 0 0 12px rgba(192,152,64,0.5);
-}
-.tp-porte-poignee--g { right: 20px; }
-.tp-porte-poignee--d { left: 20px; }
-
-/* Lumière */
-.tp-lumiere {
+/* Fondu sortie */
+.tp-fondu {
   position: absolute;
   inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  background: radial-gradient(ellipse at 50% 50%,
-    rgba(245,240,232,0) 0%,
-    rgba(192,152,64,0) 100%
-  );
-  transition: background 0.6s ease, opacity 0.6s ease;
+  z-index: 5;
+  background: #07101E;
   opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
 }
+.tp-fondu--actif { opacity: 1; }
 
-/* Centre */
-.tp-centre {
+/* Lys central */
+.tp-lys-wrap {
   position: absolute;
   inset: 0;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 4;
-  gap: 14px;
+  gap: 16px;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.5s ease;
   pointer-events: none;
 }
+.tp-lys-wrap--visible { opacity: 1; }
+
 .tp-lys {
   font-size: 4rem;
   color: #C09840;
-  filter: drop-shadow(0 0 24px rgba(192,152,64,0.7));
-  animation: tp-lys-pulse 1.5s ease-in-out infinite;
+  filter: drop-shadow(0 0 20px rgba(192,152,64,0.6));
 }
-@keyframes tp-lys-pulse {
-  0%, 100% { opacity: 0.7; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.06); }
-}
-.tp-texte {
+.tp-label {
   font-family: "Playfair Display", Georgia, serif;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 300;
-  letter-spacing: 0.55em;
+  letter-spacing: 0.6em;
   text-transform: uppercase;
-  color: rgba(245,240,232,0.6);
+  color: rgba(245,240,232,0.55);
 }
-
-/* ── PHASES ── */
-
-/* init : portes fermées, pas de transition */
-.tp-phase-init .tp-porte-gauche { transform: rotateY(0deg); transition: none; }
-.tp-phase-init .tp-porte-droite { transform: rotateY(0deg); transition: none; }
-.tp-phase-init .tp-overlay { opacity: 1; }
-
-/* fermee : même position mais transitions activées */
-.tp-phase-fermee .tp-porte-gauche { transform: rotateY(0deg); }
-.tp-phase-fermee .tp-porte-droite { transform: rotateY(0deg); }
-
-/* ouverture : battants s'écartent */
-.tp-phase-ouverture .tp-porte-gauche { transform: perspective(1200px) rotateY(-85deg); }
-.tp-phase-ouverture .tp-porte-droite { transform: perspective(1200px) rotateY(85deg); }
-.tp-phase-ouverture .tp-centre { opacity: 1; }
-.tp-phase-ouverture .tp-lumiere {
-  opacity: 1;
-  background: radial-gradient(ellipse at 50% 50%,
-    rgba(245,240,232,0.12) 0%,
-    rgba(192,152,64,0.06) 40%,
-    transparent 70%
-  );
-}
-
-/* fondu : l'overlay devient transparent — la modal apparaît en dessous */
-.tp-phase-fondu {
-  opacity: 0;
-  transition: opacity 0.6s ease !important;
-}
-.tp-phase-fondu .tp-porte-gauche { transform: perspective(1200px) rotateY(-85deg); }
-.tp-phase-fondu .tp-porte-droite { transform: perspective(1200px) rotateY(85deg); }
