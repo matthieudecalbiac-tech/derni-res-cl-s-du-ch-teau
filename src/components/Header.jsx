@@ -5,18 +5,18 @@ const LogoChateau = () => (
   <svg width="52" height="52" viewBox="0 0 280 280" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
     <defs>
       <linearGradient id="hgOr" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#F5E070"/>
-        <stop offset="40%" stopColor="#D4AA45"/>
-        <stop offset="100%" stopColor="#B8880A"/>
+        <stop offset="0%" stopColor="#8B6014"/>
+        <stop offset="40%" stopColor="#B8862A"/>
+        <stop offset="100%" stopColor="#7A5010"/>
       </linearGradient>
       <linearGradient id="hgOrH" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stopColor="#F5E070"/>
-        <stop offset="50%" stopColor="#D4AA45"/>
-        <stop offset="100%" stopColor="#F5E070"/>
+        <stop offset="0%" stopColor="#8B6014"/>
+        <stop offset="50%" stopColor="#B8862A"/>
+        <stop offset="100%" stopColor="#8B6014"/>
       </linearGradient>
       <radialGradient id="hgHalo" cx="50%" cy="45%" r="50%">
-        <stop offset="0%" stopColor="#D4AA45" stopOpacity="0.18"/>
-        <stop offset="100%" stopColor="#D4AA45" stopOpacity="0"/>
+        <stop offset="0%" stopColor="#B8862A" stopOpacity="0.18"/>
+        <stop offset="100%" stopColor="#B8862A" stopOpacity="0"/>
       </radialGradient>
       <filter id="hglow">
         <feGaussianBlur stdDeviation="1.2" result="b"/>
@@ -24,22 +24,23 @@ const LogoChateau = () => (
       </filter>
     </defs>
 
+    <rect width="280" height="280" fill="#F5F0E8"/>
     <circle cx="140" cy="140" r="130" fill="url(#hgHalo)"/>
 
     {/* Cadre */}
     <rect x="10" y="10" width="260" height="260" fill="none" stroke="url(#hgOrH)" strokeWidth="0.7" opacity="0.9"/>
     <rect x="16" y="16" width="248" height="248" fill="none" stroke="url(#hgOrH)" strokeWidth="0.35" opacity="0.3"/>
-    <path d="M10,10 L40,10 M10,10 L10,40" stroke="#D4AA45" strokeWidth="2.2" fill="none"/>
-    <path d="M270,10 L240,10 M270,10 L270,40" stroke="#C09840" strokeWidth="2.2" fill="none"/>
-    <path d="M10,270 L40,270 M10,270 L10,240" stroke="#C09840" strokeWidth="2.2" fill="none"/>
-    <path d="M270,270 L240,270 M270,270 L270,240" stroke="#C09840" strokeWidth="2.2" fill="none"/>
-    <rect x="10" y="10" width="6" height="6" fill="#D4AA45" opacity="1"/>
-    <rect x="264" y="10" width="6" height="6" fill="#C09840" opacity="0.8"/>
-    <rect x="10" y="264" width="6" height="6" fill="#C09840" opacity="0.8"/>
-    <rect x="264" y="264" width="6" height="6" fill="#C09840" opacity="0.8"/>
+    <path d="M10,10 L40,10 M10,10 L10,40" stroke="#8B6014" strokeWidth="2.2" fill="none"/>
+    <path d="M270,10 L240,10 M270,10 L270,40" stroke="#8B6014" strokeWidth="2.2" fill="none"/>
+    <path d="M10,270 L40,270 M10,270 L10,240" stroke="#8B6014" strokeWidth="2.2" fill="none"/>
+    <path d="M270,270 L240,270 M270,270 L270,240" stroke="#8B6014" strokeWidth="2.2" fill="none"/>
+    <rect x="10" y="10" width="6" height="6" fill="#8B6014" opacity="1"/>
+    <rect x="264" y="10" width="6" height="6" fill="#8B6014" opacity="0.8"/>
+    <rect x="10" y="264" width="6" height="6" fill="#8B6014" opacity="0.8"/>
+    <rect x="264" y="264" width="6" height="6" fill="#8B6014" opacity="0.8"/>
 
     {/* Château */}
-    <g opacity="0.35" fill="#D4AA45">
+    <g opacity="0.35" fill="#8B6014">
       <rect x="30" y="214" width="220" height="3"/>
       <rect x="82" y="170" width="116" height="44"/>
       <rect x="110" y="160" width="60" height="54"/>
@@ -66,13 +67,13 @@ const LogoChateau = () => (
     <rect x="153" y="182" width="7" height="32" fill="url(#hgOr)" opacity="0.95"/>
     <path d="M120,197 Q120,176 140,176 Q160,176 160,197" fill="none" stroke="url(#hgOr)" strokeWidth="2.6" opacity="0.98"/>
     <path d="M135,176 L140,170 L145,176 Z" fill="url(#hgOr)" opacity="0.98"/>
-    <circle cx="140" cy="176" r="2.8" fill="#C09840" opacity="0.7"/>
+    <circle cx="140" cy="176" r="2.8" fill="#8B6014" opacity="0.7"/>
     <rect x="122" y="197" width="15" height="17" fill="none" stroke="url(#hgOr)" strokeWidth="1" opacity="0.58"/>
-    <line x1="129" y1="197" x2="129" y2="214" stroke="#C09840" strokeWidth="0.9" opacity="0.45"/>
-    <line x1="122" y1="205" x2="137" y2="205" stroke="#C09840" strokeWidth="0.9" opacity="0.45"/>
+    <line x1="129" y1="197" x2="129" y2="214" stroke="#8B6014" strokeWidth="0.9" opacity="0.45"/>
+    <line x1="122" y1="205" x2="137" y2="205" stroke="#8B6014" strokeWidth="0.9" opacity="0.45"/>
     <rect x="143" y="197" width="15" height="17" fill="none" stroke="url(#hgOr)" strokeWidth="1" opacity="0.58"/>
-    <line x1="150" y1="197" x2="150" y2="214" stroke="#C09840" strokeWidth="0.9" opacity="0.45"/>
-    <line x1="143" y1="205" x2="158" y2="205" stroke="#C09840" strokeWidth="0.9" opacity="0.45"/>
+    <line x1="150" y1="197" x2="150" y2="214" stroke="#8B6014" strokeWidth="0.9" opacity="0.45"/>
+    <line x1="143" y1="205" x2="158" y2="205" stroke="#8B6014" strokeWidth="0.9" opacity="0.45"/>
     <rect x="118" y="180" width="44" height="4" fill="url(#hgOr)" opacity="0.9"/>
     <line x1="30" y1="214" x2="250" y2="214" stroke="url(#hgOrH)" strokeWidth="0.7" opacity="0.25"/>
 
@@ -85,7 +86,7 @@ const LogoChateau = () => (
     {/* Ligne sous fleur */}
     <line x1="78" y1="61" x2="118" y2="61" stroke="url(#hgOrH)" strokeWidth="0.7" opacity="0.8"/>
     <line x1="162" y1="61" x2="202" y2="61" stroke="url(#hgOrH)" strokeWidth="0.7" opacity="0.8"/>
-    <circle cx="140" cy="61" r="1.8" fill="#D4AA45" opacity="1"/>
+    <circle cx="140" cy="61" r="1.8" fill="#8B6014" opacity="1"/>
 
     {/* Clé A — derrière */}
     <g transform="rotate(-38, 140, 115)" opacity="1">
@@ -93,7 +94,7 @@ const LogoChateau = () => (
       <rect x="135.5" y="90" width="9" height="2.5" fill="url(#hgOr)" rx="0.5" opacity="0.75"/>
       <rect x="135.5" y="100" width="9" height="2.5" fill="url(#hgOr)" rx="0.5" opacity="0.75"/>
       <circle cx="140" cy="73" r="11" fill="none" stroke="url(#hgOr)" strokeWidth="2.4"/>
-      <circle cx="140" cy="73" r="6.5" fill="none" stroke="#C09840" strokeWidth="1.1" opacity="0.55"/>
+      <circle cx="140" cy="73" r="6.5" fill="none" stroke="#8B6014" strokeWidth="1.1" opacity="0.55"/>
       <line x1="140" y1="66" x2="140" y2="80" stroke="url(#hgOr)" strokeWidth="1.3" opacity="0.7"/>
       <line x1="133" y1="73" x2="147" y2="73" stroke="url(#hgOr)" strokeWidth="1.3" opacity="0.7"/>
       <circle cx="140" cy="66" r="1.8" fill="url(#hgOr)"/>
@@ -108,7 +109,7 @@ const LogoChateau = () => (
     </g>
 
     {/* Masque croisement */}
-    <rect x="133" y="109" width="14" height="12" fill="#07101E"/>
+    <rect x="133" y="109" width="14" height="12" fill="#F5F0E8"/>
 
     {/* Clé B — devant */}
     <g transform="rotate(38, 140, 115)" opacity="1">
@@ -116,7 +117,7 @@ const LogoChateau = () => (
       <rect x="135.5" y="90" width="9" height="2.5" fill="url(#hgOr)" rx="0.5" opacity="0.75"/>
       <rect x="135.5" y="100" width="9" height="2.5" fill="url(#hgOr)" rx="0.5" opacity="0.75"/>
       <circle cx="140" cy="73" r="11" fill="none" stroke="url(#hgOr)" strokeWidth="2.4"/>
-      <circle cx="140" cy="73" r="6.5" fill="none" stroke="#C09840" strokeWidth="1.1" opacity="0.55"/>
+      <circle cx="140" cy="73" r="6.5" fill="none" stroke="#8B6014" strokeWidth="1.1" opacity="0.55"/>
       <line x1="140" y1="66" x2="140" y2="80" stroke="url(#hgOr)" strokeWidth="1.3" opacity="0.7"/>
       <line x1="133" y1="73" x2="147" y2="73" stroke="url(#hgOr)" strokeWidth="1.3" opacity="0.7"/>
       <circle cx="140" cy="66" r="1.8" fill="url(#hgOr)"/>
@@ -139,12 +140,12 @@ const LogoChateau = () => (
 
     {/* Nœud central */}
     <circle cx="140" cy="115" r="3.5" fill="url(#hgOr)" opacity="1"/>
-    <circle cx="140" cy="115" r="1.5" fill="#07101E" opacity="0.8"/>
+    <circle cx="140" cy="115" r="1.5" fill="#F5F0E8" opacity="0.9"/>
 
     {/* Ornement bas */}
     <line x1="26" y1="228" x2="108" y2="228" stroke="url(#hgOrH)" strokeWidth="0.6" opacity="0.7"/>
     <line x1="172" y1="228" x2="254" y2="228" stroke="url(#hgOrH)" strokeWidth="0.6" opacity="0.7"/>
-    <circle cx="140" cy="228" r="2" fill="#D4AA45" opacity="0.9"/>
+    <circle cx="140" cy="228" r="2" fill="#8B6014" opacity="0.9"/>
 
     {/* LDCC */}
     <text x="140" y="246" textAnchor="middle"
