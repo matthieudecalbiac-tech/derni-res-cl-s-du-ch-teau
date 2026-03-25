@@ -17,6 +17,7 @@ import APropos from "./components/APropos";
 import EspaceMembre from "./components/EspaceMembre";
 import VitrinePermanente from "./components/VitrinePermanente";
 import DernieresClés from "./components/DernieresClés";
+import TransitionPorte from "./components/TransitionPorte";
 import PartenairesChateaux from "./components/PartenairesChateaux";
 
 const LysPattern = () => (
@@ -91,6 +92,7 @@ function App() {
   const [espaceMembreOuvert, setEspaceMembreOuvert] = useState(false);
   const [vitrinesOuvert, setVitrinesOuvert] = useState(false);
   const [dernieresOuvert, setDernieresOuvert] = useState(false);
+  const [transitionChateau, setTransitionChateau] = useState(null);
 
   const ouvrirAuth = (mode = "inscription") => {
     setAuthMode(mode);
@@ -106,7 +108,7 @@ function App() {
   const ouvrirChateau = (chateau) => {
     setCarteOuverte(false);
     setTousOuvert(false);
-    setChateauSelectionne(chateau);
+    setTransitionChateau(chateau);
   };
 
   return (
@@ -146,10 +148,13 @@ function App() {
       {dernieresOuvert && (
         <DernieresClés onClose={() => setDernieresOuvert(false)} />
       )}
+      {transitionChateau && !chateauSelectionne && (
+        <TransitionPorte onTermine={() => { setChateauSelectionne(transitionChateau); setTransitionChateau(null); }} />
+      )}
       {chateauSelectionne && (
         <ChateauModal
           chateau={chateauSelectionne}
-          onClose={() => setChateauSelectionne(null)}
+          onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }}
         />
       )}
       {carteOuverte && (
