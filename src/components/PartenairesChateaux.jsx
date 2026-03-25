@@ -61,7 +61,7 @@ export default function PartenairesChateaux() {
 
       <div className="part-modes-nav">
         {CONFIGS.map((c) => (
-          <button key={c.id} className={\`part-mode-btn \${configActive === c.id ? "actif" : ""}\`} onClick={() => setConfigActive(c.id)}>
+          <button key={c.id} className={`part-mode-btn ${configActive === c.id ? "actif" : ""}`} onClick={() => setConfigActive(c.id)}>
             <span className="part-mode-lettre">{c.numero}</span>
             <span className="part-mode-label">{c.titre}</span>
             {c.id === "hybride" && <span className="part-mode-star">★</span>}
@@ -70,7 +70,7 @@ export default function PartenairesChateaux() {
       </div>
 
       {cfg && (
-        <div className={\`part-mode-detail part-mode-detail--\${cfg.couleur}\`}>
+        <div className={`part-mode-detail part-mode-detail--${cfg.couleur}`}>
           <div className="part-mode-detail-gauche">
             <span className="part-mode-detail-badge">{cfg.badge}</span>
             <div className="part-mode-detail-titre-wrap">
