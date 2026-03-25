@@ -275,7 +275,7 @@ export default function ChateauModal({ chateau, onClose }) {
                 Activités & expériences
               </h2>
               <div className="cp-activites-grille">
-                {chateau.activites.map((a, i) => (
+                {chateau.activites?.map((a, i) => (
                   <div key={i} className="cp-activite">
                     <div className="cp-activite-lys">✦</div>
                     <div className="cp-activite-nom">{a.nom}</div>
@@ -324,7 +324,7 @@ export default function ChateauModal({ chateau, onClose }) {
               </p>
 
               <div className="cp-alentours">
-                {chateau.alentours.map((lieu, i) => (
+                {chateau.alentours?.map((lieu, i) => (
                   <div key={i} className="cp-alentour">
                     <div className="cp-alentour-point" />
                     <span className="cp-alentour-nom">{lieu.nom}</span>
