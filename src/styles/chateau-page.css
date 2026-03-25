@@ -1147,3 +1147,6 @@
     padding: 1.2rem;
   }
 }
+
+.chateau-page--hidden { opacity: 0; }
+.chateau-page--visible { opacity: 1; transition: opacity 0.5s ease; }

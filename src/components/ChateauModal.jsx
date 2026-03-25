@@ -6,10 +6,12 @@ export default function ChateauModal({ chateau, onClose }) {
   const [reserve, setReserve] = useState(false);
   const [chambreSelectionnee, setChambreSelectionnee] = useState(0);
   const [mapReady, setMapReady] = useState(false);
+  const [visible, setVisible] = useState(false);
   const intervalRef = useRef(null);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
+    setTimeout(() => setVisible(true), 30);
     const t = setTimeout(() => setMapReady(true), 400);
     return () => {
       document.body.style.overflow = "";
