@@ -418,3 +418,10 @@
 .nav-lien--partenaires:hover {
   opacity: 1;
 }
+
+.logo-lys {
+  font-size: 2rem;
+  color: #C09840;
+  line-height: 1;
+  flex-shrink: 0;
+}
