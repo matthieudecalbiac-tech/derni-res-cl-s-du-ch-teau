@@ -83,3 +83,36 @@
 .part-succes-texte { font-family: 'Crimson Pro', serif; font-size: 0.95rem; font-weight: 300; color: rgba(245,240,232,0.65); line-height: 1.7; margin: 0; font-style: italic; }
 .part-succes-texte strong { color: #C09840; font-weight: 400; font-style: normal; }
 [coller le contenu de partenaires-addon.css]
+.part-modes-sous{font-family:'Crimson Pro',serif;font-size:.85rem;font-weight:300;color:rgba(192,152,64,.7);letter-spacing:.06em;margin:10px 0 0;font-style:italic}
+.part-mode-star{color:#C09840;font-size:.75rem;margin-left:4px}
+.part-mode-detail-titre-wrap{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px}
+.part-mode-detail-commission{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:400;color:#C09840;line-height:1;flex-shrink:0;margin-top:4px}
+.part-mode-detail-note{font-family:'Crimson Pro',serif;font-size:.82rem;font-weight:300;color:rgba(192,152,64,.75);font-style:italic;margin:14px 0 0;padding:10px 14px;border-left:2px solid rgba(192,152,64,.35);line-height:1.6}
+.part-club-option{max-width:1000px;margin:0 auto 80px;padding:40px 48px;border:1px solid rgba(192,152,64,.5);background:linear-gradient(135deg,rgba(192,152,64,.06) 0%,rgba(192,152,64,.02) 100%);position:relative}
+.part-club-option::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:#C09840}
+.part-club-option-badge{display:inline-block;font-family:'Crimson Pro',serif;font-size:.7rem;font-weight:300;letter-spacing:.2em;text-transform:uppercase;color:#C09840;border:1px solid rgba(192,152,64,.4);padding:4px 14px;margin-bottom:14px}
+.part-club-option-titre-wrap{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.part-club-option-titre{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:400;color:#F5F0E8;margin:0}
+.part-club-option-commission{font-family:'Playfair Display',serif;font-size:2rem;font-weight:400;color:#C09840;line-height:1;flex-shrink:0}
+.part-club-option-desc{font-family:'Crimson Pro',serif;font-size:.97rem;font-weight:300;color:rgba(245,240,232,.65);line-height:1.75;margin:14px 0 20px;font-style:italic}
+.part-club-option-desc strong{color:rgba(245,240,232,.9);font-weight:400;font-style:normal}
+.part-club-option-points{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media(max-width:600px){.part-club-option-points{grid-template-columns:1fr}.part-club-option{padding:28px 24px}}
+.part-club-pt{display:flex;align-items:flex-start;gap:10px;font-family:'Crimson Pro',serif;font-size:.92rem;color:rgba(245,240,232,.78);line-height:1.5}
+.part-club-pt-ico{color:#C09840;font-size:.7rem;margin-top:3px;flex-shrink:0}
+.part-recap{max-width:1000px;margin:-40px auto 80px;padding:0 24px}
+.part-recap-entete{text-align:center;margin-bottom:24px}
+.part-recap-grille{display:flex;align-items:stretch;border:1px solid rgba(192,152,64,.2);background:rgba(255,255,255,.015)}
+@media(max-width:700px){.part-recap-grille{flex-direction:column}.part-recap-sep{width:100%;height:1px}}
+.part-recap-item{flex:1;padding:28px 24px;text-align:center}
+.part-recap-sep{width:1px;background:rgba(192,152,64,.2);flex-shrink:0}
+.part-recap-module{font-family:'Crimson Pro',serif;font-size:.78rem;font-weight:300;letter-spacing:.12em;text-transform:uppercase;color:rgba(245,240,232,.5);margin-bottom:10px}
+.part-recap-taux{font-family:'Playfair Display',serif;font-size:2rem;font-weight:400;color:#C09840;line-height:1;margin-bottom:8px}
+.part-recap-detail{font-family:'Crimson Pro',serif;font-size:.82rem;font-weight:300;color:rgba(245,240,232,.45);line-height:1.5;font-style:italic}
+.part-recap-note{font-family:'Crimson Pro',serif;font-size:.8rem;font-weight:300;color:rgba(192,152,64,.65);text-align:center;margin:16px 0 0;font-style:italic;letter-spacing:.04em}
+.nav-lien--vitrines,.nav-lien--dernieres{color:rgba(245,240,232,.72)!important}
+.nav-lien--club{color:#C09840!important;font-style:italic}
+.nav-lien--partenaires{color:#C09840!important;font-style:italic;opacity:.85}
+.nav-lien--partenaires:hover{opacity:1}
+.nav-lien-mobile--vitrines,.nav-lien-mobile--dernieres{color:rgba(245,240,232,.85)!important}
+.nav-lien-mobile--club{color:#C09840!important;font-style:italic}
