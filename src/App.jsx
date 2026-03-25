@@ -15,6 +15,7 @@ import ClubChatelains from "./components/ClubChatelains";
 import ClesEvenementiel from "./components/ClesEvenementiel";
 import APropos from "./components/APropos";
 import EspaceMembre from "./components/EspaceMembre";
+import VitrinePermanente from "./components/VitrinePermanente";
 import PartenairesChateaux from "./components/PartenairesChateaux";
 
 const LysPattern = () => (
@@ -87,6 +88,7 @@ function App() {
   const [evenementielOuvert, setEvenementielOuvert] = useState(false);
   const [aProposOuvert, setAProposOuvert] = useState(false);
   const [espaceMembreOuvert, setEspaceMembreOuvert] = useState(false);
+  const [vitrinesOuvert, setVitrinesOuvert] = useState(false);
 
   const ouvrirAuth = (mode = "inscription") => {
     setAuthMode(mode);
@@ -116,6 +118,9 @@ function App() {
         onOuvrirClub={() => setClubOuvert(true)}
         onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
         onOuvrirAPropos={() => setAProposOuvert(true)}
+        onOuvrirVitrines={() => setVitrinesOuvert(true)}
+        onOuvrirDernieresClefs={() => document.getElementById("offres")?.scrollIntoView({behavior:"smooth"})}
+        onConnexion={() => ouvrirAuth("connexion")}
         userConnecte={userConnecte}
       />
       <main>
@@ -131,6 +136,9 @@ function App() {
       </main>
       <Footer onOuvrirCarte={() => setCarteOuverte(true)} />
 
+      {vitrinesOuvert && (
+        <VitrinePermanente onClose={() => setVitrinesOuvert(false)} />
+      )}
       {chateauSelectionne && (
         <ChateauModal
           chateau={chateauSelectionne}
