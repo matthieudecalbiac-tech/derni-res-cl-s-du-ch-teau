@@ -1,6 +1,6 @@
 import "../styles/hero.css";
 
-export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClefs }) {
+export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClefs, onOuvrirVitrines }) {
   const scrollVersOffres = () => {
     document.getElementById("offres")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -77,6 +77,19 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClef
 
       {/* Deux portes overlay bas */}
       <div className="hero-portes-overlay">
+        <div
+          className="hero-porte-overlay hero-porte-overlay--vitrines"
+          onClick={onOuvrirVitrines}
+        >
+          <div className="hero-porte-overlay-badge hero-porte-overlay-badge--pierre">
+            Accès libre
+          </div>
+          <div className="hero-porte-overlay-titre">&#x269C; Vitrines permanentes</div>
+          <div className="hero-porte-overlay-desc">
+            81 domaines sélectionnés · Histoire · Famille · Territoire
+          </div>
+          <div className="hero-porte-overlay-cta">Explorer les vitrines →</div>
+        </div>
         <div
           className="hero-porte-overlay hero-porte-overlay--gauche"
           onClick={onOuvrirDernieresClefs}

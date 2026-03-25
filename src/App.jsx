@@ -130,6 +130,7 @@ function App() {
           onOuvrirAuth={ouvrirAuth}
           onOuvrirClub={() => setClubOuvert(true)}
           onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
+          onOuvrirVitrines={() => setVitrinesOuvert(true)}
         />
         <ClesAlaUne onSelectChateau={ouvrirChateau} />
         <Services />
