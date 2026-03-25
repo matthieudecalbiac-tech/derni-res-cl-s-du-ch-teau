@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { chateaux } from "../data/chateaux";
 import ChateauModal from "./ChateauModal";
 import "../styles/espace-membre.css";
+import "../styles/vitrines.css";
 
 export default function VitrinePermanente({ onClose }) {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
@@ -37,58 +38,62 @@ export default function VitrinePermanente({ onClose }) {
         </div>
       </header>
 
-      <div className="em-page-titre">
-        <div className="em-page-titre-bg" />
-        <div className="em-page-titre-contenu">
+      <div className="vit-hero">
+        <div className="vit-hero-bg" />
+        <div className="vit-hero-contenu">
           <div className="em-orn">
             <div className="em-orn-ligne" />
             <span className="em-orn-lys">&#x269C;</span>
             <div className="em-orn-ligne" />
           </div>
-          <span className="em-surtitre">Patrimoine · France · Histoire</span>
-          <h1 className="em-grand-titre">Les Vitrines Permanentes</h1>
-          <div className="em-intro-textes">
-            <p className="em-intro-p">Chaque vitrine est une page éditoriale construite comme un article de fond — histoire du château, architecture, famille propriétaire, région et patrimoine environnant. Un univers, pas une fiche produit.</p>
-            <p className="em-intro-p">Le château valide chaque ligne, chaque photographie, chaque description avant mise en ligne. C’est sa voix — nous la rédigeons, il l’approuve. Aucun contenu publié sans son accord explicite.</p>
-            <p className="em-intro-p">Les vitrines sont accessibles à tous. Les offres et packages exclusifs associés sont réservés aux membres du Club des Châtelains.</p>
-          </div>
-          <div className="em-intro-stats">
-            <div className="em-stat"><span className="em-stat-nombre">81</span><span className="em-stat-label">Domaines sélectionnés</span></div>
-            <div className="em-stat-sep" />
-            <div className="em-stat"><span className="em-stat-nombre">7</span><span className="em-stat-label">Régions couvertes</span></div>
-            <div className="em-stat-sep" />
-            <div className="em-stat"><span className="em-stat-nombre">&lt;3h</span><span className="em-stat-label">De Paris</span></div>
+          <p className="vit-surtitre">Patrimoine · France · Histoire</p>
+          <h1 className="vit-titre">Les Vitrines Permanentes</h1>
+          <p className="vit-accroche">
+            Chaque vitrine est une page éditoriale construite comme un article de fond —
+            histoire du lieu, famille propriétaire, territoire. Un univers, pas une fiche produit.
+            Le château valide chaque ligne avant mise en ligne. C’est sa voix.
+          </p>
+          <div className="vit-stats">
+            <div className="vit-stat"><span className="vit-stat-nb">81</span><span className="vit-stat-lbl">Domaines sélectionnés</span></div>
+            <div className="vit-stat-sep" />
+            <div className="vit-stat"><span className="vit-stat-nb">7</span><span className="vit-stat-lbl">Régions</span></div>
+            <div className="vit-stat-sep" />
+            <div className="vit-stat"><span className="vit-stat-nb">&lt;3h</span><span className="vit-stat-lbl">De Paris</span></div>
           </div>
         </div>
       </div>
 
-      <div className="em-contenu">
-        <div className="em-filtres">
+      <div className="vit-corps">
+        <div className="vit-filtres">
           {regions.map(r => (
-            <button key={r} className={"em-filtre-btn " + (filtre === r ? "actif" : "")} onClick={() => setFiltre(r)}>
+            <button key={r}
+              className={"vit-filtre " + (filtre === r ? "actif" : "")}
+              onClick={() => setFiltre(r)}>
               {r === "tous" ? "Toutes les régions" : r}
             </button>
           ))}
         </div>
 
-        <div className="em-grille">
+        <div className="vit-grille">
           {chateauxFiltres.map(c => (
-            <div key={c.id} className="em-chateau-carte" onClick={() => setChateauSelectionne(c)}>
-              <div className="em-carte-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
-                <div className="em-carte-overlay" />
-                <span className="em-carte-region">{c.region}</span>
+            <div key={c.id} className="vit-carte" onClick={() => setChateauSelectionne(c)}>
+              <div className="vit-carte-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
+                <div className="vit-carte-img-overlay" />
+                <span className="vit-carte-region">{c.region}</span>
               </div>
-              <div className="em-carte-corps">
-                <h3 className="em-carte-nom">{c.nom}</h3>
-                <p className="em-carte-accroche">{c.accroche}</p>
+              <div className="vit-carte-corps">
+                <h3 className="vit-carte-nom">{c.nom}</h3>
+                <p className="vit-carte-accroche">{c.accroche}</p>
                 {c.proprietaires?.[0]?.citation && (
-                  <p className="em-carte-citation">« {c.proprietaires[0].citation.substring(0, 80)}… »</p>
+                  <p className="vit-carte-citation">
+                    « {c.proprietaires[0].citation.substring(0, 90)}… »
+                  </p>
                 )}
-                <div className="em-carte-pied">
-                  <span className="em-carte-prix">
+                <div className="vit-carte-pied">
+                  <span className="vit-carte-prix">
                     {c.chambres?.[0] ? `à partir de ${c.chambres[0].prix} € / nuit` : "Sur demande"}
                   </span>
-                  <span className="em-carte-cta">Voir la vitrine →</span>
+                  <span className="vit-carte-lien">Voir la vitrine →</span>
                 </div>
               </div>
             </div>
