@@ -148,10 +148,10 @@ function App() {
       {dernieresOuvert && (
         <DernieresClés onClose={() => setDernieresOuvert(false)} />
       )}
-      {transitionChateau && !chateauSelectionne && (
-        <TransitionPorte onTermine={() => { setChateauSelectionne(transitionChateau); setTransitionChateau(null); }} />
+      {transitionChateau && (
+        <TransitionPorte onTermine={() => setTransitionChateau(null)} />
       )}
-      {chateauSelectionne && (
+      {(chateauSelectionne || transitionChateau) && (
         <ChateauModal
           chateau={chateauSelectionne}
           onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }}
