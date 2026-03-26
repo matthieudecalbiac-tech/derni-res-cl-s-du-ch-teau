@@ -63,7 +63,7 @@ const ETAPES = [
   },
 ];
 
-export default function CommentCaMarche({ onOuvrirClub, scrollVersOffres }) {
+export default function CommentCaMarche({ onOuvrirClub, onOuvrirVitrines, onOuvrirDernieresClefs }) {
   const [refEntete, visibleEntete] = useScrollAnimation();
   const [refAcces, visibleAcces] = useScrollAnimation();
   const [refEtapes, visibleEtapes] = useScrollAnimation();
@@ -85,9 +85,30 @@ export default function CommentCaMarche({ onOuvrirClub, scrollVersOffres }) {
           <span className="sur-titre">La plateforme · Comment ça marche</span>
           <h2>La vie de château de A à Z</h2>
           <p>
-            Deux façons d'accéder aux plus beaux domaines de France, à moins de
-            3h de Paris
+            Trois portes d’entrée vers les plus beaux domaines de France, à moins de 3h de Paris
           </p>
+        </div>
+
+        {/* 3 modules cliquables */}
+        <div className="comment-modules">
+          <button className="comment-module comment-module--vitrines" onClick={onOuvrirVitrines}>
+            <span className="comment-module-ico">&#x269C;</span>
+            <span className="comment-module-titre">Vitrines permanentes</span>
+            <span className="comment-module-desc">81 domaines sélectionnés · Histoire · Famille · Territoire</span>
+            <span className="comment-module-cta">Explorer →</span>
+          </button>
+          <button className="comment-module comment-module--dernieres" onClick={onOuvrirDernieresClefs}>
+            <span className="comment-module-ico">&#x25c6;</span>
+            <span className="comment-module-titre">Les Dernières Clés</span>
+            <span className="comment-module-desc">Offres last-minute · J-7 à J-15 · Jusqu’à −40 %</span>
+            <span className="comment-module-cta">Voir les offres →</span>
+          </button>
+          <button className="comment-module comment-module--club" onClick={onOuvrirClub}>
+            <span className="comment-module-ico">&#x269C;</span>
+            <span className="comment-module-titre">Club des Châtelains</span>
+            <span className="comment-module-desc">Packages exclusifs · Offres privées · Accès sur inscription</span>
+            <span className="comment-module-cta">Rejoindre →</span>
+          </button>
         </div>
 
         {/* Les deux accès */}

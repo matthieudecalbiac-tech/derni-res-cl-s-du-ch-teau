@@ -140,7 +140,7 @@ function App() {
         />
         <ClesAlaUne onSelectChateau={ouvrirChateau} />
         <Services />
-        <CommentCaMarche onOuvrirClub={() => setClubOuvert(true)} />
+        <CommentCaMarche onOuvrirClub={() => setClubOuvert(true)} onOuvrirVitrines={() => setVitrinesOuvert(true)} onOuvrirDernieresClefs={() => setDernieresOuvert(true)} />
         <PatrimoineSection />
         <Temoignages />
       </main>
