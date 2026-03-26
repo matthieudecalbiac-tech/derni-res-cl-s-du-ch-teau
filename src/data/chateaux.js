@@ -1224,6 +1224,7 @@ export const chateaux = [
       "Sylvothérapie dans le parc classé",
       "Murder Party médiévale",
     ],
+    videoBackground: "JQ9m51Bl900",
     style: "Château médiéval · Normandie historique",
     parking: true,
     wifi: true,

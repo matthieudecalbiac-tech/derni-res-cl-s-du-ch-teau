@@ -80,6 +80,18 @@ export default function ChateauModal({ chateau, onClose }) {
 
       {/* ── GALERIE HERO ── */}
       <div className="cp-galerie">
+        {chateau.videoBackground && (
+          <div className="cp-video-bg">
+            <iframe
+              src={`https://www.youtube.com/embed/${chateau.videoBackground}?autoplay=1&mute=1&loop=1&controls=0&playlist=${chateau.videoBackground}&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1`}
+              className="cp-video-iframe"
+              allow="autoplay; encrypted-media"
+              allowFullScreen={false}
+              title="Château video"
+            />
+            <div className="cp-video-overlay" />
+          </div>
+        )}
         {chateau.images.map((img, i) => (
           <img
             key={i}
