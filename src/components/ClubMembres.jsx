@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { chateaux } from "../data/chateaux";
 import TransitionPorte from "./TransitionPorte";
 import VitrineClub from "./VitrineClub";
@@ -95,7 +95,36 @@ export default function ClubMembres({ user, onClose, onPret }) {
   const isBetween = (d) => dateArrivee && dateDepart && d > dateArrivee && d < dateDepart;
 
   return (
-    <div className={"cm-overlay " + (visible ? "cm-visible" : "")}>
+    <div className="cm-overlay">
+      {/* Animation bienvenue intégrée */}
+      {phase < 2 && (
+        <div style={{
+          position:"fixed", inset:0, zIndex:99999,
+          background:"#07101E",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          flexDirection:"column", gap:"16px",
+          opacity: phase >= 1 ? 1 : 0,
+          transition: "opacity 0.5s ease"
+        }}>
+          <div style={{
+            opacity: phase === 2 ? 0 : 1,
+            transition: "opacity 0.8s ease",
+            textAlign:"center"
+          }}>
+            <div style={{display:"flex",alignItems:"center",gap:"16px",justifyContent:"center",marginBottom:"16px"}}>
+              <span style={{display:"block",width:"50px",height:"1px",background:"rgba(192,152,64,0.4)"}}/>
+              <span style={{color:"#C09840",fontSize:"1.1rem"}}>&#x269C;</span>
+              <span style={{display:"block",width:"50px",height:"1px",background:"rgba(192,152,64,0.4)"}}/>
+            </div>
+            <p style={{fontFamily:"'Crimson Pro',serif",fontSize:"0.82rem",letterSpacing:"0.35em",textTransform:"uppercase",color:"rgba(192,152,64,0.75)",margin:"0 0 12px"}}>Bienvenue</p>
+            <h1 style={{fontFamily:"'Playfair Display',serif",fontSize:"clamp(2.5rem,6vw,4rem)",fontWeight:400,color:"#F5F0E8",margin:"0 0 16px",textTransform:"capitalize"}}>
+              {user?.prenom || user?.email?.split("@")[0] || "cher membre"}
+            </h1>
+            <p style={{fontFamily:"'Crimson Pro',serif",fontSize:"1rem",fontStyle:"italic",color:"rgba(245,240,232,0.5)",margin:0}}>dans le Club des Châtelains</p>
+          </div>
+        </div>
+      )}
+
       <header className="cm-header">
         <div className="cm-header-gauche">
           <span className="cm-header-lys">&#x269C;</span>

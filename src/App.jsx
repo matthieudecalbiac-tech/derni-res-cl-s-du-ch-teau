@@ -12,7 +12,6 @@ import CarteExplorer from "./components/CarteExplorer";
 import AuthModal from "./components/AuthModal";
 import CompteUser from "./components/CompteUser";
 import ClubChatelains from "./components/ClubChatelains";
-import ClubBienvenue from "./components/ClubBienvenue";
 import ClubMembres from "./components/ClubMembres";
 import ClesEvenementiel from "./components/ClesEvenementiel";
 import APropos from "./components/APropos";
@@ -208,24 +207,11 @@ function App() {
           }}
         />
       )}
-      {clubBienvenueOuvert && (
-        <ClubBienvenue
-          user={userConnecte}
-          onTermine={() => {
-            setClubBienvenueOuvert(false);
-            setClubMembresOuvert(true);
-            setTimeout(() => setEcranNoir(false), 600);
-          }}
-        />
-      )}
-      {ecranNoir && (
-        <div style={{position:"fixed",inset:0,zIndex:99998,background:"#07101E",pointerEvents:"none"}} />
-      )}
+
       {clubMembresOuvert && (
         <ClubMembres
           user={userConnecte}
-          onClose={() => { setClubMembresOuvert(false); setEcranNoir(false); }}
-          onPret={() => setEcranNoir(false)}
+          onClose={() => setClubMembresOuvert(false)}
         />
       )}
       {clubOuvert && (
