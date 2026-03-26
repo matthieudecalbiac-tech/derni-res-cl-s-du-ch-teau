@@ -310,74 +310,125 @@
   .dk-france-svg { max-width: 140px; }
 }
 
-/* ── Layout 2 colonnes ── */
+
+/* ══════════════════════════════════════
+   LAYOUT 2 COLONNES — Carte + Châteaux
+══════════════════════════════════════ */
 .dk-corps-wrap {
   display: flex;
-  gap: 0;
-  flex: 1;
-  min-height: 0;
+  height: calc(100vh - 340px);
+  min-height: 500px;
+  overflow: hidden;
 }
 
-/* Colonne carte gauche */
+/* ── Colonne gauche — Carte ── */
 .dk-carte-col {
-  width: 340px;
+  width: 45%;
   flex-shrink: 0;
-  border-right: 1px solid rgba(192,152,64,0.15);
   display: flex;
   flex-direction: column;
-  background: rgba(7,16,30,0.6);
-  position: sticky;
-  top: 0;
-  height: calc(100vh - 200px);
+  border-right: 1px solid rgba(192,152,64,0.2);
+  background: #07101E;
 }
 .dk-carte-titre {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 16px 20px;
-  border-bottom: 1px solid rgba(192,152,64,0.12);
+  padding: 14px 24px;
+  border-bottom: 1px solid rgba(192,152,64,0.15);
   font-family: 'Crimson Pro', serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgba(192,152,64,0.75);
+  flex-shrink: 0;
 }
-.dk-carte-titre-lys { font-size: 0.85rem; color: #C09840; }
+.dk-carte-titre-lys { color: #C09840; font-size: 0.9rem; }
+
 .dk-carte-osm-wrap {
   flex: 1;
-  overflow: hidden;
-  position: relative;
-}
-.dk-carte-osm {
   width: 100%;
-  height: 100%;
-  border: none;
-  min-height: 400px;
-  filter: sepia(0.15) saturate(0.8);
+  min-height: 0;
+  position: relative;
+  z-index: 1;
 }
 .dk-carte-legende {
-  padding: 12px 20px;
+  padding: 12px 24px;
   border-top: 1px solid rgba(192,152,64,0.12);
   font-family: 'Crimson Pro', serif;
   font-size: 0.85rem;
-  color: rgba(245,240,232,0.5);
+  color: rgba(245,240,232,0.45);
   font-style: italic;
+  flex-shrink: 0;
 }
 .dk-carte-legende-nb {
   font-family: 'Playfair Display', serif;
   font-size: 1.1rem;
   color: #C09840;
   font-style: normal;
+  margin-right: 4px;
 }
 
-/* Colonne droite prend le reste */
+/* ── Colonne droite — Liste châteaux ── */
 .dk-corps-wrap .dk-corps {
   flex: 1;
   overflow-y: auto;
+  min-width: 0;
+  padding: 0;
+}
+.dk-corps-wrap .dk-grille {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.dk-corps-wrap .dk-carte {
+  display: flex;
+  flex-direction: row;
+  gap: 0;
+  border-bottom: 1px solid rgba(192,152,64,0.1);
+  border-radius: 0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.dk-corps-wrap .dk-carte:hover {
+  background: rgba(192,152,64,0.04);
+}
+.dk-corps-wrap .dk-carte-img {
+  width: 140px;
+  min-width: 140px;
+  height: 110px;
+  border-radius: 0;
+  flex-shrink: 0;
+}
+.dk-corps-wrap .dk-carte-corps {
+  padding: 14px 18px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.dk-corps-wrap .dk-carte-nom {
+  font-size: 0.95rem;
+  margin: 2px 0 4px;
+}
+.dk-corps-wrap .dk-carte-accroche {
+  font-size: 0.8rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 @media (max-width: 900px) {
-  .dk-corps-wrap { flex-direction: column; }
-  .dk-carte-col { width: 100%; height: 280px; position: static; flex-direction: row; }
-  .dk-carte-osm { min-height: 200px; }
+  .dk-corps-wrap {
+    flex-direction: column;
+    height: auto;
+  }
+  .dk-carte-col {
+    width: 100%;
+    height: 300px;
+  }
+  .dk-corps-wrap .dk-carte {
+    flex-direction: row;
+  }
 }
