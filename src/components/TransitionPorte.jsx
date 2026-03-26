@@ -22,9 +22,44 @@ export default function TransitionPorte({ onTermine, chateau }) {
         <span className="tp-label">Ouverture du Château</span>
         {chateau && <span className="tp-nom">{chateau.nom}</span>}
         {chateau?.coordonnees && (
+          {chateau?.coordonnees && (
+          <div className={"tp-carte-france " + (phase >= 2 ? "tp-carte-france--visible" : "")}>
+            <iframe
+              className="tp-carte-iframe"
+              title="localisation"
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=${chateau.coordonnees.lng-1.5},${chateau.coordonnees.lat-1},${chateau.coordonnees.lng+1.5},${chateau.coordonnees.lat+1}&layer=mapnik&marker=${chateau.coordonnees.lat},${chateau.coordonnees.lng}`}
+            />
+            <div className="tp-carte-label">
+              <span className="tp-carte-dept">Localisation : {chateau.departement}</span>
+            </div>
+          </div>
+        )}t { useEffect, useState } from "react";
+import "../styles/transition-porte.css";
+
+export default function TransitionPorte({ onTermine, chateau }) {
+  const [phase, setPhase] = useState(0);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setPhase(1), 60);    // portes s'ouvrent
+    const t2 = setTimeout(() => setPhase(2), 1300);  // carte apparaît
+    const t3 = setTimeout(() => setPhase(3), 2800);  // fondu noir
+    const t4 = setTimeout(onTermine, 3500);
+    return () => [t1,t2,t3,t4].forEach(clearTimeout);
+  }, [onTermine]);
+
+  return (
+    <div className="tp-wrap">
+      <div className="tp-fond" />
+      <div className={"tp-battant tp-gauche " + (phase >= 1 ? "tp-ouvert" : "")} />
+      <div className={"tp-battant tp-droite " + (phase >= 1 ? "tp-ouvert" : "")} />
+      <div className={"tp-centre " + (phase >= 1 && phase < 3 ? "tp-centre--visible" : "")}>
+        <span className="tp-lys">&#x269C;</span>
+        <span className="tp-label">Ouverture du Château</span>
+        {chateau && <span className="tp-nom">{chateau.nom}</span>}
+        {chateau?.coordonnees && (
           <div className={"tp-carte-france " + (phase >= 2 ? "tp-carte-france--visible" : "")}>
             <svg viewBox="0 0 300 320" className="tp-france-svg" xmlns="http://www.w3.org/2000/svg">
-              <path className="tp-france-path" d="M120,10 L155,8 L185,18 L210,35 L225,55 L235,80 L240,108 L228,130 L245,155 L255,180 L248,205 L235,225 L215,240 L195,255 L175,265 L155,270 L138,278 L120,272 L100,265 L80,255 L62,240 L48,222 L38,200 L32,178 L28,155 L35,130 L25,105 L30,80 L45,58 L65,40 L90,22 Z"/>
+              <path className="tp-france-path" d="M 154,12 L 162,8 L 172,9 L 180,14 L 190,12 L 200,18 L 208,16 L 218,22 L 224,30 L 228,40 L 235,48 L 238,58 L 242,68 L 244,80 L 240,90 L 245,100 L 248,112 L 244,122 L 248,134 L 245,145 L 248,156 L 244,166 L 236,174 L 228,180 L 222,190 L 215,198 L 206,204 L 196,210 L 186,215 L 174,218 L 162,222 L 150,224 L 138,222 L 126,218 L 114,212 L 104,205 L 94,197 L 86,188 L 78,178 L 72,168 L 66,156 L 62,144 L 58,132 L 54,120 L 50,108 L 48,96 L 46,84 L 48,72 L 52,62 L 58,53 L 66,45 L 74,38 L 82,32 L 90,27 L 98,22 L 106,18 L 114,14 L 124,11 L 134,9 L 144,10 Z"/>
               {chateau.coordonnees && (
                 <circle
                   cx={100 + (chateau.coordonnees.lng + 5) * 18}
