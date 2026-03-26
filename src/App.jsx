@@ -123,7 +123,7 @@ function App() {
       <Header
         onOuvrirCarte={() => setCarteOuverte(true)}
         onOuvrirTous={() => setTousOuvert(true)}
-        onOuvrirAuth={ouvrirAuth}
+        onOuvrirAuth={(mode) => ouvrirAuth(mode, true)}
         onOuvrirCompte={() => setCompteOuvert(true)}
         onOuvrirClub={() => setClubOuvert(true)}
         onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
@@ -136,7 +136,7 @@ function App() {
       />
       <main>
         <Hero
-          onOuvrirAuth={ouvrirAuth}
+          onOuvrirAuth={(mode) => ouvrirAuth(mode, true)}
           onOuvrirClub={() => setClubOuvert(true)}
           onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
           onOuvrirVitrines={() => setVitrinesOuvert(true)}
@@ -206,7 +206,7 @@ function App() {
       {clubOuvert && (
         <ClubChatelains
           onClose={() => setClubOuvert(false)}
-          onOuvrirAuth={ouvrirAuth}
+          onOuvrirAuth={(mode) => ouvrirAuth(mode, true)}
         />
       )}
       {evenementielOuvert && (
