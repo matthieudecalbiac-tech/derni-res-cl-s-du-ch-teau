@@ -111,8 +111,7 @@ function App() {
     setUserConnecte(user);
     setAuthOuvert(false);
     setClubOuvert(false);
-    setEcranNoir(true);
-    setClubBienvenueOuvert(true);
+    setClubMembresOuvert(true);
   };
 
   const ouvrirChateau = (chateau) => {
