@@ -63,7 +63,7 @@ export default function VitrineClub({ chateau, user, onClose }) {
         <div className="vcl-offre-bloc">
           <div className="vcl-offre-inner">
             <div className="vcl-offre-gauche">
-              <span className="vcl-offre-label">&#x269C; Tarif membres exclusif</span>
+              <span className="vcl-offre-label">&#x269C; Package membres exclusif</span>
               <div className="vcl-offre-prix">
                 {chateau.prixBarre && <span className="vcl-offre-barre">{chateau.prixBarre} €</span>}
                 <span className="vcl-offre-final">{prixFinal} €</span>
@@ -73,7 +73,7 @@ export default function VitrineClub({ chateau, user, onClose }) {
                 <span className="vcl-offre-reduction">−{chateau.reduction} % réservé aux membres</span>
               )}
               <p className="vcl-offre-texte">
-                Ce tarif est confidentiel — il n’est visible que par les membres du Club
+                Cette offre est confidentielle — il n’est visible que par les membres du Club
                 des Châtelains et ne sera jamais publié sur Booking ou Airbnb.
               </p>
             </div>
@@ -93,10 +93,10 @@ export default function VitrineClub({ chateau, user, onClose }) {
 
             {/* Chambres */}
             {chateau.chambres?.length > 0 && (
-              <section className="vcl-section vcl-section--chambres">
+              <section className="vcl-section vcl-section--offres">
                 <h2 className="vcl-section-titre">
                   <span className="vcl-section-ico">&#x25c6;</span>
-                  Chambres disponibles
+                  Offres & packages exclusifs membres
                 </h2>
                 <div className="vcl-chambres">
                   {chateau.chambres.map((ch, i) => (
@@ -179,7 +179,7 @@ export default function VitrineClub({ chateau, user, onClose }) {
           <div className="vcl-droite">
             <div className="vcl-sticky">
               <div className="vcl-sticky-header">
-                <span className="vcl-sticky-eyebrow">&#x269C; Tarif Club exclusif</span>
+                <span className="vcl-sticky-eyebrow">&#x269C; Offre Club exclusive</span>
                 <div className="vcl-sticky-prix">
                   {chateau.prixBarre && <span className="vcl-sticky-barre">{chateau.prixBarre} €</span>}
                   <span className="vcl-sticky-final">{prixFinal} €</span>
