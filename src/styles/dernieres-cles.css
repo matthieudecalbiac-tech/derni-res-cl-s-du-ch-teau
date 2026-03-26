@@ -237,3 +237,75 @@
   .dk-dates-header { flex-direction: column; align-items: flex-start; gap: 12px; }
   .dk-dates-etapes { flex-wrap: wrap; }
 }
+
+/* ── Carte France latérale ── */
+.dk-corps-wrap {
+  display: flex;
+  gap: 0;
+  flex: 1;
+  overflow: hidden;
+}
+.dk-carte-france-col {
+  width: 260px;
+  flex-shrink: 0;
+  background: rgba(7,16,30,0.95);
+  border-right: 1px solid rgba(192,152,64,0.15);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+.dk-carte-france-titre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(192,152,64,0.7);
+  width: 100%;
+}
+.dk-carte-france-lys { color: #C09840; }
+.dk-france-svg {
+  width: 100%;
+  max-width: 220px;
+  filter: drop-shadow(0 0 12px rgba(192,152,64,0.15));
+}
+.dk-france-path {
+  fill: rgba(192,152,64,0.06);
+  stroke: rgba(192,152,64,0.45);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.dk-map-pulse {
+  animation: dk-pulse 2s ease-in-out infinite;
+}
+@keyframes dk-pulse {
+  0%, 100% { opacity: 0.5; r: 9; }
+  50% { opacity: 0.1; r: 13; }
+}
+.dk-carte-legende {
+  display: flex;
+  gap: 12px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.72rem;
+}
+.dk-leg-j7 { color: #C0392B; }
+.dk-leg-j10 { color: #D35400; }
+.dk-leg-j15 { color: #C09840; }
+.dk-corps {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 40px;
+}
+@media (max-width: 900px) {
+  .dk-corps-wrap { flex-direction: column; }
+  .dk-carte-france-col { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; }
+  .dk-france-svg { max-width: 140px; }
+}
