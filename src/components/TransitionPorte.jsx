@@ -20,7 +20,7 @@ export default function TransitionPorte({ onTermine, chateau }) {
 
       <div className={"tp-centre " + (phase >= 1 && phase < 3 ? "tp-centre--visible" : "")}>
         <span className="tp-lys">&#x269C;</span>
-        <span className="tp-label">Ouverture du Château</span>
+        <span className="tp-label">Bienvenue</span>
         {chateau && <span className="tp-nom">{chateau.nom}</span>}
 
         {chateau && chateau.coordonnees && (
