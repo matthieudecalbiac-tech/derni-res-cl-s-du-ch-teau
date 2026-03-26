@@ -1,0 +1,123 @@
+.cm-overlay {
+  position: fixed; inset: 0; z-index: 9500;
+  background: #07101E; overflow-y: auto; display: flex; flex-direction: column;
+}
+.cm-header {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 56px;
+  background: rgba(7,16,30,0.97); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(192,152,64,0.2); flex-shrink: 0;
+}
+.cm-header-gauche { display: flex; align-items: center; gap: 12px; }
+.cm-header-lys { color: #C09840; font-size: 1.1rem; }
+.cm-header-titre {
+  display: block; font-family: 'Playfair Display', serif;
+  font-size: 0.95rem; color: #F5F0E8;
+}
+.cm-header-sub {
+  display: block; font-family: 'Crimson Pro', serif;
+  font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(192,152,64,0.65);
+}
+.cm-header-droite { display: flex; align-items: center; gap: 16px; }
+.cm-header-user {
+  font-family: 'Crimson Pro', serif; font-size: 0.88rem;
+  color: rgba(192,152,64,0.8); font-style: italic;
+}
+.cm-header-fermer {
+  background: transparent; border: 1px solid rgba(192,152,64,0.3);
+  color: rgba(245,240,232,0.6); font-family: 'Crimson Pro', serif;
+  font-size: 0.82rem; padding: 6px 16px; cursor: pointer; transition: all 0.2s;
+}
+.cm-header-fermer:hover { border-color: #C09840; color: #F5F0E8; }
+
+.cm-hero {
+  padding: 60px 40px 50px; text-align: center;
+  border-bottom: 1px solid rgba(192,152,64,0.1);
+  background: radial-gradient(ellipse at 50% 0%, rgba(192,152,64,0.06) 0%, transparent 70%);
+}
+.cm-orn { display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 16px; }
+.cm-orn-trait { display: block; width: 50px; height: 1px; background: rgba(192,152,64,0.4); }
+.cm-orn-lys { color: #C09840; font-size: 1rem; }
+.cm-hero-titre {
+  font-family: 'Playfair Display', serif; font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400; color: #F5F0E8; margin: 0 0 14px;
+}
+.cm-hero-accroche {
+  font-family: 'Crimson Pro', serif; font-size: 1.05rem; font-style: italic;
+  color: rgba(245,240,232,0.55); max-width: 700px; margin: 0 auto; line-height: 1.75;
+}
+
+.cm-corps { padding: 40px; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+.cm-filtres { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 36px; }
+.cm-filtre {
+  background: transparent; border: 1px solid rgba(192,152,64,0.15);
+  color: rgba(245,240,232,0.5); font-family: 'Crimson Pro', serif;
+  font-size: 0.78rem; letter-spacing: 0.08em; padding: 6px 16px;
+  cursor: pointer; transition: all 0.2s;
+}
+.cm-filtre.actif, .cm-filtre:hover {
+  border-color: #C09840; color: #C09840; background: rgba(192,152,64,0.06);
+}
+
+.cm-grille {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+}
+@media (max-width: 1100px) { .cm-grille { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 700px) { .cm-grille { grid-template-columns: 1fr; } }
+
+.cm-carte {
+  border: 1px solid rgba(192,152,64,0.15); cursor: pointer;
+  transition: all 0.3s ease; background: rgba(255,255,255,0.01);
+  overflow: hidden;
+}
+.cm-carte:hover { border-color: rgba(192,152,64,0.45); transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.4); }
+
+.cm-carte-img {
+  height: 220px; background-size: cover; background-position: center;
+  position: relative;
+}
+.cm-carte-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(7,16,30,0.1) 0%, rgba(7,16,30,0.5) 100%); }
+.cm-carte-badges { position: absolute; top: 12px; left: 12px; display: flex; flex-direction: column; gap: 6px; }
+.cm-badge-club {
+  font-family: 'Crimson Pro', serif; font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.1em; padding: 4px 10px;
+  background: rgba(192,152,64,0.9); color: #07101E;
+}
+.cm-badge-promo {
+  font-family: 'Crimson Pro', serif; font-size: 0.72rem; font-weight: 700;
+  padding: 3px 8px; background: rgba(192,57,43,0.9); color: #fff;
+  align-self: flex-start;
+}
+.cm-urgence {
+  position: absolute; top: 12px; right: 12px;
+  font-family: 'Crimson Pro', serif; font-size: 0.65rem; font-weight: 700;
+  letter-spacing: 0.06em; padding: 3px 8px;
+}
+.cm-urgence--j7 { background: rgba(192,57,43,0.9); color: #fff; }
+.cm-urgence--j10 { background: rgba(211,84,0,0.9); color: #fff; }
+.cm-urgence--j15 { background: rgba(192,152,64,0.9); color: #07101E; }
+
+.cm-carte-corps { padding: 20px; }
+.cm-carte-region {
+  font-family: 'Crimson Pro', serif; font-size: 0.68rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: rgba(192,152,64,0.7); margin-bottom: 6px;
+}
+.cm-carte-nom { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #F5F0E8; margin: 0 0 8px; }
+.cm-carte-accroche {
+  font-family: 'Crimson Pro', serif; font-size: 0.88rem; font-style: italic;
+  color: rgba(245,240,232,0.5); line-height: 1.6; margin: 0 0 16px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.cm-carte-pied { display: flex; align-items: center; justify-content: space-between; }
+.cm-prix { display: flex; align-items: baseline; gap: 6px; }
+.cm-prix-barre { font-family: 'Crimson Pro', serif; font-size: 0.82rem; color: rgba(245,240,232,0.28); text-decoration: line-through; }
+.cm-prix-final { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #C09840; }
+.cm-prix-nuit { font-family: 'Crimson Pro', serif; font-size: 0.72rem; color: rgba(245,240,232,0.35); }
+.cm-cta {
+  font-family: 'Crimson Pro', serif; font-size: 0.82rem;
+  color: rgba(192,152,64,0.7); transition: all 0.2s;
+}
+.cm-carte:hover .cm-cta { color: #C09840; letter-spacing: 0.06em; }

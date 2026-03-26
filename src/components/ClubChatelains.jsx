@@ -88,8 +88,8 @@ const NIVEAUX = [
   },
 ];
 
-export default function ClubChatelains({ onClose, onOuvrirAuth }) {
-  const [onglet, setOnglet] = useState("presentation");
+export default function ClubChatelains({ onClose, onOuvrirAuth, user, ongletInitial }) {
+  const [onglet, setOnglet] = useState(ongletInitial || "presentation");
 
   useEffect(() => {
     document.body.style.overflow = "hidden";

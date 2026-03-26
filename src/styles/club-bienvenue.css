@@ -1,0 +1,46 @@
+.cb-wrap {
+  position: fixed; inset: 0; z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+  background: #07101E;
+  transition: opacity 0.8s ease;
+}
+.cb-sortie { opacity: 0; pointer-events: none; }
+.cb-fond {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, rgba(192,152,64,0.08) 0%, transparent 70%);
+}
+.cb-centre {
+  text-align: center; z-index: 1;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.cb-visible { opacity: 1; transform: translateY(0); }
+.cb-ornement {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; margin-bottom: 20px;
+}
+.cb-ornement--petit { margin-top: 20px; margin-bottom: 12px; }
+.cb-trait { display: block; width: 60px; height: 1px; background: rgba(192,152,64,0.4); }
+.cb-lys { color: #C09840; font-size: 1.2rem; }
+.cb-lys--petit { font-size: 0.9rem; }
+.cb-bienvenue {
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem;
+  font-weight: 300; letter-spacing: 0.35em; text-transform: uppercase;
+  color: rgba(192,152,64,0.75); margin: 0 0 12px;
+}
+.cb-nom {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 400; color: #F5F0E8; margin: 0;
+  text-transform: capitalize; letter-spacing: 0.04em;
+}
+.cb-sous {
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.6s ease 0.2s, transform 0.6s ease 0.2s;
+}
+.cb-sous--visible { opacity: 1; transform: translateY(0); }
+.cb-club {
+  font-family: 'Crimson Pro', serif; font-size: 1rem;
+  font-weight: 300; font-style: italic;
+  color: rgba(245,240,232,0.55); margin: 0; letter-spacing: 0.08em;
+}

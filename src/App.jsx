@@ -12,6 +12,8 @@ import CarteExplorer from "./components/CarteExplorer";
 import AuthModal from "./components/AuthModal";
 import CompteUser from "./components/CompteUser";
 import ClubChatelains from "./components/ClubChatelains";
+import ClubBienvenue from "./components/ClubBienvenue";
+import ClubMembres from "./components/ClubMembres";
 import ClesEvenementiel from "./components/ClesEvenementiel";
 import APropos from "./components/APropos";
 import EspaceMembre from "./components/EspaceMembre";
@@ -89,6 +91,8 @@ function App() {
   const [compteOuvert, setCompteOuvert] = useState(false);
   const [userConnecte, setUserConnecte] = useState(null);
   const [clubOuvert, setClubOuvert] = useState(false);
+  const [clubBienvenueOuvert, setClubBienvenueOuvert] = useState(false);
+  const [clubMembresOuvert, setClubMembresOuvert] = useState(false);
   const [evenementielOuvert, setEvenementielOuvert] = useState(false);
   const [aProposOuvert, setAProposOuvert] = useState(false);
   const [espaceMembreOuvert, setEspaceMembreOuvert] = useState(false);
@@ -106,7 +110,8 @@ function App() {
   const gererConnexion = (user) => {
     setUserConnecte(user);
     setAuthOuvert(false);
-    setClubOuvert(true);
+    setClubOuvert(false);
+    setClubBienvenueOuvert(true);
   };
 
   const ouvrirChateau = (chateau) => {
@@ -201,10 +206,24 @@ function App() {
           }}
         />
       )}
+      {clubBienvenueOuvert && (
+        <ClubBienvenue
+          user={userConnecte}
+          onTermine={() => { setClubBienvenueOuvert(false); setClubMembresOuvert(true); }}
+        />
+      )}
+      {clubMembresOuvert && (
+        <ClubMembres
+          user={userConnecte}
+          onClose={() => setClubMembresOuvert(false)}
+        />
+      )}
       {clubOuvert && (
         <ClubChatelains
           onClose={() => setClubOuvert(false)}
           onOuvrirAuth={(mode) => ouvrirAuth(mode, true)}
+          user={userConnecte}
+          ongletInitial={userConnecte ? "apercus" : "presentation"}
         />
       )}
       {evenementielOuvert && (
