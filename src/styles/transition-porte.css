@@ -143,17 +143,11 @@
   align-items: center;
   gap: 3px;
 }
-.tp-carte-region {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 0.85rem;
-  font-weight: 400;
-  color: #F5F0E8;
-  letter-spacing: 0.06em;
-}
-.tp-carte-distance {
+.tp-carte-dept {
   font-family: 'Crimson Pro', serif;
-  font-size: 0.72rem;
-  color: rgba(192,152,64,0.7);
-  letter-spacing: 0.12em;
-  font-style: italic;
+  font-size: 0.78rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(192,152,64,0.85);
 }
