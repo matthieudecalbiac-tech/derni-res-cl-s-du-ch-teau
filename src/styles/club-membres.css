@@ -1,7 +1,9 @@
 .cm-overlay {
   position: fixed; inset: 0; z-index: 9500;
   background: #07101E; overflow-y: auto; display: flex; flex-direction: column;
+  opacity: 0; transition: opacity 0.5s ease;
 }
+.cm-visible { opacity: 1; }
 /* Header */
 .cm-header {
   position: sticky; top: 0; z-index: 100;

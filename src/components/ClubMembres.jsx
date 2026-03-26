@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { chateaux } from "../data/chateaux";
 import TransitionPorte from "./TransitionPorte";
 import VitrineClub from "./VitrineClub";
@@ -67,6 +67,9 @@ const PACKAGES_CHATEAU = {
 };
 
 export default function ClubMembres({ user, onClose }) {
+  const [visible, setVisible] = useState(false);
+  // Fondu d'entrée après montage
+  React.useEffect(() => { const t = setTimeout(() => setVisible(true), 50); return () => clearTimeout(t); }, []);
   const [transitionChateau, setTransitionChateau] = useState(null);
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [dateArrivee, setDateArrivee] = useState(null);
@@ -92,7 +95,7 @@ export default function ClubMembres({ user, onClose }) {
   const isBetween = (d) => dateArrivee && dateDepart && d > dateArrivee && d < dateDepart;
 
   return (
-    <div className="cm-overlay">
+    <div className={"cm-overlay " + (visible ? "cm-visible" : "")}>
       <header className="cm-header">
         <div className="cm-header-gauche">
           <span className="cm-header-lys">&#x269C;</span>
