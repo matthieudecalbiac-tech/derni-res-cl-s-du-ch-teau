@@ -70,7 +70,7 @@ export default function VitrineChateau({ chateau, onClose }) {
                 )}
               </div>
             </div>
-            {chateau.images?.length > 1 && (
+            {chateau.images?.length > 1 && !chateau.videoBackground && (
               <div className="vc-galerie-miniatures">
                 {chateau.images.map((img, i) => (
                   <button key={i} className={"vc-mini " + (i === photoActive ? "actif" : "")} onClick={() => setPhotoActive(i)}>
@@ -167,7 +167,7 @@ export default function VitrineChateau({ chateau, onClose }) {
             <section className="vc-section vc-section--region-histoire">
               <div className="vc-region-entete">
                 <div className="vc-orn"><span className="vc-orn-trait" /><span className="vc-orn-lys">&#x25c6;</span><span className="vc-orn-trait" /></div>
-                <h2 className="vc-section-titre">Le {chateau.departement} — histoire & territoire</h2>
+                <h2 className="vc-section-titre">{chateau.region} — {chateau.departement}</h2>
               </div>
               <p className="vc-texte">{chateau.regionNarrative}</p>
               <p className="vc-texte" style={{marginTop: "16px"}}>{chateau.regionHistoire}</p>
