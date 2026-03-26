@@ -90,20 +90,8 @@ export default function ChateauModal({ chateau, onClose }) {
             />
             <div className="cp-video-overlay" />
           </div>
-        ) : (
-        {chateau.videoBackground && (
-          <div className="cp-video-bg">
-            <iframe
-              src={`https://www.youtube.com/embed/${chateau.videoBackground}?autoplay=1&mute=1&loop=1&controls=0&playlist=${chateau.videoBackground}&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1`}
-              className="cp-video-iframe"
-              allow="autoplay; encrypted-media"
-              allowFullScreen={false}
-              title="video"
-            />
-            <div className="cp-video-overlay" />
-          </div>
-        )}
-        {chateau.images.map((img, i) => (
+        ) : null}
+        {!chateau.videoBackground && chateau.images.map((img, i) => (
           <img
             key={i}
             src={img}
@@ -130,13 +118,13 @@ export default function ChateauModal({ chateau, onClose }) {
           </p>
         </div>
 
-        <button className="cp-galerie-prev" onClick={prevImage}>
+        {!chateau.videoBackground && <button className="cp-galerie-prev" onClick={prevImage}>
           ‹
-        </button>
-        <button className="cp-galerie-next" onClick={nextImage}>
+        </button>}
+        {!chateau.videoBackground && <button className="cp-galerie-next" onClick={nextImage}>
           ›
-        </button>
-        <div className="cp-galerie-dots">
+        </button>}
+        {!chateau.videoBackground && <div className="cp-galerie-dots">
           {chateau.images.map((_, i) => (
             <button
               key={i}
