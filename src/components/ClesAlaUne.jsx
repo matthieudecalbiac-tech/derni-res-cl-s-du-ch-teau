@@ -1,4 +1,7 @@
 import { useState } from "react";
+import VitrineDernieresCle from "./VitrineDernieresCle";
+import TransitionPorte from "./TransitionPorte";
+
 import { chateaux } from "../data/chateaux";
 import "../styles/cles-une.css";
 
@@ -6,6 +9,8 @@ const CHATEAUX_UNE = chateaux.slice(0, 4);
 
 export default function ClesAlaUne({ onSelectChateau }) {
   const [hover, setHover] = useState(null);
+  const [transitionChateau, setTransitionChateau] = useState(null);
+  const [chateauSelectionne, setChateauSelectionne] = useState(null);
 
   return (
     <section className="cles-une-section" id="offres">
@@ -58,7 +63,7 @@ export default function ClesAlaUne({ onSelectChateau }) {
                 className={`cle-carte ${estHover ? "hover" : ""}`}
                 onMouseEnter={() => setHover(c.id)}
                 onMouseLeave={() => setHover(null)}
-                onClick={() => onSelectChateau(c)}
+                onClick={() => setTransitionChateau(c)}
               >
                 {/* Cadre décoratif */}
                 <div className="cle-cadre-tl" />
@@ -135,6 +140,13 @@ export default function ClesAlaUne({ onSelectChateau }) {
           })}
         </div>
       </div>
+    </section>
+      {transitionChateau && (
+        <TransitionPorte chateau={transitionChateau} onTermine={() => { setChateauSelectionne(transitionChateau); setTransitionChateau(null); }} />
+      )}
+      {(transitionChateau || chateauSelectionne) && (
+        <VitrineDernieresCle chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
+      )}
     </section>
   );
 }

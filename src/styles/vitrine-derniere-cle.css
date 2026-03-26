@@ -1,0 +1,284 @@
+.vdc-overlay {
+  position: fixed; inset: 0; z-index: 9000;
+  background: #07101E; overflow-y: auto;
+  display: flex; flex-direction: column;
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.vdc-visible { opacity: 1; }
+
+/* Header */
+.vdc-header {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 32px; height: 56px;
+  background: rgba(7,16,30,0.97); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(192,152,64,0.2); flex-shrink: 0;
+}
+.vdc-retour {
+  background: transparent; border: none;
+  font-family: 'Crimson Pro', serif; font-size: 0.88rem;
+  color: rgba(245,240,232,0.55); cursor: pointer; transition: color 0.2s;
+}
+.vdc-retour:hover { color: #F5F0E8; }
+.vdc-header-centre { display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.vdc-header-eyebrow {
+  font-family: 'Crimson Pro', serif; font-size: 0.65rem;
+  letter-spacing: 0.18em; text-transform: uppercase; color: rgba(192,152,64,0.65);
+}
+.vdc-header-nom {
+  font-family: 'Playfair Display', serif; font-size: 0.95rem;
+  font-weight: 400; color: #F5F0E8;
+}
+.vdc-header-urgence { display: flex; align-items: center; gap: 12px; }
+.vdc-urgence-badge {
+  font-family: 'Crimson Pro', serif; font-size: 0.72rem;
+  font-weight: 700; padding: 4px 10px; letter-spacing: 0.06em;
+}
+.vdc-j7 { background: rgba(192,57,43,0.9); color: #fff; }
+.vdc-j10 { background: rgba(211,84,0,0.9); color: #fff; }
+.vdc-j15 { background: rgba(192,152,64,0.9); color: #07101E; }
+.vdc-header-prix {
+  font-family: 'Playfair Display', serif; font-size: 1.1rem;
+  color: #C09840; font-weight: 400;
+}
+.vdc-header-nuit { font-family: 'Crimson Pro', serif; font-size: 0.72rem; color: rgba(245,240,232,0.4); }
+
+/* Hero */
+.vdc-hero {
+  position: relative; height: 480px; overflow: hidden; flex-shrink: 0;
+}
+@media (max-width: 700px) { .vdc-hero { height: 300px; } }
+.vdc-hero-img { width: 100%; height: 100%; object-fit: cover; }
+.vdc-hero-video {
+  position: absolute; top: 50%; left: 50%;
+  width: 177.78vh; height: 100vh; min-width: 100%; min-height: 56.25vw;
+  transform: translate(-50%, -50%); border: none; pointer-events: none;
+}
+.vdc-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(7,16,30,0.2) 0%, rgba(7,16,30,0.7) 100%);
+}
+.vdc-hero-contenu {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 32px 48px; z-index: 2; text-align: center;
+}
+.vdc-hero-orn { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 12px; }
+.vdc-hero-trait { display: block; width: 40px; height: 1px; background: rgba(192,152,64,0.5); }
+.vdc-hero-lys { color: #C09840; font-size: 1rem; }
+.vdc-hero-titre {
+  font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 400; color: #F5F0E8; line-height: 1.2; margin: 0 0 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.vdc-hero-eyebrow {
+  font-family: 'Crimson Pro', serif; font-size: 0.72rem;
+  letter-spacing: 0.22em; text-transform: uppercase; color: #C09840;
+  font-style: normal; font-weight: 300;
+}
+.vdc-hero-accroche {
+  font-family: 'Crimson Pro', serif; font-size: 1rem; font-style: italic;
+  color: rgba(245,240,232,0.75); margin: 0 0 12px;
+}
+.vdc-hero-meta { display: flex; justify-content: center; gap: 20px; }
+.vdc-hero-region, .vdc-hero-siecle {
+  font-family: 'Crimson Pro', serif; font-size: 0.75rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(245,240,232,0.5);
+}
+
+/* Alerte last-minute */
+.vdc-alerte { padding: 1px; }
+.vdc-alerte.vdc-j7 { background: rgba(192,57,43,0.12); border-top: 2px solid rgba(192,57,43,0.5); border-bottom: 1px solid rgba(192,57,43,0.2); }
+.vdc-alerte.vdc-j10 { background: rgba(211,84,0,0.1); border-top: 2px solid rgba(211,84,0,0.5); border-bottom: 1px solid rgba(211,84,0,0.2); }
+.vdc-alerte.vdc-j15 { background: rgba(192,152,64,0.06); border-top: 2px solid rgba(192,152,64,0.4); border-bottom: 1px solid rgba(192,152,64,0.15); }
+.vdc-alerte-inner {
+  display: flex; align-items: center; gap: 20px;
+  max-width: 1400px; margin: 0 auto; padding: 16px 40px;
+}
+.vdc-alerte-ico { font-size: 1.2rem; color: #C09840; flex-shrink: 0; }
+.vdc-alerte-titre {
+  display: block; font-family: 'Playfair Display', serif;
+  font-size: 0.9rem; color: #F5F0E8; margin-bottom: 3px;
+}
+.vdc-alerte-texte {
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem;
+  color: rgba(245,240,232,0.6); font-style: italic;
+}
+.vdc-alerte-prix { margin-left: auto; text-align: right; flex-shrink: 0; }
+.vdc-alerte-barre {
+  display: block; font-family: 'Crimson Pro', serif; font-size: 0.82rem;
+  color: rgba(245,240,232,0.3); text-decoration: line-through;
+}
+.vdc-alerte-final {
+  font-family: 'Playfair Display', serif; font-size: 1.6rem;
+  color: #C09840; line-height: 1;
+}
+.vdc-alerte-nuit { font-family: 'Crimson Pro', serif; font-size: 0.75rem; color: rgba(245,240,232,0.4); }
+
+/* Layout 2 colonnes */
+.vdc-deux-colonnes {
+  display: grid; grid-template-columns: 1fr 340px;
+  gap: 0; max-width: 1400px; margin: 0 auto;
+  width: 100%; padding: 48px 40px 80px; align-items: start;
+}
+@media (max-width: 1100px) { .vdc-deux-colonnes { grid-template-columns: 1fr; } }
+@media (max-width: 600px) { .vdc-deux-colonnes { padding: 24px 16px 60px; } }
+
+/* Sections */
+.vdc-section { padding: 32px 0; border-bottom: 1px solid rgba(192,152,64,0.08); }
+.vdc-section--chambres {
+  background: rgba(192,152,64,0.03);
+  border: 1px solid rgba(192,152,64,0.15);
+  padding: 28px; margin-bottom: 8px;
+}
+.vdc-section--famille {
+  background: rgba(192,152,64,0.02);
+  border: 1px solid rgba(192,152,64,0.1);
+  padding: 28px; margin: 8px 0;
+}
+.vdc-section--region {
+  border-left: 3px solid rgba(192,152,64,0.35);
+  padding: 24px 24px; margin: 8px 0;
+}
+.vdc-section-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+}
+.vdc-section-ico { color: #C09840; font-size: 0.85rem; }
+.vdc-section-titre {
+  font-family: 'Playfair Display', serif; font-size: 1.2rem;
+  font-weight: 400; color: #F5F0E8; margin: 0; flex: 1;
+}
+.vdc-section-titre2 {
+  font-family: 'Playfair Display', serif; font-size: 1.1rem;
+  font-weight: 400; color: #F5F0E8; margin: 0 0 16px;
+}
+.vdc-section-nb {
+  font-family: 'Crimson Pro', serif; font-size: 0.72rem;
+  letter-spacing: 0.12em; text-transform: uppercase; color: rgba(192,152,64,0.65);
+}
+
+/* Chambres */
+.vdc-chambres-liste { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+.vdc-chambre-card {
+  display: grid; grid-template-columns: 160px 1fr;
+  border: 1px solid rgba(192,152,64,0.12);
+  cursor: pointer; transition: all 0.2s;
+  background: rgba(255,255,255,0.01);
+}
+.vdc-chambre-card.actif { border-color: #C09840; background: rgba(192,152,64,0.05); }
+.vdc-chambre-card:hover { border-color: rgba(192,152,64,0.35); }
+.vdc-chambre-card-img { position: relative; height: 130px; overflow: hidden; }
+.vdc-chambre-card-img img { width: 100%; height: 100%; object-fit: cover; }
+.vdc-chambre-card-selected {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(192,152,64,0.9); color: #07101E;
+  font-family: 'Crimson Pro', serif; font-size: 0.7rem;
+  font-weight: 600; letter-spacing: 0.1em; text-align: center; padding: 4px;
+}
+.vdc-chambre-card-info { padding: 14px 16px; display: flex; flex-direction: column; gap: 5px; }
+.vdc-chambre-card-nom { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #F5F0E8; }
+.vdc-chambre-card-meta { font-family: 'Crimson Pro', serif; font-size: 0.75rem; color: rgba(245,240,232,0.45); }
+.vdc-chambre-card-desc { font-family: 'Crimson Pro', serif; font-size: 0.82rem; color: rgba(245,240,232,0.6); font-style: italic; line-height: 1.5; }
+.vdc-chambre-card-equip { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.vdc-chambre-equip { font-family: 'Crimson Pro', serif; font-size: 0.7rem; color: rgba(192,152,64,0.7); }
+.vdc-chambre-card-prix { margin-top: auto; display: flex; align-items: baseline; gap: 5px; }
+.vdc-chambre-prix-final { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #C09840; }
+.vdc-chambre-prix-nuit { font-family: 'Crimson Pro', serif; font-size: 0.75rem; color: rgba(245,240,232,0.35); }
+
+.vdc-reserver-btn {
+  width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px;
+  padding: 16px; background: #C09840; border: none; color: #07101E;
+  font-family: 'Crimson Pro', serif; font-size: 0.95rem; font-weight: 600;
+  letter-spacing: 0.06em; cursor: pointer; transition: all 0.2s; margin-bottom: 8px;
+}
+.vdc-reserver-btn:hover { background: #EDD880; }
+.vdc-reserver-fleche { transition: transform 0.2s; }
+.vdc-reserver-btn:hover .vdc-reserver-fleche { transform: translateX(4px); }
+.vdc-reserver-note { font-family: 'Crimson Pro', serif; font-size: 0.72rem; color: rgba(245,240,232,0.35); text-align: center; font-style: italic; }
+
+/* Textes */
+.vdc-texte { font-family: 'Crimson Pro', serif; font-size: 1rem; font-weight: 300; color: rgba(245,240,232,0.62); line-height: 1.85; margin: 0; font-style: italic; }
+.vdc-texte-sm { font-family: 'Crimson Pro', serif; font-size: 0.92rem; font-weight: 300; color: rgba(245,240,232,0.55); line-height: 1.75; margin: 0; }
+
+/* Galerie grid */
+.vdc-galerie-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.vdc-galerie-item { aspect-ratio: 4/3; overflow: hidden; }
+.vdc-galerie-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s; }
+.vdc-galerie-item:hover img { transform: scale(1.03); }
+
+/* Famille */
+.vdc-famille-header { text-align: center; margin-bottom: 20px; }
+.vdc-orn { display: flex; align-items: center; gap: 12px; justify-content: center; margin-bottom: 10px; }
+.vdc-orn-trait { display: block; width: 36px; height: 1px; background: rgba(192,152,64,0.35); }
+.vdc-orn-lys { color: #C09840; font-size: 0.9rem; }
+.vdc-famille { display: grid; grid-template-columns: 160px 1fr; gap: 24px; align-items: start; }
+@media (max-width: 600px) { .vdc-famille { grid-template-columns: 1fr; } }
+.vdc-famille-portrait { aspect-ratio: 3/4; overflow: hidden; }
+.vdc-famille-portrait img { width: 100%; height: 100%; object-fit: cover; }
+.vdc-famille-nom { font-family: 'Playfair Display', serif; font-size: 1rem; color: #F5F0E8; margin-bottom: 3px; }
+.vdc-famille-depuis { font-family: 'Crimson Pro', serif; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: #C09840; margin-bottom: 14px; }
+.vdc-famille-citation { font-family: 'Playfair Display', serif; font-size: 0.95rem; font-style: italic; color: rgba(245,240,232,0.78); border-left: 3px solid #C09840; padding-left: 14px; margin: 0 0 12px; line-height: 1.6; }
+
+/* Alentours */
+.vdc-alentours { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+@media (max-width: 600px) { .vdc-alentours { grid-template-columns: 1fr; } }
+.vdc-alentour { padding: 14px; border: 1px solid rgba(192,152,64,0.1); transition: border-color 0.2s; }
+.vdc-alentour:hover { border-color: rgba(192,152,64,0.3); }
+.vdc-alentour-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.vdc-alentour-ico { color: #C09840; font-size: 0.8rem; flex-shrink: 0; }
+.vdc-alentour-nom { font-family: 'Playfair Display', serif; font-size: 0.88rem; color: #F5F0E8; flex: 1; }
+.vdc-alentour-dist { font-family: 'Crimson Pro', serif; font-size: 0.7rem; color: #C09840; letter-spacing: 0.08em; flex-shrink: 0; }
+.vdc-alentour-desc { font-family: 'Crimson Pro', serif; font-size: 0.82rem; color: rgba(245,240,232,0.48); font-style: italic; margin: 0; }
+
+/* Colonne droite */
+.vdc-droite { padding-left: 32px; position: sticky; top: 66px; }
+@media (max-width: 1100px) { .vdc-droite { padding-left: 0; position: static; } }
+
+/* Réservation sticky */
+.vdc-resa-sticky { display: flex; flex-direction: column; gap: 0; }
+.vdc-resa-header {
+  border: 1px solid rgba(192,152,64,0.3); background: rgba(192,152,64,0.04);
+  padding: 20px; margin-bottom: 0;
+}
+.vdc-resa-eyebrow { display: block; font-family: 'Crimson Pro', serif; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: #C09840; margin-bottom: 8px; }
+.vdc-resa-prix-bloc { display: flex; align-items: baseline; gap: 8px; }
+.vdc-resa-barre { font-family: 'Crimson Pro', serif; font-size: 0.88rem; color: rgba(245,240,232,0.3); text-decoration: line-through; }
+.vdc-resa-final { font-family: 'Playfair Display', serif; font-size: 2rem; color: #C09840; line-height: 1; }
+.vdc-resa-nuit { font-family: 'Crimson Pro', serif; font-size: 0.8rem; color: rgba(245,240,232,0.35); }
+.vdc-resa-reduction { display: block; font-family: 'Crimson Pro', serif; font-size: 0.75rem; color: rgba(192,152,64,0.7); font-style: italic; margin-top: 6px; }
+
+.vdc-resa-chambre-sel {
+  border: 1px solid rgba(192,152,64,0.2); border-top: none;
+  padding: 12px 20px; display: flex; flex-direction: column; gap: 2px;
+  background: rgba(192,152,64,0.02);
+}
+.vdc-resa-chambre-label { font-family: 'Crimson Pro', serif; font-size: 0.65rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(192,152,64,0.55); }
+.vdc-resa-chambre-nom { font-family: 'Playfair Display', serif; font-size: 0.9rem; color: #F5F0E8; }
+.vdc-resa-chambre-meta { font-family: 'Crimson Pro', serif; font-size: 0.75rem; color: rgba(245,240,232,0.4); }
+
+.vdc-resa-btn {
+  width: 100%; padding: 15px; background: #C09840; border: none; color: #07101E;
+  font-family: 'Crimson Pro', serif; font-size: 0.92rem; font-weight: 600;
+  letter-spacing: 0.06em; cursor: pointer; transition: all 0.2s; margin-top: 0;
+}
+.vdc-resa-btn:hover { background: #EDD880; }
+.vdc-resa-note { font-family: 'Crimson Pro', serif; font-size: 0.7rem; color: rgba(245,240,232,0.3); font-style: italic; text-align: center; padding: 8px 0 16px; }
+
+/* Carte */
+.vdc-carte { border: 1px solid rgba(192,152,64,0.15); overflow: hidden; }
+.vdc-carte-iframe { width: 100%; height: 200px; border: none; filter: sepia(0.15) saturate(0.7); display: block; }
+.vdc-carte-legende { font-family: 'Crimson Pro', serif; font-size: 0.72rem; color: rgba(192,152,64,0.55); padding: 8px 12px; font-style: italic; }
+
+/* Activités */
+.vdc-activites { padding: 16px 0; }
+.vdc-activites-titre { display: block; font-family: 'Crimson Pro', serif; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(192,152,64,0.65); margin-bottom: 10px; }
+.vdc-activite { font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: rgba(245,240,232,0.6); padding: 5px 0; border-bottom: 1px solid rgba(192,152,64,0.06); }
+
+/* Modal */
+.vdc-modal { position: fixed; inset: 0; z-index: 200; background: rgba(7,16,30,0.92); display: flex; align-items: center; justify-content: center; }
+.vdc-modal-inner { background: #0D1C30; border: 1px solid #C09840; padding: 40px; max-width: 460px; width: 90%; text-align: center; }
+.vdc-modal-inner h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #F5F0E8; margin: 0 0 12px; }
+.vdc-modal-inner p { font-family: 'Crimson Pro', serif; font-size: 0.92rem; color: rgba(245,240,232,0.6); margin: 0 0 10px; }
+.vdc-modal-note { font-style: italic; }
+.vdc-modal-btn { background: transparent; border: 1px solid #C09840; color: #C09840; font-family: 'Crimson Pro', serif; font-size: 0.88rem; padding: 9px 24px; cursor: pointer; margin-top: 14px; transition: all 0.2s; }
+.vdc-modal-btn:hover { background: #C09840; color: #07101E; }

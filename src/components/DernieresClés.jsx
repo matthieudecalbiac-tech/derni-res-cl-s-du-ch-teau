@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { chateaux } from "../data/chateaux";
-import ChateauModal from "./ChateauModal";
+import VitrineDernieresCle from "./VitrineDernieresCle";
 import TransitionPorte from "./TransitionPorte";
 import "../styles/dernieres-cles.css";
 
@@ -219,7 +219,7 @@ export default function DernieresCles({ onClose }) {
         <TransitionPorte chateau={transitionChateau} onTermine={() => { setChateauSelectionne(transitionChateau); setTransitionChateau(null); }} />
       )}
       {(transitionChateau || chateauSelectionne) && (
-        <ChateauModal chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
+        <VitrineDernieresCle chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}
     </div>
   );
