@@ -218,13 +218,14 @@ function App() {
           }}
         />
       )}
-      {ecranNoir && !clubBienvenueOuvert && (
+      {ecranNoir && (
         <div style={{position:"fixed",inset:0,zIndex:99998,background:"#07101E",pointerEvents:"none"}} />
       )}
       {clubMembresOuvert && (
         <ClubMembres
           user={userConnecte}
-          onClose={() => setClubMembresOuvert(false)}
+          onClose={() => { setClubMembresOuvert(false); setEcranNoir(false); }}
+          onPret={() => setEcranNoir(false)}
         />
       )}
       {clubOuvert && (

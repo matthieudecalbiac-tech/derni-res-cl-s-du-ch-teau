@@ -66,10 +66,10 @@ const PACKAGES_CHATEAU = {
   ],
 };
 
-export default function ClubMembres({ user, onClose }) {
+export default function ClubMembres({ user, onClose, onPret }) {
   const [visible, setVisible] = useState(false);
   // Fondu d'entrée après montage
-  React.useEffect(() => { const t = setTimeout(() => setVisible(true), 50); return () => clearTimeout(t); }, []);
+  React.useEffect(() => { const t = setTimeout(() => { setVisible(true); if (onPret) onPret(); }, 50); return () => clearTimeout(t); }, []);
   const [transitionChateau, setTransitionChateau] = useState(null);
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [dateArrivee, setDateArrivee] = useState(null);
