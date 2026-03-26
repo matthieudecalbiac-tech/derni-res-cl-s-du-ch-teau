@@ -206,6 +206,9 @@ function App() {
           }}
         />
       )}
+      {(clubBienvenueOuvert || clubMembresOuvert) && (
+        <div style={{position:"fixed",inset:0,zIndex:9400,background:"#07101E"}} />
+      )}
       {clubBienvenueOuvert && (
         <ClubBienvenue
           user={userConnecte}
