@@ -89,31 +89,72 @@ export default function CommentCaMarche({ onOuvrirClub, onOuvrirVitrines, onOuvr
           </p>
         </div>
 
-        {/* 3 modules cliquables */}
-        <div className="comment-modules">
-          <button className="comment-module comment-module--vitrines" onClick={onOuvrirVitrines}>
-            <span className="comment-module-ico">&#x269C;</span>
-            <span className="comment-module-titre">Vitrines permanentes</span>
-            <span className="comment-module-desc">81 domaines sélectionnés · Histoire · Famille · Territoire</span>
-            <span className="comment-module-cta">Explorer →</span>
+        {/* 3 modules grands */}
+        <div className="comment-modules-grands">
+
+          <button className="cmg-carte cmg-carte--vitrines" onClick={onOuvrirVitrines}>
+            <div className="cmg-ornement">
+              <span className="cmg-trait" /><span className="cmg-ico">&#x269C;</span><span className="cmg-trait" />
+            </div>
+            <div className="cmg-badge cmg-badge--vitrines">Accès libre</div>
+            <h3 className="cmg-titre">Vitrines permanentes</h3>
+            <p className="cmg-desc">
+              Chaque château bénéficie d’une page éditoriale construite comme un article de fond —
+              histoire du lieu, famille propriétaire, architecture, territoire.
+              Un univers singulier, pas une fiche hôtelière.
+            </p>
+            <ul className="cmg-points">
+              <li><span>&#x2726;</span> 81 domaines sélectionnés, visités et éditorialisés</li>
+              <li><span>&#x2726;</span> Histoire, famille, patrimoine · chaque lieu traité comme unique</li>
+              <li><span>&#x2726;</span> Chambres permanentes disponibles à la réservation</li>
+            </ul>
+            <div className="cmg-separateur" />
+            <div className="cmg-cta">Explorer les vitrines <span>&#x2192;</span></div>
           </button>
-          <button className="comment-module comment-module--dernieres" onClick={onOuvrirDernieresClefs}>
-            <span className="comment-module-ico">&#x25c6;</span>
-            <span className="comment-module-titre">Les Dernières Clés</span>
-            <span className="comment-module-desc">Offres last-minute · J-7 à J-15 · Jusqu’à −40 %</span>
-            <span className="comment-module-cta">Voir les offres →</span>
+
+          <button className="cmg-carte cmg-carte--dernieres" onClick={onOuvrirDernieresClefs}>
+            <div className="cmg-ornement">
+              <span className="cmg-trait" /><span className="cmg-ico cmg-ico--carre">&#x25c6;</span><span className="cmg-trait" />
+            </div>
+            <div className="cmg-badge cmg-badge--dernieres">Last-minute</div>
+            <h3 className="cmg-titre">Les Dernières Clés du Château</h3>
+            <p className="cmg-desc">
+              Des créneaux rares, libérés par les châteaux partenaires sur leurs dates difficiles.
+              Ni braderie, ni promotion de masse — des opportunités confidentielles
+              proposées en avant-première aux membres du Club.
+            </p>
+            <ul className="cmg-points">
+              <li><span>&#x2726;</span> Fenêtres J-7, J-10 ou J-15 selon le château</li>
+              <li><span>&#x2726;</span> Avant-première réservée aux membres Club</li>
+              <li><span>&#x2726;</span> Canal de rendement — jamais une remise permanente</li>
+            </ul>
+            <div className="cmg-separateur" />
+            <div className="cmg-cta">Voir les dernières clés <span>&#x2192;</span></div>
           </button>
-          <button className="comment-module comment-module--club" onClick={onOuvrirClub}>
-            <span className="comment-module-ico">&#x269C;</span>
-            <span className="comment-module-titre">Club des Châtelains</span>
-            <span className="comment-module-desc">Packages exclusifs · Offres privées · Accès sur inscription</span>
-            <span className="comment-module-cta">Rejoindre →</span>
+
+          <button className="cmg-carte cmg-carte--club" onClick={onOuvrirClub}>
+            <div className="cmg-ornement">
+              <span className="cmg-trait" /><span className="cmg-ico cmg-ico--or">&#x269C;</span><span className="cmg-trait" />
+            </div>
+            <div className="cmg-badge cmg-badge--club">Sur inscription</div>
+            <h3 className="cmg-titre cmg-titre--or">Club des Châtelains</h3>
+            <p className="cmg-desc">
+              Espace réservé aux membres inscrits, dédié aux offres et packages exclusifs
+              hors last-minute. Les offres Club ne sont jamais visibles du grand public —
+              elles restent confidentielles, accessibles uniquement après inscription.
+            </p>
+            <ul className="cmg-points cmg-points--or">
+              <li><span>&#x269C;</span> Offres &amp; packages exclusifs hors last-minute</li>
+              <li><span>&#x269C;</span> Accès confidentiel · membres inscrits uniquement</li>
+              <li><span>&#x269C;</span> Avant-premières sur les Dernières Clés</li>
+            </ul>
+            <div className="cmg-separateur" />
+            <div className="cmg-cta cmg-cta--or">Rejoindre le Club <span>&#x2192;</span></div>
           </button>
+
         </div>
 
-
-
-        {/* Séparateur */}
+                {/* Séparateur */}
         <div className="comment-separateur">
           <div className="comment-separateur-ligne" />
           <span className="comment-separateur-lys">⚜</span>
