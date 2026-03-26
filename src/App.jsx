@@ -144,7 +144,7 @@ function App() {
         <PatrimoineSection />
         <Temoignages />
       </main>
-      <Footer onOuvrirCarte={() => setCarteOuverte(true)} />
+      <Footer onOuvrirAPropos={() => setAProposOuvert(true)} onOuvrirProprietaires={() => setProprietairesOuvert(true)} onOuvrirCarte={() => setCarteOuverte(true)} />
 
       {proprietairesOuvert && (
         <PartenairesChateaux onClose={() => setProprietairesOuvert(false)} />

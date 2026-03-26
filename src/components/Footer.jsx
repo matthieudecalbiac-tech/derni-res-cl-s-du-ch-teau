@@ -1,123 +1,55 @@
 import "../styles/footer.css";
 
-const LIENS = {
-  explorer: [
-    "Offres du moment",
-    "Châteaux en Île-de-France",
-    "Châteaux en Normandie",
-    "Châteaux en Loire",
-    "Châteaux en Bourgogne",
-    "Toute la sélection",
-  ],
-  experiences: [
-    "Week-ends gastronomiques",
-    "Séjours équestres",
-    "Escapades avec spa",
-    "Châteaux avec parc",
-    "Dîners aux chandelles",
-    "Séjours historiques",
-  ],
-  club: [
-    "Rejoindre le club",
-    "Comment ça marche",
-    "Pour les châteaux",
-    "Notre sélection",
-    "Presse & médias",
-    "Nous contacter",
-  ],
-};
-
-export default function Footer({ onOuvrirCarte }) {
+export default function Footer({ onOuvrirCarte, onOuvrirAPropos, onOuvrirProprietaires }) {
   return (
     <footer className="footer">
       <div className="footer-corps">
+
         {/* Colonne marque */}
         <div className="footer-marque">
           <div className="footer-logo">
-            <span className="footer-logo-principale">
-              Les Dernières Clés du Château
-            </span>
-            <span className="footer-logo-secondaire">
-              Échappées aristocratiques · À moins de 3h de Paris
-            </span>
+            <span className="footer-logo-principale">Les Clés du Château</span>
+            <span className="footer-logo-secondaire">Patrimoine · France · Évasion</span>
           </div>
-
           <p className="footer-manifeste">
-            Un club d'échappées de dernière minute pour permettre aux Parisiens
-            de goûter, le temps d'un week-end, à l'art de vivre aristocratique
-            des châteaux de campagne.
+            Une plateforme éditoriale hybride qui donne accès aux plus beaux domaines
+            de France — dans le respect de leur histoire et de leurs propriétaires.
           </p>
-
           <div className="footer-reseaux">
-            <div className="footer-reseau" title="Instagram">
-              ✦
-            </div>
-            <div className="footer-reseau" title="Facebook">
-              f
-            </div>
-            <div className="footer-reseau" title="Pinterest">
-              P
-            </div>
-            <div className="footer-reseau" title="LinkedIn">
-              in
-            </div>
+            <div className="footer-reseau" title="Instagram">✦</div>
+            <div className="footer-reseau" title="Pinterest">P</div>
           </div>
         </div>
 
-        {/* Explorer */}
+        {/* Colonne contact */}
         <div className="footer-colonne">
-          <span className="footer-colonne-titre">Explorer</span>
+          <span className="footer-colonne-titre">Informations</span>
           <div className="footer-liens">
+            <span className="footer-lien" onClick={onOuvrirAPropos} role="button" tabIndex={0}>
+              ◆ À propos
+            </span>
+            <span className="footer-lien" onClick={onOuvrirProprietaires} role="button" tabIndex={0}>
+              ◆ Propriétaires
+            </span>
             <span className="footer-lien footer-lien--carte" onClick={onOuvrirCarte}>
               ◆ Explorer la carte
             </span>
-            {LIENS.explorer.map((lien) => (
-              <span key={lien} className="footer-lien">
-                {lien}
-              </span>
-            ))}
+            <a className="footer-lien" href="mailto:contact@lesclesduchateau.fr">
+              ◆ Nous contacter
+            </a>
+            <span className="footer-lien">◆ CGU</span>
+            <span className="footer-lien">◆ Mentions légales</span>
           </div>
         </div>
 
-        {/* Expériences */}
-        <div className="footer-colonne">
-          <span className="footer-colonne-titre">Expériences</span>
-          <div className="footer-liens">
-            {LIENS.experiences.map((lien) => (
-              <span key={lien} className="footer-lien">
-                {lien}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Le club */}
-        <div className="footer-colonne">
-          <span className="footer-colonne-titre">Le Club</span>
-          <div className="footer-liens">
-            {LIENS.club.map((lien) => (
-              <span key={lien} className="footer-lien">
-                {lien}
-              </span>
-            ))}
-          </div>
-        </div>
       </div>
 
       <div className="footer-separateur" />
 
       <div className="footer-bas">
         <span className="footer-copyright">
-          © 2025 Les Dernières Clés du Château · Tous droits réservés
+          © 2025 Les Clés du Château · Tous droits réservés
         </span>
-
-        <div className="footer-mentions">
-          <span className="footer-mention">Mentions légales</span>
-          <span className="footer-mention">Confidentialité</span>
-          <span className="footer-mention">CGU</span>
-          <span className="footer-mention">Cookies</span>
-        </div>
-
         <span className="footer-signature">
           Fait avec soin, pour les amoureux des châteaux
         </span>
