@@ -145,13 +145,7 @@ export default function VitrineChateau({ chateau, onClose }) {
             </section>
           )}
 
-          {/* Région narrative */}
-          {chateau.regionNarrative && (
-            <section className="vc-section vc-section--region">
-              <h2 className="vc-section-titre">L'Anjou — le territoire</h2>
-              <p className="vc-texte">{chateau.regionNarrative}</p>
-            </section>
-          )}
+
 
           {/* Carte */}
           {chateau.coordonnees && (
@@ -168,18 +162,40 @@ export default function VitrineChateau({ chateau, onClose }) {
             </section>
           )}
 
-          {/* Alentours */}
+          {/* Région narrative */}
+          {chateau.regionHistoire && (
+            <section className="vc-section vc-section--region-histoire">
+              <div className="vc-region-entete">
+                <div className="vc-orn"><span className="vc-orn-trait" /><span className="vc-orn-lys">&#x25c6;</span><span className="vc-orn-trait" /></div>
+                <h2 className="vc-section-titre">Le {chateau.departement} — histoire & territoire</h2>
+              </div>
+              <p className="vc-texte">{chateau.regionNarrative}</p>
+              <p className="vc-texte" style={{marginTop: "16px"}}>{chateau.regionHistoire}</p>
+            </section>
+          )}
+
+          {/* Alentours enrichis */}
           {chateau.alentours && (
             <section className="vc-section">
+              <div className="vc-orn" style={{marginBottom: "20px"}}>
+                <span className="vc-orn-trait" /><span className="vc-orn-lys">&#x269C;</span><span className="vc-orn-trait" />
+              </div>
               <h2 className="vc-section-titre">À voir & à faire aux alentours</h2>
-              <div className="vc-alentours">
+              <p className="vc-section-intro">
+                Le {chateau.departement} est l’un des départements les plus riches de France en patrimoine et en gastronomie.
+                Depuis les Briottières, tout s’atteint facilement.
+              </p>
+              <div className="vc-alentours-grille">
                 {chateau.alentours.map((lieu, i) => (
-                  <div key={i} className="vc-alentour">
-                    <div className="vc-alentour-header">
-                      <span className="vc-alentour-nom">{lieu.nom}</span>
-                      <span className="vc-alentour-distance">{lieu.distance}</span>
+                  <div key={i} className={"vc-alentour-card vc-alentour-card--" + (lieu.type || "patrimoine")}>
+                    <div className="vc-alentour-card-header">
+                      <span className="vc-alentour-card-ico">{lieu.icone || "⚜"}</span>
+                      <div>
+                        <div className="vc-alentour-card-nom">{lieu.nom}</div>
+                        <div className="vc-alentour-card-distance">{lieu.distance} · {lieu.type}</div>
+                      </div>
                     </div>
-                    <p className="vc-alentour-desc">{lieu.description}</p>
+                    <p className="vc-alentour-card-desc">{lieu.description}</p>
                   </div>
                 ))}
               </div>

@@ -427,3 +427,77 @@
   margin-top: 16px; transition: all 0.2s;
 }
 .vc-modal-resa-btn:hover { background: #C09840; color: #07101E; }
+
+.vc-section--region-histoire {
+  background: linear-gradient(135deg, rgba(192,152,64,0.04) 0%, rgba(7,16,30,0) 100%);
+  border: 1px solid rgba(192,152,64,0.15);
+  padding: 40px 36px;
+  margin: 40px 0;
+}
+.vc-region-entete { text-align: center; margin-bottom: 24px; }
+
+.vc-section-intro {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.95rem;
+  color: rgba(192,152,64,0.7);
+  font-style: italic;
+  margin: -8px 0 24px;
+  letter-spacing: 0.02em;
+}
+
+.vc-alentours-grille {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+@media (max-width: 700px) { .vc-alentours-grille { grid-template-columns: 1fr; } }
+
+.vc-alentour-card {
+  padding: 20px 18px;
+  border: 1px solid rgba(192,152,64,0.12);
+  background: rgba(255,255,255,0.015);
+  transition: all 0.25s ease;
+}
+.vc-alentour-card:hover {
+  border-color: rgba(192,152,64,0.35);
+  background: rgba(192,152,64,0.04);
+  transform: translateY(-2px);
+}
+.vc-alentour-card--spirituel { border-color: rgba(150,130,200,0.2); }
+.vc-alentour-card--gastronomie { border-color: rgba(192,152,64,0.2); }
+.vc-alentour-card--nature { border-color: rgba(80,160,80,0.2); }
+
+.vc-alentour-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.vc-alentour-card-ico {
+  font-size: 1rem;
+  color: #C09840;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.vc-alentour-card-nom {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.97rem;
+  color: #F5F0E8;
+  line-height: 1.3;
+  margin-bottom: 3px;
+}
+.vc-alentour-card-distance {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.72rem;
+  color: #C09840;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.vc-alentour-card-desc {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.88rem;
+  color: rgba(245,240,232,0.55);
+  line-height: 1.65;
+  font-style: italic;
+  margin: 0;
+}
