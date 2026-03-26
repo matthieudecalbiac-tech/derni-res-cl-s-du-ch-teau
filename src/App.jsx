@@ -93,6 +93,7 @@ function App() {
   const [clubOuvert, setClubOuvert] = useState(false);
   const [clubBienvenueOuvert, setClubBienvenueOuvert] = useState(false);
   const [clubMembresOuvert, setClubMembresOuvert] = useState(false);
+  const [ecranNoir, setEcranNoir] = useState(false);
   const [evenementielOuvert, setEvenementielOuvert] = useState(false);
   const [aProposOuvert, setAProposOuvert] = useState(false);
   const [espaceMembreOuvert, setEspaceMembreOuvert] = useState(false);
@@ -111,6 +112,7 @@ function App() {
     setUserConnecte(user);
     setAuthOuvert(false);
     setClubOuvert(false);
+    setEcranNoir(true);
     setClubBienvenueOuvert(true);
   };
 
@@ -209,8 +211,15 @@ function App() {
       {clubBienvenueOuvert && (
         <ClubBienvenue
           user={userConnecte}
-          onTermine={() => { setClubBienvenueOuvert(false); setClubMembresOuvert(true); }}
+          onTermine={() => {
+            setClubBienvenueOuvert(false);
+            setClubMembresOuvert(true);
+            setTimeout(() => setEcranNoir(false), 600);
+          }}
         />
+      )}
+      {ecranNoir && !clubBienvenueOuvert && (
+        <div style={{position:"fixed",inset:0,zIndex:99998,background:"#07101E",pointerEvents:"none"}} />
       )}
       {clubMembresOuvert && (
         <ClubMembres
