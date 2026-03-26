@@ -7,7 +7,7 @@ export default function ClubBienvenue({ user, onTermine }) {
   useEffect(() => {
     const t1 = setTimeout(() => setPhase(1), 100);
     const t2 = setTimeout(() => setPhase(2), 1200);
-    const t3 = setTimeout(() => setPhase(3), 2400);
+    const t3 = setTimeout(() => setPhase(3), 2800);
     const t4 = setTimeout(onTermine, 3600);
     return () => [t1,t2,t3,t4].forEach(clearTimeout);
   }, [onTermine]);
@@ -15,6 +15,7 @@ export default function ClubBienvenue({ user, onTermine }) {
   return (
     <div className={"cb-wrap " + (phase >= 3 ? "cb-sortie" : "")}>
       <div className="cb-fond" />
+      <div className={"cb-fondu " + (phase >= 3 ? "cb-fondu--actif" : "")} />
       <div className={"cb-centre " + (phase >= 1 ? "cb-visible" : "")}>
         <div className="cb-ornement">
           <span className="cb-trait" />
