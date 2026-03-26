@@ -2,15 +2,15 @@ import { useState } from "react";
 import "../styles/partenaires.css";
 
 const CONFIGS = [
-  { id: "vitrine", numero: "1", titre: "Vitrine permanente", badge: "Module A · Image & acquisition", commission: "11–15 %",
+  { id: "vitrine", numero: "1", titre: "Vitrine permanente", badge: "Module A · Image & acquisition",
     description: "Votre château bénéficie d'une page éditoriale immersive. Histoire du lieu, photographies, famille propriétaire, territoire. Sans frais fixes ni frais d'entrée.",
-    points: ["Page dédiée · contenu éditorial complet","Contrôle éditorial total — vous validez chaque ligne","SEO · référencement sur vos requêtes cibles","Chambres permanentes requises sur la plateforme","Commission de 11 à 15 % sur les chambres vendues"],
+    points: ["Page dédiée · contenu éditorial complet","Contrôle éditorial total — vous validez chaque ligne","SEO · référencement sur vos requêtes cibles","Chambres permanentes requises sur la plateforme","Rémunération à la performance — conditions négociées avec chaque partenaire"],
     note: "Le château doit proposer des chambres disponibles. Sans offre réelle, la vitrine n'a pas de valeur commerciale.", couleur: "vitrine" },
-  { id: "dernieres", numero: "2", titre: "Les Dernières Clés du Château", badge: "Module B · Core concept · Last-minute", commission: "7–10 %",
+  { id: "dernieres", numero: "2", titre: "Les Dernières Clés du Château", badge: "Module B · Core concept · Last-minute",
     description: "Section dédiée aux offres last-minute, pilotée librement par le château sur ses dates difficiles. Canal d'activation tactique et de yield, sans présence promotionnelle permanente.",
-    points: ["Fenêtres J-7, J-10 ou J-15 selon votre appétit","Vous fixez les dates, les tarifs et les conditions","Avant-première réservée aux membres du Club","Canal de yield — jamais une remise permanente","Commission réduite de 7 à 10 %"],
+    points: ["Fenêtres J-7, J-10 ou J-15 selon votre appétit","Vous fixez les dates, les tarifs et les conditions","Avant-première réservée aux membres du Club","Canal de yield — jamais une remise permanente","Conditions préférentielles pour l’activation last-minute"],
     note: "Zéro engagement permanent. Vous activez quand vous en avez besoin, vous pausez quand vous le souhaitez.", couleur: "lastminute" },
-  { id: "hybride", numero: "3", titre: "Vitrine + Dernières Clés", badge: "★ Configuration recommandée · Formule complète", commission: "7–15 %",
+  { id: "hybride", numero: "3", titre: "Vitrine + Dernières Clés", badge: "★ Configuration recommandée · Formule complète",
     description: "La combinaison la plus performante : une vitrine permanente pour votre image, et le module last-minute pour optimiser vos dates difficiles. Vous pilotez les deux rails selon la saison.",
     points: ["Vitrine permanente immersive + activation last-minute","Deux canaux complémentaires — image ET rendement","Pilotage indépendant selon la saison","Option Club des Châtelains en surcouche","Accompagnement éditorial personnalisé"],
     note: "★ La combinaison A + B constitue la configuration la plus complète et la plus performante.", couleur: "hybride" },
@@ -64,7 +64,7 @@ export default function PartenairesChateaux({ onClose }) {
       <div className="part-modes-entete">
         <span className="part-sur-titre">3 configurations · 1 module optionnel</span>
         <h3 className="part-modes-titre">Choisissez votre façon de participer</h3>
-        <p className="part-modes-sous">Référencement sans frais fixes · Aucun engagement · Pausable à tout moment · Aucune exclusivité</p>
+        <p className="part-modes-sous">Aucun frais d’entrée · Aucun engagement · Votre image maîtrisée</p>
       </div>
 
       <div className="part-modes-nav">
@@ -81,10 +81,7 @@ export default function PartenairesChateaux({ onClose }) {
         <div className={`part-mode-detail part-mode-detail--${cfg.couleur}`}>
           <div className="part-mode-detail-gauche">
             <span className="part-mode-detail-badge">{cfg.badge}</span>
-            <div className="part-mode-detail-titre-wrap">
-              <h3 className="part-mode-detail-titre">Config. {cfg.numero} — {cfg.titre}</h3>
-              
-            </div>
+            <h3 className="part-mode-detail-titre">Config. {cfg.numero} — {cfg.titre}</h3>
             <p className="part-mode-detail-desc">{cfg.description}</p>
             {cfg.note && <p className="part-mode-detail-note">{cfg.note}</p>}
           </div>
@@ -101,7 +98,7 @@ export default function PartenairesChateaux({ onClose }) {
           <span className="part-club-option-badge">Option complémentaire · Surcouche optionnelle</span>
           <div className="part-club-option-titre-wrap">
             <h3 className="part-club-option-titre">⚜ Club des Châtelains</h3>
-            <span className="part-club-option-commission">8–12 %</span>
+            
           </div>
         </div>
         <p className="part-club-option-desc">
@@ -117,29 +114,7 @@ export default function PartenairesChateaux({ onClose }) {
         </div>
       </div>
 
-      <div className="part-recap">
-        <div className="part-recap-entete"><span className="part-sur-titre">Récapitulatif · Trois modules · Commissions exactes</span></div>
-        <div className="part-recap-grille">
-          <div className="part-recap-item">
-            <div className="part-recap-module">Module A · Vitrine permanente</div>
-            <div className="part-recap-taux">11–15 %</div>
-            <div className="part-recap-detail">Sur les chambres effectivement vendues via LCC</div>
-          </div>
-          <div className="part-recap-sep" />
-          <div className="part-recap-item">
-            <div className="part-recap-module">Module B · Les Dernières Clés</div>
-            <div className="part-recap-taux">7–10 %</div>
-            <div className="part-recap-detail">Commission réduite pour encourager l'activation last-minute</div>
-          </div>
-          <div className="part-recap-sep" />
-          <div className="part-recap-item">
-            <div className="part-recap-module">Module C · Club des Châtelains</div>
-            <div className="part-recap-taux">8–12 %</div>
-            <div className="part-recap-detail">Sur les packages et offres Club effectivement vendus</div>
-          </div>
-        </div>
-        <p className="part-recap-note">✦ Référencement sans frais fixes · Aucun abonnement · Aucune exclusivité · Pausable à tout moment</p>
-      </div>
+      
 
       <div className="part-separateur"><div className="part-sep-ligne" /><span className="part-sep-lys">⚜</span><div className="part-sep-ligne" /></div>
 
