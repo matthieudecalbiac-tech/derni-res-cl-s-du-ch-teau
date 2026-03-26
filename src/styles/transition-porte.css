@@ -97,43 +97,73 @@
   text-shadow: 0 0 20px rgba(192,152,64,0.4);
 }
 
+
 /* ── Carte de France ── */
 .tp-carte-france {
   opacity: 0;
-  transform: scale(0.85) translateY(10px);
-  transition: opacity 0.7s ease, transform 0.7s ease;
+  transform: scale(0.9) translateY(8px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 12px;
 }
 .tp-carte-france--visible {
   opacity: 1;
   transform: scale(1) translateY(0);
 }
-.tp-france-svg {
-  width: 160px;
-  height: 160px;
-  filter: drop-shadow(0 0 16px rgba(192,152,64,0.25));
+.tp-carte-wrap {
+  position: relative;
+  width: 120px;
+  height: 130px;
 }
-.tp-france-path {
-  fill: rgba(192,152,64,0.1);
-  stroke: rgba(192,152,64,0.6);
-  stroke-width: 1.5;
-  stroke-linejoin: round;
+.tp-carte-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: sepia(0.4) saturate(0.5) brightness(0.7) hue-rotate(180deg);
+  opacity: 0.85;
+}
+.tp-carte-point {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+.tp-point-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #C09840;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 0 6px rgba(192,152,64,0.8);
+}
+.tp-point-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(192,152,64,0.6);
+  animation: tp-ring-pulse 1.4s ease-in-out infinite;
+}
+@keyframes tp-ring-pulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+  50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
 }
 .tp-carte-label {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3px;
 }
 .tp-carte-dept {
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.78rem;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 0.75rem;
   font-weight: 300;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: rgba(192,152,64,0.85);
 }
