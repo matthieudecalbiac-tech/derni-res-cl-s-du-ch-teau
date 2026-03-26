@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import { chateaux } from "../data/chateaux";
 import ChateauModal from "./ChateauModal";
 import TransitionPorte from "./TransitionPorte";
-import "../styles/espace-membre.css";
 import "../styles/dernieres-cles.css";
 
 function getDatesPossibles() {
