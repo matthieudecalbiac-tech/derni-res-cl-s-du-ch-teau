@@ -111,7 +111,8 @@ function App() {
     setUserConnecte(user);
     setAuthOuvert(false);
     setClubOuvert(false);
-    setClubMembresOuvert(true);
+    setClubBienvenueOuvert(true);
+    setClubMembresOuvert(true); // monté en avance mais invisible
   };
 
   const ouvrirChateau = (chateau) => {
@@ -207,11 +208,24 @@ function App() {
         />
       )}
 
-      {clubMembresOuvert && (
-        <ClubMembres
+      {clubBienvenueOuvert && (
+        <ClubBienvenue
           user={userConnecte}
-          onClose={() => setClubMembresOuvert(false)}
+          onTermine={() => setClubBienvenueOuvert(false)}
         />
+      )}
+      {clubMembresOuvert && (
+        <div style={{
+          position:"fixed", inset:0, zIndex: clubBienvenueOuvert ? -1 : 9500,
+          opacity: clubBienvenueOuvert ? 0 : 1,
+          transition: "opacity 0.3s ease",
+          pointerEvents: clubBienvenueOuvert ? "none" : "auto"
+        }}>
+          <ClubMembres
+            user={userConnecte}
+            onClose={() => setClubMembresOuvert(false)}
+          />
+        </div>
       )}
       {clubOuvert && (
         <ClubChatelains
