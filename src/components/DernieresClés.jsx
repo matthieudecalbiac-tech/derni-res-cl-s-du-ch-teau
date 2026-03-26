@@ -5,11 +5,43 @@ import TransitionPorte from "./TransitionPorte";
 import "../styles/espace-membre.css";
 import "../styles/dernieres-cles.css";
 
-export default function DernieresClés({ onClose }) {
+function getDatesPossibles() {
+  const today = new Date();
+  const dates = [];
+  for (let i = 1; i <= 30; i++) {
+    const d = new Date(today);
+    d.setDate(today.getDate() + i);
+    dates.push(d);
+  }
+  return dates;
+}
+
+function formatDate(d) {
+  return d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
+}
+
+function joursAvant(d) {
+  const today = new Date();
+  const diff = Math.round((d - today) / (1000 * 60 * 60 * 24));
+  return diff;
+}
+
+function chateauxDisponibles(chateaux, dateArrivee, dateDepart) {
+  if (!dateArrivee) return chateaux;
+  const jours = joursAvant(dateArrivee);
+  return chateaux.filter(c => {
+    const seuil = { "J-7": 7, "J-10": 10, "J-15": 15 }[c.urgence] || 15;
+    return jours <= seuil;
+  });
+}
+
+export default function DernieresCles({ onClose }) {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [transitionChateau, setTransitionChateau] = useState(null);
-  const [filtre, setFiltre] = useState("tous");
   const [visible, setVisible] = useState(false);
+  const [dateArrivee, setDateArrivee] = useState(null);
+  const [dateDepart, setDateDepart] = useState(null);
+  const [etape, setEtape] = useState("arrivee"); // "arrivee" | "depart"
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -22,8 +54,35 @@ export default function DernieresClés({ onClose }) {
     };
   }, [onClose, chateauSelectionne]);
 
-  const urgences = ["tous", "J-7", "J-10", "J-15"];
-  const chateauxFiltres = filtre === "tous" ? chateaux : chateaux.filter(c => c.urgence === filtre);
+  const dates = getDatesPossibles();
+  const chateauxFiltres = chateauxDisponibles(chateaux, dateArrivee, dateDepart);
+
+  const handleSelectDate = (d) => {
+    if (etape === "arrivee") {
+      setDateArrivee(d);
+      setDateDepart(null);
+      setEtape("depart");
+    } else {
+      if (d > dateArrivee) {
+        setDateDepart(d);
+        setEtape("done");
+      } else {
+        setDateArrivee(d);
+        setDateDepart(null);
+        setEtape("depart");
+      }
+    }
+  };
+
+  const reset = () => {
+    setDateArrivee(null);
+    setDateDepart(null);
+    setEtape("arrivee");
+  };
+
+  const isArrivee = (d) => dateArrivee && d.toDateString() === dateArrivee.toDateString();
+  const isDepart = (d) => dateDepart && d.toDateString() === dateDepart.toDateString();
+  const isBetween = (d) => dateArrivee && dateDepart && d > dateArrivee && d < dateDepart;
 
   return (
     <div className={"em-overlay " + (visible ? "em-overlay--visible" : "")}>
@@ -52,26 +111,94 @@ export default function DernieresClés({ onClose }) {
           <h1 className="dk-titre">Les Dernières Clés du Château</h1>
           <p className="dk-accroche">
             Des créneaux rares, libérés par les châteaux partenaires sur leurs dates difficiles.
-            Ni braderie, ni promotion de masse — des opportunités confidentielles,
-            proposées en avant-première aux membres du Club avant ouverture au public.
+            Choisissez vos dates — nous vous montrons ce qui est disponible.
           </p>
-          <div className="dk-urgence-intro">
-            <div className="dk-urgence-item dk-j7"><span className="dk-urgence-label">J-7</span><span className="dk-urgence-desc">Cette semaine</span></div>
-            <div className="dk-urgence-item dk-j10"><span className="dk-urgence-label">J-10</span><span className="dk-urgence-desc">Dans 10 jours</span></div>
-            <div className="dk-urgence-item dk-j15"><span className="dk-urgence-label">J-15</span><span className="dk-urgence-desc">Dans 15 jours</span></div>
-          </div>
         </div>
       </div>
 
-      <div className="dk-corps">
-        <div className="dk-filtres">
-          {urgences.map(u => (
-            <button key={u} className={"dk-filtre " + (filtre === u ? "actif" : "")} onClick={() => setFiltre(u)}>
-              {u === "tous" ? "Toutes les fenêtres" : u}
+      {/* Sélecteur de dates */}
+      <div className="dk-dates-section">
+        <div className="dk-dates-header">
+          <div className="dk-dates-etapes">
+            <div className={"dk-dates-etape " + (etape === "arrivee" ? "actif" : dateArrivee ? "done" : "")}>
+              <span className="dk-dates-etape-num">1</span>
+              <div>
+                <span className="dk-dates-etape-label">Arrivée</span>
+                <span className="dk-dates-etape-val">
+                  {dateArrivee ? formatDate(dateArrivee) : "Choisissez une date"}
+                </span>
+              </div>
+            </div>
+            <div className="dk-dates-sep">→</div>
+            <div className={"dk-dates-etape " + (etape === "depart" ? "actif" : dateDepart ? "done" : "")}>
+              <span className="dk-dates-etape-num">2</span>
+              <div>
+                <span className="dk-dates-etape-label">Départ</span>
+                <span className="dk-dates-etape-val">
+                  {dateDepart ? formatDate(dateDepart) : "Choisissez une date"}
+                </span>
+              </div>
+            </div>
+          </div>
+          {dateArrivee && (
+            <button className="dk-dates-reset" onClick={reset}>
+              Effacer les dates
             </button>
-          ))}
+          )}
         </div>
 
+        <div className="dk-calendrier">
+          {dates.map((d, i) => {
+            const j = joursAvant(d);
+            const urgenceClass = j <= 7 ? "j7" : j <= 10 ? "j10" : "j15";
+            return (
+              <button
+                key={i}
+                className={
+                  "dk-cal-jour " +
+                  (isArrivee(d) ? "dk-cal-arrivee " : "") +
+                  (isDepart(d) ? "dk-cal-depart " : "") +
+                  (isBetween(d) ? "dk-cal-between " : "") +
+                  "dk-cal-" + urgenceClass
+                }
+                onClick={() => handleSelectDate(d)}
+              >
+                <span className="dk-cal-jour-nom">
+                  {d.toLocaleDateString("fr-FR", { weekday: "short" })}
+                </span>
+                <span className="dk-cal-jour-num">
+                  {d.toLocaleDateString("fr-FR", { day: "numeric" })}
+                </span>
+                <span className="dk-cal-jour-mois">
+                  {d.toLocaleDateString("fr-FR", { month: "short" })}
+                </span>
+                {j <= 15 && (
+                  <span className={"dk-cal-urgence dk-cal-urgence-" + urgenceClass}>
+                    J-{j}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {dateArrivee && (
+          <div className="dk-dates-resultat">
+            {dateDepart ? (
+              <p>
+                <span className="dk-dates-res-nb">{chateauxFiltres.length}</span>
+                {" "}château{chateauxFiltres.length > 1 ? "x" : ""} disponible{chateauxFiltres.length > 1 ? "s" : ""}
+                {" "}du{" "}<strong>{formatDate(dateArrivee)}</strong>
+                {" "}au{" "}<strong>{formatDate(dateDepart)}</strong>
+              </p>
+            ) : (
+              <p>Sélectionnez votre date de départ</p>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="dk-corps">
         <div className="dk-grille">
           {chateauxFiltres.map(c => {
             const classBadge = { "J-7": "dk-badge-j7", "J-10": "dk-badge-j10", "J-15": "dk-badge-j15" }[c.urgence] || "dk-badge-j15";

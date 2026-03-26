@@ -57,3 +57,183 @@
   .dk-urgence-intro { gap: 6px; }
   .dk-urgence-item { padding: 10px 16px; }
 }
+
+/* ── Sélecteur de dates ── */
+.dk-dates-section {
+  background: rgba(7,16,30,0.8);
+  border-bottom: 1px solid rgba(192,152,64,0.15);
+  padding: 28px 40px;
+}
+.dk-dates-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.dk-dates-etapes {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.dk-dates-etape {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  border: 1px solid rgba(192,152,64,0.15);
+  background: rgba(255,255,255,0.02);
+  transition: all 0.2s;
+}
+.dk-dates-etape.actif {
+  border-color: #C09840;
+  background: rgba(192,152,64,0.06);
+}
+.dk-dates-etape.done {
+  border-color: rgba(192,152,64,0.35);
+}
+.dk-dates-etape-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(192,152,64,0.15);
+  color: #C09840;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.dk-dates-etape.actif .dk-dates-etape-num {
+  background: #C09840;
+  color: #07101E;
+}
+.dk-dates-etape-label {
+  display: block;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(192,152,64,0.6);
+}
+.dk-dates-etape-val {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.9rem;
+  color: #F5F0E8;
+  margin-top: 1px;
+}
+.dk-dates-sep {
+  color: rgba(192,152,64,0.4);
+  font-size: 1rem;
+}
+.dk-dates-reset {
+  background: transparent;
+  border: 1px solid rgba(192,152,64,0.2);
+  color: rgba(245,240,232,0.45);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  padding: 7px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dk-dates-reset:hover {
+  border-color: rgba(192,152,64,0.5);
+  color: rgba(245,240,232,0.8);
+}
+
+/* Calendrier horizontal */
+.dk-calendrier {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(192,152,64,0.2) transparent;
+}
+.dk-cal-jour {
+  flex-shrink: 0;
+  width: 64px;
+  padding: 10px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: all 0.18s;
+  position: relative;
+}
+.dk-cal-jour:hover {
+  border-color: rgba(192,152,64,0.4);
+  background: rgba(192,152,64,0.05);
+}
+.dk-cal-arrivee {
+  background: rgba(192,152,64,0.15) !important;
+  border-color: #C09840 !important;
+}
+.dk-cal-depart {
+  background: rgba(192,152,64,0.15) !important;
+  border-color: #C09840 !important;
+}
+.dk-cal-between {
+  background: rgba(192,152,64,0.06) !important;
+  border-color: rgba(192,152,64,0.2) !important;
+}
+.dk-cal-j7 { border-top: 2px solid rgba(192,57,43,0.6); }
+.dk-cal-j10 { border-top: 2px solid rgba(211,84,0,0.6); }
+.dk-cal-j15 { border-top: 2px solid rgba(192,152,64,0.4); }
+
+.dk-cal-jour-nom {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.4);
+}
+.dk-cal-jour-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: #F5F0E8;
+  line-height: 1;
+}
+.dk-cal-jour-mois {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.68rem;
+  color: rgba(245,240,232,0.45);
+}
+.dk-cal-urgence {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  margin-top: 3px;
+}
+.dk-cal-urgence-j7 { color: rgba(192,57,43,0.9); background: rgba(192,57,43,0.12); }
+.dk-cal-urgence-j10 { color: rgba(211,84,0,0.9); background: rgba(211,84,0,0.12); }
+.dk-cal-urgence-j15 { color: rgba(192,152,64,0.85); background: rgba(192,152,64,0.1); }
+
+.dk-dates-resultat {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(192,152,64,0.1);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.92rem;
+  color: rgba(245,240,232,0.6);
+  font-style: italic;
+}
+.dk-dates-res-nb {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: #C09840;
+  font-style: normal;
+  margin-right: 4px;
+}
+@media (max-width: 600px) {
+  .dk-dates-section { padding: 20px 16px; }
+  .dk-dates-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .dk-dates-etapes { flex-wrap: wrap; }
+}
