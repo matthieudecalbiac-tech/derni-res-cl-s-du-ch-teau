@@ -124,18 +124,20 @@ export default function ChateauModal({ chateau, onClose }) {
         {!chateau.videoBackground && <button className="cp-galerie-next" onClick={nextImage}>
           ›
         </button>}
-        {!chateau.videoBackground && <div className="cp-galerie-dots">
-          {chateau.images.map((_, i) => (
-            <button
-              key={i}
-              className={"cp-dot " + (i === imageActive ? "actif" : "")}
-              onClick={() => {
-                clearInterval(intervalRef.current);
-                setImageActive(i);
-              }}
-            />
-          ))}
-        </div>
+        {!chateau.videoBackground && (
+          <div className="cp-galerie-dots">
+            {chateau.images.map((_, i) => (
+              <button
+                key={i}
+                className={"cp-dot " + (i === imageActive ? "actif" : "")}
+                onClick={() => {
+                  clearInterval(intervalRef.current);
+                  setImageActive(i);
+                }}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── CORPS ── */}
