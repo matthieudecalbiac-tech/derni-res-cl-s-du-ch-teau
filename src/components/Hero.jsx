@@ -77,52 +77,23 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClef
         <span className="hero-region-tag">Grand Est</span>
       </div>
 
-      {/* Deux portes overlay bas */}
-      <div className="hero-portes-overlay">
-        <div
-          className="hero-porte-overlay hero-porte-overlay--vitrines"
-          onClick={onOuvrirVitrines}
-        >
-          <div className="hero-porte-overlay-badge hero-porte-overlay-badge--pierre">
-            Accès libre
-          </div>
-          <div className="hero-porte-overlay-titre">&#x269C; Vitrines permanentes</div>
-          <div className="hero-porte-overlay-desc">
-            81 domaines sélectionnés · Histoire · Famille · Territoire
-          </div>
-          <div className="hero-porte-overlay-cta">Explorer les vitrines →</div>
+      {/* Texte éditorial patrimoine */}
+      <div className="hero-editorial">
+        <div className="hero-editorial-ornement">
+          <div className="hero-editorial-trait" />
+          <span className="hero-editorial-lys">&#x269C;</span>
+          <div className="hero-editorial-trait" />
         </div>
-        <div
-          className="hero-porte-overlay hero-porte-overlay--gauche"
-          onClick={onOuvrirDernieresClefs}
-        >
-          <div className="hero-porte-overlay-badge">Accès libre</div>
-          <div className="hero-porte-overlay-titre">⏳ Dernières Clés</div>
-          <div className="hero-porte-overlay-desc">
-            Offres last-minute · J−7 à J−15 · Jusqu'à −40%
-          </div>
-          <div className="hero-porte-overlay-cta">Voir les offres →</div>
-        </div>
-        <div
-          className="hero-porte-overlay hero-porte-overlay--droite"
-          onClick={onOuvrirClub}
-        >
-          <div className="hero-porte-overlay-badge hero-porte-overlay-badge--or">
-            Sur inscription
-          </div>
-          <div className="hero-porte-overlay-titre hero-porte-overlay-titre--or">
-            ⚜ Club des Châtelains
-          </div>
-          <div className="hero-porte-overlay-desc hero-porte-overlay-desc--or">
-            Vitrines permanentes · Packages exclusifs
-          </div>
-          <div className="hero-porte-overlay-cta hero-porte-overlay-cta--or">
-            Rejoindre le Club →
-          </div>
-        </div>
+        <p className="hero-editorial-texte">
+          La France compte quarante-cinq mille châteaux.
+          <br />
+          <em>Nous en avons sélectionné les plus beaux.</em>
+        </p>
+        <p className="hero-editorial-sous">
+          Vitrines permanentes · Dernières Clés du Château · Club des Châtelains
+        </p>
       </div>
 
-      
     </section>
   );
 }

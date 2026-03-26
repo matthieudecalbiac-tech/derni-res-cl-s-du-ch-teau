@@ -19,6 +19,7 @@ import VitrinePermanente from "./components/VitrinePermanente";
 import DernieresClés from "./components/DernieresClés";
 import TransitionPorte from "./components/TransitionPorte";
 import PartenairesChateaux from "./components/PartenairesChateaux";
+import PatrimoineSection from "./components/PatrimoineSection";
 
 const LysPattern = () => (
   <svg
@@ -91,6 +92,7 @@ function App() {
   const [aProposOuvert, setAProposOuvert] = useState(false);
   const [espaceMembreOuvert, setEspaceMembreOuvert] = useState(false);
   const [vitrinesOuvert, setVitrinesOuvert] = useState(false);
+  const [proprietairesOuvert, setProprietairesOuvert] = useState(false);
   const [dernieresOuvert, setDernieresOuvert] = useState(false);
   const [transitionChateau, setTransitionChateau] = useState(null);
 
@@ -123,6 +125,7 @@ function App() {
         onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
         onOuvrirAPropos={() => setAProposOuvert(true)}
         onOuvrirVitrines={() => setVitrinesOuvert(true)}
+        onOuvrirProprietaires={() => setProprietairesOuvert(true)}
         onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
         onConnexion={() => ouvrirAuth("connexion")}
         userConnecte={userConnecte}
@@ -133,15 +136,19 @@ function App() {
           onOuvrirClub={() => setClubOuvert(true)}
           onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
           onOuvrirVitrines={() => setVitrinesOuvert(true)}
+        onOuvrirProprietaires={() => setProprietairesOuvert(true)}
         />
         <ClesAlaUne onSelectChateau={ouvrirChateau} />
         <Services />
         <CommentCaMarche onOuvrirClub={() => setClubOuvert(true)} />
-        <PartenairesChateaux />
+        <PatrimoineSection />
         <Temoignages />
       </main>
       <Footer onOuvrirCarte={() => setCarteOuverte(true)} />
 
+      {proprietairesOuvert && (
+        <PartenairesChateaux onClose={() => setProprietairesOuvert(false)} />
+      )}
       {vitrinesOuvert && (
         <VitrinePermanente onClose={() => setVitrinesOuvert(false)} />
       )}

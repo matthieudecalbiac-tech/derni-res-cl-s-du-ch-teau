@@ -130,28 +130,7 @@ export default function ClesAlaUne({ onSelectChateau }) {
                     </button>
                   </div>
 
-                  <div className="cle-chambres">
-                    {c.chambresRestantes} chambre
-                    {c.chambresRestantes > 1 ? "s" : ""} disponible
-                    {c.chambresRestantes > 1 ? "s" : ""}
-                  </div>
-                </div>
-              </article>
-            );
-          })}
-        </div>
-
-        {/* Stats bande */}
-        <div className="cles-une-stats">
-          <div className="cles-stat">
-            <span className="cles-stat-nombre">24</span>
-            <span className="cles-stat-label">Châteaux référencés</span>
-          </div>
-          <div className="cles-stat-separateur" />
-          <div className="cles-stat">
-            <span className="cles-stat-nombre">4,8★</span>
-            <span className="cles-stat-label">Note moyenne</span>
-          </div>
+                  
           <div className="cles-stat-separateur" />
           <div className="cles-stat">
             <span className="cles-stat-nombre">−36%</span>

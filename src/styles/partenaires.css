@@ -116,3 +116,48 @@
 .nav-lien--partenaires:hover{opacity:1}
 .nav-lien-mobile--vitrines,.nav-lien-mobile--dernieres{color:rgba(245,240,232,.85)!important}
 .nav-lien-mobile--club{color:#C09840!important;font-style:italic}
+
+.part-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 8000;
+  overflow-y: auto;
+  background: #07101E;
+}
+.part-overlay-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 32px;
+  background: rgba(7,16,30,0.95);
+  border-bottom: 1px solid rgba(192,152,64,0.2);
+  backdrop-filter: blur(8px);
+}
+.part-overlay-lys { color: #C09840; font-size: 1.1rem; }
+.part-overlay-titre {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.8rem;
+  font-weight: 300;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.6);
+  flex: 1;
+}
+.part-overlay-close {
+  background: transparent;
+  border: 1px solid rgba(192,152,64,0.35);
+  color: rgba(245,240,232,0.6);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  padding: 6px 18px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.part-overlay-close:hover {
+  border-color: #C09840;
+  color: #F5F0E8;
+}

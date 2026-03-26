@@ -23,7 +23,7 @@ const ARGUMENTS = [
   { icone: "❋", titre: "Une clientèle qui vous correspond", texte: "CSP+, Franciliens, amateurs de patrimoine. Des clients qui cherchent l'histoire et l'âme d'un lieu — pas le prix le plus bas." },
 ];
 
-export default function PartenairesChateaux() {
+export default function PartenairesChateaux({ onClose }) {
   const [configActive, setConfigActive] = useState("vitrine");
   const [formEnvoye, setFormEnvoye] = useState(false);
   const [form, setForm] = useState({ nomChateau: "", departement: "", nom: "", email: "", message: "" });
@@ -33,7 +33,15 @@ export default function PartenairesChateaux() {
   const handleSubmit = () => { if (form.nomChateau && form.email) setFormEnvoye(true); };
 
   return (
-    <section className="part-section" id="partenaires">
+    <div className={onClose ? "part-overlay" : ""}>
+      {onClose && (
+        <div className="part-overlay-header">
+          <span className="part-overlay-lys">&#x269C;</span>
+          <span className="part-overlay-titre">Les Clés du Château · Propriétaires</span>
+          <button className="part-overlay-close" onClick={onClose}>Fermer</button>
+        </div>
+      )}
+      <section className="part-section" id="partenaires">
       <div className="part-entete">
         <div className="part-ornement"><span className="part-trait" /><span className="part-lys">⚜</span><span className="part-trait" /></div>
         <span className="part-sur-titre">Pour les propriétaires · Rejoindre la sélection</span>
@@ -75,7 +83,7 @@ export default function PartenairesChateaux() {
             <span className="part-mode-detail-badge">{cfg.badge}</span>
             <div className="part-mode-detail-titre-wrap">
               <h3 className="part-mode-detail-titre">Config. {cfg.numero} — {cfg.titre}</h3>
-              <span className="part-mode-detail-commission">{cfg.commission}</span>
+              
             </div>
             <p className="part-mode-detail-desc">{cfg.description}</p>
             {cfg.note && <p className="part-mode-detail-note">{cfg.note}</p>}
@@ -99,7 +107,7 @@ export default function PartenairesChateaux() {
         <p className="part-club-option-desc">
           Espace réservé aux membres inscrits, dédié aux offres, avantages et packages exclusifs <strong>hors last-minute</strong>.
           Outil de fidélisation, d'exclusivité et de montée en gamme. Les offres Club ne sont jamais visibles du grand public.
-          Commission de 8 à 12 % sur les packages effectivement vendus. Aucun frais fixe.
+          Aucun frais fixe.
         </p>
         <div className="part-club-option-points">
           <div className="part-club-pt"><span className="part-club-pt-ico">⚜</span> Offres &amp; packages exclusifs hors last-minute</div>
@@ -183,5 +191,6 @@ export default function PartenairesChateaux() {
         )}
       </div>
     </section>
+    </div>
   );
 }

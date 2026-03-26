@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "../styles/header.css";
 
-export default function Header({ onOuvrirClub, onOuvrirAPropos, onOuvrirVitrines, onOuvrirDernieresClefs, onConnexion }) {
+export default function Header({ onOuvrirClub, onOuvrirAPropos, onOuvrirVitrines, onOuvrirDernieresClefs, onConnexion, onOuvrirProprietaires }) {
   const [menuOuvert, setMenuOuvert] = useState(false);
   const [solide, setSolide] = useState(false);
 
