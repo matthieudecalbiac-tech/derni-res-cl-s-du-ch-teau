@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { chateaux } from "../data/chateaux";
 import ChateauModal from "./ChateauModal";
+import VitrineChateau from "./VitrineChateau";
 import TransitionPorte from "./TransitionPorte";
 import "../styles/espace-membre.css";
 import "../styles/vitrines.css";
@@ -107,7 +108,7 @@ export default function VitrinePermanente({ onClose }) {
         <TransitionPorte chateau={transitionChateau} onTermine={() => { setChateauSelectionne(transitionChateau); setTransitionChateau(null); }} />
       )}
       {(transitionChateau || chateauSelectionne) && (
-        <ChateauModal chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
+        <VitrineChateau chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}
     </div>
   );
