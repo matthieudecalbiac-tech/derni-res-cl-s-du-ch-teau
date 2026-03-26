@@ -249,6 +249,27 @@ export default function DernieresCles({ onClose }) {
           </div>
         </div>
 
+        <div className="dk-corps-wrap">
+
+        {/* Carte OSM colonne gauche */}
+        <div className="dk-carte-col">
+          <div className="dk-carte-titre">
+            <span className="dk-carte-titre-lys">&#x269C;</span>
+            <span>Localisation des châteaux</span>
+          </div>
+          <div className="dk-carte-osm-wrap">
+            <iframe
+              className="dk-carte-osm"
+              title="Carte des châteaux"
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=-5.5,41.2,10.0,51.5&layer=mapnik${chateauxFiltres.filter(c => c.coordonnees).map(c => `&marker=${c.coordonnees.lat},${c.coordonnees.lng}`).join('')}`}
+            />
+          </div>
+          <div className="dk-carte-legende">
+            <span className="dk-carte-legende-nb">{chateauxFiltres.length}</span>
+            {" "}domaine{chateauxFiltres.length > 1 ? "s" : ""} disponible{chateauxFiltres.length > 1 ? "s" : ""}
+          </div>
+        </div>
+
         <div className="dk-corps">
         <div className="dk-grille">
           {chateauxFiltres.map(c => {
@@ -286,6 +307,8 @@ export default function DernieresCles({ onClose }) {
       {(transitionChateau || chateauSelectionne) && (
         <ChateauModal chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}
+        </div>
+      </div>
     </div>
   );
 }

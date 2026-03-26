@@ -309,3 +309,75 @@
   .dk-carte-france-col { width: 100%; height: auto; position: static; flex-direction: row; flex-wrap: wrap; }
   .dk-france-svg { max-width: 140px; }
 }
+
+/* ── Layout 2 colonnes ── */
+.dk-corps-wrap {
+  display: flex;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Colonne carte gauche */
+.dk-carte-col {
+  width: 340px;
+  flex-shrink: 0;
+  border-right: 1px solid rgba(192,152,64,0.15);
+  display: flex;
+  flex-direction: column;
+  background: rgba(7,16,30,0.6);
+  position: sticky;
+  top: 0;
+  height: calc(100vh - 200px);
+}
+.dk-carte-titre {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(192,152,64,0.12);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(192,152,64,0.75);
+}
+.dk-carte-titre-lys { font-size: 0.85rem; color: #C09840; }
+.dk-carte-osm-wrap {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.dk-carte-osm {
+  width: 100%;
+  height: 100%;
+  border: none;
+  min-height: 400px;
+  filter: sepia(0.15) saturate(0.8);
+}
+.dk-carte-legende {
+  padding: 12px 20px;
+  border-top: 1px solid rgba(192,152,64,0.12);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.85rem;
+  color: rgba(245,240,232,0.5);
+  font-style: italic;
+}
+.dk-carte-legende-nb {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: #C09840;
+  font-style: normal;
+}
+
+/* Colonne droite prend le reste */
+.dk-corps-wrap .dk-corps {
+  flex: 1;
+  overflow-y: auto;
+}
+
+@media (max-width: 900px) {
+  .dk-corps-wrap { flex-direction: column; }
+  .dk-carte-col { width: 100%; height: 280px; position: static; flex-direction: row; }
+  .dk-carte-osm { min-height: 200px; }
+}
