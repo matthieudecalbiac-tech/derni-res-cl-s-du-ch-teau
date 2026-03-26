@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import ClesAlaUne from "./components/ClesAlaUne";
@@ -85,6 +85,7 @@ function App() {
   const [tousOuvert, setTousOuvert] = useState(false);
   const [authOuvert, setAuthOuvert] = useState(false);
   const [authMode, setAuthMode] = useState("inscription");
+  const venaitDuClubRef = React.useRef(false);
   const [compteOuvert, setCompteOuvert] = useState(false);
   const [userConnecte, setUserConnecte] = useState(null);
   const [clubOuvert, setClubOuvert] = useState(false);
