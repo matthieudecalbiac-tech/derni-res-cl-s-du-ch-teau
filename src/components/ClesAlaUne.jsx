@@ -13,6 +13,7 @@ export default function ClesAlaUne({ onSelectChateau }) {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
 
   return (
+    <>
     <section className="cles-une-section" id="offres">
       {/* Motif lys */}
       <div className="cles-lys-pattern">
@@ -147,6 +148,6 @@ export default function ClesAlaUne({ onSelectChateau }) {
       {(transitionChateau || chateauSelectionne) && (
         <VitrineDernieresCle chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}
-    </section>
+    </>
   );
 }
