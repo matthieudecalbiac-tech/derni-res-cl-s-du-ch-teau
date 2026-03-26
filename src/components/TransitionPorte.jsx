@@ -27,7 +27,7 @@ export default function TransitionPorte({ onTermine, chateau }) {
             <iframe
               className="tp-carte-iframe"
               title="localisation"
-              src={`https://www.openstreetmap.org/export/embed.html?bbox=${chateau.coordonnees.lng-1.5},${chateau.coordonnees.lat-1},${chateau.coordonnees.lng+1.5},${chateau.coordonnees.lat+1}&layer=mapnik&marker=${chateau.coordonnees.lat},${chateau.coordonnees.lng}`}
+              src={`https://www.openstreetmap.org/export/embed.html?bbox=-5.5,41.2,10.0,51.5&layer=mapnik&marker=${chateau.coordonnees.lat},${chateau.coordonnees.lng}`}
             />
             <div className="tp-carte-label">
               <span className="tp-carte-dept">Localisation : {chateau.departement}</span>
