@@ -5,9 +5,9 @@ export default function TransitionPorte({ onTermine, chateau }) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase(1), 60);    // portes s'ouvrent
-    const t2 = setTimeout(() => setPhase(2), 1300);  // carte apparaît
-    const t3 = setTimeout(() => setPhase(3), 2800);  // fondu noir
+    const t1 = setTimeout(() => setPhase(1), 60);
+    const t2 = setTimeout(() => setPhase(2), 1300);
+    const t3 = setTimeout(() => setPhase(3), 2800);
     const t4 = setTimeout(onTermine, 3500);
     return () => [t1,t2,t3,t4].forEach(clearTimeout);
   }, [onTermine]);
@@ -17,126 +17,42 @@ export default function TransitionPorte({ onTermine, chateau }) {
       <div className="tp-fond" />
       <div className={"tp-battant tp-gauche " + (phase >= 1 ? "tp-ouvert" : "")} />
       <div className={"tp-battant tp-droite " + (phase >= 1 ? "tp-ouvert" : "")} />
+
       <div className={"tp-centre " + (phase >= 1 && phase < 3 ? "tp-centre--visible" : "")}>
         <span className="tp-lys">&#x269C;</span>
         <span className="tp-label">Ouverture du Château</span>
         {chateau && <span className="tp-nom">{chateau.nom}</span>}
-        {chateau?.coordonnees && (
+
+        {chateau && chateau.coordonnees && (
           <div className={"tp-carte-france " + (phase >= 2 ? "tp-carte-france--visible" : "")}>
             <div className="tp-carte-wrap">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/France_location_map-Regions_and_departements-2016.svg/400px-France_location_map-Regions_and_departements-2016.svg.png"
-                className="tp-carte-img"
-                alt="France"
-              />
-              {chateau.coordonnees && (
-                <div
-                  className="tp-carte-point"
-                  style={{
-                    left: `${((chateau.coordonnees.lng + 5.1) / 13.2) * 100}%`,
-                    top: `${((51.1 - chateau.coordonnees.lat) / 9.8) * 100}%`,
-                  }}
-                >
-                  <div className="tp-point-dot" />
-                  <div className="tp-point-ring" />
-                </div>
-              )}
+              <svg viewBox="0 0 210 228" className="tp-france-svg" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="france-glow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="rgba(192,152,64,0.15)"/>
+                    <stop offset="100%" stopColor="rgba(192,152,64,0.04)"/>
+                  </radialGradient>
+                </defs>
+                <path d="M100,8 C104,6 110,7 115,9 C120,8 126,10 130,8 C136,11 142,9 147,12 C153,10 158,14 163,12 C168,15 172,12 177,16 C181,20 184,16 188,20 C192,26 190,24 194,32 C197,28 200,34 199,40 C202,38 204,44 202,50 C205,48 207,54 204,60 C207,58 210,65 207,70 C210,68 213,76 209,80 C212,78 215,86 211,91 C214,90 216,98 211,103 C215,102 217,110 212,115 C217,115 218,124 213,128 C217,128 218,137 212,141 C215,142 215,151 209,154 C211,156 210,165 204,167 C206,170 204,178 197,179 C198,183 195,191 188,191 C188,195 184,202 177,201 C176,205 171,211 164,209 C162,213 156,218 149,215 C146,218 140,222 133,219 C129,221 123,224 116,220 C112,221 106,223 99,219 C95,220 89,220 83,215 C79,215 73,214 68,208 C64,207 59,205 55,199 C51,197 47,194 44,187 C40,184 37,180 35,173 C31,169 29,164 28,157 C24,152 23,147 23,140 C19,134 19,129 20,122 C16,116 17,110 19,104 C15,97 17,91 20,85 C17,78 19,72 23,67 C21,60 24,54 28,49 C27,42 31,37 36,33 C36,26 41,22 46,18 C47,12 53,9 58,7 C60,2 66,0 72,2 C75,-2 81,0 86,3 C89,-1 95,1 100,8 Z" fill="url(#france-glow)" stroke="rgba(192,152,64,0.7)" strokeWidth="1.5" strokeLinejoin="round"/>
+              </svg>
+              <div
+                className="tp-carte-point"
+                style={{
+                  left: ((chateau.coordonnees.lng + 5.1) / 13.2 * 100) + "%",
+                  top: ((51.2 - chateau.coordonnees.lat) / 10.0 * 100) + "%",
+                }}
+              >
+                <div className="tp-point-dot" />
+                <div className="tp-point-ring" />
+              </div>
             </div>
             <div className="tp-carte-label">
               <span className="tp-carte-dept">Localisation : {chateau.departement}</span>
             </div>
           </div>
-        )}t { useEffect, useState } from "react";
-import "../styles/transition-porte.css";
-
-export default function TransitionPorte({ onTermine, chateau }) {
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    const t1 = setTimeout(() => setPhase(1), 60);    // portes s'ouvrent
-    const t2 = setTimeout(() => setPhase(2), 1300);  // carte apparaît
-    const t3 = setTimeout(() => setPhase(3), 2800);  // fondu noir
-    const t4 = setTimeout(onTermine, 3500);
-    return () => [t1,t2,t3,t4].forEach(clearTimeout);
-  }, [onTermine]);
-
-  return (
-    <div className="tp-wrap">
-      <div className="tp-fond" />
-      <div className={"tp-battant tp-gauche " + (phase >= 1 ? "tp-ouvert" : "")} />
-      <div className={"tp-battant tp-droite " + (phase >= 1 ? "tp-ouvert" : "")} />
-      <div className={"tp-centre " + (phase >= 1 && phase < 3 ? "tp-centre--visible" : "")}>
-        <span className="tp-lys">&#x269C;</span>
-        <span className="tp-label">Ouverture du Château</span>
-        {chateau && <span className="tp-nom">{chateau.nom}</span>}
-        {chateau?.coordonnees && (
-          <div className={"tp-carte-france " + (phase >= 2 ? "tp-carte-france--visible" : "")}>
-            <svg viewBox="0 0 300 320" className="tp-france-svg" xmlns="http://www.w3.org/2000/svg">
-              <path className="tp-france-path" d="M 154,12 L 162,8 L 172,9 L 180,14 L 190,12 L 200,18 L 208,16 L 218,22 L 224,30 L 228,40 L 235,48 L 238,58 L 242,68 L 244,80 L 240,90 L 245,100 L 248,112 L 244,122 L 248,134 L 245,145 L 248,156 L 244,166 L 236,174 L 228,180 L 222,190 L 215,198 L 206,204 L 196,210 L 186,215 L 174,218 L 162,222 L 150,224 L 138,222 L 126,218 L 114,212 L 104,205 L 94,197 L 86,188 L 78,178 L 72,168 L 66,156 L 62,144 L 58,132 L 54,120 L 50,108 L 48,96 L 46,84 L 48,72 L 52,62 L 58,53 L 66,45 L 74,38 L 82,32 L 90,27 L 98,22 L 106,18 L 114,14 L 124,11 L 134,9 L 144,10 Z"/>
-              {chateau.coordonnees && (
-                <circle
-                  cx={100 + (chateau.coordonnees.lng + 5) * 18}
-                  cy={280 - (chateau.coordonnees.lat - 42) * 22}
-                  r="6"
-                  className="tp-france-point"
-                />
-              )}
-              {chateau.coordonnees && (
-                <circle
-                  cx={100 + (chateau.coordonnees.lng + 5) * 18}
-                  cy={280 - (chateau.coordonnees.lat - 42) * 22}
-                  r="12"
-                  className="tp-france-point-pulse"
-                />
-              )}
-            </svg>
-            <div className="tp-carte-label">
-              <span className="tp-carte-region">{chateau.region}</span>
-              <span className="tp-carte-distance">{chateau.distanceParis}</span>
-            </div>
-          </div>
         )}
-        <svg className="tp-cle" viewBox="0 0 280 90" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor="#EDD880"/>
-              <stop offset="40%" stopColor="#C09840"/>
-              <stop offset="100%" stopColor="#8B6014"/>
-            </linearGradient>
-            <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#EDD880"/>
-              <stop offset="50%" stopColor="#C09840"/>
-              <stop offset="100%" stopColor="#8B6014"/>
-            </linearGradient>
-            <filter id="glow">
-              <feGaussianBlur stdDeviation="2" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-          </defs>
-
-          {/* Anneau principal */}
-          <circle cx="45" cy="45" r="34" fill="none" stroke="url(#g1)" strokeWidth="7" filter="url(#glow)"/>
-          {/* Anneau intérieur décoratif */}
-          <circle cx="45" cy="45" r="22" fill="none" stroke="url(#g1)" strokeWidth="3" opacity="0.7"/>
-          {/* Trèfle papal — 3 cercles */}
-          <circle cx="45" cy="20" r="9" fill="url(#g1)" filter="url(#glow)"/>
-          <circle cx="32" cy="30" r="9" fill="url(#g1)" filter="url(#glow)"/>
-          <circle cx="58" cy="30" r="9" fill="url(#g1)" filter="url(#glow)"/>
-          {/* Centre trèfle */}
-          <circle cx="45" cy="26" r="5" fill="#EDD880"/>
-          {/* Tige principale */}
-          <rect x="78" y="41" width="190" height="8" rx="4" fill="url(#g2)" filter="url(#glow)"/>
-          {/* Détail tige milieu */}
-          <circle cx="140" cy="45" r="5" fill="none" stroke="#EDD880" strokeWidth="2.5"/>
-          <circle cx="175" cy="45" r="3.5" fill="none" stroke="#EDD880" strokeWidth="2"/>
-          {/* Panneton — dents de la clé */}
-          <rect x="225" y="49" width="8" height="22" rx="2" fill="url(#g1)"/>
-          <rect x="242" y="49" width="8" height="16" rx="2" fill="url(#g1)"/>
-          <rect x="258" y="49" width="8" height="20" rx="2" fill="url(#g1)"/>
-          {/* Reflets */}
-          <line x1="80" y1="43" x2="220" y2="43" stroke="#EDD880" strokeWidth="1.5" opacity="0.4"/>
-        </svg>
       </div>
+
       <div className={"tp-fondu " + (phase >= 3 ? "tp-fondu--actif" : "")} />
     </div>
   );

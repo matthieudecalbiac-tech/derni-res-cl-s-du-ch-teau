@@ -115,15 +115,13 @@
 }
 .tp-carte-wrap {
   position: relative;
-  width: 120px;
-  height: 130px;
+  width: 140px;
+  height: 152px;
 }
-.tp-carte-img {
+.tp-france-svg {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  filter: sepia(0.4) saturate(0.5) brightness(0.7) hue-rotate(180deg);
-  opacity: 0.85;
+  filter: drop-shadow(0 0 12px rgba(192,152,64,0.3));
 }
 .tp-carte-point {
   position: absolute;
