@@ -87,7 +87,7 @@ function App() {
   const [authMode, setAuthMode] = useState("inscription");
   const [compteOuvert, setCompteOuvert] = useState(false);
   const [userConnecte, setUserConnecte] = useState(null);
-  const [clubOuvert, setClubOuvert] = useState(true);
+  const [clubOuvert, setClubOuvert] = useState(false);
   const [evenementielOuvert, setEvenementielOuvert] = useState(false);
   const [aProposOuvert, setAProposOuvert] = useState(false);
   const [espaceMembreOuvert, setEspaceMembreOuvert] = useState(false);
