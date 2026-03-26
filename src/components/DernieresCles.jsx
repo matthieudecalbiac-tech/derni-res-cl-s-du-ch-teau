@@ -44,6 +44,7 @@ export default function DernieresCles({ onClose }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
+  const chateauxFiltres = chateauxDisponibles(chateaux, dateArrivee);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -88,7 +89,6 @@ export default function DernieresCles({ onClose }) {
   }, [chateauxFiltres, chateauSurvol, mapInstanceRef.current]);
 
   const dates = getDatesPossibles();
-  const chateauxFiltres = chateauxDisponibles(chateaux, dateArrivee);
 
   const handleSelectDate = (d) => {
     if (etape === "arrivee") {
