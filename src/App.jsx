@@ -106,10 +106,7 @@ function App() {
   const gererConnexion = (user) => {
     setUserConnecte(user);
     setAuthOuvert(false);
-    // Si le Club est ouvert, rester sur le Club
-    if (!clubOuvert) {
-      setEspaceMembreOuvert(true);
-    }
+    setClubOuvert(true);
   };
 
   const ouvrirChateau = (chateau) => {
