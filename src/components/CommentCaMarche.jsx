@@ -65,7 +65,6 @@ const ETAPES = [
 
 export default function CommentCaMarche({ onOuvrirClub, onOuvrirVitrines, onOuvrirDernieresClefs }) {
   const [refEntete, visibleEntete] = useScrollAnimation();
-  const [refAcces, visibleAcces] = useScrollAnimation();
   const [refEtapes, visibleEtapes] = useScrollAnimation();
   const [refPromesse, visiblePromesse] = useScrollAnimation();
 
@@ -111,37 +110,7 @@ export default function CommentCaMarche({ onOuvrirClub, onOuvrirVitrines, onOuvr
           </button>
         </div>
 
-        {/* Les deux accès */}
-        <div
-          ref={refAcces}
-          className="comment-acces"
-          style={{
-            opacity: visibleAcces ? 1 : 0,
-            transform: visibleAcces ? "translateY(0)" : "translateY(30px)",
-            transition: "opacity 0.8s ease, transform 0.8s ease",
-          }}
-        >
-          {ACCES.map((acces, i) => (
-            <div
-              key={i}
-              className={`comment-acces-carte comment-acces-carte--${acces.type}`}
-            >
-              <div className="comment-acces-badge">{acces.label}</div>
-              <div className="comment-acces-icone">{acces.icone}</div>
-              <h3 className="comment-acces-titre">{acces.titre}</h3>
-              <p className="comment-acces-sous-titre">{acces.sous_titre}</p>
-              <p className="comment-acces-desc">{acces.description}</p>
-              <ul className="comment-acces-points">
-                {acces.points.map((p, j) => (
-                  <li key={j} className="comment-acces-point">
-                    <span className="comment-acces-point-puce">✦</span>
-                    {p}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+
 
         {/* Séparateur */}
         <div className="comment-separateur">
