@@ -46,17 +46,7 @@
 .cm-dates-result { font-family: 'Crimson Pro', serif; font-size: 0.88rem; color: rgba(245,240,232,0.55); font-style: italic; margin-left: auto; }
 .cm-dates-result strong { color: #C09840; font-style: normal; }
 
-/* Calendrier */
-.cm-cal-wrap { padding: 0 40px 20px; }
-.cm-cal-titre { font-family: 'Crimson Pro', serif; font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(192,152,64,0.65); margin-bottom: 12px; }
-.cm-cal { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; scrollbar-color: rgba(192,152,64,0.15) transparent; }
-.cm-cal-jour { flex-shrink: 0; width: 56px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; gap: 1px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; transition: all 0.15s; }
-.cm-cal-jour:hover { border-color: rgba(192,152,64,0.4); background: rgba(192,152,64,0.06); }
-.cm-cal-jour.arrivee, .cm-cal-jour.depart { background: rgba(192,152,64,0.15); border-color: #C09840; }
-.cm-cal-jour.between { background: rgba(192,152,64,0.05); border-color: rgba(192,152,64,0.2); }
-.cm-cal-nom { font-family: 'Crimson Pro', serif; font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(245,240,232,0.3); }
-.cm-cal-num { font-family: 'Playfair Display', serif; font-size: 1rem; color: #F5F0E8; line-height: 1; }
-.cm-cal-mois { font-family: 'Crimson Pro', serif; font-size: 0.6rem; color: rgba(245,240,232,0.38); }
+
 
 /* Liste châteaux 1 par ligne */
 .cm-liste { max-width: 1200px; margin: 0 auto; width: 100%; padding: 40px; display: flex; flex-direction: column; gap: 2px; }
@@ -94,3 +84,62 @@
 
 .cm-ligne-cta { align-self: flex-start; background: transparent; border: 1px solid #C09840; color: #C09840; font-family: 'Crimson Pro', serif; font-size: 0.88rem; letter-spacing: 0.06em; padding: 10px 24px; cursor: pointer; transition: all 0.2s; margin-top: auto; }
 .cm-ligne-cta:hover { background: #C09840; color: #07101E; }
+
+/* ── Vrai calendrier mensuel ── */
+.cm-cal-wrap {
+  padding: 0 40px 24px;
+  max-width: 520px;
+}
+.cm-cal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; padding: 0 4px;
+}
+.cm-cal-nav {
+  background: transparent; border: 1px solid rgba(192,152,64,0.25);
+  color: #C09840; font-size: 1.2rem; width: 32px; height: 32px;
+  cursor: pointer; transition: all 0.2s; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.cm-cal-nav:hover { background: rgba(192,152,64,0.1); border-color: #C09840; }
+.cm-cal-mois-titre {
+  font-family: 'Playfair Display', serif; font-size: 1rem;
+  color: #F5F0E8; letter-spacing: 0.04em;
+}
+.cm-cal-jours-semaine {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 4px; margin-bottom: 6px;
+}
+.cm-cal-jour-sem {
+  font-family: 'Crimson Pro', serif; font-size: 0.65rem;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(192,152,64,0.55); text-align: center; padding: 4px 0;
+}
+.cm-cal-grille {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;
+}
+.cm-cal-vide { height: 40px; }
+.cm-cal-jour {
+  height: 40px; width: 100%; background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06); cursor: pointer;
+  font-family: 'Crimson Pro', serif; font-size: 0.9rem;
+  color: rgba(245,240,232,0.8); transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.cm-cal-jour:hover:not(.passe) { border-color: rgba(192,152,64,0.5); background: rgba(192,152,64,0.08); }
+.cm-cal-jour.passe { color: rgba(245,240,232,0.2); cursor: default; }
+.cm-cal-jour.arrivee { background: #C09840 !important; color: #07101E !important; border-color: #C09840 !important; font-weight: 700; }
+.cm-cal-jour.depart { background: rgba(192,152,64,0.7) !important; color: #07101E !important; border-color: #C09840 !important; font-weight: 700; }
+.cm-cal-jour.between { background: rgba(192,152,64,0.12) !important; border-color: rgba(192,152,64,0.3) !important; }
+.cm-cal-legende {
+  display: flex; gap: 16px; margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid rgba(192,152,64,0.1);
+}
+.cm-cal-leg-item {
+  font-family: 'Crimson Pro', serif; font-size: 0.72rem;
+  color: rgba(245,240,232,0.5); display: flex; align-items: center; gap: 6px;
+}
+.cm-cal-leg-item::before {
+  content: ''; display: block; width: 14px; height: 14px;
+}
+.cm-cal-leg-arrivee::before { background: #C09840; }
+.cm-cal-leg-depart::before { background: rgba(192,152,64,0.7); }

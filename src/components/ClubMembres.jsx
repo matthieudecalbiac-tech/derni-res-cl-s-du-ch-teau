@@ -4,24 +4,24 @@ import TransitionPorte from "./TransitionPorte";
 import VitrineClub from "./VitrineClub";
 import "../styles/club-membres.css";
 
-function getDatesPossibles() {
-  const today = new Date();
-  const dates = [];
-  for (let i = 0; i <= 60; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    dates.push(d);
-  }
-  return dates;
-}
-
 function formatDate(d) {
   return d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
 }
 
-function joursAvant(d) {
-  return Math.round((d - new Date()) / (1000 * 60 * 60 * 24));
+function getMoisCalendrier(annee, mois) {
+  const premier = new Date(annee, mois, 1);
+  const dernier = new Date(annee, mois + 1, 0);
+  const jours = [];
+  // Jours vides avant le 1er (lundi = 0)
+  let jourSemaine = premier.getDay();
+  if (jourSemaine === 0) jourSemaine = 7;
+  for (let i = 1; i < jourSemaine; i++) jours.push(null);
+  for (let d = 1; d <= dernier.getDate(); d++) jours.push(new Date(annee, mois, d));
+  return jours;
 }
+
+const MOIS_FR = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
+const JOURS_FR = ["Lun","Mar","Mer","Jeu","Ven","Sam","Dim"];
 
 const PACKAGES_CHATEAU = {
   1: ["Séjour 2 nuits avec dîner gastronomique", "Visite privée du domaine & potager", "Accès illimité au spa"],
@@ -41,10 +41,11 @@ export default function ClubMembres({ user, onClose }) {
   const [dateDepart, setDateDepart] = useState(null);
   const [etape, setEtape] = useState("arrivee");
   const [calVisible, setCalVisible] = useState(false);
+  const today = new Date();
+  const [calMois, setCalMois] = useState(today.getMonth());
+  const [calAnnee, setCalAnnee] = useState(today.getFullYear());
 
   const numeroMembre = user?.id || Math.floor(Math.random() * 9000 + 1000);
-  const dates = getDatesPossibles();
-
   const handleDate = (d) => {
     if (etape === "arrivee") {
       setDateArrivee(d); setDateDepart(null); setEtape("depart");
@@ -126,19 +127,37 @@ export default function ClubMembres({ user, onClose }) {
 
         {calVisible && (
           <div className="cm-cal-wrap">
-            <div className="cm-cal-titre">
-              {etape === "arrivee" ? "Sélectionnez votre date d’arrivée" : "Sélectionnez votre date de départ"}
+            <div className="cm-cal-header">
+              <button className="cm-cal-nav" onClick={() => {
+                if (calMois === 0) { setCalMois(11); setCalAnnee(calAnnee - 1); }
+                else setCalMois(calMois - 1);
+              }}>‹</button>
+              <span className="cm-cal-mois-titre">{MOIS_FR[calMois]} {calAnnee}</span>
+              <button className="cm-cal-nav" onClick={() => {
+                if (calMois === 11) { setCalMois(0); setCalAnnee(calAnnee + 1); }
+                else setCalMois(calMois + 1);
+              }}>›</button>
             </div>
-            <div className="cm-cal">
-              {dates.map((d, i) => (
-                <button key={i}
-                  className={"cm-cal-jour" + (isArrivee(d) ? " arrivee" : "") + (isDepart(d) ? " depart" : "") + (isBetween(d) ? " between" : "")}
-                  onClick={() => handleDate(d)}>
-                  <span className="cm-cal-nom">{d.toLocaleDateString("fr-FR", { weekday: "short" })}</span>
-                  <span className="cm-cal-num">{d.toLocaleDateString("fr-FR", { day: "numeric" })}</span>
-                  <span className="cm-cal-mois">{d.toLocaleDateString("fr-FR", { month: "short" })}</span>
-                </button>
-              ))}
+            <div className="cm-cal-jours-semaine">
+              {JOURS_FR.map(j => <span key={j} className="cm-cal-jour-sem">{j}</span>)}
+            </div>
+            <div className="cm-cal-grille">
+              {getMoisCalendrier(calAnnee, calMois).map((d, i) => {
+                if (!d) return <div key={i} className="cm-cal-vide" />;
+                const passe = d < today && d.toDateString() !== today.toDateString();
+                return (
+                  <button key={i}
+                    className={"cm-cal-jour" + (isArrivee(d) ? " arrivee" : "") + (isDepart(d) ? " depart" : "") + (isBetween(d) ? " between" : "") + (passe ? " passe" : "")}
+                    onClick={() => !passe && handleDate(d)}
+                    disabled={passe}>
+                    {d.getDate()}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="cm-cal-legende">
+              <span className="cm-cal-leg-item cm-cal-leg-arrivee">Arrivée</span>
+              <span className="cm-cal-leg-item cm-cal-leg-depart">Départ</span>
             </div>
           </div>
         )}

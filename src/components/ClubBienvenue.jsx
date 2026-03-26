@@ -5,10 +5,10 @@ export default function ClubBienvenue({ user, onTermine }) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase(1), 100);
-    const t2 = setTimeout(() => setPhase(2), 1200);
-    const t3 = setTimeout(() => setPhase(3), 2800);
-    const t4 = setTimeout(onTermine, 3600);
+    const t1 = setTimeout(() => setPhase(1), 100);   // texte apparait
+    const t2 = setTimeout(() => setPhase(2), 1400);  // sous-titre
+    const t3 = setTimeout(() => setPhase(3), 2800);  // fondu noir commence
+    const t4 = setTimeout(onTermine, 3800);           // bascule APRES fondu complet
     return () => [t1,t2,t3,t4].forEach(clearTimeout);
   }, [onTermine]);
 
