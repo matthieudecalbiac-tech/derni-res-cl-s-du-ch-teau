@@ -12,6 +12,7 @@ import CarteExplorer from "./components/CarteExplorer";
 import AuthModal from "./components/AuthModal";
 import CompteUser from "./components/CompteUser";
 import ClubChatelains from "./components/ClubChatelains";
+import ClubBienvenue from "./components/ClubBienvenue";
 import ClubMembres from "./components/ClubMembres";
 import ClesEvenementiel from "./components/ClesEvenementiel";
 import APropos from "./components/APropos";
@@ -92,7 +93,6 @@ function App() {
   const [clubOuvert, setClubOuvert] = useState(false);
   const [clubBienvenueOuvert, setClubBienvenueOuvert] = useState(false);
   const [clubMembresOuvert, setClubMembresOuvert] = useState(false);
-  const [ecranNoir, setEcranNoir] = useState(false);
   const [evenementielOuvert, setEvenementielOuvert] = useState(false);
   const [aProposOuvert, setAProposOuvert] = useState(false);
   const [espaceMembreOuvert, setEspaceMembreOuvert] = useState(false);
@@ -112,7 +112,6 @@ function App() {
     setAuthOuvert(false);
     setClubOuvert(false);
     setClubBienvenueOuvert(true);
-    setClubMembresOuvert(true); // monté en avance mais invisible
   };
 
   const ouvrirChateau = (chateau) => {
@@ -207,25 +206,17 @@ function App() {
           }}
         />
       )}
-
       {clubBienvenueOuvert && (
         <ClubBienvenue
           user={userConnecte}
-          onTermine={() => setClubBienvenueOuvert(false)}
+          onTermine={() => { setClubBienvenueOuvert(false); setClubMembresOuvert(true); }}
         />
       )}
       {clubMembresOuvert && (
-        <div style={{
-          position:"fixed", inset:0, zIndex: clubBienvenueOuvert ? -1 : 9500,
-          opacity: clubBienvenueOuvert ? 0 : 1,
-          transition: "opacity 0.3s ease",
-          pointerEvents: clubBienvenueOuvert ? "none" : "auto"
-        }}>
-          <ClubMembres
-            user={userConnecte}
-            onClose={() => setClubMembresOuvert(false)}
-          />
-        </div>
+        <ClubMembres
+          user={userConnecte}
+          onClose={() => setClubMembresOuvert(false)}
+        />
       )}
       {clubOuvert && (
         <ClubChatelains
