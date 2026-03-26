@@ -113,15 +113,15 @@ export default function DernieresCles({ onClose }) {
 
   return (
     <div className={"dk-overlay " + (visible ? "dk-overlay--visible" : "")}>
-      <header className="em-header">
-        <div className="em-header-gauche">
-          <span className="em-header-lys">&#x269C;</span>
-          <span className="em-header-titre">Les Clés du Château</span>
-          <span className="em-header-sep">·</span>
-          <span className="em-header-club">Les Dernières Clés</span>
+      <header className="dk-header">
+        <div className="dk-header-gauche">
+          <span className="dk-header-lys">&#x269C;</span>
+          <span className="dk-header-titre">Les Clés du Château</span>
+          <span className="dk-header-sep">·</span>
+          <span className="dk-header-club">Les Dernières Clés</span>
         </div>
-        <div className="em-header-droite">
-          <button className="em-btn-retour" onClick={onClose}>Fermer</button>
+        <div className="dk-header-droite">
+          <button className="dk-btn-retour" onClick={onClose}>Fermer</button>
         </div>
       </header>
 
@@ -132,7 +132,7 @@ export default function DernieresCles({ onClose }) {
 
           {/* En-tête éditorial */}
           <div className="dk-panneau-hero">
-            <div className="em-orn"><div className="em-orn-ligne" /><span className="em-orn-lys">&#x269C;</span><div className="em-orn-ligne" /></div>
+            <div className="dk-orn"><div className="dk-orn-ligne" /><span className="dk-orn-lys">&#x269C;</span><div className="dk-orn-ligne" /></div>
             <h2 className="dk-panneau-titre">Les Dernières Clés</h2>
             <p className="dk-panneau-accroche">Des créneaux rares sur leurs dates difficiles. Choisissez vos dates.</p>
           </div>

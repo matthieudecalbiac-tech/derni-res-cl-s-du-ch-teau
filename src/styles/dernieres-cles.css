@@ -193,3 +193,43 @@
   .dk-panneau { width: 100%; max-height: 50vh; }
   .dk-carte-zone { height: 300px; flex: none; }
 }
+
+/* ── Header ── */
+.dk-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 52px;
+  background: rgba(7,16,30,0.98);
+  border-bottom: 1px solid rgba(192,152,64,0.2);
+  flex-shrink: 0;
+  z-index: 10;
+}
+.dk-header-gauche { display: flex; align-items: center; gap: 10px; }
+.dk-header-lys { color: #C09840; font-size: 1rem; }
+.dk-header-titre {
+  font-family: 'Crimson Pro', serif; font-size: 0.82rem;
+  font-weight: 300; letter-spacing: 0.12em;
+  color: rgba(245,240,232,0.7);
+}
+.dk-header-sep { color: rgba(192,152,64,0.4); }
+.dk-header-club {
+  font-family: 'Crimson Pro', serif; font-size: 0.82rem;
+  color: rgba(192,152,64,0.85); letter-spacing: 0.06em;
+}
+.dk-header-droite {}
+.dk-btn-retour {
+  background: transparent;
+  border: 1px solid rgba(192,152,64,0.3);
+  color: rgba(245,240,232,0.6);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.82rem; letter-spacing: 0.06em;
+  padding: 6px 16px; cursor: pointer; transition: all 0.2s;
+}
+.dk-btn-retour:hover { border-color: #C09840; color: #F5F0E8; }
+
+/* ── Ornement ── */
+.dk-orn { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; justify-content: center; }
+.dk-orn-ligne { width: 40px; height: 1px; background: rgba(192,152,64,0.35); }
+.dk-orn-lys { color: #C09840; font-size: 0.9rem; }
