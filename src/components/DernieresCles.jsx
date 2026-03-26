@@ -113,7 +113,7 @@ export default function DernieresCles({ onClose }) {
   };
 
   return (
-    <div className={"em-overlay dk-full " + (visible ? "em-overlay--visible" : "")}>
+    <div className={"dk-overlay " + (visible ? "dk-overlay--visible" : "")}>
       <header className="em-header">
         <div className="em-header-gauche">
           <span className="em-header-lys">&#x269C;</span>

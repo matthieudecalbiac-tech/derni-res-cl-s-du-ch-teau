@@ -1,3 +1,16 @@
+/* ── Overlay de base ── */
+.dk-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 7000;
+  background: #07101E;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.dk-overlay--visible { opacity: 1; }
+
 /* ═══════════════════════════════════════════
    DERNIERES CLES — CSS complet v3
 ═══════════════════════════════════════════ */
