@@ -1,4 +1,5 @@
 import "../styles/editorial.css";
+import "../styles/comment.css";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 
 const ACCES = [
