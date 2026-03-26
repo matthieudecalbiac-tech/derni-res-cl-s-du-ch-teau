@@ -41,7 +41,7 @@ export default function Header({ onOuvrirClub, onOuvrirAPropos, onOuvrirVitrines
           <span className="nav-lien nav-lien--apropos" onClick={onOuvrirAPropos} role="button" tabIndex={0}>
             À propos
           </span>
-          <span className="nav-lien nav-lien--partenaires" onClick={() => scrollVers("partenaires")} role="button" tabIndex={0}>
+          <span className="nav-lien nav-lien--partenaires" onClick={onOuvrirProprietaires} role="button" tabIndex={0}>
             ⚜ Propriétaires
           </span>
         </nav>
