@@ -110,7 +110,7 @@ export default function PartenairesChateaux({ onClose }) {
           <div className="part-club-pt"><span className="part-club-pt-ico">⚜</span> Offres &amp; packages exclusifs hors last-minute</div>
           <div className="part-club-pt"><span className="part-club-pt-ico">⚜</span> Membres inscrits uniquement · Accès confidentiel</div>
           <div className="part-club-pt"><span className="part-club-pt-ico">⚜</span> Protection d'image totale · Aucune remise publique</div>
-          <div className="part-club-pt"><span className="part-club-pt-ico">⚜</span> Commission 8–12 % · Sans abonnement · Sans engagement</div>
+          <div className="part-club-pt"><span className="part-club-pt-ico">⚜</span> Sans abonnement · Sans engagement · Libérable à tout moment</div>
         </div>
       </div>
 
