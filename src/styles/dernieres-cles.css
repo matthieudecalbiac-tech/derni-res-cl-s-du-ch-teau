@@ -36,7 +36,7 @@
 
 /* ── PANNEAU GAUCHE ── */
 .dk-panneau {
-  width: 432px;
+  width: 42.857%;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
