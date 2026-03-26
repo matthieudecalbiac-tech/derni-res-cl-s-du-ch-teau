@@ -24,11 +24,21 @@ export default function TransitionPorte({ onTermine, chateau }) {
         {chateau?.coordonnees && (
           {chateau?.coordonnees && (
           <div className={"tp-carte-france " + (phase >= 2 ? "tp-carte-france--visible" : "")}>
-            <iframe
-              className="tp-carte-iframe"
-              title="localisation"
-              src={`https://www.openstreetmap.org/export/embed.html?bbox=-5.5,41.2,10.0,51.5&layer=mapnik&marker=${chateau.coordonnees.lat},${chateau.coordonnees.lng}`}
-            />
+{(() => {
+              // Projection simple : lng [-5.5, 10] -> x [10, 190], lat [41, 52] -> y [10, 190]
+              const projX = (lng) => 10 + ((lng + 5.5) / 15.5) * 180;
+              const projY = (lat) => 190 - ((lat - 41) / 11) * 180;
+              const px = chateau.coordonnees ? projX(chateau.coordonnees.lng) : 100;
+              const py = chateau.coordonnees ? projY(chateau.coordonnees.lat) : 100;
+              return (
+                <svg viewBox="0 0 200 200" className="tp-france-svg" xmlns="http://www.w3.org/2000/svg">
+                  <path className="tp-france-path" d="M97,14 L102,12 L110,14 L118,13 L126,16 L132,14 L140,18 L147,15 L154,20 L160,18 L166,24 L170,30 L173,37 L176,30 L182,34 L186,42 L184,50 L188,56 L186,64 L184,72 L180,79 L183,86 L180,94 L176,100 L178,108 L174,115 L170,122 L164,128 L158,133 L152,138 L144,141 L136,144 L128,146 L120,147 L112,146 L104,143 L96,139 L88,134 L82,128 L76,122 L70,115 L65,108 L61,100 L58,92 L56,84 L55,76 L54,68 L55,60 L58,52 L62,45 L67,39 L73,33 L79,28 L85,23 L91,18 Z" />
+                  <circle cx={px} cy={py} r="5" fill="#C09840" />
+                  <circle cx={px} cy={py} r="10" fill="none" stroke="#C09840" strokeWidth="1.5" opacity="0.5" className="tp-france-point-pulse"/>
+                  <line x1={px} y1={py-5} x2={px} y2={py-14} stroke="#C09840" strokeWidth="1.5" opacity="0.7"/>
+                </svg>
+              );
+            })()}
             <div className="tp-carte-label">
               <span className="tp-carte-dept">Localisation : {chateau.departement}</span>
             </div>

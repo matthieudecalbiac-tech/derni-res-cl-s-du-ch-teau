@@ -112,12 +112,16 @@
   opacity: 1;
   transform: scale(1) translateY(0);
 }
-.tp-carte-iframe {
-  width: 200px;
-  height: 220px;
-  border: 1px solid rgba(192,152,64,0.4);
-  filter: sepia(0.2) saturate(0.6);
-  display: block;
+.tp-france-svg {
+  width: 160px;
+  height: 160px;
+  filter: drop-shadow(0 0 16px rgba(192,152,64,0.25));
+}
+.tp-france-path {
+  fill: rgba(192,152,64,0.1);
+  stroke: rgba(192,152,64,0.6);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
 }
 .tp-carte-label {
   display: flex;
