@@ -41,27 +41,24 @@ export default function DernieresCles({ onClose }) {
   const [dateArrivee, setDateArrivee] = useState(null);
   const [dateDepart, setDateDepart] = useState(null);
   const [etape, setEtape] = useState("arrivee");
+  const [chateauSurvol, setChateauSurvol] = useState(null);
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
-  const markersRef = useRef([]);
+  const markersRef = useRef({});
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
     setTimeout(() => setVisible(true), 60);
     const onKey = (e) => { if (e.key === "Escape" && !chateauSelectionne) onClose(); };
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
   }, [onClose, chateauSelectionne]);
 
-  // Init Leaflet
   useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current) return;
+    if (!mapRef.current || mapInstanceRef.current || !visible) return;
     const L = window.L;
     if (!L) return;
-    const map = L.map(mapRef.current, { zoomControl: true, scrollWheelZoom: false });
+    const map = L.map(mapRef.current, { zoomControl: true, scrollWheelZoom: true });
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "\u00a9 OpenStreetMap"
     }).addTo(map);
@@ -69,26 +66,27 @@ export default function DernieresCles({ onClose }) {
     mapInstanceRef.current = map;
   }, [visible]);
 
-  // Marqueurs
   useEffect(() => {
     const L = window.L;
     const map = mapInstanceRef.current;
     if (!L || !map) return;
-    markersRef.current.forEach(m => m.remove());
-    markersRef.current = [];
+    Object.values(markersRef.current).forEach(m => m.remove());
+    markersRef.current = {};
     chateauxFiltres.filter(c => c.coordonnees).forEach(c => {
+      const isHover = chateauSurvol === c.id;
       const icon = L.divIcon({
         className: "",
-        html: `<div style="width:14px;height:14px;border-radius:50%;background:#C09840;border:2px solid #EDD880;box-shadow:0 0 10px rgba(192,152,64,0.7);cursor:pointer"></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
+        html: `<div style="width:${isHover?18:12}px;height:${isHover?18:12}px;border-radius:50%;background:${isHover?"#EDD880":"#C09840"};border:2px solid ${isHover?"#FFF":"#EDD880"};box-shadow:0 0 ${isHover?16:8}px rgba(192,152,64,${isHover?0.9:0.6});transition:all 0.2s;cursor:pointer"></div>`,
+        iconSize: [isHover?18:12, isHover?18:12],
+        iconAnchor: [isHover?9:6, isHover?9:6],
       });
       const marker = L.marker([c.coordonnees.lat, c.coordonnees.lng], { icon })
         .addTo(map)
-        .bindPopup(`<div style="font-family:serif;min-width:160px"><strong>${c.nom}</strong><br/><span style="color:#888;font-size:0.85em">${c.region} · ${c.distanceParis}</span><br/><span style="color:#C09840;font-size:0.85em">${c.urgence}</span></div>`);
-      markersRef.current.push(marker);
+        .bindPopup(`<div style="font-family:Georgia,serif;min-width:180px;padding:4px"><strong style="font-size:0.95rem">${c.nom}</strong><br/><span style="color:#888;font-size:0.82em">${c.region} · ${c.distanceParis}</span><br/><span style="color:#C09840;font-weight:bold;font-size:0.85em">${c.urgence}</span></div>`)
+        .on("click", () => setTransitionChateau(c));
+      markersRef.current[c.id] = marker;
     });
-  });
+  }, [chateauxFiltres, chateauSurvol, mapInstanceRef.current]);
 
   const dates = getDatesPossibles();
   const chateauxFiltres = chateauxDisponibles(chateaux, dateArrivee);
@@ -107,8 +105,15 @@ export default function DernieresCles({ onClose }) {
   const isDepart = (d) => dateDepart && d.toDateString() === dateDepart.toDateString();
   const isBetween = (d) => dateArrivee && dateDepart && d > dateArrivee && d < dateDepart;
 
+  const survolChateau = (id) => {
+    setChateauSurvol(id);
+    const map = mapInstanceRef.current;
+    const marker = markersRef.current[id];
+    if (map && marker) { marker.openPopup(); }
+  };
+
   return (
-    <div className={"em-overlay " + (visible ? "em-overlay--visible" : "")}>
+    <div className={"em-overlay dk-full " + (visible ? "em-overlay--visible" : "")}>
       <header className="em-header">
         <div className="em-header-gauche">
           <span className="em-header-lys">&#x269C;</span>
@@ -121,101 +126,94 @@ export default function DernieresCles({ onClose }) {
         </div>
       </header>
 
-      <div className="dk-hero">
-        <div className="dk-hero-bg" />
-        <div className="dk-hero-contenu">
-          <div className="em-orn"><div className="em-orn-ligne" /><span className="em-orn-lys">&#x269C;</span><div className="em-orn-ligne" /></div>
-          <p className="dk-surtitre">Sélection · Dernière minute · J-7 à J-15</p>
-          <h1 className="dk-titre">Les Dernières Clés du Château</h1>
-          <p className="dk-accroche">Des créneaux rares, libérés par les châteaux partenaires. Choisissez vos dates.</p>
-        </div>
-      </div>
+      <div className="dk-layout">
 
-      {/* Sélecteur de dates */}
-      <div className="dk-dates-section">
-        <div className="dk-dates-header">
-          <div className="dk-dates-etapes">
-            <div className={"dk-dates-etape " + (etape === "arrivee" ? "actif" : dateArrivee ? "done" : "")}>
-              <span className="dk-dates-etape-num">1</span>
-              <div><span className="dk-dates-etape-label">Arrivée</span><span className="dk-dates-etape-val">{dateArrivee ? formatDate(dateArrivee) : "Choisissez une date"}</span></div>
+        {/* ── PANNEAU GAUCHE ── */}
+        <div className="dk-panneau">
+
+          {/* En-tête éditorial */}
+          <div className="dk-panneau-hero">
+            <div className="em-orn"><div className="em-orn-ligne" /><span className="em-orn-lys">&#x269C;</span><div className="em-orn-ligne" /></div>
+            <h2 className="dk-panneau-titre">Les Dernières Clés</h2>
+            <p className="dk-panneau-accroche">Des créneaux rares sur leurs dates difficiles. Choisissez vos dates.</p>
+          </div>
+
+          {/* Sélecteur dates */}
+          <div className="dk-dates-bloc">
+            <div className="dk-dates-etapes">
+              <div className={"dk-dates-etape " + (etape === "arrivee" ? "actif" : dateArrivee ? "done" : "")} onClick={() => setEtape("arrivee")}>
+                <span className="dk-dates-etape-num">1</span>
+                <div>
+                  <span className="dk-dates-etape-label">Arrivée</span>
+                  <span className="dk-dates-etape-val">{dateArrivee ? formatDate(dateArrivee) : "Choisir"}</span>
+                </div>
+              </div>
+              <span className="dk-dates-fleche">→</span>
+              <div className={"dk-dates-etape " + (etape === "depart" ? "actif" : dateDepart ? "done" : "")} onClick={() => dateArrivee && setEtape("depart")}>
+                <span className="dk-dates-etape-num">2</span>
+                <div>
+                  <span className="dk-dates-etape-label">Départ</span>
+                  <span className="dk-dates-etape-val">{dateDepart ? formatDate(dateDepart) : "Choisir"}</span>
+                </div>
+              </div>
+              {dateArrivee && <button className="dk-dates-reset" onClick={reset}>✕</button>}
             </div>
-            <div className="dk-dates-sep">→</div>
-            <div className={"dk-dates-etape " + (etape === "depart" ? "actif" : dateDepart ? "done" : "")}>
-              <span className="dk-dates-etape-num">2</span>
-              <div><span className="dk-dates-etape-label">Départ</span><span className="dk-dates-etape-val">{dateDepart ? formatDate(dateDepart) : "Choisissez une date"}</span></div>
+
+            <div className="dk-calendrier">
+              {dates.map((d, i) => {
+                const j = joursAvant(d);
+                const urg = j <= 7 ? "j7" : j <= 10 ? "j10" : "j15";
+                return (
+                  <button key={i} className={"dk-cal-jour dk-cal-" + urg + (isArrivee(d) ? " dk-cal-arrivee" : "") + (isDepart(d) ? " dk-cal-depart" : "") + (isBetween(d) ? " dk-cal-between" : "")} onClick={() => handleSelectDate(d)}>
+                    <span className="dk-cal-jour-nom">{d.toLocaleDateString("fr-FR", { weekday: "short" })}</span>
+                    <span className="dk-cal-jour-num">{d.toLocaleDateString("fr-FR", { day: "numeric" })}</span>
+                    <span className="dk-cal-jour-mois">{d.toLocaleDateString("fr-FR", { month: "short" })}</span>
+                    {j <= 15 && <span className={"dk-cal-urgence dk-cal-urgence-" + urg}>J-{j}</span>}
+                  </button>
+                );
+              })}
             </div>
           </div>
-          {dateArrivee && <button className="dk-dates-reset" onClick={reset}>Effacer</button>}
-        </div>
-        <div className="dk-calendrier">
-          {dates.map((d, i) => {
-            const j = joursAvant(d);
-            const urg = j <= 7 ? "j7" : j <= 10 ? "j10" : "j15";
-            return (
-              <button key={i} className={"dk-cal-jour dk-cal-" + urg + (isArrivee(d) ? " dk-cal-arrivee" : "") + (isDepart(d) ? " dk-cal-depart" : "") + (isBetween(d) ? " dk-cal-between" : "")} onClick={() => handleSelectDate(d)}>
-                <span className="dk-cal-jour-nom">{d.toLocaleDateString("fr-FR", { weekday: "short" })}</span>
-                <span className="dk-cal-jour-num">{d.toLocaleDateString("fr-FR", { day: "numeric" })}</span>
-                <span className="dk-cal-jour-mois">{d.toLocaleDateString("fr-FR", { month: "short" })}</span>
-                {j <= 15 && <span className={"dk-cal-urgence dk-cal-urgence-" + urg}>J-{j}</span>}
-              </button>
-            );
-          })}
-        </div>
-        {dateArrivee && (
-          <div className="dk-dates-resultat">
-            {dateDepart
-              ? <p><span className="dk-dates-res-nb">{chateauxFiltres.length}</span> château{chateauxFiltres.length > 1 ? "x" : ""} disponible{chateauxFiltres.length > 1 ? "s" : ""} du <strong>{formatDate(dateArrivee)}</strong> au <strong>{formatDate(dateDepart)}</strong></p>
-              : <p>Sélectionnez votre date de départ</p>}
-          </div>
-        )}
-      </div>
 
-      {/* Corps 2 colonnes */}
-      <div className="dk-corps-wrap">
-
-        {/* Carte Leaflet */}
-        <div className="dk-carte-col">
-          <div className="dk-carte-titre">
-            <span className="dk-carte-titre-lys">&#x269C;</span>
-            <span>Localisation des châteaux</span>
-          </div>
-          <div ref={mapRef} className="dk-carte-osm-wrap" />
-          <div className="dk-carte-legende">
-            <span className="dk-carte-legende-nb">{chateauxFiltres.length}</span>
-            {" "}domaine{chateauxFiltres.length > 1 ? "s" : ""} disponible{chateauxFiltres.length > 1 ? "s" : ""}
-          </div>
-        </div>
-
-        {/* Grille châteaux */}
-        <div className="dk-corps">
-          <div className="dk-grille">
-            {chateauxFiltres.map(c => {
-              const classBadge = { "J-7": "dk-badge-j7", "J-10": "dk-badge-j10", "J-15": "dk-badge-j15" }[c.urgence] || "dk-badge-j15";
-              const prixFinal = c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100)) : c.chambres?.[0]?.prix;
-              return (
-                <div key={c.id} className="dk-carte" onClick={() => setTransitionChateau(c)}>
-                  <div className="dk-carte-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
-                    <div className="dk-carte-img-overlay" />
-                    {c.urgence && <span className={"dk-badge " + classBadge}>{c.urgence}</span>}
-                    {c.reduction && <span className="dk-badge-reduction">-{c.reduction} %</span>}
-                  </div>
-                  <div className="dk-carte-corps">
-                    <span className="dk-carte-region">{c.region}</span>
-                    <h3 className="dk-carte-nom">{c.nom}</h3>
-                    <p className="dk-carte-accroche">{c.accroche}</p>
-                    <div className="dk-carte-pied">
-                      <div className="dk-prix">
-                        {c.prixBarre && <span className="dk-prix-barre">{c.prixBarre} €</span>}
-                        {prixFinal && <span className="dk-prix-final">{prixFinal} € <span className="dk-prix-nuit">/ nuit</span></span>}
+          {/* Liste châteaux */}
+          <div className="dk-liste">
+            <div className="dk-liste-header">
+              <span className="dk-liste-nb">{chateauxFiltres.length}</span>
+              {" "}domaine{chateauxFiltres.length > 1 ? "s" : ""} disponible{chateauxFiltres.length > 1 ? "s" : ""}
+              {dateArrivee && dateDepart && <span className="dk-liste-dates"> · {formatDate(dateArrivee)} → {formatDate(dateDepart)}</span>}
+            </div>
+            <div className="dk-liste-items">
+              {chateauxFiltres.map(c => {
+                const classBadge = { "J-7": "dk-badge-j7", "J-10": "dk-badge-j10", "J-15": "dk-badge-j15" }[c.urgence] || "dk-badge-j15";
+                const prixFinal = c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100)) : c.chambres?.[0]?.prix;
+                return (
+                  <div
+                    key={c.id}
+                    className={"dk-liste-item " + (chateauSurvol === c.id ? "survol" : "")}
+                    onClick={() => setTransitionChateau(c)}
+                    onMouseEnter={() => survolChateau(c.id)}
+                    onMouseLeave={() => setChateauSurvol(null)}
+                  >
+                    <div className="dk-liste-item-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
+                      {c.urgence && <span className={"dk-badge dk-badge-sm " + classBadge}>{c.urgence}</span>}
+                    </div>
+                    <div className="dk-liste-item-info">
+                      <div className="dk-liste-item-region">{c.region} · {c.distanceParis}</div>
+                      <div className="dk-liste-item-nom">{c.nom}</div>
+                      <div className="dk-liste-item-prix">
+                        {c.prixBarre && <span className="dk-liste-prix-barre">{c.prixBarre} €</span>}
+                        {prixFinal && <span className="dk-liste-prix-final">{prixFinal} € <span className="dk-liste-prix-nuit">/ nuit</span></span>}
                       </div>
-                      <span className="dk-carte-lien">Réserver →</span>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </div>
+
+        {/* ── CARTE DROITE ── */}
+        <div ref={mapRef} className="dk-carte-zone" />
       </div>
 
       {transitionChateau && (
