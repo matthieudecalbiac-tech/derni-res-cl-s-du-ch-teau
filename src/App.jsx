@@ -16,7 +16,7 @@ import ClesEvenementiel from "./components/ClesEvenementiel";
 import APropos from "./components/APropos";
 import EspaceMembre from "./components/EspaceMembre";
 import VitrinePermanente from "./components/VitrinePermanente";
-import DernieresClés from "./components/DernieresClés";
+import DernieresClés from "./components/DernieresCles";
 import TransitionPorte from "./components/TransitionPorte";
 import PartenairesChateaux from "./components/PartenairesChateaux";
 import PatrimoineSection from "./components/PatrimoineSection";
