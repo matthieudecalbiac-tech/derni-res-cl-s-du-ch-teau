@@ -129,18 +129,10 @@ export default function ClesAlaUne({ onSelectChateau }) {
                       <span className="cle-cta-fleche">→</span>
                     </button>
                   </div>
-
-                  
-          <div className="cles-stat-separateur" />
-          <div className="cles-stat">
-            <span className="cles-stat-nombre">−36%</span>
-            <span className="cles-stat-label">Réduction moyenne</span>
-          </div>
-          <div className="cles-stat-separateur" />
-          <div className="cles-stat">
-            <span className="cles-stat-nombre">&lt;3h</span>
-            <span className="cles-stat-label">De Paris</span>
-          </div>
+                </div>
+              </article>
+            );
+          })}
         </div>
       </div>
     </section>
