@@ -143,3 +143,20 @@
 }
 .cm-cal-leg-arrivee::before { background: #C09840; }
 .cm-cal-leg-depart::before { background: rgba(192,152,64,0.7); }
+
+/* ── Calendrier mensuel ── */
+.cm-cal-wrap { padding: 0 40px 24px; max-width: 460px; }
+.cm-cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.cm-cal-nav { background: transparent; border: 1px solid rgba(192,152,64,0.25); color: #C09840; font-size: 1.2rem; width: 32px; height: 32px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+.cm-cal-nav:hover { background: rgba(192,152,64,0.1); border-color: #C09840; }
+.cm-cal-mois-titre { font-family: 'Playfair Display', serif; font-size: 1rem; color: #F5F0E8; }
+.cm-cal-jours-semaine { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 5px; }
+.cm-cal-jour-sem { font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(192,152,64,0.5); text-align: center; padding: 4px 0; }
+.cm-cal-grille { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.cm-cal-vide { height: 38px; }
+.cm-cal-jour { height: 38px; width: 100%; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); cursor: pointer; font-family: 'Crimson Pro', serif; font-size: 0.88rem; color: rgba(245,240,232,0.8); transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+.cm-cal-jour:hover:not(.passe) { border-color: rgba(192,152,64,0.5); background: rgba(192,152,64,0.08); }
+.cm-cal-jour.passe { color: rgba(245,240,232,0.18); cursor: default; }
+.cm-cal-jour.arrivee { background: #C09840 !important; color: #07101E !important; border-color: #C09840 !important; font-weight: 700; }
+.cm-cal-jour.depart { background: rgba(192,152,64,0.65) !important; color: #07101E !important; border-color: #C09840 !important; font-weight: 700; }
+.cm-cal-jour.between { background: rgba(192,152,64,0.1) !important; border-color: rgba(192,152,64,0.25) !important; }
