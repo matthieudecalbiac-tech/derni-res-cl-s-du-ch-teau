@@ -101,13 +101,9 @@ export default function APropos({ onClose }) {
     <div className={"ap-overlay " + (visible ? "ap-overlay--visible" : "")}>
       {/* Header */}
       <header className="ap-header">
-        <div className="ap-header-gauche">
-          <button className="ap-retour" onClick={onClose}>
-            ← Retour
-          </button>
-          <span className="ap-header-titre">À propos</span>
-        </div>
-        <div className="ap-header-lys">⚜ Les Dernières Clés du Château ⚜</div>
+        <button className="ap-retour" onClick={onClose}>← Retour</button>
+        <span className="ap-header-titre">À propos</span>
+        <div />
       </header>
 
       {/* ── HERO ── */}

@@ -60,13 +60,9 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClef
         </p>
         <div className="hero-fondation">
           <span className="hero-fondation-ico">⚜</span>
-          <span className="hero-fondation-texte">1 % de chaque réservation reversé à la <strong>Fondation du Patrimoine</strong></span>
-        </div>
-        <div className="hero-fondation">
-          <span className="hero-fondation-ico">⚜</span>
           <span className="hero-fondation-texte">
-            1&nbsp;% de chaque réservation reversé à la{" "}
-            <strong>Fondation du Patrimoine</strong>
+            Aidez-nous à préserver le patrimoine —{" "}
+            <strong>une partie de chaque réservation est reversée à la Fondation du Patrimoine</strong>
           </span>
         </div>
       </div>
