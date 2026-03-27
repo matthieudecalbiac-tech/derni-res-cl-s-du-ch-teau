@@ -223,3 +223,80 @@
   transition: letter-spacing 0.2s ease;
 }
 .comment-module:hover .comment-module-cta { letter-spacing: 0.08em; }
+
+/* ── Fondation du Patrimoine ── */
+.part-fondation {
+  padding: 0 0 60px;
+}
+.part-fondation-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 48px;
+  border: 1px solid rgba(192, 152, 64, 0.25);
+  background: rgba(192, 152, 64, 0.03);
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 48px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .part-fondation-inner { grid-template-columns: 1fr; gap: 28px; }
+}
+.part-fondation-eyebrow {
+  display: block;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #C09840;
+  margin-bottom: 10px;
+}
+.part-fondation-titre {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: #F5F0E8;
+  margin: 0 0 16px;
+}
+.part-fondation-texte {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.95rem;
+  font-weight: 300;
+  font-style: italic;
+  color: rgba(245, 240, 232, 0.55);
+  line-height: 1.75;
+  margin: 0 0 12px;
+}
+.part-fondation-chiffre {
+  text-align: center;
+  padding: 20px;
+  border: 1px solid rgba(192, 152, 64, 0.3);
+  margin-bottom: 16px;
+}
+.part-fondation-pct {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  color: #C09840;
+  line-height: 1;
+}
+.part-fondation-pct-label {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(192, 152, 64, 0.6);
+}
+.part-fondation-points {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.part-fond-pt {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.82rem;
+  color: rgba(245, 240, 232, 0.55);
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(192, 152, 64, 0.07);
+  line-height: 1.5;
+}

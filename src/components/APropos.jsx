@@ -250,6 +250,72 @@ export default function APropos({ onClose }) {
         </div>
       </section>
 
+
+      {/* ── FONDATION DU PATRIMOINE ── */}
+      <section className="ap-section ap-section--bleu-fonce">
+        <div className="ap-section-inner">
+          <div className="ap-section-label">⚜ Notre engagement</div>
+          <h2 className="ap-section-titre ap-section-titre--clair">
+            1 % reversé à la<br />
+            <em>Fondation du Patrimoine</em>
+          </h2>
+          <div className="ap-fondation-corps">
+            <div className="ap-fondation-textes">
+              <p className="ap-paragraphe ap-paragraphe--clair">
+                Dès le lancement, Les Clés du Château s'est engagé à reverser 1 % de
+                chaque commission nette à la Fondation du Patrimoine, organisme
+                reconnu d'utilité publique dont la mission est de sauvegarder,
+                restaurer et valoriser le patrimoine bati français.
+              </p>
+              <p className="ap-paragraphe ap-paragraphe--clair">
+                Pour nous, ce n'est pas un geste de communication. C'est une
+                cohérence profonde avec ce que nous sommes : une plateforme qui
+                tire sa valeur de la beauté et de la richesse du patrimoine
+                français se doit de contribuer à sa préservation. Chaque
+                séjour réservé via LCC devient ainsi une micro-contribution
+                à la sauvegarde de ces lieux d'exception.
+              </p>
+              <p className="ap-paragraphe ap-paragraphe--clair">
+                Concrètement, cela signifie que chaque client qui réserve un
+                séjour via notre plateforme participe — sans surcoût — à la
+                restauration du patrimoine français. Nous le mentionnons sur
+                chaque confirmation de réservation, sur les vitrines de nos
+                châteaux partenaires, et dans l'ensemble de nos communications.
+              </p>
+              <div className="ap-fondation-citation">
+                <span className="ap-fondation-guillemet">“</span>
+                <p>
+                  Réserver dans un château via Les Clés du Château, c'est
+                  offrir un séjour d'exception et contribuer à préserver les
+                  lieux qui nous font rêver.
+                </p>
+                <span className="ap-fondation-guillemet ap-fondation-guillemet--fermer">”</span>
+              </div>
+            </div>
+            <div className="ap-fondation-stats">
+              <div className="ap-fondation-stat">
+                <span className="ap-fondation-stat-nb">1 %</span>
+                <span className="ap-fondation-stat-label">de chaque commission nette</span>
+              </div>
+              <div className="ap-fondation-divider" />
+              <div className="ap-fondation-stat">
+                <span className="ap-fondation-stat-nb">⚜</span>
+                <span className="ap-fondation-stat-label">Mentionné sur chaque vitrine partenaire</span>
+              </div>
+              <div className="ap-fondation-divider" />
+              <div className="ap-fondation-stat">
+                <span className="ap-fondation-stat-nb">0 €</span>
+                <span className="ap-fondation-stat-label">Surcoût pour le client</span>
+              </div>
+              <div className="ap-fondation-impact">
+                <span className="ap-fondation-impact-titre">Pourquoi la Fondation du Patrimoine ?</span>
+                <p>Organisme reconnu d'utilité publique depuis 1996, la Fondation du Patrimoine soutient la restauration de milliers de monuments, églises, manoirs et domaines en France. Notre partenariat crée un lien direct entre chaque réservation sur LCC et la sauvegarde du patrimoine français.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── LES FONDATEURS ── */}
       <section className="ap-section ap-section--creme">
         <div className="ap-section-inner">
@@ -356,7 +422,8 @@ export default function APropos({ onClose }) {
           <p className="ap-cta-desc">
             Découvrez nos châteaux partenaires, rejoignez le Club des
             Châtelains, ou organisez votre prochain événement dans l'un de ces
-            lieux d'exception.
+            lieux d'exception. Chaque réservation contribue à la préservation
+            du patrimoine français via notre partenariat avec la Fondation du Patrimoine.
           </p>
           <button className="ap-btn-or" onClick={onClose}>
             Découvrir la plateforme ⚜
