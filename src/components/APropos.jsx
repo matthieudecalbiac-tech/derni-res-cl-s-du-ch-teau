@@ -258,8 +258,7 @@ export default function APropos({ onClose }) {
           <div className="ap-fondation-corps">
             <div className="ap-fondation-textes">
               <p className="ap-paragraphe ap-paragraphe--clair">
-                Dès le lancement, Les Clés du Château s'est engagé à reverser 1 % de
-                chaque commission nette à la Fondation du Patrimoine, organisme
+                Dès le lancement, Les Clés du Château s'est engagé à reverser une partie de nos recettes issues de chaque réservation à la Fondation du Patrimoine, organisme
                 reconnu d'utilité publique dont la mission est de sauvegarder,
                 restaurer et valoriser le patrimoine bati français.
               </p>
@@ -291,7 +290,7 @@ export default function APropos({ onClose }) {
             <div className="ap-fondation-stats">
               <div className="ap-fondation-stat">
                 <span className="ap-fondation-stat-nb">1 %</span>
-                <span className="ap-fondation-stat-label">de chaque commission nette</span>
+                <span className="ap-fondation-stat-label">Partenaire Fondation du Patrimoine</span>
               </div>
               <div className="ap-fondation-divider" />
               <div className="ap-fondation-stat">
