@@ -29,16 +29,12 @@ export default function VitrinePermanente({ onClose }) {
   return (
     <div className={"em-overlay " + (visible ? "em-overlay--visible" : "")}>
 
-      <header className="em-header">
-        <div className="em-header-gauche">
-          <span className="em-header-lys">&#x269C;</span>
-          <span className="em-header-titre">Les Clés du Château</span>
-          <span className="em-header-sep">·</span>
-          <span className="em-header-club">Vitrines permanentes</span>
+      <header className="page-header">
+        <div className="page-header-gauche">
+          <span className="page-header-lys">&#x269C;</span>
+          <span className="page-header-titre">Vitrines permanentes</span>
         </div>
-        <div className="em-header-droite">
-          <button className="em-btn-retour" onClick={onClose}>Fermer</button>
-        </div>
+        <button className="page-header-fermer" onClick={onClose}>Fermer</button>
       </header>
 
       <div className="vit-hero">
