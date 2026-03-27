@@ -4,7 +4,7 @@
 .em-overlay {
   position: fixed; inset: 0;
   background: #07101E;
-  z-index: 2000;
+  z-index: 8000;
   overflow-y: auto;
   opacity: 0;
   transition: opacity 0.5s ease;
