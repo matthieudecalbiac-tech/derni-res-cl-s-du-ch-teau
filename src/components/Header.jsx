@@ -27,6 +27,14 @@ const MENU_ITEMS = [
     couleur: "or",
   },
   {
+    id: "evenementiel",
+    icone: "\u2726",
+    titre: "Les Cl\u00e9s de l\u2019\u00c9v\u00e9nementiel",
+    description: "Mariages, s\u00e9minaires, galas \u2014 louez un ch\u00e2teau pour vos \u00e9v\u00e9nements d\u2019exception.",
+    action: "evenementiel",
+    couleur: "default",
+  },
+  {
     id: "apropos",
     icone: "·",
     titre: "À propos",
