@@ -21,15 +21,17 @@
 }
 .page-header-lys {
   color: #C09840;
-  font-size: 1.1rem;
+  font-size: 1.6rem;
   line-height: 1;
+  text-shadow: 0 0 14px rgba(192,152,64,0.5);
 }
 .page-header-titre {
   font-family: 'Playfair Display', serif;
-  font-size: 0.95rem;
+  font-size: 1.25rem;
   font-weight: 400;
-  color: #F5F0E8;
-  letter-spacing: 0.02em;
+  color: #C09840;
+  letter-spacing: 0.06em;
+  font-style: italic;
 }
 .page-header-fermer {
   background: transparent;
