@@ -13,6 +13,18 @@
 .header--menu-ouvert .header-inner {
   background: transparent !important; border-bottom: none !important; backdrop-filter: none !important;
 }
+.header-lys {
+  font-size: 2.4rem;
+  color: #C09840 !important;
+  line-height: 1;
+  flex-shrink: 0;
+  text-shadow: 0 0 12px rgba(192,152,64,0.5);
+  transition: text-shadow 0.3s ease;
+}
+.header-logo:hover .header-lys {
+  text-shadow: 0 0 20px rgba(192,152,64,0.8);
+}
+
 .header-logo {
   display: flex; align-items: center; gap: 0.8rem; cursor: pointer;
   flex-shrink: 0; background: none; border: none; padding: 0;
