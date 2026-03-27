@@ -51,6 +51,7 @@ export default function Header({
   onOuvrirDernieresClefs,
   onConnexion,
   onOuvrirProprietaires,
+  onOuvrirEvenementiel,
 }) {
   const [menuOuvert, setMenuOuvert] = useState(false);
   const [solide, setSolide] = useState(false);
@@ -76,6 +77,7 @@ export default function Header({
       else if (action === "dernieres") onOuvrirDernieresClefs?.();
       else if (action === "club") onOuvrirClub?.();
       else if (action === "apropos") onOuvrirAPropos?.();
+      else if (action === "evenementiel") onOuvrirEvenementiel?.();
       else if (action === "proprietaires") onOuvrirProprietaires?.();
     }, 300);
   };

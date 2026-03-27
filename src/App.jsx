@@ -133,6 +133,7 @@ function App() {
         onOuvrirAPropos={() => setAProposOuvert(true)}
         onOuvrirVitrines={() => setVitrinesOuvert(true)}
         onOuvrirProprietaires={() => setProprietairesOuvert(true)}
+          onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
         onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
         onConnexion={() => ouvrirAuth("connexion")}
         userConnecte={userConnecte}
@@ -144,6 +145,7 @@ function App() {
           onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
           onOuvrirVitrines={() => setVitrinesOuvert(true)}
         onOuvrirProprietaires={() => setProprietairesOuvert(true)}
+          onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
         />
         <ClesAlaUne onSelectChateau={ouvrirChateau} />
         <Services />
@@ -151,7 +153,8 @@ function App() {
         <PatrimoineSection />
         <Temoignages />
       </main>
-      <Footer onOuvrirAPropos={() => setAProposOuvert(true)} onOuvrirProprietaires={() => setProprietairesOuvert(true)} onOuvrirCarte={() => setCarteOuverte(true)} />
+      <Footer onOuvrirAPropos={() => setAProposOuvert(true)} onOuvrirProprietaires={() => setProprietairesOuvert(true)}
+          onOuvrirEvenementiel={() => setEvenementielOuvert(true)} onOuvrirCarte={() => setCarteOuverte(true)} />
 
       {proprietairesOuvert && (
         <PartenairesChateaux onClose={() => setProprietairesOuvert(false)} />
