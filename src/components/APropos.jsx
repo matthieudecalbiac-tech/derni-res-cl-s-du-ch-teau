@@ -252,7 +252,7 @@ export default function APropos({ onClose }) {
         <div className="ap-section-inner">
           <div className="ap-section-label">⚜ Notre engagement</div>
           <h2 className="ap-section-titre ap-section-titre--clair">
-            1 % reversé à la<br />
+            Notre engagement envers la<br />
             <em>Fondation du Patrimoine</em>
           </h2>
           <div className="ap-fondation-corps">
@@ -289,7 +289,7 @@ export default function APropos({ onClose }) {
             </div>
             <div className="ap-fondation-stats">
               <div className="ap-fondation-stat">
-                <span className="ap-fondation-stat-nb">1 %</span>
+                <span className="ap-fondation-stat-nb">⚜</span>
                 <span className="ap-fondation-stat-label">Partenaire Fondation du Patrimoine</span>
               </div>
               <div className="ap-fondation-divider" />
