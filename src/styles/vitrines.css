@@ -221,3 +221,29 @@
   .vit-stat { padding: 0 12px; }
   .vit-stat-nb { font-size: 1.5rem; }
 }
+
+/* ── Page header universel ── */
+.page-header {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 60px; flex-shrink: 0;
+  background: rgba(7,16,30,0.97); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(192,152,64,0.2);
+}
+.page-header-gauche { display: flex; align-items: center; gap: 12px; }
+.page-header-lys {
+  color: #C09840; font-size: 1.8rem; line-height: 1;
+  text-shadow: 0 0 16px rgba(192,152,64,0.55);
+}
+.page-header-titre {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem; font-weight: 400;
+  color: #C09840; letter-spacing: 0.05em; font-style: italic;
+}
+.page-header-fermer {
+  background: transparent; border: 1px solid rgba(192,152,64,0.3);
+  color: rgba(245,240,232,0.6); font-family: 'Crimson Pro',serif;
+  font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 6px 18px; cursor: pointer; transition: all 0.2s;
+}
+.page-header-fermer:hover { border-color: #C09840; color: #F5F0E8; }
