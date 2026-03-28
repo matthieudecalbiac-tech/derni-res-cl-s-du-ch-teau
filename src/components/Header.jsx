@@ -27,6 +27,14 @@ const MENU_ITEMS = [
     couleur: "or",
   },
   {
+    id: "conciergerie",
+    icone: "\u2726",
+    titre: "Conciergerie",
+    description: "Transfert en berline ou h\u00e9licopt\u00e8re, accueil champagne, spa priv\u00e9, photographie \u2014 nous sublimions chaque d\u00e9tail de votre s\u00e9jour.",
+    action: "conciergerie",
+    couleur: "default",
+  },
+  {
     id: "evenementiel",
     icone: "\u2726",
     titre: "Les Cl\u00e9s de l\u2019\u00c9v\u00e9nementiel",
@@ -60,6 +68,7 @@ export default function Header({
   onConnexion,
   onOuvrirProprietaires,
   onOuvrirEvenementiel,
+  onOuvrirConciergerie,
 }) {
   const [menuOuvert, setMenuOuvert] = useState(false);
   const [solide, setSolide] = useState(false);
@@ -85,6 +94,7 @@ export default function Header({
       else if (action === "dernieres") onOuvrirDernieresClefs?.();
       else if (action === "club") onOuvrirClub?.();
       else if (action === "apropos") onOuvrirAPropos?.();
+      else if (action === "conciergerie") onOuvrirConciergerie?.();
       else if (action === "evenementiel") onOuvrirEvenementiel?.();
       else if (action === "proprietaires") onOuvrirProprietaires?.();
     }, 300);
