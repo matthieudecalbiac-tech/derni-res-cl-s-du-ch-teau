@@ -96,7 +96,25 @@ const LosangeSvg = () => (
   </svg>
 );
 
-export default function Services() {
+export default function Services({ onClose, overlay }) {
+  if (overlay) {
+    return (
+      <div style={{position:"fixed",inset:0,zIndex:8000,background:"#07101E",overflowY:"auto",display:"flex",flexDirection:"column"}}>
+        <header className="page-header">
+          <div className="page-header-gauche">
+            <span className="page-header-lys">&#x269C;</span>
+            <span className="page-header-titre">Conciergerie</span>
+          </div>
+          <button className="page-header-fermer" onClick={onClose}>Fermer</button>
+        </header>
+        <ServicesContenu />
+      </div>
+    );
+  }
+  return <ServicesContenu />;
+}
+
+function ServicesContenu() {
   const [refEntete, visibleEntete] = useScrollAnimation();
   const [refGrille, visibleGrille] = useScrollAnimation();
   const [refBandeau, visibleBandeau] = useScrollAnimation();
