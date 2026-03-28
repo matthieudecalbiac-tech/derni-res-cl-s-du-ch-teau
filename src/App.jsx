@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import ClesAlaUne from "./components/ClesAlaUne";
+import BlocChiffres from "./components/BlocChiffres";
 import TousLesChateaux from "./components/TousLesChateaux";
-import Services from "./components/Services";
 import CommentCaMarche from "./components/CommentCaMarche";
+import Conciergerie from "./components/Services";
 import Temoignages from "./components/Temoignages";
 import Footer from "./components/Footer";
 import ChateauModal from "./components/ChateauModal";
@@ -94,6 +95,7 @@ function App() {
   const [clubBienvenueOuvert, setClubBienvenueOuvert] = useState(false);
   const [clubMembresOuvert, setClubMembresOuvert] = useState(false);
   const [evenementielOuvert, setEvenementielOuvert] = useState(false);
+  const [conciergerieOuvert, setConciergerieOuvert] = useState(false);
   const [aProposOuvert, setAProposOuvert] = useState(false);
   const [espaceMembreOuvert, setEspaceMembreOuvert] = useState(false);
   const [vitrinesOuvert, setVitrinesOuvert] = useState(false);
@@ -130,10 +132,12 @@ function App() {
         onOuvrirCompte={() => setCompteOuvert(true)}
         onOuvrirClub={() => setClubOuvert(true)}
         onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
+          onOuvrirConciergerie={() => setConciergerieOuvert(true)}
         onOuvrirAPropos={() => setAProposOuvert(true)}
         onOuvrirVitrines={() => setVitrinesOuvert(true)}
         onOuvrirProprietaires={() => setProprietairesOuvert(true)}
           onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
+          onOuvrirConciergerie={() => setConciergerieOuvert(true)}
         onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
         onConnexion={() => ouvrirAuth("connexion")}
         userConnecte={userConnecte}
@@ -146,15 +150,23 @@ function App() {
           onOuvrirVitrines={() => setVitrinesOuvert(true)}
         onOuvrirProprietaires={() => setProprietairesOuvert(true)}
           onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
+          onOuvrirConciergerie={() => setConciergerieOuvert(true)}
         />
-        <ClesAlaUne onSelectChateau={ouvrirChateau} />
-        <Services />
-        <CommentCaMarche onOuvrirClub={() => setClubOuvert(true)} onOuvrirVitrines={() => setVitrinesOuvert(true)} onOuvrirDernieresClefs={() => setDernieresOuvert(true)} />
-        <PatrimoineSection />
-        <Temoignages />
+        <BlocChiffres />
+        <ClesAlaUne onSelectChateau={ouvrirChateau} onOuvrirClub={() => setClubOuvert(true)} />
       </main>
+      <div className="prop-discret">
+        <div className="prop-discret-inner">
+          <span className="prop-discret-ico">⚜</span>
+          <p className="prop-discret-texte">Vous êtes propriétaire d'un château ou d'un domaine ?</p>
+          <button className="prop-discret-btn" onClick={() => setProprietairesOuvert(true)}>
+            Nous contacter <span>→</span>
+          </button>
+        </div>
+      </div>
       <Footer onOuvrirAPropos={() => setAProposOuvert(true)} onOuvrirProprietaires={() => setProprietairesOuvert(true)}
-          onOuvrirEvenementiel={() => setEvenementielOuvert(true)} onOuvrirCarte={() => setCarteOuverte(true)} />
+          onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
+          onOuvrirConciergerie={() => setConciergerieOuvert(true)} onOuvrirCarte={() => setCarteOuverte(true)} />
 
       {proprietairesOuvert && (
         <PartenairesChateaux onClose={() => setProprietairesOuvert(false)} />
@@ -234,6 +246,9 @@ function App() {
       )}
       {evenementielOuvert && (
         <ClesEvenementiel onClose={() => setEvenementielOuvert(false)} />
+      )}
+      {conciergerieOuvert && (
+        <Conciergerie onClose={() => setConciergerieOuvert(false)} overlay={true} />
       )}
       {aProposOuvert && <APropos onClose={() => setAProposOuvert(false)} />}
       {espaceMembreOuvert && userConnecte && (
