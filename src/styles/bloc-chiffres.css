@@ -1,0 +1,43 @@
+.bc-section {
+  background: #07101E;
+  border-top: 1px solid rgba(192,152,64,0.15);
+  border-bottom: 1px solid rgba(192,152,64,0.15);
+  padding: 20px 0;
+}
+.bc-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 0 24px;
+  flex-wrap: wrap;
+}
+.bc-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.bc-nombre {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  color: #C09840;
+  font-weight: 400;
+  line-height: 1;
+}
+.bc-label {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(245, 240, 232, 0.45);
+}
+.bc-sep {
+  color: rgba(192,152,64,0.3);
+  font-size: 1.2rem;
+}
+@media (max-width: 600px) {
+  .bc-inner { gap: 20px; }
+  .bc-sep { display: none; }
+}
