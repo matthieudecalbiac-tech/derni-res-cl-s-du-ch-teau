@@ -71,6 +71,9 @@ export default function CommentCaMarche({ onOuvrirClub, onOuvrirVitrines, onOuvr
 
   return (
     <section className="comment-section" id="comment">
+      <div className="comment-lys-fond" aria-hidden="true">
+        {"⚜ ".repeat(200)}
+      </div>
       <div className="comment-inner">
         {/* En-tête */}
         <div
