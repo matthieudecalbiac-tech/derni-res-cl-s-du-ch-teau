@@ -1,3 +1,61 @@
+/* ── Section fond crème avec lys ── */
+.comment-lys-fond {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 100%;
+  min-height: 100%;
+  font-size: 2.2rem;
+  color: rgba(192, 152, 64, 0.18);
+  word-break: break-all;
+  line-height: 3rem;
+  letter-spacing: 1.6rem;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+  padding: 24px;
+  user-select: none;
+}
+
+.comment-section {
+  position: relative;
+  background: #F7F2E8;
+  position: relative;
+  overflow: hidden;
+}
+
+.comment-section::before { display: none; }
+
+
+
+/* Titres et textes adaptés au fond crème */
+.comment-section .sur-titre {
+  color: rgba(139, 96, 20, 0.7) !important;
+}
+.comment-section h2,
+.comment-section .comment-titre {
+  color: #07101E !important;
+}
+.comment-section p,
+.comment-section .comment-sous-titre {
+  color: rgba(26, 16, 5, 0.65) !important;
+}
+.comment-section .comment-separateur-ligne {
+  background: rgba(192, 152, 64, 0.35) !important;
+}
+.comment-section .comment-etapes-titre {
+  color: #07101E !important;
+}
+.comment-section .comment-etape-titre {
+  color: #07101E !important;
+}
+.comment-section .comment-etape-desc {
+  color: rgba(26, 16, 5, 0.6) !important;
+}
+.comment-section .comment-etape-numero {
+  color: #C09840 !important;
+  border-color: rgba(192, 152, 64, 0.3) !important;
+}
+
 
 
 /* ══════════════════════════════════════════
@@ -193,3 +251,41 @@
 .cmg-carte--vitrines:hover .cmg-cta,
 .cmg-carte--club:hover .cmg-cta { color: #C09840; }
 .cmg-carte--dernieres:hover .cmg-cta { color: rgba(230,100,80,1); }
+
+.comment-inner { position: relative; z-index: 1; }
+
+/* ── Forcer couleurs claires dans les cartes (fond sombre) sur fond crème ── */
+.comment-section .cmg-titre {
+  color: #F5F0E8 !important;
+}
+.comment-section .cmg-titre--or {
+  color: #EDD880 !important;
+}
+.comment-section .cmg-desc,
+.comment-section .cmg-carte--vitrines .cmg-desc,
+.comment-section .cmg-carte--dernieres .cmg-desc,
+.comment-section .cmg-carte--club .cmg-desc {
+  color: rgba(245, 240, 232, 0.7) !important;
+}
+.comment-section .cmg-points li,
+.comment-section .cmg-carte--vitrines .cmg-points li,
+.comment-section .cmg-carte--dernieres .cmg-points li,
+.comment-section .cmg-carte--club .cmg-points li {
+  color: rgba(245, 240, 232, 0.75) !important;
+}
+.comment-section .cmg-cta {
+  color: rgba(245, 240, 232, 0.55) !important;
+}
+.comment-section .cmg-cta--or {
+  color: #C09840 !important;
+}
+.comment-section .cmg-badge,
+.comment-section .cmg-badge--vitrines,
+.comment-section .cmg-badge--dernieres,
+.comment-section .cmg-badge--club {
+  color: #C09840 !important;
+  border-color: rgba(192, 152, 64, 0.6) !important;
+  background: rgba(192, 152, 64, 0.12) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.12em !important;
+}
