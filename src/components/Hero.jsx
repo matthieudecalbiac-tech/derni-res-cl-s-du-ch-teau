@@ -53,10 +53,12 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClef
           <span className="hero-ornement-lys">⚜</span>
           <div className="hero-ornement-ligne" />
         </div>
+        <p className="hero-signature">
+          La plateforme incontournable de réservation de châteaux en France
+        </p>
         <p className="hero-accroche">
-          Les plus beaux domaines de France, à moins de 3h de Paris.
-          <br />
-          Accès libre ou Club privé — à vous de choisir.
+          Les plus belles demeures à moins de 3h de Paris —<br />
+          accès libre ou Club privé, à vous de choisir.
         </p>
         <div className="hero-fondation">
           <span className="hero-fondation-ico">⚜</span>
