@@ -111,6 +111,9 @@
 }
 
 .hero-sur-titre {
+  color: rgba(245, 240, 232, 0.75) !important;
+  letter-spacing: 0.18em !important;
+  font-size: 0.72rem !important;
   font-family: var(--font-ui);
   font-size: 0.58rem;
   letter-spacing: 0.42em;
@@ -606,25 +609,99 @@
 .hero-fondation {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 20px;
-  padding: 8px 18px;
-  border: 1px solid rgba(192, 152, 64, 0.35);
-  background: rgba(192, 152, 64, 0.07);
+  gap: 12px;
+  margin-top: 28px;
+  padding: 12px 24px;
+  border: 1px solid rgba(192, 152, 64, 0.5);
+  border-top: 2px solid #C09840;
+  background: rgba(192, 152, 64, 0.08);
+  backdrop-filter: blur(8px);
+  transition: all 0.3s ease;
+}
+.hero-fondation:hover {
+  background: rgba(192, 152, 64, 0.14);
+  border-color: rgba(192, 152, 64, 0.8);
+  border-top-color: #EDD880;
 }
 .hero-fondation-ico {
   color: #C09840;
-  font-size: 0.8rem;
+  font-size: 1.2rem;
   flex-shrink: 0;
+  text-shadow: 0 0 12px rgba(192,152,64,0.6);
 }
 .hero-fondation-texte {
   font-family: 'Crimson Pro', serif;
-  font-size: 0.78rem;
+  font-size: 0.92rem;
   font-weight: 300;
-  letter-spacing: 0.08em;
-  color: rgba(245, 240, 232, 0.65);
+  font-style: italic;
+  letter-spacing: 0.06em;
+  color: rgba(245, 240, 232, 0.8);
+  line-height: 1.4;
 }
 .hero-fondation-texte strong {
   color: #C09840;
+  font-weight: 500;
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+
+/* ── Phrase signature ── */
+.hero-signature {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
   font-weight: 400;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  color: #EDD880;
+  margin: 0 0 18px;
+  text-align: center;
+  text-shadow: 0 1px 12px rgba(192,152,64,0.4);
+}
+
+/* ── CTA principal ── */
+.hero-cta-principal {
+  display: flex;
+  gap: 16px;
+  margin-top: 36px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.hero-cta-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  background: #C09840;
+  border: none;
+  cursor: pointer;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.92rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: #07101E;
+  transition: all 0.25s ease;
+}
+.hero-cta-btn:hover {
+  background: #EDD880;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(192,152,64,0.3);
+}
+.hero-cta-btn--club {
+  background: transparent;
+  border: 1px solid rgba(192,152,64,0.5);
+  color: #C09840;
+}
+.hero-cta-btn--club:hover {
+  background: rgba(192,152,64,0.1);
+  border-color: #C09840;
+  color: #EDD880;
+  transform: translateY(-2px);
+  box-shadow: none;
+}
+.hero-cta-btn-ico { font-size: 0.9rem; }
+.hero-cta-btn-fleche {
+  transition: transform 0.2s;
+}
+.hero-cta-btn:hover .hero-cta-btn-fleche {
+  transform: translateX(4px);
 }
