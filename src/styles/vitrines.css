@@ -247,3 +247,43 @@
   padding: 6px 18px; cursor: pointer; transition: all 0.2s;
 }
 .page-header-fermer:hover { border-color: #C09840; color: #F5F0E8; }
+
+/* ── Bloc propriétaires discret ── */
+.prop-discret {
+  background: #07101E;
+  border-top: 1px solid rgba(192,152,64,0.12);
+  padding: 32px 24px;
+}
+.prop-discret-inner {
+  max-width: 700px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.prop-discret-ico { color: rgba(192,152,64,0.4); font-size: 1rem; }
+.prop-discret-texte {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: rgba(245,240,232,0.4);
+  margin: 0;
+}
+.prop-discret-btn {
+  background: transparent;
+  border: 1px solid rgba(192,152,64,0.3);
+  color: rgba(192,152,64,0.7);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  padding: 8px 20px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.prop-discret-btn:hover {
+  border-color: #C09840;
+  color: #C09840;
+}
