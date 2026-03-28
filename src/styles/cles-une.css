@@ -542,3 +542,388 @@
     justify-content: center;
   }
 }
+
+/* ── Labels de section ── */
+.cles-une-section-label {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 32px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(192, 152, 64, 0.25);
+}
+.cles-une-section-numero {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  color: rgba(192, 152, 64, 0.25);
+  line-height: 1;
+  font-weight: 400;
+}
+.cles-une-section-nom {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: #F5F0E8;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+.cles-une-section-desc {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.82rem;
+  color: rgba(192, 152, 64, 0.7);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-left: auto;
+}
+.cles-une-section-label--vitrines .cles-une-section-nom {
+  color: #C09840;
+}
+
+/* ── Séparateur ── */
+.cles-une-sep {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 48px 0;
+}
+.cles-une-sep-ligne {
+  flex: 1;
+  height: 1px;
+  background: rgba(192, 152, 64, 0.2);
+}
+.cles-une-sep-lys {
+  color: #C09840;
+  font-size: 1rem;
+  opacity: 0.5;
+}
+
+/* ── Grille vitrines permanentes ── */
+.cles-une-grille-vitrines {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 24px;
+}
+@media (max-width: 900px) {
+  .cles-une-grille-vitrines { grid-template-columns: 1fr; }
+}
+
+.cle-vitrine-carte {
+  cursor: pointer;
+  border: 1px solid rgba(192, 152, 64, 0.15);
+  background: rgba(255,255,255,0.02);
+  transition: border-color 0.25s, transform 0.25s;
+  overflow: hidden;
+}
+.cle-vitrine-carte:hover {
+  border-color: rgba(192, 152, 64, 0.5);
+  transform: translateY(-3px);
+}
+.cle-vitrine-photo {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+.cle-vitrine-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.cle-vitrine-carte:hover .cle-vitrine-photo img {
+  transform: scale(1.05);
+}
+.cle-vitrine-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(7,16,30,0.6) 0%, transparent 50%);
+}
+.cle-vitrine-infos {
+  padding: 16px 20px 20px;
+}
+.cle-vitrine-region {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(192, 152, 64, 0.7);
+  display: block;
+  margin-bottom: 6px;
+}
+.cle-vitrine-nom {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  color: #F5F0E8;
+  font-weight: 400;
+  margin: 0 0 8px;
+}
+.cle-vitrine-accroche {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.88rem;
+  font-style: italic;
+  color: rgba(245, 240, 232, 0.5);
+  line-height: 1.5;
+  margin: 0 0 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cle-vitrine-pied {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.cle-vitrine-distance {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.78rem;
+  color: rgba(245, 240, 232, 0.4);
+}
+.cle-vitrine-cta {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.82rem;
+  color: #C09840;
+  letter-spacing: 0.06em;
+  transition: letter-spacing 0.2s;
+}
+.cle-vitrine-carte:hover .cle-vitrine-cta {
+  letter-spacing: 0.12em;
+}
+
+/* ── Onglets ── */
+.cles-onglets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  margin: 0 0 40px;
+  background: rgba(192,152,64,0.08);
+  border: 1px solid rgba(192,152,64,0.15);
+}
+@media (max-width: 700px) { .cles-onglets { grid-template-columns: 1fr; } }
+
+.cles-onglet {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px;
+  background: rgba(7,16,30,0.6);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+}
+.cles-onglet:hover {
+  background: rgba(192,152,64,0.06);
+}
+.cles-onglet.actif {
+  background: rgba(192,152,64,0.08);
+  border-bottom-color: #C09840;
+}
+.cles-onglet-ico {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+.cles-onglet.actif .cles-onglet-ico { opacity: 1; }
+.cles-onglet-textes {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.cles-onglet-titre {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  color: rgba(245,240,232,0.6);
+  font-weight: 400;
+}
+.cles-onglet.actif .cles-onglet-titre { color: #C09840; }
+.cles-onglet-desc {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  color: rgba(245,240,232,0.3);
+  text-transform: uppercase;
+}
+.cles-onglet.actif .cles-onglet-desc { color: rgba(192,152,64,0.55); }
+
+/* ── Grille onglet ── */
+.cles-grille-onglet {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1100px) { .cles-grille-onglet { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .cles-grille-onglet { grid-template-columns: 1fr; } }
+
+.cle-ong-carte {
+  cursor: pointer;
+  border: 1px solid rgba(192,152,64,0.12);
+  background: rgba(255,255,255,0.02);
+  transition: all 0.25s;
+  overflow: hidden;
+}
+.cle-ong-carte:hover {
+  border-color: rgba(192,152,64,0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+}
+.cle-ong-carte--club { filter: none; }
+.cle-ong-photo {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+}
+.cle-ong-photo img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s;
+}
+.cle-ong-carte:hover .cle-ong-photo img { transform: scale(1.06); }
+.cle-ong-photo-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(7,16,30,0.75) 0%, transparent 55%);
+}
+.cle-ong-urgence {
+  position: absolute; top: 12px; left: 12px;
+  padding: 4px 10px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.badge-j7 { background: #8B1A0A; color: #FFD0C8; }
+.badge-j10 { background: #7A3A00; color: #FFE0B0; }
+.badge-j15 { background: #2A4A1A; color: #C8FFAA; }
+
+.cle-ong-club-lock {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 8px;
+  background: rgba(7,16,30,0.55);
+  backdrop-filter: blur(4px);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  color: #C09840;
+  text-transform: uppercase;
+}
+.cle-ong-club-lock span:first-child { font-size: 1.6rem; }
+
+.cle-ong-infos { padding: 14px 16px 18px; }
+.cle-ong-region {
+  display: block;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(192,152,64,0.65);
+  margin-bottom: 5px;
+}
+.cle-ong-nom {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: #F5F0E8;
+  font-weight: 400;
+  margin: 0 0 6px;
+}
+.cle-ong-accroche {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.84rem;
+  font-style: italic;
+  color: rgba(245,240,232,0.45);
+  line-height: 1.5;
+  margin: 0 0 12px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.cle-ong-pied {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.cle-ong-prix { display: flex; align-items: baseline; gap: 6px; }
+.cle-ong-prix-barre {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.78rem;
+  color: rgba(245,240,232,0.3);
+  text-decoration: line-through;
+}
+.cle-ong-prix-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: #C09840;
+}
+.cle-ong-prix-nuit {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.72rem;
+  color: rgba(245,240,232,0.4);
+}
+.cle-ong-cta {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.8rem;
+  color: rgba(192,152,64,0.7);
+  letter-spacing: 0.06em;
+  transition: all 0.2s;
+}
+.cle-ong-carte:hover .cle-ong-cta { color: #C09840; letter-spacing: 0.1em; }
+.cle-ong-cta--club { margin: 0 auto; font-size: 0.85rem; color: #C09840; }
+
+/* ── Club CTA ── */
+.cles-club-cta {
+  margin-top: 32px;
+  text-align: center;
+  padding: 32px;
+  border: 1px solid rgba(192,152,64,0.2);
+  background: rgba(192,152,64,0.03);
+}
+.cles-club-cta p {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: rgba(245,240,232,0.5);
+  margin: 0 0 20px;
+}
+.cles-club-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  background: transparent;
+  border: 1px solid #C09840;
+  color: #C09840;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.92rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.cles-club-btn:hover {
+  background: rgba(192,152,64,0.1);
+  color: #EDD880;
+}
+
+/* ── Lys grand au-dessus du titre ── */
+.cles-une-lys-grand {
+  font-size: 2.2rem;
+  color: #C09840;
+  text-shadow: 0 0 20px rgba(192,152,64,0.5);
+  margin-bottom: 12px;
+  display: block;
+  line-height: 1;
+}
+
+/* ── Phrase explicative modes ── */
+.cles-une-modes-intro {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: rgba(245, 240, 232, 0.45);
+  margin: 12px auto 0;
+  max-width: 580px;
+  line-height: 1.65;
+  text-align: center;
+}
+.cles-une-modes-intro em {
+  font-style: normal;
+  color: rgba(192, 152, 64, 0.75);
+}
