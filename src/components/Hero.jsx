@@ -26,7 +26,7 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClef
       </div>
 
       {/* Motif lys */}
-      <div className="lys-pattern">
+      <div className="lys-pattern" style={{opacity:0}}>
         <svg>
           <rect width="100%" height="100%" fill="url(#lys-pattern)" />
         </svg>
@@ -54,7 +54,7 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClef
           <div className="hero-ornement-ligne" />
         </div>
         <p className="hero-signature">
-          La plateforme incontournable de réservation de châteaux en France
+          Demeures privées · Séjours confidentiels · France
         </p>
         <p className="hero-accroche">
           Les plus belles demeures à moins de 3h de Paris —<br />
@@ -64,7 +64,7 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClef
           <span className="hero-fondation-ico">⚜</span>
           <span className="hero-fondation-texte">
             Aidez-nous à préserver le patrimoine —{" "}
-            <strong>une partie de chaque réservation est reversée à la Fondation du Patrimoine</strong>
+            <strong>une partie de nos recettes est reversée à la Fondation du Patrimoine</strong>
           </span>
         </div>
       </div>

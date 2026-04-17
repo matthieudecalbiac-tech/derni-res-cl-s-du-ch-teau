@@ -39,7 +39,7 @@ export default function ClesAlaUne({ onOuvrirClub }) {
             Sélectionnés pour leur histoire, leur famille, leur singularité
           </p>
           <p className="cles-une-modes-intro">
-            Trois façons d'accéder aux demeures — <em>offres last-minute</em>, <em>vitrines permanentes</em> et <em>packages membres</em> réservés au Club des Châtelains.
+            Trois façons d'accéder aux demeures — <em>séjours à court terme</em>, <em>vitrines permanentes</em> et <em>packages membres</em> réservés au Club des Châtelains.
           </p>
         </div>
 
@@ -49,10 +49,10 @@ export default function ClesAlaUne({ onOuvrirClub }) {
             className={`cles-onglet ${onglet === "lastminute" ? "actif" : ""}`}
             onClick={() => setOnglet("lastminute")}
           >
-            <span className="cles-onglet-ico">⏳</span>
+            <span className="cles-onglet-ico">◈</span>
             <div className="cles-onglet-textes">
               <span className="cles-onglet-titre">Dernières Clés</span>
-              <span className="cles-onglet-desc">Offres last-minute · J−7 à J−15</span>
+              <span className="cles-onglet-desc">Séjours à court terme · chambres ouvertes</span>
             </div>
           </button>
           <button
@@ -62,17 +62,17 @@ export default function ClesAlaUne({ onOuvrirClub }) {
             <span className="cles-onglet-ico">⚜</span>
             <div className="cles-onglet-textes">
               <span className="cles-onglet-titre">Vitrines permanentes</span>
-              <span className="cles-onglet-desc">Réservation immédiate · Chambres disponibles</span>
+              <span className="cles-onglet-desc">Réservation immédiate · chambres disponibles</span>
             </div>
           </button>
           <button
             className={`cles-onglet ${onglet === "club" ? "actif" : ""}`}
             onClick={() => setOnglet("club")}
           >
-            <span className="cles-onglet-ico">🔐</span>
+            <span className="cles-onglet-ico">✦</span>
             <div className="cles-onglet-textes">
               <span className="cles-onglet-titre">Club des Châtelains</span>
-              <span className="cles-onglet-desc">Offres exclusives · Membres uniquement</span>
+              <span className="cles-onglet-desc">Offres confidentielles · membres uniquement</span>
             </div>
           </button>
         </div>
@@ -81,7 +81,6 @@ export default function ClesAlaUne({ onOuvrirClub }) {
         <div className="cles-grille-onglet">
           {liste.map((c) => {
             const isClub = onglet === "club";
-            const classBadge = { "J-7": "badge-j7", "J-10": "badge-j10", "J-15": "badge-j15" }[c.urgence] || "";
             return (
               <article
                 key={c.id}
@@ -92,12 +91,9 @@ export default function ClesAlaUne({ onOuvrirClub }) {
                 <div className="cle-ong-photo">
                   <img src={c.images?.[0]} alt={c.nom} loading="lazy" />
                   <div className="cle-ong-photo-overlay" />
-                  {onglet === "lastminute" && c.urgence && (
-                    <span className={`cle-ong-urgence ${classBadge}`}>{c.urgence}</span>
-                  )}
                   {isClub && (
                     <div className="cle-ong-club-lock">
-                      <span>🔐</span>
+                      <span>✦</span>
                       <span>Membres uniquement</span>
                     </div>
                   )}
@@ -111,7 +107,7 @@ export default function ClesAlaUne({ onOuvrirClub }) {
                     {!isClub ? (
                       <>
                         <div className="cle-ong-prix">
-                          {onglet === "lastminute" && <span className="cle-ong-prix-barre">{c.prixBarre} €</span>}
+                          <span className="cle-ong-prix-prefix">À partir de</span>
                           <span className="cle-ong-prix-val">{c.prix || c.prixBarre} €</span>
                           <span className="cle-ong-prix-nuit">/ nuit</span>
                         </div>

@@ -14,7 +14,7 @@ const MENU_ITEMS = [
     id: "dernieres",
     icone: "◆",
     titre: "Les Dernières Clés",
-    description: "Disponibilités last-minute J-7 à J-15 dans les plus beaux domaines à moins de 3h de Paris.",
+    description: "Séjours à court terme dans les plus beaux domaines à moins de 3h de Paris.",
     action: "dernieres",
     couleur: "default",
   },

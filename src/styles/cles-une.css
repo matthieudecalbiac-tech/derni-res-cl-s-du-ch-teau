@@ -701,26 +701,28 @@
 .cles-onglet {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 20px 24px;
+  gap: 16px;
+  padding: 26px 28px;
   background: rgba(7,16,30,0.6);
   border: none;
   cursor: pointer;
   text-align: left;
-  transition: all 0.2s;
-  border-bottom: 2px solid transparent;
+  transition: background 0.25s ease, border-color 0.25s ease;
+  border-bottom: 1px solid transparent;
 }
 .cles-onglet:hover {
-  background: rgba(192,152,64,0.06);
+  background: rgba(192,152,64,0.05);
 }
 .cles-onglet.actif {
   background: rgba(192,152,64,0.08);
   border-bottom-color: #C09840;
 }
 .cles-onglet-ico {
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
-  opacity: 0.7;
+  opacity: 0.55;
+  color: #C09840;
+  letter-spacing: 0;
 }
 .cles-onglet.actif .cles-onglet-ico { opacity: 1; }
 .cles-onglet-textes {
@@ -754,21 +756,34 @@
 @media (max-width: 600px) { .cles-grille-onglet { grid-template-columns: 1fr; } }
 
 .cle-ong-carte {
+  position: relative;
   cursor: pointer;
-  border: 1px solid rgba(192,152,64,0.12);
-  background: rgba(255,255,255,0.02);
-  transition: all 0.25s;
+  border: 1px solid rgba(192,152,64,0.14);
+  background: rgba(255,255,255,0.015);
+  transition: border-color 0.35s ease, transform 0.35s ease, box-shadow 0.35s ease;
   overflow: hidden;
 }
+.cle-ong-carte::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 1px solid transparent;
+  transition: border-color 0.35s ease;
+}
 .cle-ong-carte:hover {
-  border-color: rgba(192,152,64,0.4);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(0,0,0,0.3);
+  border-color: rgba(192,152,64,0.45);
+  transform: translateY(-6px);
+  box-shadow: 0 22px 50px rgba(0,0,0,0.4);
+}
+.cle-ong-carte:hover::after {
+  border-color: rgba(192,152,64,0.2);
+  inset: 6px;
 }
 .cle-ong-carte--club { filter: none; }
 .cle-ong-photo {
   position: relative;
-  height: 200px;
+  height: 240px;
   overflow: hidden;
 }
 .cle-ong-photo img {
@@ -781,19 +796,6 @@
   position: absolute; inset: 0;
   background: linear-gradient(to top, rgba(7,16,30,0.75) 0%, transparent 55%);
 }
-.cle-ong-urgence {
-  position: absolute; top: 12px; left: 12px;
-  padding: 4px 10px;
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.badge-j7 { background: #8B1A0A; color: #FFD0C8; }
-.badge-j10 { background: #7A3A00; color: #FFE0B0; }
-.badge-j15 { background: #2A4A1A; color: #C8FFAA; }
-
 .cle-ong-club-lock {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
@@ -809,49 +811,64 @@
 }
 .cle-ong-club-lock span:first-child { font-size: 1.6rem; }
 
-.cle-ong-infos { padding: 14px 16px 18px; }
+.cle-ong-infos { padding: 22px 22px 24px; }
 .cle-ong-region {
   display: block;
   font-family: 'Crimson Pro', serif;
   font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgba(192,152,64,0.65);
-  margin-bottom: 5px;
+  color: rgba(192,152,64,0.7);
+  margin-bottom: 8px;
 }
 .cle-ong-nom {
   font-family: 'Playfair Display', serif;
-  font-size: 1rem;
+  font-size: 1.12rem;
   color: #F5F0E8;
   font-weight: 400;
-  margin: 0 0 6px;
+  letter-spacing: 0.01em;
+  margin: 0 0 10px;
 }
 .cle-ong-accroche {
   font-family: 'Crimson Pro', serif;
-  font-size: 0.84rem;
+  font-size: 0.9rem;
   font-style: italic;
-  color: rgba(245,240,232,0.45);
-  line-height: 1.5;
-  margin: 0 0 12px;
+  color: rgba(245,240,232,0.5);
+  line-height: 1.55;
+  margin: 0 0 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(192,152,64,0.1);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 .cle-ong-pied {
-  display: flex; justify-content: space-between; align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
 }
-.cle-ong-prix { display: flex; align-items: baseline; gap: 6px; }
-.cle-ong-prix-barre {
+.cle-ong-prix {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cle-ong-prix-prefix {
   font-family: 'Crimson Pro', serif;
-  font-size: 0.78rem;
-  color: rgba(245,240,232,0.3);
-  text-decoration: line-through;
+  font-size: 0.7rem;
+  font-style: italic;
+  letter-spacing: 0.08em;
+  color: rgba(245,240,232,0.4);
+  flex-basis: 100%;
+  margin-bottom: 2px;
 }
 .cle-ong-prix-val {
   font-family: 'Playfair Display', serif;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: #C09840;
+  letter-spacing: 0.02em;
 }
 .cle-ong-prix-nuit {
   font-family: 'Crimson Pro', serif;

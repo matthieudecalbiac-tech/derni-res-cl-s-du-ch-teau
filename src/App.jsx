@@ -9,6 +9,7 @@ import Conciergerie from "./components/Services";
 import Temoignages from "./components/Temoignages";
 import Footer from "./components/Footer";
 import ChateauModal from "./components/ChateauModal";
+import VitrineChateau from "./components/VitrineChateau";
 import CarteExplorer from "./components/CarteExplorer";
 import AuthModal from "./components/AuthModal";
 import CompteUser from "./components/CompteUser";
@@ -24,63 +25,7 @@ import TransitionPorte from "./components/TransitionPorte";
 import PartenairesChateaux from "./components/PartenairesChateaux";
 import PatrimoineSection from "./components/PatrimoineSection";
 
-const LysPattern = () => (
-  <svg
-    style={{ position: "absolute", width: 0, height: 0, overflow: "hidden" }}
-  >
-    <defs>
-      <pattern
-        id="lys-pattern"
-        x="0"
-        y="0"
-        width="120"
-        height="160"
-        patternUnits="userSpaceOnUse"
-      >
-        <text
-          x="20"
-          y="80"
-          fontSize="48"
-          fill="white"
-          fontFamily="serif"
-          textAnchor="middle"
-        >
-          ⚜
-        </text>
-        <text
-          x="80"
-          y="160"
-          fontSize="48"
-          fill="white"
-          fontFamily="serif"
-          textAnchor="middle"
-        >
-          ⚜
-        </text>
-        <text
-          x="80"
-          y="0"
-          fontSize="48"
-          fill="white"
-          fontFamily="serif"
-          textAnchor="middle"
-        >
-          ⚜
-        </text>
-        <text
-          x="-40"
-          y="160"
-          fontSize="48"
-          fill="white"
-          fontFamily="serif"
-          textAnchor="middle"
-        >
-          ⚜
-        </text>
-      </pattern>
-    </defs>
-  </svg>
-);
+
 
 function App() {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
@@ -124,7 +69,7 @@ function App() {
 
   return (
     <div className="app">
-      <LysPattern />
+      
       <Header
         onOuvrirCarte={() => setCarteOuverte(true)}
         onOuvrirTous={() => setTousOuvert(true)}
@@ -178,10 +123,9 @@ function App() {
         <DernieresClés onClose={() => setDernieresOuvert(false)} />
       )}
       {(transitionChateau || chateauSelectionne) && (
-        <ChateauModal
-          chateau={transitionChateau || chateauSelectionne}
-          onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }}
-        />
+        (transitionChateau || chateauSelectionne).id === 8 || (transitionChateau || chateauSelectionne).id === 7
+          ? <VitrineChateau chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
+          : <ChateauModal chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}
       {transitionChateau && (
         <TransitionPorte

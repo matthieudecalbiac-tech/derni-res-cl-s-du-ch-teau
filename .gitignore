@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Local reference notes and one-shot codemod scripts
+fix*.cjs
+*-knowledge.txt
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

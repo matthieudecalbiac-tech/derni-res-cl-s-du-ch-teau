@@ -10,11 +10,11 @@ export default function ChateauModal({ chateau, onClose }) {
   const intervalRef = useRef(null);
 
   useEffect(() => {
-    document.body.style.overflow = "hidden";
+    document.body.style.overflow = "hidden"; document.body.classList.add("vitrine-open");
     setTimeout(() => setVisible(true), 30);
     const t = setTimeout(() => setMapReady(true), 400);
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = ""; document.body.classList.remove("vitrine-open");
       clearTimeout(t);
     };
   }, []);
@@ -290,7 +290,7 @@ export default function ChateauModal({ chateau, onClose }) {
               <div className="cp-activites-grille">
                 {chateau.activites?.map((a, i) => (
                   <div key={i} className="cp-activite">
-                    <div className="cp-activite-lys">✦</div>
+                    
                     <div className="cp-activite-nom">{a.nom}</div>
                     <div className="cp-activite-desc">{a.description}</div>
                   </div>
