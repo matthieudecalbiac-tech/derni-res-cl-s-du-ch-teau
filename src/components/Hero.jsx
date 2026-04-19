@@ -54,11 +54,10 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClef
           <div className="hero-ornement-ligne" />
         </div>
         <p className="hero-signature">
-          Demeures privées · Séjours confidentiels · France
+          Demeures et châteaux de France
         </p>
         <p className="hero-accroche">
-          Les plus belles demeures à moins de 3h de Paris —<br />
-          accès libre ou Club privé, à vous de choisir.
+          Dormir dans les demeures <em className="hero-signature-accent">qui ont fait la France.</em>
         </p>
         <div className="hero-fondation">
           <span className="hero-fondation-ico">⚜</span>
@@ -73,23 +72,6 @@ export default function Hero({ onOuvrirAuth, onOuvrirClub, onOuvrirDernieresClef
       <div className="hero-stats">
         <span className="hero-stats-nombre">81</span>
         <span className="hero-stats-label">Domaines sélectionnés</span>
-      </div>
-
-      {/* Texte éditorial patrimoine */}
-      <div className="hero-editorial">
-        <div className="hero-editorial-ornement">
-          <div className="hero-editorial-trait" />
-          <span className="hero-editorial-lys">&#x269C;</span>
-          <div className="hero-editorial-trait" />
-        </div>
-        <p className="hero-editorial-texte">
-          La France compte quarante-cinq mille châteaux.
-          <br />
-          <em>Nous en avons sélectionné les plus beaux.</em>
-        </p>
-        <p className="hero-editorial-sous">
-          Vitrines permanentes · Dernières Clés du Château · Club des Châtelains
-        </p>
       </div>
 
     </section>

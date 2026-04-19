@@ -526,83 +526,10 @@
   border: 1px solid rgba(192,152,64,0.3);
 }
 
-.hero-editorial {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 5;
-  text-align: center;
-  padding: 32px 24px 40px;
-  background: linear-gradient(to top, rgba(7,16,30,0.92) 0%, rgba(7,16,30,0.5) 60%, transparent 100%);
-}
-.hero-editorial-orn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  margin-bottom: 14px;
-}
-.hero-editorial-trait {
-  display: block;
-  width: 40px;
-  height: 1px;
-  background: rgba(192,152,64,0.5);
-}
-.hero-editorial-lys { color: #C09840; font-size: 0.9rem; }
-.hero-editorial-citation {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(1.2rem, 2.5vw, 1.8rem);
-  font-weight: 400;
-  color: #F5F0E8;
-  line-height: 1.4;
-  margin: 0 0 10px;
-  font-style: normal;
-}
-.hero-editorial-citation em {
+/* ── Accent or italique pour segments d'accroche / signature ── */
+.hero-signature-accent {
+  color: #C09840;
   font-style: italic;
-  color: rgba(245,240,232,0.7);
-}
-.hero-editorial-accroche {
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.88rem;
-  font-weight: 300;
-  color: rgba(245,240,232,0.5);
-  font-style: italic;
-  letter-spacing: 0.04em;
-  margin: 0 0 20px;
-}
-.hero-editorial-modules {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.hero-mod {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 20px;
-  background: rgba(7,16,30,0.6);
-  border: 1px solid rgba(192,152,64,0.25);
-  color: rgba(245,240,232,0.65);
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(4px);
-}
-.hero-mod:hover { border-color: rgba(192,152,64,0.6); color: #F5F0E8; }
-.hero-mod--club { color: rgba(192,152,64,0.8) !important; border-color: rgba(192,152,64,0.4) !important; }
-.hero-mod--club:hover { color: #C09840 !important; }
-.hero-mod-ico { font-size: 0.75rem; color: #C09840; }
-.hero-mod-arrow { font-size: 0.7rem; opacity: 0.5; transition: transform 0.2s; }
-.hero-mod:hover .hero-mod-arrow { transform: translateX(3px); opacity: 1; }
-@media (max-width: 600px) {
-  .hero-editorial { padding: 20px 16px 28px; }
-  .hero-editorial-citation { font-size: 1.1rem; }
-  .hero-mod-label { font-size: 0.75rem; }
 }
 
 /* ── Fondation du Patrimoine badge ── */
