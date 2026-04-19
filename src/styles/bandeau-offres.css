@@ -1,0 +1,141 @@
+.bandeau-offres {
+  background: #07101E;
+  padding: 48px 48px 88px;
+}
+
+/* ── Filet orné ── */
+.bandeau-offres-orne {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 720px;
+  margin: 0 auto 48px;
+}
+
+.bandeau-offres-orne-ligne {
+  flex: 1;
+  height: 1px;
+}
+
+.bandeau-offres-orne-ligne--g {
+  background: linear-gradient(90deg, transparent, rgba(192, 152, 64, 0.6));
+}
+
+.bandeau-offres-orne-ligne--d {
+  background: linear-gradient(90deg, rgba(192, 152, 64, 0.6), transparent);
+}
+
+.bandeau-offres-orne-texte {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #C09840;
+  white-space: nowrap;
+}
+
+/* ── Grille ── */
+.bandeau-offres-grille {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid rgba(192, 152, 64, 0.22);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.bandeau-offres-cellule {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 36px 40px;
+  min-height: 210px;
+  background: transparent;
+  border: none;
+  border-right: 1px solid rgba(192, 152, 64, 0.22);
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font: inherit;
+  color: inherit;
+}
+
+.bandeau-offres-cellule:last-child {
+  border-right: none;
+}
+
+.bandeau-offres-cellule--centre {
+  background: rgba(192, 152, 64, 0.025);
+}
+
+.bandeau-offres-cellule:hover {
+  background: rgba(192, 152, 64, 0.05);
+}
+
+.bandeau-offres-icone {
+  font-size: 28px;
+  color: #C09840;
+  margin-bottom: 18px;
+  line-height: 1;
+}
+
+.bandeau-offres-eyebrow {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 9px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: rgba(192, 152, 64, 0.65);
+  margin-bottom: 14px;
+}
+
+.bandeau-offres-titre {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 23px;
+  font-weight: 400;
+  color: #F7F2E8;
+  margin: 0 0 12px;
+  letter-spacing: 0.005em;
+}
+
+.bandeau-offres-desc {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(247, 242, 232, 0.5);
+  line-height: 1.65;
+  margin: 0 auto 22px;
+  max-width: 240px;
+}
+
+.bandeau-offres-lien {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #C09840;
+  margin-top: auto;
+  transition: letter-spacing 0.25s ease;
+}
+
+.bandeau-offres-cellule:hover .bandeau-offres-lien {
+  letter-spacing: 0.36em;
+}
+
+@media (max-width: 760px) {
+  .bandeau-offres {
+    padding: 40px 20px 60px;
+  }
+  .bandeau-offres-grille {
+    grid-template-columns: 1fr;
+  }
+  .bandeau-offres-cellule {
+    border-right: none;
+    border-bottom: 1px solid rgba(192, 152, 64, 0.22);
+  }
+  .bandeau-offres-cellule:last-child {
+    border-bottom: none;
+  }
+  .bandeau-offres-orne-texte {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+  }
+}

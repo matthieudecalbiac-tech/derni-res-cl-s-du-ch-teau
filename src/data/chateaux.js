@@ -1087,6 +1087,7 @@ export const chateaux = [
 
   {
     id: 7,
+    estLaUne: true,
     nom: "Château des Briottières",
     region: "Pays de la Loire",
     departement: "Maine-et-Loire",
@@ -1176,6 +1177,7 @@ export const chateaux = [
   },
   {
     id: 8,
+    estLaUne: true,
     nom: "Château du Blanc Buisson",
     region: "Normandie",
     departement: "Eure",

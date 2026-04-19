@@ -1,0 +1,51 @@
+.citation-pont {
+  padding: 72px 48px 80px;
+  text-align: center;
+  background: #050b15;
+  border-top: 1px solid rgba(192, 152, 64, 0.12);
+  border-bottom: 1px solid rgba(192, 152, 64, 0.12);
+}
+
+.citation-pont-chapitre {
+  display: block;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: #C09840;
+  margin-bottom: 28px;
+}
+
+.citation-pont-citation {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 40px;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.2;
+  color: rgba(247, 242, 232, 0.85);
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.citation-pont-livraison {
+  display: block;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 10px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: rgba(192, 152, 64, 0.7);
+  margin-top: 36px;
+}
+
+@media (max-width: 760px) {
+  .citation-pont {
+    padding: 56px 24px 64px;
+  }
+  .citation-pont-citation {
+    font-size: 28px;
+  }
+  .citation-pont-chapitre,
+  .citation-pont-livraison {
+    letter-spacing: 0.35em;
+  }
+}

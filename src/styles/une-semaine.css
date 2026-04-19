@@ -1,0 +1,288 @@
+.une-semaine {
+  background: #07101E;
+}
+
+/* ── Demeure pleine page ── */
+.une-semaine-demeure {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 0;
+  align-items: stretch;
+  padding: 96px 0 72px;
+  overflow: hidden;
+}
+
+.une-semaine-demeure--inverse {
+  grid-template-columns: 1fr 1.1fr;
+}
+
+.une-semaine-demeure--inverse .une-semaine-photo {
+  order: 2;
+}
+
+.une-semaine-demeure--inverse .une-semaine-infos {
+  order: 1;
+}
+
+/* ── Filigrane chiffre romain ── */
+.une-semaine-filigrane {
+  position: absolute;
+  top: 40px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 260px;
+  line-height: 1;
+  color: rgba(192, 152, 64, 0.04);
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
+.une-semaine-filigrane--gauche {
+  left: 56px;
+}
+
+.une-semaine-filigrane--droite {
+  right: 56px;
+}
+
+/* ── Photo bord à bord ── */
+.une-semaine-photo {
+  position: relative;
+  min-height: 520px;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.une-semaine-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* ── Infos ── */
+.une-semaine-infos {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 16px 56px;
+}
+
+.une-semaine-meta {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: rgba(192, 152, 64, 0.7);
+  margin-bottom: 16px;
+}
+
+/* ── Nom avec lettrine ── */
+.une-semaine-nom {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  line-height: 0.9;
+  margin: 0 0 20px;
+  font-weight: 400;
+}
+
+.une-semaine-nom-lettrine {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 120px;
+  font-style: italic;
+  color: #C09840;
+  line-height: 0.9;
+}
+
+.une-semaine-nom-reste {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 56px;
+  color: #F7F2E8;
+  letter-spacing: 0.005em;
+  line-height: 0.9;
+}
+
+/* ── Accroche ── */
+.une-semaine-accroche {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 17px;
+  font-style: italic;
+  color: rgba(247, 242, 232, 0.7);
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0 0 30px;
+}
+
+/* ── Citation ── */
+.une-semaine-citation {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 22px;
+  font-style: italic;
+  color: rgba(247, 242, 232, 0.85);
+  line-height: 1.55;
+  max-width: 540px;
+  margin: 0 0 18px;
+}
+
+/* ── Signature propriétaires ── */
+.une-semaine-signature {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.une-semaine-signature-filet {
+  display: block;
+  width: 36px;
+  height: 1px;
+  background: #C09840;
+}
+
+.une-semaine-signature-texte {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: #C09840;
+}
+
+/* ── Pied ── */
+.une-semaine-pied {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(192, 152, 64, 0.2);
+}
+
+.une-semaine-prix {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.une-semaine-prix-prefix {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(247, 242, 232, 0.45);
+}
+
+.une-semaine-prix-val {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: rgba(247, 242, 232, 0.75);
+  line-height: 1;
+}
+
+.une-semaine-prix-nuit {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 12px;
+  font-style: italic;
+  color: rgba(247, 242, 232, 0.4);
+}
+
+.une-semaine-cta {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 13px;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #C09840;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: letter-spacing 0.25s ease, color 0.25s ease;
+}
+
+.une-semaine-cta:hover {
+  letter-spacing: 0.42em;
+  color: #EDD880;
+}
+
+/* ── Liaison ornementale entre demeures ── */
+.une-semaine-liaison {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  padding: 28px 48px;
+}
+
+.une-semaine-liaison-filet {
+  flex: 1;
+  max-width: 260px;
+  height: 1px;
+}
+
+.une-semaine-liaison-filet--g {
+  background: linear-gradient(90deg, transparent, rgba(192, 152, 64, 0.5));
+}
+
+.une-semaine-liaison-filet--d {
+  background: linear-gradient(90deg, rgba(192, 152, 64, 0.5), transparent);
+}
+
+.une-semaine-liaison-centre {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 16px;
+  color: #C09840;
+  letter-spacing: 0.32em;
+  white-space: nowrap;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .une-semaine-demeure,
+  .une-semaine-demeure--inverse {
+    grid-template-columns: 1fr;
+    padding: 56px 0 48px;
+  }
+  .une-semaine-demeure--inverse .une-semaine-photo,
+  .une-semaine-demeure--inverse .une-semaine-infos {
+    order: 0;
+  }
+  .une-semaine-filigrane {
+    display: none;
+  }
+  .une-semaine-photo {
+    min-height: 300px;
+  }
+  .une-semaine-infos {
+    padding: 36px 28px 8px;
+  }
+  .une-semaine-nom-lettrine {
+    font-size: 80px;
+  }
+  .une-semaine-nom-reste {
+    font-size: 36px;
+  }
+  .une-semaine-pied {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 500px) {
+  .une-semaine-nom-lettrine {
+    font-size: 64px;
+  }
+  .une-semaine-nom-reste {
+    font-size: 28px;
+  }
+  .une-semaine-citation {
+    font-size: 18px;
+  }
+}

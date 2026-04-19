@@ -1,0 +1,243 @@
+.journal-demeures {
+  background: #07101E;
+}
+
+/* ── Bloc A · Cartes postales ── */
+.journal-demeures-cartes {
+  padding: 80px 48px 60px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.journal-carte {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.35s ease;
+  background: transparent;
+}
+
+.journal-carte:hover {
+  transform: translateY(-4px);
+}
+
+.journal-carte-photo {
+  position: relative;
+  height: 380px;
+  overflow: hidden;
+}
+
+.journal-carte-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.journal-carte:hover .journal-carte-photo img {
+  transform: scale(1.04);
+}
+
+.journal-carte-heure {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 32px;
+  color: #C09840;
+  line-height: 1;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.55);
+}
+
+.journal-carte-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 28px 24px;
+  background: linear-gradient(
+    to top,
+    rgba(7, 16, 30, 0.95) 0%,
+    rgba(7, 16, 30, 0.6) 55%,
+    transparent 100%
+  );
+}
+
+.journal-carte-region {
+  display: block;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #C09840;
+  margin-bottom: 8px;
+}
+
+.journal-carte-nom {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: #F7F2E8;
+  margin: 0;
+  letter-spacing: 0.005em;
+  line-height: 1.15;
+}
+
+.journal-carte-pied {
+  padding: 22px 4px 0;
+}
+
+.journal-carte-meteo {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(247, 242, 232, 0.5);
+  margin: 0 0 10px;
+}
+
+.journal-carte-phrase {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 16px;
+  font-style: italic;
+  color: rgba(247, 242, 232, 0.8);
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Bloc B · Index typographique ── */
+.journal-demeures-index {
+  padding: 32px 48px 72px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.journal-index-orne {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.journal-index-orne-ligne {
+  flex: 1;
+  height: 1px;
+  background: rgba(192, 152, 64, 0.25);
+}
+
+.journal-index-orne-texte {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 10px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: #C09840;
+  white-space: nowrap;
+}
+
+.journal-index-grille {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+
+.journal-index-entree {
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+
+.journal-index-entree:hover {
+  transform: translateY(-2px);
+}
+
+.journal-index-eyebrow {
+  display: block;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 10px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(192, 152, 64, 0.7);
+  margin-bottom: 10px;
+}
+
+.journal-index-nom {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: rgba(247, 242, 232, 0.9);
+  margin: 0 0 10px;
+  letter-spacing: 0.005em;
+  line-height: 1.2;
+}
+
+.journal-index-phrase {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(247, 242, 232, 0.45);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Bloc C · CTA typographique ── */
+.journal-demeures-cta-wrap {
+  padding: 0 48px 72px;
+  text-align: center;
+}
+
+.journal-demeures-cta {
+  display: inline-block;
+  padding: 16px 40px;
+  border: none;
+  border-top: 1px solid rgba(192, 152, 64, 0.4);
+  border-bottom: 1px solid rgba(192, 152, 64, 0.4);
+  background: transparent;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 11px;
+  letter-spacing: 0.38em;
+  text-transform: uppercase;
+  color: #C09840;
+  cursor: pointer;
+  transition: letter-spacing 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+
+.journal-demeures-cta:hover {
+  letter-spacing: 0.44em;
+  border-top-color: #C09840;
+  border-bottom-color: #C09840;
+  color: #EDD880;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .journal-demeures-cartes {
+    grid-template-columns: 1fr;
+    padding: 56px 20px 48px;
+  }
+  .journal-demeures-index {
+    padding: 24px 20px 56px;
+  }
+}
+
+@media (max-width: 760px) {
+  .journal-index-grille {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .journal-index-orne-texte {
+    font-size: 9px;
+    letter-spacing: 0.3em;
+  }
+}
+
+@media (max-width: 500px) {
+  .journal-index-grille {
+    grid-template-columns: 1fr;
+  }
+  .journal-demeures-cta {
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    padding: 14px 24px;
+  }
+}

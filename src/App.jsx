@@ -1,13 +1,19 @@
 import React, { useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
-import ClesAlaUne from "./components/ClesAlaUne";
-import BlocChiffres from "./components/BlocChiffres";
+// import ClesAlaUne from "./components/ClesAlaUne"; // remplacé par la refonte accueil
+// import BlocChiffres from "./components/BlocChiffres"; // retiré de l'accueil refondu
+import BandeauOffres from "./components/BandeauOffres";
+import CitationPont from "./components/CitationPont";
+import UneDeLaSemaine from "./components/UneDeLaSemaine";
+import HeureAuxDemeures from "./components/HeureAuxDemeures";
+import PiedPatrimoine from "./components/PiedPatrimoine";
+import { useHorloge } from "./utils/heure";
 import TousLesChateaux from "./components/TousLesChateaux";
 import CommentCaMarche from "./components/CommentCaMarche";
 import Conciergerie from "./components/Services";
 import Temoignages from "./components/Temoignages";
-import Footer from "./components/Footer";
+// import Footer from "./components/Footer"; // remplacé par PiedPatrimoine sur l'accueil
 import ChateauModal from "./components/ChateauModal";
 import VitrineChateau from "./components/VitrineChateau";
 import CarteExplorer from "./components/CarteExplorer";
@@ -47,6 +53,7 @@ function App() {
   const [proprietairesOuvert, setProprietairesOuvert] = useState(false);
   const [dernieresOuvert, setDernieresOuvert] = useState(false);
   const [transitionChateau, setTransitionChateau] = useState(null);
+  const horloge = useHorloge();
 
   const ouvrirAuth = (mode = "inscription") => {
     setAuthMode(mode);
@@ -97,21 +104,28 @@ function App() {
           onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
           onOuvrirConciergerie={() => setConciergerieOuvert(true)}
         />
-        <BlocChiffres />
-        <ClesAlaUne onSelectChateau={ouvrirChateau} onOuvrirClub={() => setClubOuvert(true)} />
+        <BandeauOffres
+          onOuvrirDernieres={() => setDernieresOuvert(true)}
+          onOuvrirVitrines={() => setVitrinesOuvert(true)}
+          onOuvrirClub={() => setClubOuvert(true)}
+        />
+        <CitationPont
+          chapitre="I"
+          citation="Chaque lundi, une demeure entrouvre sa porte. Cette semaine, elles sont deux."
+          livraison="LA UNE DE LA SEMAINE · LIVRAISON N°47 · PRINTEMPS 2026"
+        />
+        <UneDeLaSemaine onOuvrirChateau={ouvrirChateau} />
+        <CitationPont
+          chapitre="II"
+          citation={`Ailleurs en France, il est ${horloge.hh} heures ${horloge.mm}. Voici l'heure qu'il est dans nos autres demeures.`}
+          livraison={`LE JOURNAL DES DEMEURES · ${horloge.jour} ${horloge.jj} ${horloge.mois} · ${horloge.hh} : ${horloge.mm}`}
+        />
+        <HeureAuxDemeures
+          onOuvrirChateau={ouvrirChateau}
+          onOuvrirDernieres={() => setDernieresOuvert(true)}
+        />
       </main>
-      <div className="prop-discret">
-        <div className="prop-discret-inner">
-          <span className="prop-discret-ico">⚜</span>
-          <p className="prop-discret-texte">Vous êtes propriétaire d'un château ou d'un domaine ?</p>
-          <button className="prop-discret-btn" onClick={() => setProprietairesOuvert(true)}>
-            Nous contacter <span>→</span>
-          </button>
-        </div>
-      </div>
-      <Footer onOuvrirAPropos={() => setAProposOuvert(true)} onOuvrirProprietaires={() => setProprietairesOuvert(true)}
-          onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
-          onOuvrirConciergerie={() => setConciergerieOuvert(true)} onOuvrirCarte={() => setCarteOuverte(true)} />
+      <PiedPatrimoine />
 
       {proprietairesOuvert && (
         <PartenairesChateaux onClose={() => setProprietairesOuvert(false)} />

@@ -1,0 +1,35 @@
+.pied-patrimoine {
+  background: #050b15;
+  border-top: 1px solid rgba(192, 152, 64, 0.15);
+  padding: 56px 48px;
+  text-align: center;
+}
+
+.pied-patrimoine-lys {
+  display: block;
+  color: #C09840;
+  font-size: 18px;
+  line-height: 1;
+  margin-bottom: 14px;
+}
+
+.pied-patrimoine-texte {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 14px;
+  font-style: italic;
+  color: rgba(247, 242, 232, 0.55);
+  max-width: 620px;
+  margin: 0 auto;
+  line-height: 1.75;
+}
+
+.pied-patrimoine-lien {
+  color: #C09840;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.pied-patrimoine-lien:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
