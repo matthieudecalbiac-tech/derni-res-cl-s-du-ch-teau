@@ -8,10 +8,10 @@
  *   4. Escape referme
  *   5. Images locales /bri-*.avif sans 404
  *
- * Bugs latents volontairement non corrigés côté React (voir suite "Bugs latents") :
- *   - météo « Rugles · Normandie » hardcodée (VitrineChateau.jsx ligne ~415)
- *   - 4 chiffres clés hardcodés 1290 / 3 / 8 ha / 1949 (VitrineChateau.jsx ligne ~205)
- *   - portrait typo via nom[0] + slice — produit « A » + « rnaud & Madeleine »
+ * Corrections vérifiées en non-régression (voir suite "Corrections des bugs historiques") :
+ *   - météo lit chateau.ville / chateau.region (ex-hardcode « Rugles · Normandie »)
+ *   - chiffres clés lus depuis chateau.chiffresCles (ex-hardcode 1290 / 3 / 8 ha / 1949)
+ *   - portrait typo lit proprietaires.initiale + nomAffiche (ex-découpe nom[0] + slice)
  */
 const { test, expect } = require('@playwright/test');
 
@@ -162,44 +162,38 @@ test.describe('Vitrine Briottières · parcours critiques', () => {
   });
 
   /* ═══════════════════════════════════════════════════
-   *  BUGS LATENTS — tests volontairement en échec
-   *  (ne corrigent pas le code React : attendus comme échecs
-   *   jusqu'à résolution dans VitrineChateau.jsx / chateaux.js)
+   *  CORRECTIONS — vérifications positives post-fix
+   *  (bugs météo / chiffres / portrait corrigés côté React,
+   *   ces tests garantissent la non-régression)
    * ═══════════════════════════════════════════════════
    */
-  test.describe('Bugs latents identifiés', () => {
+  test.describe('Corrections des bugs historiques', () => {
 
-    test('BUG · météo hardcodée « Rugles · Normandie » apparaît pour Briottières', async ({ page }) => {
+    test('Météo affiche bien la ville du château (Champigné · Pays de la Loire)', async ({ page }) => {
       await ouvrirBriottieres(page);
       const meteo = page.locator('.vc3-meteo-lieu');
       await meteo.scrollIntoViewIfNeeded();
       const lieu = (await meteo.textContent()) || '';
-      expect(
-        lieu,
-        'Bug : VitrineChateau.jsx ~415 affiche « Rugles · Normandie » en dur, alors que Briottières est en Anjou.',
-      ).not.toMatch(/Rugles|Normandie/i);
+      expect(lieu).toMatch(/Champign[ée]|Pays de la Loire/i);
+      expect(lieu).not.toMatch(/Rugles|Normandie/i);
     });
 
-    test('BUG · chiffres clés 1290 / 3 / 8 ha / 1949 appartiennent à Blanc Buisson', async ({ page }) => {
+    test('Chiffres clés affichent les données Briottières (1485 / 7 / 50 ha)', async ({ page }) => {
       await ouvrirBriottieres(page);
       await page.locator('.vc3-chiffres').scrollIntoViewIfNeeded();
-      const valeurs = await page.locator('.vc3-chiffre-val').allTextContents();
-      const joined = valeurs.join(' | ');
-      expect(
-        joined,
-        'Bug : VitrineChateau.jsx ~205 hardcode les chiffres de Blanc Buisson ; Briottières devrait afficher 1485 / 7 / 50 ha / classée MH.',
-      ).not.toMatch(/1290|1949/);
+      const joined = (await page.locator('.vc3-chiffre-val').allTextContents()).join(' | ');
+      expect(joined).toMatch(/1485/);
+      expect(joined).toMatch(/50\s*ha/i);
+      expect(joined).not.toMatch(/1290|1949/);
     });
 
-    test('BUG · portrait découpé sur nom[0] + slice produit « A » + « rnaud … »', async ({ page }) => {
+    test('Portrait propriétaire : initiale V + reste albray (Valbray)', async ({ page }) => {
       await ouvrirBriottieres(page);
       await page.locator('.vc3-portrait').scrollIntoViewIfNeeded();
       const init = ((await page.locator('.vc3-portrait-init').textContent()) || '').trim();
       const reste = ((await page.locator('.vc3-portrait-reste').textContent()) || '').trim();
-      expect(
-        init + '|' + reste,
-        'Bug : proprietaires.nom[0] + slice(1)… découpe « Arnaud » en « A » / « rnaud & Madeleine ». Prévoir proprietaires.initiale + proprietaires.nomAffiche dans chateaux.js.',
-      ).not.toMatch(/^A\|rnaud/);
+      expect(init).toBe('V');
+      expect(reste.toLowerCase()).toContain('albray');
     });
 
   });
