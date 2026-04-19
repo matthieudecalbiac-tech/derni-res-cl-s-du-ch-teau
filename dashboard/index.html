@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚜ QA · Les Clés du Château</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Crimson+Pro:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --nuit: #07101E;
+  --nuit2: #0d1a2e;
+  --or: #C09840;
+  --or-c: #EDD880;
+  --blanc: #F5F0E8;
+  --creme: #f5f0e8;
+  --vert: #4a8a5a;
+  --rouge: #c55;
+  --gris: rgba(245,240,232,0.4);
+  --gris2: rgba(245,240,232,0.15);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Crimson Pro', Georgia, serif;
+  background: var(--nuit);
+  color: var(--blanc);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+header {
+  padding: 32px 48px;
+  border-bottom: 1px solid rgba(192,152,64,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(7,16,30,0.97);
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.brand-lys { color: var(--or); font-size: 1.4rem; }
+.brand-txt {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+}
+.brand-sub {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--or);
+  opacity: 0.7;
+  margin-left: 14px;
+  padding-left: 14px;
+  border-left: 1px solid rgba(192,152,64,0.3);
+}
+.actions { display: flex; gap: 12px; }
+button {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 10px 22px;
+  background: transparent;
+  border: 1px solid rgba(192,152,64,0.3);
+  color: var(--or);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+button:hover { background: rgba(192,152,64,0.1); border-color: var(--or); color: var(--or-c); }
+button.primary { background: var(--or); color: var(--nuit); border-color: var(--or); }
+button.primary:hover { background: var(--or-c); }
+
+main { padding: 40px 48px; max-width: 1400px; margin: 0 auto; }
+
+.bilan {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(192,152,64,0.15);
+  margin-bottom: 48px;
+}
+.bilan-card {
+  background: var(--nuit2);
+  padding: 28px 24px;
+  text-align: center;
+}
+.bilan-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+  color: var(--or);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.bilan-val.ok { color: var(--vert); }
+.bilan-val.ko { color: var(--rouge); }
+.bilan-lab {
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gris);
+}
+
+.section { margin-bottom: 56px; }
+.section-titre {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.section-titre::before { content: '⚜'; color: var(--or); font-size: 0.9rem; }
+.section-sub {
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--or);
+  opacity: 0.6;
+  margin-bottom: 24px;
+}
+
+.etapes {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(192,152,64,0.15);
+}
+.etape {
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(192,152,64,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.etape:last-child { border-bottom: none; }
+.etape-nom {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+}
+.etape-status {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 4px 12px;
+  border: 1px solid currentColor;
+}
+.etape-status.ok { color: var(--vert); }
+.etape-status.ko { color: var(--rouge); }
+
+.lighthouse-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+.lh-card {
+  border: 1px solid rgba(192,152,64,0.15);
+  padding: 24px;
+  text-align: center;
+}
+.lh-score {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.lh-score.bon { color: var(--vert); }
+.lh-score.moyen { color: var(--or); }
+.lh-score.mauvais { color: var(--rouge); }
+.lh-lab {
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gris);
+}
+
+.bugs {
+  border: 1px solid rgba(192,152,64,0.25);
+  padding: 28px 32px;
+  background: rgba(192,152,64,0.03);
+}
+.bug {
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(192,152,64,0.08);
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: start;
+}
+.bug:last-child { border-bottom: none; }
+.bug-statut {
+  font-size: 0.62rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border: 1px solid var(--or);
+  color: var(--or);
+  white-space: nowrap;
+  margin-top: 2px;
+}
+.bug-titre {
+  font-family: 'Playfair Display', serif;
+  font-size: 0.98rem;
+  margin-bottom: 4px;
+}
+.bug-desc {
+  font-size: 0.88rem;
+  color: var(--gris);
+  font-style: italic;
+  line-height: 1.6;
+}
+.bug-file {
+  font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
+  color: var(--or);
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.footer {
+  padding: 24px 48px;
+  border-top: 1px solid rgba(192,152,64,0.15);
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--gris);
+  font-style: italic;
+}
+.footer a { color: var(--or); text-decoration: none; }
+.vide {
+  padding: 60px 32px;
+  text-align: center;
+  color: var(--gris);
+  font-style: italic;
+  border: 1px dashed rgba(192,152,64,0.2);
+}
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(192,152,64,0.3);
+  border-top-color: var(--or);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.toast {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  background: var(--or);
+  color: var(--nuit);
+  padding: 14px 24px;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  transform: translateX(400px);
+  transition: transform 0.3s;
+}
+.toast.visible { transform: translateX(0); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="brand-lys">⚜</span>
+    <span class="brand-txt">Les Clés du Château</span>
+    <span class="brand-sub">QA Dashboard</span>
+  </div>
+  <div class="actions">
+    <button onclick="lancerRun('fast')">Run rapide (E2E)</button>
+    <button onclick="lancerRun('full')" class="primary">Run complet + Lighthouse</button>
+    <button onclick="window.open('/playwright-report/index.html')">Rapport détaillé</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- BILAN -->
+  <div class="bilan" id="bilan">
+    <div class="bilan-card">
+      <div class="bilan-val" id="val-total">—</div>
+      <div class="bilan-lab">Tests exécutés</div>
+    </div>
+    <div class="bilan-card">
+      <div class="bilan-val ok" id="val-ok">—</div>
+      <div class="bilan-lab">Réussis</div>
+    </div>
+    <div class="bilan-card">
+      <div class="bilan-val ko" id="val-ko">—</div>
+      <div class="bilan-lab">Échoués</div>
+    </div>
+    <div class="bilan-card">
+      <div class="bilan-val" id="val-duree">—</div>
+      <div class="bilan-lab">Durée du run</div>
+    </div>
+  </div>
+
+  <!-- ÉTAPES -->
+  <section class="section">
+    <h2 class="section-titre">Dernier run</h2>
+    <div class="section-sub" id="cible-info">Aucun run encore</div>
+    <div class="etapes" id="etapes">
+      <div class="vide">Aucun run exécuté. Clique sur <strong>Run rapide</strong> pour démarrer.</div>
+    </div>
+  </section>
+
+  <!-- LIGHTHOUSE -->
+  <section class="section">
+    <h2 class="section-titre">Performance · Lighthouse</h2>
+    <div class="section-sub">Perf · Accessibilité · SEO · Best Practices</div>
+    <div class="lighthouse-grille" id="lighthouse">
+      <div class="vide" style="grid-column: 1/-1">Lancer un run complet pour voir les scores.</div>
+    </div>
+  </section>
+
+  <!-- BUGS SUIVIS -->
+  <section class="section">
+    <h2 class="section-titre">Bugs suivis</h2>
+    <div class="section-sub">Détectés à la lecture du code · vérifiés par les tests</div>
+    <div class="bugs">
+      <div class="bug">
+        <span class="bug-statut">Ouvert</span>
+        <div>
+          <div class="bug-titre">Météo hardcodée sur "Rugles · Normandie"</div>
+          <div class="bug-desc">Briottières est en Anjou — le libellé ne doit pas afficher Rugles. Prévoir chateau.ville dans chateaux.js.</div>
+          <div class="bug-file">src/components/VitrineChateau.jsx · ligne ~275</div>
+        </div>
+      </div>
+      <div class="bug">
+        <span class="bug-statut">Ouvert</span>
+        <div>
+          <div class="bug-titre">Chiffres clés hero en dur (1290, 3, 8 ha, 1949)</div>
+          <div class="bug-desc">Ces valeurs correspondent à Blanc Buisson. Pour Briottières : 1485, 7 générations, 50 ha. À piloter par chateau.chiffresCles.</div>
+          <div class="bug-file">src/components/VitrineChateau.jsx · ligne ~164</div>
+        </div>
+      </div>
+      <div class="bug">
+        <span class="bug-statut">Fragile</span>
+        <div>
+          <div class="bug-titre">Découpage du nom propriétaire instable</div>
+          <div class="bug-desc">chateau.proprietaires.nom[0] + slice(1).split(' ').slice(0,3) donne des résultats imprévisibles. Préférer proprietaires.prenom / proprietaires.nomDeFamille séparés.</div>
+          <div class="bug-file">src/components/VitrineChateau.jsx · section Portrait</div>
+        </div>
+      </div>
+      <div class="bug">
+        <span class="bug-statut">À vérifier</span>
+        <div>
+          <div class="bug-titre">Curseur custom sur mobile</div>
+          <div class="bug-desc">cursor:none + .vc3-cursor suivant la souris : comportement imprévisible sur tactile. Désactiver via media query sur mobile.</div>
+          <div class="bug-file">src/styles/vitrine-chateau.css · .vc3-overlay</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<div class="footer">
+  ⚜ &nbsp; Dashboard local · Les Clés du Château · Actualisation toutes les 5 secondes
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function classeScore(n) {
+  if (n >= 90) return 'bon';
+  if (n >= 70) return 'moyen';
+  return 'mauvais';
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  setTimeout(() => t.classList.remove('visible'), 3500);
+}
+
+async function charger() {
+  try {
+    const r = await fetch('/api/status');
+    const { status, results, lighthouse } = await r.json();
+
+    // Bilan global
+    if (results && results.stats) {
+      const tot = (results.stats.expected || 0) + (results.stats.unexpected || 0) + (results.stats.skipped || 0);
+      document.getElementById('val-total').textContent = tot || '—';
+      document.getElementById('val-ok').textContent = results.stats.expected || 0;
+      document.getElementById('val-ko').textContent = results.stats.unexpected || 0;
+    }
+    document.getElementById('val-duree').textContent = status.dureeSec ? status.dureeSec + 's' : '—';
+
+    // Cible
+    document.getElementById('cible-info').textContent =
+      `Cible : ${status.cible || '—'} · ${status.baseUrl || ''} · ${status.timestamp ? new Date(status.timestamp).toLocaleString('fr-FR') : ''}`;
+
+    // Étapes
+    const etapesEl = document.getElementById('etapes');
+    if (status.etapes && status.etapes.length > 0) {
+      etapesEl.innerHTML = status.etapes.map(e => `
+        <div class="etape">
+          <span class="etape-nom">${e.nom}</span>
+          <span class="etape-status ${e.ok ? 'ok' : 'ko'}">${e.ok ? '✓ Passé' : '✗ Échec'}</span>
+        </div>
+      `).join('');
+    }
+
+    // Lighthouse
+    const lhEl = document.getElementById('lighthouse');
+    if (lighthouse && lighthouse.length > 0) {
+      const premier = lighthouse[0];
+      if (premier.scores) {
+        lhEl.innerHTML = `
+          <div class="lh-card"><div class="lh-score ${classeScore(premier.scores.performance)}">${premier.scores.performance}</div><div class="lh-lab">Performance</div></div>
+          <div class="lh-card"><div class="lh-score ${classeScore(premier.scores.accessibility)}">${premier.scores.accessibility}</div><div class="lh-lab">Accessibilité</div></div>
+          <div class="lh-card"><div class="lh-score ${classeScore(premier.scores.seo)}">${premier.scores.seo}</div><div class="lh-lab">SEO</div></div>
+          <div class="lh-card"><div class="lh-score ${classeScore(premier.scores.bestPractices)}">${premier.scores.bestPractices}</div><div class="lh-lab">Best Practices</div></div>
+        `;
+      }
+    }
+  } catch (err) {
+    console.warn('Erreur chargement :', err);
+  }
+}
+
+async function lancerRun(mode) {
+  toast('⚜  Run ' + mode + ' lancé en arrière-plan…');
+  try {
+    await fetch('/api/run?mode=' + mode, { method: 'POST' });
+    setTimeout(charger, 3000);
+  } catch (err) {
+    toast('Erreur : ' + err.message);
+  }
+}
+
+charger();
+setInterval(charger, 5000);
+</script>
+
+</body>
+</html>

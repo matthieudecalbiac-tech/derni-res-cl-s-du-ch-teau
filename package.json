@@ -6,10 +6,22 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "qa": "node scripts/qa-run.cjs",
+    "qa:fast": "node scripts/qa-run.cjs --fast",
+    "qa:visual": "node scripts/qa-run.cjs --visual",
+    "qa:full": "node scripts/qa-run.cjs --perf",
+    "qa:update-snaps": "node scripts/qa-run.cjs --update-snaps",
+    "qa:dashboard": "node scripts/qa-dashboard.cjs",
+    "qa:report": "npx playwright show-report",
+    "qa:prod": "cross-env QA_TARGET=prod node scripts/qa-run.cjs --fast"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@vitejs/plugin-react": "^4.3.4",
+    "chrome-launcher": "^1.2.1",
+    "cross-env": "^10.1.0",
+    "lighthouse": "^13.1.0",
     "vite": "^6.0.3"
   },
   "dependencies": {
