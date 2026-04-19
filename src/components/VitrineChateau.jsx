@@ -203,10 +203,12 @@ export default function VitrineChateau({ chateau, onClose }) {
 
         {/* CHIFFRES CLÉS */}
         <div className="vc3-chiffres">
-          <div className="vc3-chiffre"><span className="vc3-chiffre-val">1290</span><span className="vc3-chiffre-lab">Année de fondation</span></div>
-          <div className="vc3-chiffre"><span className="vc3-chiffre-val">3</span><span className="vc3-chiffre-lab">Familles en 7 siècles</span></div>
-          <div className="vc3-chiffre"><span className="vc3-chiffre-val">8 ha</span><span className="vc3-chiffre-lab">Parc classé</span></div>
-          <div className="vc3-chiffre"><span className="vc3-chiffre-val">1949</span><span className="vc3-chiffre-lab">Monument Historique</span></div>
+          {chateau.chiffresCles?.map((c, i) => (
+            <div key={i} className="vc3-chiffre">
+              <span className="vc3-chiffre-val">{c.val}</span>
+              <span className="vc3-chiffre-lab">{c.lab}</span>
+            </div>
+          ))}
         </div>
 
         {/* CINÉMATIQUE */}
@@ -284,10 +286,10 @@ export default function VitrineChateau({ chateau, onClose }) {
               <div className="vc3-portrait-typo-content">
                 <span className="vc3-eyebrow">Les propriétaires</span>
                 <div className="vc3-portrait-typo-nom">
-                  <span className="vc3-portrait-init">{chateau.proprietaires.nom[0]}</span>
-                  <span className="vc3-portrait-reste">{chateau.proprietaires.nom.slice(1).split(' ').slice(0,3).join(' ')}</span>
+                  <span className="vc3-portrait-init">{chateau.proprietaires.initiale || chateau.proprietaires.nom[0]}</span>
+                  <span className="vc3-portrait-reste">{chateau.proprietaires.nomAffiche || chateau.proprietaires.nom.slice(1).split(' ').slice(0,3).join(' ')}</span>
                 </div>
-                <span className="vc3-portrait-famille">{chateau.proprietaires.nom.split(' ').slice(3).join(' ')}</span>
+                <span className="vc3-portrait-famille">{chateau.proprietaires.nom}</span>
                 <span className="vc3-portrait-role">Propriétaires depuis {chateau.proprietaires.depuis}</span>
               </div>
               <div className="vc3-portrait-stats">
@@ -412,7 +414,7 @@ export default function VitrineChateau({ chateau, onClose }) {
                 <span className="vc3-meteo-temp">{meteo.temp}°</span>
                 <div className="vc3-meteo-details">
                   <span className="vc3-meteo-desc">{meteo.desc}</span>
-                  <span className="vc3-meteo-lieu">En ce moment à Rugles · Normandie</span>
+                  <span className="vc3-meteo-lieu">En ce moment à {chateau.ville || chateau.departement} · {chateau.region}</span>
                 </div>
               </div>
               <p className="vc3-meteo-phrase">⚜ &nbsp; {meteo.phrase}</p>
