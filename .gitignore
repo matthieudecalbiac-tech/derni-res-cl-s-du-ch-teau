@@ -26,3 +26,11 @@ fix*.cjs
 *.njsproj
 *.sln
 *.sw?
+
+# Claude Code — config locale
+.claude/
+
+# Playwright — outputs runtime
+qa-status.json
+test-results/
+playwright-report/
