@@ -84,12 +84,10 @@ function App() {
         onOuvrirCompte={() => setCompteOuvert(true)}
         onOuvrirClub={() => setClubOuvert(true)}
         onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
-          onOuvrirConciergerie={() => setConciergerieOuvert(true)}
+        onOuvrirConciergerie={() => setConciergerieOuvert(true)}
         onOuvrirAPropos={() => setAProposOuvert(true)}
         onOuvrirVitrines={() => setVitrinesOuvert(true)}
         onOuvrirProprietaires={() => setProprietairesOuvert(true)}
-          onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
-          onOuvrirConciergerie={() => setConciergerieOuvert(true)}
         onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
         onConnexion={() => ouvrirAuth("connexion")}
         userConnecte={userConnecte}
