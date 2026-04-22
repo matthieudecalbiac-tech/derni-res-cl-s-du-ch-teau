@@ -1,27 +1,56 @@
 /**
- * Orchestration QA complète
+ * Orchestration QA · LCC
  *
- * Lance dans l'ordre :
- *   1. Tests E2E Playwright
- *   2. Tests régression visuelle
- *   3. Lighthouse (si --perf)
- *   4. Sauvegarde état → dashboard
+ * Table déclarative AGENTS : chaque agent est un script Node autonome qui
+ * écrit son bilan dans qa-reports/<id>.json au format commun
+ *   { agent, libelle, ok, dureeSec, stats, details, timestamp }.
+ *
+ * Le bilan global reste sérialisé dans qa-status.json avec la forme
+ * rétro-compatible attendue par le dashboard (etapes[].nom / .ok).
  *
  * Usage :
- *   node scripts/qa-run.cjs                 → tout
+ *   node scripts/qa-run.cjs                 → E2E + visuel
  *   node scripts/qa-run.cjs --fast          → E2E seulement
- *   node scripts/qa-run.cjs --visual        → E2E + visuel
- *   node scripts/qa-run.cjs --update-snaps  → régénère les screenshots de référence
+ *   node scripts/qa-run.cjs --visual        → E2E + visuel (explicite)
+ *   node scripts/qa-run.cjs --perf          → E2E + visuel + Lighthouse
+ *   node scripts/qa-run.cjs --update-snaps  → régénère les snapshots
  */
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+const ROOT = path.join(__dirname, '..');
 const args = process.argv.slice(2);
-const fast = args.includes('--fast');
-const withVisual = args.includes('--visual') || (!fast && !args.includes('--no-visual'));
-const withPerf = args.includes('--perf');
-const updateSnaps = args.includes('--update-snaps');
+const opts = {
+  fast: args.includes('--fast'),
+  withVisual: args.includes('--visual') || (!args.includes('--fast') && !args.includes('--no-visual')),
+  withPerf: args.includes('--perf'),
+  updateSnaps: args.includes('--update-snaps'),
+};
+
+const AGENTS = [
+  {
+    id: 'playwright-e2e',
+    libelle: 'Tests E2E',
+    script: 'scripts/agents/playwright-e2e.cjs',
+    actif: () => true,
+    flags: () => [],
+  },
+  {
+    id: 'playwright-visual',
+    libelle: 'Régression visuelle',
+    script: 'scripts/agents/playwright-visual.cjs',
+    actif: (o) => o.withVisual,
+    flags: (o) => (o.updateSnaps ? ['--update-snaps'] : []),
+  },
+  {
+    id: 'lighthouse',
+    libelle: 'Lighthouse',
+    script: 'scripts/agents/lighthouse.cjs',
+    actif: (o) => o.withPerf,
+    flags: () => [],
+  },
+];
 
 const LOG = {
   ok: (m) => console.log(`\x1b[32m✓\x1b[0m ${m}`),
@@ -30,42 +59,28 @@ const LOG = {
   bloc: (m) => console.log(`\n\x1b[1m\x1b[35m━━ ${m} ━━\x1b[0m\n`),
 };
 
-function runStep(nom, cmd) {
-  LOG.bloc(nom);
+function lancerAgent(agent, extra) {
+  const cmd = `node ${agent.script}${extra.length ? ' ' + extra.join(' ') : ''}`;
+  LOG.bloc(agent.libelle);
   LOG.info(cmd);
   try {
-    execSync(cmd, { stdio: 'inherit', cwd: path.join(__dirname, '..') });
-    LOG.ok(`${nom} · OK`);
-    return { nom, ok: true };
+    execSync(cmd, { stdio: 'inherit', cwd: ROOT });
+    LOG.ok(`${agent.libelle} · OK`);
+    return { nom: agent.libelle, ok: true };
   } catch (err) {
-    LOG.ko(`${nom} · ÉCHEC`);
-    return { nom, ok: false, erreur: err.message };
+    LOG.ko(`${agent.libelle} · ÉCHEC`);
+    return { nom: agent.libelle, ok: false, erreur: err.message };
   }
 }
 
-const resultats = [];
 const debut = Date.now();
+const resultats = [];
 
-// 1. E2E
-resultats.push(runStep(
-  'Tests E2E',
-  'npx playwright test tests/e2e --reporter=list,json'
-));
-
-// 2. Visuel
-if (withVisual) {
-  const cmd = updateSnaps
-    ? 'npx playwright test tests/visual --update-snapshots'
-    : 'npx playwright test tests/visual --reporter=list';
-  resultats.push(runStep('Régression visuelle', cmd));
+for (const agent of AGENTS) {
+  if (!agent.actif(opts)) continue;
+  resultats.push(lancerAgent(agent, agent.flags(opts)));
 }
 
-// 3. Lighthouse
-if (withPerf) {
-  resultats.push(runStep('Lighthouse', 'node scripts/lighthouse.cjs'));
-}
-
-// 4. État global → dashboard
 const etat = {
   timestamp: new Date().toISOString(),
   dureeSec: Math.round((Date.now() - debut) / 1000),
@@ -77,10 +92,7 @@ const etat = {
   ok: resultats.every((r) => r.ok),
 };
 
-fs.writeFileSync(
-  path.join(__dirname, '..', 'qa-status.json'),
-  JSON.stringify(etat, null, 2)
-);
+fs.writeFileSync(path.join(ROOT, 'qa-status.json'), JSON.stringify(etat, null, 2));
 
 LOG.bloc('BILAN');
 console.log(`Durée : ${etat.dureeSec}s  ·  Cible : ${etat.cible}`);

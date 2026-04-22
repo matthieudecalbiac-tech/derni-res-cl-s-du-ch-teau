@@ -65,17 +65,23 @@ const server = http.createServer((req, res) => {
   // API : lancer un run
   if (url.pathname === '/api/run' && req.method === 'POST') {
     const mode = url.searchParams.get('mode') || 'fast';
-    const cmd = mode === 'full'
-      ? 'node scripts/qa-run.cjs --perf'
+    const argv = mode === 'full'
+      ? ['scripts/qa-run.cjs', '--perf']
       : mode === 'update-snaps'
-        ? 'node scripts/qa-run.cjs --update-snaps'
-        : 'node scripts/qa-run.cjs --fast';
+        ? ['scripts/qa-run.cjs', '--update-snaps']
+        : ['scripts/qa-run.cjs', '--fast'];
 
-    const child = spawn('sh', ['-c', cmd], { cwd: ROOT, detached: true });
+    // Lancement cross-platform : on passe par process.execPath (pas de shell,
+    // fonctionne identique sur Windows, macOS, Linux, GitHub Actions).
+    const child = spawn(process.execPath, argv, {
+      cwd: ROOT,
+      detached: true,
+      stdio: 'ignore',
+    });
     child.unref();
 
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ lance: true, commande: cmd }));
+    res.end(JSON.stringify({ lance: true, commande: `node ${argv.join(' ')}` }));
     return;
   }
 
