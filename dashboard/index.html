@@ -17,6 +17,8 @@
   --creme: #f5f0e8;
   --vert: #4a8a5a;
   --rouge: #c55;
+  --orange: #d98b3a;
+  --bleu: #7aa4d4;
   --gris: rgba(245,240,232,0.4);
   --gris2: rgba(245,240,232,0.15);
 }
@@ -80,6 +82,17 @@ button.primary:hover { background: var(--or-c); }
 
 main { padding: 40px 48px; max-width: 1400px; margin: 0 auto; }
 
+.run-meta {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--or);
+  opacity: 0.75;
+  padding: 18px 0 22px;
+  border-bottom: 1px solid rgba(192,152,64,0.08);
+  margin-bottom: 32px;
+}
+
 .bilan {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -101,6 +114,7 @@ main { padding: 40px 48px; max-width: 1400px; margin: 0 auto; }
 }
 .bilan-val.ok { color: var(--vert); }
 .bilan-val.ko { color: var(--rouge); }
+.bilan-val.warn { color: var(--orange); }
 .bilan-lab {
   font-size: 0.62rem;
   letter-spacing: 0.22em;
@@ -127,32 +141,103 @@ main { padding: 40px 48px; max-width: 1400px; margin: 0 auto; }
   margin-bottom: 24px;
 }
 
-.etapes {
-  display: flex;
-  flex-direction: column;
-  border: 1px solid rgba(192,152,64,0.15);
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
 }
-.etape {
-  padding: 18px 24px;
-  border-bottom: 1px solid rgba(192,152,64,0.08);
+@media (max-width: 700px) {
+  .agents-grid { grid-template-columns: 1fr; }
+}
+.agent-carte {
+  background: var(--nuit2);
+  border: 1px solid rgba(192,152,64,0.15);
+  border-left: 4px solid var(--gris2);
+  padding: 22px 26px;
+}
+.agent-carte.ok { border-left-color: var(--vert); }
+.agent-carte.ko { border-left-color: var(--rouge); }
+.agent-carte.warn { border-left-color: var(--orange); }
+.agent-carte.attente { border-left-color: var(--gris); }
+.agent-tete {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
 }
-.etape:last-child { border-bottom: none; }
-.etape-nom {
+.agent-icone { font-size: 1.1rem; line-height: 1; }
+.agent-libelle {
   font-family: 'Playfair Display', serif;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  flex: 1;
 }
-.etape-status {
+.agent-duree {
   font-size: 0.68rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  padding: 4px 12px;
-  border: 1px solid currentColor;
+  color: var(--or);
+  opacity: 0.7;
+  white-space: nowrap;
 }
-.etape-status.ok { color: var(--vert); }
-.etape-status.ko { color: var(--rouge); }
+.agent-stats {
+  font-size: 0.92rem;
+  color: var(--blanc);
+  opacity: 0.9;
+  margin-bottom: 14px;
+}
+.agent-details-btn {
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  padding: 6px 14px;
+}
+.agent-details {
+  display: none;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(192,152,64,0.1);
+}
+.agent-details.visible { display: block; }
+.agent-detail-item {
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(192,152,64,0.06);
+}
+.agent-detail-item:last-child { border-bottom: none; }
+.agent-detail-tete {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+.agent-detail-type {
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+.agent-detail-type.erreur { color: var(--rouge); }
+.agent-detail-type.avertissement { color: var(--orange); }
+.agent-detail-type.info { color: var(--bleu); }
+.agent-detail-message {
+  font-size: 0.9rem;
+  flex: 1 1 60%;
+}
+.agent-detail-extra {
+  font-size: 0.76rem;
+  color: var(--gris);
+  font-family: 'Courier New', monospace;
+  margin-top: 4px;
+  word-break: break-word;
+}
+.agent-detail-vide {
+  font-style: italic;
+  color: var(--gris);
+  font-size: 0.88rem;
+  text-align: center;
+  padding: 18px 0;
+}
 
 .lighthouse-grille {
   display: grid;
@@ -273,7 +358,7 @@ main { padding: 40px 48px; max-width: 1400px; margin: 0 auto; }
   <div class="brand">
     <span class="brand-lys">⚜</span>
     <span class="brand-txt">Les Clés du Château</span>
-    <span class="brand-sub">QA Dashboard</span>
+    <span class="brand-sub">Dashboard QA</span>
   </div>
   <div class="actions">
     <button onclick="lancerRun('fast')">Run rapide (E2E)</button>
@@ -284,41 +369,43 @@ main { padding: 40px 48px; max-width: 1400px; margin: 0 auto; }
 
 <main>
 
-  <!-- BILAN -->
+  <div class="run-meta" id="run-meta">Aucun run encore</div>
+
+  <!-- BILAN GLOBAL -->
   <div class="bilan" id="bilan">
     <div class="bilan-card">
       <div class="bilan-val" id="val-total">—</div>
-      <div class="bilan-lab">Tests exécutés</div>
+      <div class="bilan-lab">Agents lancés</div>
     </div>
     <div class="bilan-card">
       <div class="bilan-val ok" id="val-ok">—</div>
-      <div class="bilan-lab">Réussis</div>
+      <div class="bilan-lab">Verts</div>
     </div>
     <div class="bilan-card">
       <div class="bilan-val ko" id="val-ko">—</div>
-      <div class="bilan-lab">Échoués</div>
+      <div class="bilan-lab">Rouges</div>
     </div>
     <div class="bilan-card">
-      <div class="bilan-val" id="val-duree">—</div>
-      <div class="bilan-lab">Durée du run</div>
+      <div class="bilan-val warn" id="val-warn">—</div>
+      <div class="bilan-lab">Avertissements</div>
     </div>
   </div>
 
-  <!-- ÉTAPES -->
+  <!-- AGENTS (grid dynamique, une carte par qa-reports/*.json hors lighthouse) -->
   <section class="section">
-    <h2 class="section-titre">Dernier run</h2>
-    <div class="section-sub" id="cible-info">Aucun run encore</div>
-    <div class="etapes" id="etapes">
-      <div class="vide">Aucun run exécuté. Clique sur <strong>Run rapide</strong> pour démarrer.</div>
+    <h2 class="section-titre">Agents QA</h2>
+    <div class="section-sub">Une carte par rapport lu dans qa-reports/</div>
+    <div class="agents-grid" id="agents-grid">
+      <div class="vide" style="grid-column:1/-1">Aucun agent QA n'a encore tourné. Clique sur <strong>Run rapide</strong>.</div>
     </div>
   </section>
 
-  <!-- LIGHTHOUSE -->
+  <!-- LIGHTHOUSE (section dédiée, hors grid) -->
   <section class="section">
     <h2 class="section-titre">Performance · Lighthouse</h2>
     <div class="section-sub">Perf · Accessibilité · SEO · Best Practices</div>
     <div class="lighthouse-grille" id="lighthouse">
-      <div class="vide" style="grid-column: 1/-1">Lancer un run complet pour voir les scores.</div>
+      <div class="vide" style="grid-column: 1/-1">Pas encore mesuré. Lancer un run complet pour voir les scores.</div>
     </div>
   </section>
 
@@ -372,9 +459,14 @@ main { padding: 40px 48px; max-width: 1400px; margin: 0 auto; }
 
 <script>
 function classeScore(n) {
+  if (n == null) return 'moyen';
   if (n >= 90) return 'bon';
   if (n >= 70) return 'moyen';
   return 'mauvais';
+}
+
+function echap(s) {
+  return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 function toast(msg) {
@@ -384,47 +476,141 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('visible'), 3500);
 }
 
+function statutAgent(a) {
+  if (!a) return 'attente';
+  if (!a.ok) return 'ko';
+  if (Array.isArray(a.details) && a.details.some(d => d && d.type === 'avertissement')) return 'warn';
+  return 'ok';
+}
+
+function iconeStatut(s) {
+  return s === 'ok' ? '🟢' : s === 'ko' ? '🔴' : s === 'warn' ? '🟠' : '🔘';
+}
+
+function statsDefaut(stats) {
+  return Object.entries(stats).slice(0, 3)
+    .map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`)
+    .join(' · ');
+}
+
+function rendreStatsAgent(agent, stats) {
+  if (!stats || Object.keys(stats).length === 0) return '—';
+  if (agent === 'playwright-e2e') {
+    const parts = [`${stats.ok ?? 0} / ${stats.total ?? 0} tests verts`];
+    if (stats.ko) parts.push(`${stats.ko} échec${stats.ko > 1 ? 's' : ''}`);
+    if (stats.flaky) parts.push(`${stats.flaky} flaky`);
+    if (stats.skipped) parts.push(`${stats.skipped} ignoré${stats.skipped > 1 ? 's' : ''}`);
+    return parts.join(' · ');
+  }
+  if (agent === 'playwright-visual') {
+    if (stats.mode === 'update') return 'Snapshots régénérés';
+    if ('total' in stats) return `${stats.ok ?? 0}/${stats.total} snapshots OK`;
+    if (stats.mode === 'compare') return 'Comparaison snapshots';
+    return statsDefaut(stats);
+  }
+  return statsDefaut(stats);
+}
+
+function rendreDetails(details) {
+  if (!Array.isArray(details) || details.length === 0) {
+    return '<div class="agent-detail-vide">Aucune anomalie</div>';
+  }
+  return details.map(d => {
+    const type = ['erreur','avertissement','info'].includes(d && d.type) ? d.type : 'info';
+    const message = echap((d && d.message) || '');
+    const extras = Object.entries(d || {})
+      .filter(([k]) => k !== 'type' && k !== 'message')
+      .map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`);
+    return `
+      <div class="agent-detail-item">
+        <div class="agent-detail-tete">
+          <span class="agent-detail-type ${type}">${type}</span>
+          <span class="agent-detail-message">${message}</span>
+        </div>
+        ${extras.length ? `<div class="agent-detail-extra">${echap(extras.join(' · '))}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function rendreAgentCarte(a) {
+  const s = statutAgent(a);
+  const stats = echap(rendreStatsAgent(a.agent, a.stats));
+  const libelle = echap(a.libelle || a.agent || '—');
+  const duree = a.dureeSec != null ? a.dureeSec + 's' : '—';
+  return `
+    <div class="agent-carte ${s}">
+      <div class="agent-tete">
+        <span class="agent-icone">${iconeStatut(s)}</span>
+        <span class="agent-libelle">${libelle}</span>
+        <span class="agent-duree">${duree}</span>
+      </div>
+      <div class="agent-stats">${stats}</div>
+      <button type="button" class="agent-details-btn">Voir détails</button>
+      <div class="agent-details">${rendreDetails(a.details)}</div>
+    </div>
+  `;
+}
+
 async function charger() {
   try {
     const r = await fetch('/api/status');
-    const { status, results, lighthouse } = await r.json();
+    const { status, lighthouse, agents } = await r.json();
 
-    // Bilan global
-    if (results && results.stats) {
-      const tot = (results.stats.expected || 0) + (results.stats.unexpected || 0) + (results.stats.skipped || 0);
-      document.getElementById('val-total').textContent = tot || '—';
-      document.getElementById('val-ok').textContent = results.stats.expected || 0;
-      document.getElementById('val-ko').textContent = results.stats.unexpected || 0;
+    // Méta du run
+    const cible = (status && status.cible) || '—';
+    const baseUrl = (status && status.baseUrl) || '';
+    const ts = (status && status.timestamp) ? new Date(status.timestamp).toLocaleString('fr-FR') : '—';
+    const duree = (status && status.dureeSec != null) ? status.dureeSec + 's' : '—';
+    document.getElementById('run-meta').textContent =
+      `Cible : ${cible} · ${baseUrl} · Dernier run : ${ts} · Durée totale : ${duree}`;
+
+    // Bilan global (tous agents confondus, Lighthouse compris)
+    const tous = Array.isArray(agents) ? agents : [];
+    let verts = 0, rouges = 0, warns = 0;
+    for (const a of tous) {
+      const s = statutAgent(a);
+      if (s === 'ok') verts++;
+      else if (s === 'ko') rouges++;
+      else if (s === 'warn') warns++;
     }
-    document.getElementById('val-duree').textContent = status.dureeSec ? status.dureeSec + 's' : '—';
+    document.getElementById('val-total').textContent = tous.length;
+    document.getElementById('val-ok').textContent = verts;
+    document.getElementById('val-ko').textContent = rouges;
+    document.getElementById('val-warn').textContent = warns;
 
-    // Cible
-    document.getElementById('cible-info').textContent =
-      `Cible : ${status.cible || '—'} · ${status.baseUrl || ''} · ${status.timestamp ? new Date(status.timestamp).toLocaleString('fr-FR') : ''}`;
-
-    // Étapes
-    const etapesEl = document.getElementById('etapes');
-    if (status.etapes && status.etapes.length > 0) {
-      etapesEl.innerHTML = status.etapes.map(e => `
-        <div class="etape">
-          <span class="etape-nom">${e.nom}</span>
-          <span class="etape-status ${e.ok ? 'ok' : 'ko'}">${e.ok ? '✓ Passé' : '✗ Échec'}</span>
-        </div>
-      `).join('');
+    // Grid agents (lighthouse exclu, il a sa section dédiée)
+    const pourGrid = tous.filter(a => a.agent !== 'lighthouse');
+    const grid = document.getElementById('agents-grid');
+    if (pourGrid.length === 0) {
+      grid.innerHTML = '<div class="vide" style="grid-column:1/-1">Aucun agent QA n\'a encore tourné. Clique sur <strong>Run rapide</strong>.</div>';
+    } else {
+      grid.innerHTML = pourGrid.map(rendreAgentCarte).join('');
+      grid.querySelectorAll('.agent-details-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const panneau = btn.nextElementSibling;
+          if (!panneau) return;
+          panneau.classList.toggle('visible');
+          btn.textContent = panneau.classList.contains('visible') ? 'Masquer' : 'Voir détails';
+        });
+      });
     }
 
-    // Lighthouse
+    // Lighthouse (section dédiée)
+    const lhAgent = tous.find(a => a.agent === 'lighthouse');
+    const scores = (lhAgent && lhAgent.stats && Object.keys(lhAgent.stats).length > 0)
+      ? lhAgent.stats
+      : (Array.isArray(lighthouse) && lighthouse[0] && lighthouse[0].scores);
     const lhEl = document.getElementById('lighthouse');
-    if (lighthouse && lighthouse.length > 0) {
-      const premier = lighthouse[0];
-      if (premier.scores) {
-        lhEl.innerHTML = `
-          <div class="lh-card"><div class="lh-score ${classeScore(premier.scores.performance)}">${premier.scores.performance}</div><div class="lh-lab">Performance</div></div>
-          <div class="lh-card"><div class="lh-score ${classeScore(premier.scores.accessibility)}">${premier.scores.accessibility}</div><div class="lh-lab">Accessibilité</div></div>
-          <div class="lh-card"><div class="lh-score ${classeScore(premier.scores.seo)}">${premier.scores.seo}</div><div class="lh-lab">SEO</div></div>
-          <div class="lh-card"><div class="lh-score ${classeScore(premier.scores.bestPractices)}">${premier.scores.bestPractices}</div><div class="lh-lab">Best Practices</div></div>
-        `;
-      }
+    if (scores && scores.performance != null) {
+      lhEl.innerHTML = `
+        <div class="lh-card"><div class="lh-score ${classeScore(scores.performance)}">${scores.performance}</div><div class="lh-lab">Performance</div></div>
+        <div class="lh-card"><div class="lh-score ${classeScore(scores.accessibility)}">${scores.accessibility}</div><div class="lh-lab">Accessibilité</div></div>
+        <div class="lh-card"><div class="lh-score ${classeScore(scores.seo)}">${scores.seo}</div><div class="lh-lab">SEO</div></div>
+        <div class="lh-card"><div class="lh-score ${classeScore(scores.bestPractices)}">${scores.bestPractices}</div><div class="lh-lab">Best Practices</div></div>
+      `;
+    } else {
+      lhEl.innerHTML = '<div class="vide" style="grid-column:1/-1">Pas encore mesuré. Lancer un run complet pour voir les scores.</div>';
     }
   } catch (err) {
     console.warn('Erreur chargement :', err);
