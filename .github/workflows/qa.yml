@@ -3,10 +3,12 @@
 # Deux profils d'exécution selon le trigger :
 #
 #   • Pull Request vers main (job qa-fast) :
-#     parcours rapide ~5-10 min, chromium uniquement.
-#     Lance validation-donnees + console-errors + a11y-axe sur chromium-desktop.
-#     PAS de playwright-e2e complet (les 69 specs × 3 navs = 15-20 min, trop
-#     lent pour un feedback PR utile). Les E2E tournent sur push main.
+#     parcours rapide ~10-12 min, chromium uniquement (1 seul project Playwright).
+#     Lance les 4 agents — validation-donnees, console-errors, a11y-axe, et
+#     playwright-e2e restreint à chromium-desktop via E2E_PROJECTS. Les 4
+#     rapports sont présents, le baseline check --strict peut valider.
+#     Les 3 projects Playwright (chromium + webkit + mobile-safari) ne
+#     tournent que sur push main via qa-full.
 #
 #   • Push sur main (job qa-full) :
 #     parcours complet ~25-35 min, 2 navigateurs (chromium + webkit).
@@ -85,6 +87,12 @@ jobs:
         env:
           A11Y_SKIP_BROWSERS: webkit-desktop,mobile-safari
         run: node scripts/agents/a11y-axe.cjs
+        continue-on-error: true
+
+      - name: Agent E2E (chromium uniquement)
+        env:
+          E2E_PROJECTS: chromium-desktop
+        run: node scripts/agents/playwright-e2e.cjs
         continue-on-error: true
 
       - name: Vérification baseline

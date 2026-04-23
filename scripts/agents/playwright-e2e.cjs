@@ -3,6 +3,11 @@
  *
  * Exécute le suite E2E avec le reporter JSON (qa-results.json),
  * puis écrit un bilan au format commun dans qa-reports/playwright-e2e.json.
+ *
+ * Env :
+ *   E2E_PROJECTS=chromium-desktop               → restreint à un project
+ *   E2E_PROJECTS=chromium-desktop,webkit-desktop → restreint à 2 projects
+ *   (vide / non défini → tous les projects de playwright.config.cjs)
  */
 const { execSync } = require('child_process');
 const fs = require('fs');
@@ -16,11 +21,18 @@ const debut = Date.now();
 let okRun = true;
 const details = [];
 
+const projects = (process.env.E2E_PROJECTS || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+const flagsProjects = projects.map((p) => `--project=${p}`).join(' ');
+const cmd = `npx playwright test tests/e2e --reporter=list,json${flagsProjects ? ' ' + flagsProjects : ''}`;
+
 try {
   // --reporter=list,json sur CLI écrase l'outputFile du config. On force la
   // destination du JSON via PLAYWRIGHT_JSON_OUTPUT_NAME pour que le bilan
   // soit écrit dans qa-results.json et pas sur stdout.
-  execSync('npx playwright test tests/e2e --reporter=list,json', {
+  execSync(cmd, {
     cwd: ROOT,
     stdio: 'inherit',
     env: { ...process.env, PLAYWRIGHT_JSON_OUTPUT_NAME: 'qa-results.json' },
