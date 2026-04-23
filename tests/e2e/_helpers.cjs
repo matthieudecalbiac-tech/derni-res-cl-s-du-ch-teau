@@ -8,33 +8,11 @@
  *   - getChateaux()               → liste filtrée (slug non-vide, au moins une chambre)
  *   - ouvrirVitrine(page, chateau) → ouvre la vitrine riche .vc3-* depuis la home
  */
-const fs = require('fs');
-const path = require('path');
 const { expect } = require('@playwright/test');
-
-const CHEMIN_DATA = path.join(__dirname, '..', '..', 'src', 'data', 'chateaux.js');
-
-let cacheChateaux = null;
-
-function chargerDataChateaux() {
-  if (cacheChateaux) return cacheChateaux;
-  // src/data/chateaux.js est en ESM natif (package.json a "type":"module").
-  // Les specs Playwright restent en CJS (pas de top-level await), on charge
-  // donc le fichier via Function() après une transformation minimale
-  // export→module.exports. Sûr ici : aucun import, aucun side-effect.
-  const source = fs.readFileSync(CHEMIN_DATA, 'utf8');
-  const cjs = source.replace(
-    /^export\s+const\s+chateaux\s*=/m,
-    'module.exports.chateaux ='
-  );
-  const m = { exports: {} };
-  new Function('module', 'exports', cjs)(m, m.exports);
-  cacheChateaux = m.exports.chateaux;
-  return cacheChateaux;
-}
+const { chargerChateaux } = require('../../scripts/lib/charger-chateaux.cjs');
 
 function getChateaux() {
-  return chargerDataChateaux().filter(
+  return chargerChateaux().filter(
     (c) => c.slug && Array.isArray(c.chambres) && c.chambres.length > 0
   );
 }

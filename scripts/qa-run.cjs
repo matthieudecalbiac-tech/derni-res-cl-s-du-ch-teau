@@ -30,6 +30,13 @@ const opts = {
 
 const AGENTS = [
   {
+    id: 'validation-donnees',
+    libelle: 'Validation données',
+    script: 'scripts/agents/validation-donnees.cjs',
+    actif: () => true,
+    flags: () => [],
+  },
+  {
     id: 'playwright-e2e',
     libelle: 'Tests E2E',
     script: 'scripts/agents/playwright-e2e.cjs',

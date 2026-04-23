@@ -495,6 +495,12 @@ function statsDefaut(stats) {
 
 function rendreStatsAgent(agent, stats) {
   if (!stats || Object.keys(stats).length === 0) return '—';
+  if (agent === 'validation-donnees') {
+    const parts = [`${stats.chateauxValides ?? 0} / ${stats.chateauxTotal ?? 0} châteaux valides`];
+    if (stats.anomaliesErreurs) parts.push(`${stats.anomaliesErreurs} erreur${stats.anomaliesErreurs > 1 ? 's' : ''}`);
+    if (stats.anomaliesAvertissements) parts.push(`${stats.anomaliesAvertissements} avertissement${stats.anomaliesAvertissements > 1 ? 's' : ''}`);
+    return parts.join(' · ');
+  }
   if (agent === 'playwright-e2e') {
     const parts = [`${stats.ok ?? 0} / ${stats.total ?? 0} tests verts`];
     if (stats.ko) parts.push(`${stats.ko} échec${stats.ko > 1 ? 's' : ''}`);
