@@ -509,6 +509,16 @@ function rendreStatsAgent(agent, stats) {
     parts.push(`${stats.pagesVisitees ?? 0} pages visitées`);
     return parts.join(' · ');
   }
+  if (agent === 'a11y-axe') {
+    const parts = [];
+    const critSerious = (stats.violationsCritical ?? 0) + (stats.violationsSerious ?? 0);
+    if (critSerious) parts.push(`${critSerious} critique${critSerious > 1 ? 's' : ''}/sérieux`);
+    const modMinor = (stats.violationsModerate ?? 0) + (stats.violationsMinor ?? 0);
+    if (modMinor) parts.push(`${modMinor} modéré${modMinor > 1 ? 's' : ''}/mineur${modMinor > 1 ? 's' : ''}`);
+    if (parts.length === 0) parts.push('aucune violation');
+    parts.push(`${stats.checkpointsAudites ?? 0} checkpoints`);
+    return parts.join(' · ');
+  }
   if (agent === 'playwright-e2e') {
     const parts = [`${stats.ok ?? 0} / ${stats.total ?? 0} tests verts`];
     if (stats.ko) parts.push(`${stats.ko} échec${stats.ko > 1 ? 's' : ''}`);

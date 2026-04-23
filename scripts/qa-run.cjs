@@ -44,6 +44,13 @@ const AGENTS = [
     flags: () => [],
   },
   {
+    id: 'a11y-axe',
+    libelle: 'Accessibilité (axe)',
+    script: 'scripts/agents/a11y-axe.cjs',
+    actif: () => true,
+    flags: () => [],
+  },
+  {
     id: 'playwright-e2e',
     libelle: 'Tests E2E',
     script: 'scripts/agents/playwright-e2e.cjs',
