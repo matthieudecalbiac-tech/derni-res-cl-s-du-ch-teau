@@ -30,6 +30,27 @@ const opts = {
 
 const AGENTS = [
   {
+    id: 'validation-donnees',
+    libelle: 'Validation données',
+    script: 'scripts/agents/validation-donnees.cjs',
+    actif: () => true,
+    flags: () => [],
+  },
+  {
+    id: 'console-errors',
+    libelle: 'Erreurs console',
+    script: 'scripts/agents/console-errors.cjs',
+    actif: () => true,
+    flags: () => [],
+  },
+  {
+    id: 'a11y-axe',
+    libelle: 'Accessibilité (axe)',
+    script: 'scripts/agents/a11y-axe.cjs',
+    actif: () => true,
+    flags: () => [],
+  },
+  {
     id: 'playwright-e2e',
     libelle: 'Tests E2E',
     script: 'scripts/agents/playwright-e2e.cjs',

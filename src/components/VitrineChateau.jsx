@@ -532,8 +532,14 @@ export default function VitrineChateau({ chateau, onClose }) {
               </div>
             )}
             <div className="vc3-reserve-form">
-              <div className="vc3-reserve-field"><label>Arrivée</label><input type="date" /></div>
-              <div className="vc3-reserve-field"><label>Départ</label><input type="date" /></div>
+              <div className="vc3-reserve-field">
+                <label htmlFor="vc3-reserve-arrivee">Arrivée</label>
+                <input id="vc3-reserve-arrivee" type="date" />
+              </div>
+              <div className="vc3-reserve-field">
+                <label htmlFor="vc3-reserve-depart">Départ</label>
+                <input id="vc3-reserve-depart" type="date" />
+              </div>
             </div>
             <button className="vc3-reserve-btn">Confirmer la réservation →</button>
             <p className="vc3-reserve-fond">⚜ Une partie sera reversée à la Fondation du Patrimoine</p>

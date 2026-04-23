@@ -14,15 +14,19 @@
     "qa:update-snaps": "node scripts/qa-run.cjs --update-snaps",
     "qa:dashboard": "node scripts/qa-dashboard.cjs",
     "qa:report": "npx playwright show-report",
-    "qa:prod": "cross-env QA_TARGET=prod node scripts/qa-run.cjs --fast"
+    "qa:prod": "cross-env QA_TARGET=prod node scripts/qa-run.cjs --fast",
+    "qa:baseline": "node scripts/qa-check-baseline.cjs",
+    "qa:ci": "npm run qa:fast && node scripts/qa-check-baseline.cjs --strict"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.2",
     "@playwright/test": "^1.59.1",
     "@vitejs/plugin-react": "^4.3.4",
     "chrome-launcher": "^1.2.1",
     "cross-env": "^10.1.0",
     "lighthouse": "^13.1.0",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "wait-on": "^9.0.5"
   },
   "dependencies": {
     "leaflet": "^1.9.4",

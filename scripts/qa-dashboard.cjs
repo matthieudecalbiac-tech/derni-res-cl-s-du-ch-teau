@@ -37,6 +37,27 @@ function lirejson(p, fallback = null) {
   }
 }
 
+function lireAgents() {
+  const dir = path.join(ROOT, 'qa-reports');
+  const agents = [];
+  let fichiers;
+  try {
+    fichiers = fs.readdirSync(dir);
+  } catch {
+    return agents;
+  }
+  for (const f of fichiers) {
+    if (!f.endsWith('.json')) continue;
+    try {
+      agents.push(JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')));
+    } catch (err) {
+      console.warn(`[dashboard] qa-reports/${f} ignoré : ${err.message}`);
+    }
+  }
+  agents.sort((a, b) => String(a.agent || '').localeCompare(String(b.agent || '')));
+  return agents;
+}
+
 function servirFichier(res, filePath) {
   if (!fs.existsSync(filePath)) {
     res.writeHead(404);
@@ -56,9 +77,10 @@ const server = http.createServer((req, res) => {
     const status = lirejson('qa-status.json', { ok: false, etapes: [], message: 'Aucun run encore' });
     const results = lirejson('qa-results.json', { stats: {} });
     const lighthouse = lirejson('lighthouse-results.json', []);
+    const agents = lireAgents();
 
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    res.end(JSON.stringify({ status, results, lighthouse }));
+    res.end(JSON.stringify({ status, results, lighthouse, agents }));
     return;
   }
 

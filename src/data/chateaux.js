@@ -13,9 +13,8 @@ export const chateaux = [
     reduction: 39,
     coordonnees: { lat: 48.5681, lng: 2.7157 },
     image:
-      "https://images.unsplash.com/photo-1548267245-9c5f2e2c28b2?w=800&q=80",
+      "https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?w=800&q=80",
     images: [
-      "https://images.unsplash.com/photo-1548267245-9c5f2e2c28b2?w=1200&q=80",
       "https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?w=1200&q=80",
       "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=80",
       "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80",
@@ -179,6 +178,7 @@ export const chateaux = [
     couleurTheme: "#1a2d5a",
     accentTheme: "#c8973e",
   },
+  // TODO pass éditorial Tanguy : ajouter 1-2 vraies photos du château
   {
     id: 2,
     nom: "Château de Pierrefonds",
@@ -196,8 +196,6 @@ export const chateaux = [
       "https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?w=1200&q=80",
-      "https://images.unsplash.com/photo-1520637736862-4d197d17c93a?w=1200&q=80",
-      "https://images.unsplash.com/photo-1548267245-9c5f2e2c28b2?w=1200&q=80",
     ],
     style: "Médiéval restauré",
     siecle: "XIIe–XIXe",
@@ -360,6 +358,7 @@ export const chateaux = [
     couleurTheme: "#2c1810",
     accentTheme: "#c8973e",
   },
+  // TODO pass éditorial Tanguy : ajouter 1-2 vraies photos du château
   {
     id: 3,
     nom: "Château de Chantilly",
@@ -374,11 +373,10 @@ export const chateaux = [
     reduction: 34,
     coordonnees: { lat: 49.1936, lng: 2.4847 },
     image:
-      "https://images.unsplash.com/photo-1585116938354-3f0f70744573?w=800&q=80",
+      "https://images.unsplash.com/photo-1659526062822-72f35fedff25?w=800&q=80",
     images: [
-      "https://images.unsplash.com/photo-1585116938354-3f0f70744573?w=1200&q=80",
+      "https://images.unsplash.com/photo-1659526062822-72f35fedff25?w=1200&q=80",
       "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80",
-      "https://images.unsplash.com/photo-1548267245-9c5f2e2c28b2?w=1200&q=80",
     ],
     style: "Renaissance & Classique",
     siecle: "XVIe–XIXe",
@@ -723,6 +721,7 @@ export const chateaux = [
     couleurTheme: "#1a2d1a",
     accentTheme: "#c8973e",
   },
+  // TODO pass éditorial Tanguy : ajouter 1-2 vraies photos du château
   {
     id: 5,
     nom: "Château de La Ferté-Saint-Aubin",
@@ -740,7 +739,6 @@ export const chateaux = [
       "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1200&q=80",
-      "https://images.unsplash.com/photo-1548267245-9c5f2e2c28b2?w=1200&q=80",
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80",
     ],
     style: "Classique ligérien",
@@ -906,7 +904,7 @@ export const chateaux = [
     id: 6,
     nom: "Château de Pierreclos",
     slug: "pierreclos",
-    region: "Bourgogne",
+    region: "Bourgogne-Franche-Comté",
     departement: "Saône-et-Loire",
     distanceParis: "370 km · 3h",
     urgence: "J-15",
@@ -919,7 +917,8 @@ export const chateaux = [
       "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?w=1200&q=80",
-      "https://images.unsplash.com/photo-1548267245-9c5f2e2c28b2?w=1200&q=80",
+      "https://images.unsplash.com/photo-1760372057956-d20c2195c7a2?w=1200&q=80",
+      "https://images.unsplash.com/photo-1533105079780-92b9be482077?w=1200&q=80",
     ],
     style: "Médiéval bourguignon",
     siecle: "XIIe–XVe",
@@ -1089,6 +1088,7 @@ export const chateaux = [
     id: 7,
     estLaUne: true,
     nom: "Château des Briottières",
+    slug: "les-briottieres",
     region: "Pays de la Loire",
     departement: "Maine-et-Loire",
     ville: "Champigné",
@@ -1188,6 +1188,7 @@ export const chateaux = [
     id: 8,
     estLaUne: true,
     nom: "Château du Blanc Buisson",
+    slug: "blanc-buisson",
     region: "Normandie",
     departement: "Eure",
     ville: "Rugles",
