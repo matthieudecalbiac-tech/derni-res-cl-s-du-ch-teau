@@ -11,11 +11,14 @@
 #     tournent que sur push main via qa-full.
 #
 #   • Push sur main (job qa-full) :
-#     parcours complet ~25-35 min, 2 navigateurs (chromium + webkit).
-#     Lance tous les agents rapides via `npm run qa:fast` qui inclut les E2E.
-#     mobile-safari (webkit iPhone 14) peut être ajouté plus tard si le budget
-#     minutes le permet — repo public donc minutes illimitées, mais chaque
-#     nav ajoute ~8 min de parcours E2E.
+#     parcours complet ~30-40 min, 2 navigateurs (chromium-desktop + webkit-desktop),
+#     timeout 60 min. Lance les 4 agents via `npm run qa:fast` avec env vars
+#     pour exclure mobile-safari.
+#     mobile-safari (webkit iPhone 14) est EXCLU de la CI : trop lent sous
+#     Ubuntu headless (waitForLoadState timeout 30s, parcours qui ne termine
+#     pas sous 45 min). Il reste testable en local via `npm run qa:fast`
+#     sans restriction d'env vars — c'est le vrai environnement de validation
+#     Safari mobile.
 #
 # Verdict final dans les 2 jobs : scripts/qa-check-baseline.cjs --strict.
 # Les seuils de tolérance sont dans qa-baseline.json à la racine (voir champs
@@ -125,7 +128,7 @@ jobs:
     name: QA complet (push main)
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
 
     steps:
       - name: Checkout
@@ -150,7 +153,11 @@ jobs:
           npx wait-on http://localhost:5174 -t 60000
           echo "✓ Vite dev server ready on :5174"
 
-      - name: QA fast complet (4 agents, chromium + webkit)
+      - name: QA fast complet (4 agents, 2 navigateurs)
+        env:
+          E2E_PROJECTS: chromium-desktop,webkit-desktop
+          CONSOLE_SKIP_BROWSERS: mobile-safari
+          A11Y_SKIP_BROWSERS: mobile-safari
         run: npm run qa:fast
         continue-on-error: true
 
