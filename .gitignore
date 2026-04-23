@@ -36,3 +36,11 @@ qa-results.json
 qa-reports/
 test-results/
 playwright-report/
+
+# Variables d'environnement
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+!.env.example
