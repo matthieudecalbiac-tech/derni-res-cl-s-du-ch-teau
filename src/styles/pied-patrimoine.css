@@ -25,11 +25,11 @@
 
 .pied-patrimoine-lien {
   color: #C09840;
-  text-decoration: none;
+  text-decoration: underline;
+  text-underline-offset: 3px;
   transition: color 0.2s ease;
 }
 
 .pied-patrimoine-lien:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  color: #EDD880;
 }
