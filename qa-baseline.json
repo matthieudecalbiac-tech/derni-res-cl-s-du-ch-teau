@@ -1,0 +1,49 @@
+{
+  "meta": {
+    "version": 1,
+    "dateCreation": "2026-04-23",
+    "commentaire": "Baseline initiale après audit QA d'avril 2026. Les seuils reflètent la dette identifiée et documentée dans les commits feat(qa):* et fix(a11y):* de la branche feature/dashboard-generique. À réviser quand un chantier de résolution démarre : pass éditorial Tanguy (images + typographie), refonte tokens couleurs Tanguy, ou retrait du videoBackground Blanc Buisson.",
+    "revisions": []
+  },
+  "seuils": {
+    "a11y-axe": {
+      "violationsCritical": {
+        "max": 2,
+        "actuel": 2,
+        "dette": "2 critical button-name sur iframe YouTube (.ytmVideoInfoChannelAvatar) de Blanc Buisson videoBackground JQ9m51Bl900. Faux positif tiers non-actionnable."
+      },
+      "violationsSerious": {
+        "max": 30,
+        "actuel": 30,
+        "dette": "21 color-contrast (micro-textes or-sur-crème, eyebrows opacity 0.55, Cormorant italic gris clair) — chantier design tokens Tanguy. + 9 aria-prohibited-attr iframe YouTube — faux positif tiers."
+      }
+    },
+    "console-errors": {
+      "erreurs": {
+        "max": 1,
+        "actuel": 1,
+        "dette": "1 fragment JS /www.youtube.com'. sur webkit-desktop uniquement. Disparaîtra si videoBackground Blanc Buisson retiré."
+      }
+    },
+    "validation-donnees": {
+      "erreurs": {
+        "max": 3,
+        "actuel": 3,
+        "dette": "3 châteaux avec moins de 3 images (Pierrefonds, Chantilly, Ferté-Saint-Aubin) — pass éditorial Tanguy. Suite à suppression d'URLs Unsplash cassées en commit 2df3d52, sans remplacement pour conserver l'intégrité éditoriale (refus du mensonge photographique)."
+      },
+      "avertissements": {
+        "max": 78,
+        "actuel": 78,
+        "dette": "78 apostrophes droites dans les narratifs éditoriaux (histoire, description, timeline). Pass typographique éditorial en attente, scripts sed trop risqués sans revue contextuelle."
+      }
+    },
+    "playwright-e2e": {
+      "ko": {
+        "max": 0,
+        "actuel": 0,
+        "dette": null,
+        "commentaire": "Zéro tolérance E2E. Tout échec de test fonctionnel bloque la CI."
+      }
+    }
+  }
+}

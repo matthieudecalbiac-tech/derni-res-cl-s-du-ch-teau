@@ -1,0 +1,173 @@
+# QA · Les Clés du Château
+#
+# Deux profils d'exécution selon le trigger :
+#
+#   • Pull Request vers main (job qa-fast) :
+#     parcours rapide ~5-10 min, chromium uniquement.
+#     Lance validation-donnees + console-errors + a11y-axe sur chromium-desktop.
+#     PAS de playwright-e2e complet (les 69 specs × 3 navs = 15-20 min, trop
+#     lent pour un feedback PR utile). Les E2E tournent sur push main.
+#
+#   • Push sur main (job qa-full) :
+#     parcours complet ~25-35 min, 2 navigateurs (chromium + webkit).
+#     Lance tous les agents rapides via `npm run qa:fast` qui inclut les E2E.
+#     mobile-safari (webkit iPhone 14) peut être ajouté plus tard si le budget
+#     minutes le permet — repo public donc minutes illimitées, mais chaque
+#     nav ajoute ~8 min de parcours E2E.
+#
+# Verdict final dans les 2 jobs : scripts/qa-check-baseline.cjs --strict.
+# Les seuils de tolérance sont dans qa-baseline.json à la racine (voir champs
+# "dette" pour le détail de chaque métrique acceptée).
+# Une régression sous ces seuils = CI rouge. Une nouvelle dette assumée =
+# commit chore(qa): révision baseline séparé avec justification.
+#
+# Variables d'env utilisées par les agents pour restreindre les navigateurs :
+#   CONSOLE_SKIP_BROWSERS=webkit-desktop,mobile-safari → agent console-errors
+#   A11Y_SKIP_BROWSERS=webkit-desktop,mobile-safari    → agent a11y-axe
+#   (ces env vars sont supportées par les agents eux-mêmes, pas par le YAML)
+#
+# Artifacts : qa-reports/ est uploadé dans tous les cas (if: always()) pour
+# permettre de débugger même quand la CI est rouge. Rétention 14 jours en PR,
+# 30 jours sur push main. Consultables dans l'onglet "Artifacts" du run.
+
+name: QA · Les Clés du Château
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  qa-fast:
+    name: QA rapide (PR vers main)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers (chromium only)
+        run: npx playwright install chromium --with-deps
+
+      - name: Start Vite dev server (and wait for ready)
+        run: |
+          nohup npm run dev -- --port 5174 --strictPort > /tmp/vite.log 2>&1 &
+          echo "VITE_PID=$!" >> $GITHUB_ENV
+          npx wait-on http://localhost:5174 -t 60000
+          echo "✓ Vite dev server ready on :5174"
+
+      - name: Agent validation données
+        run: node scripts/agents/validation-donnees.cjs
+        continue-on-error: true
+
+      - name: Agent erreurs console (chromium uniquement)
+        env:
+          CONSOLE_SKIP_BROWSERS: webkit-desktop,mobile-safari
+        run: node scripts/agents/console-errors.cjs
+        continue-on-error: true
+
+      - name: Agent accessibilité axe (chromium uniquement)
+        env:
+          A11Y_SKIP_BROWSERS: webkit-desktop,mobile-safari
+        run: node scripts/agents/a11y-axe.cjs
+        continue-on-error: true
+
+      - name: Vérification baseline
+        run: node scripts/qa-check-baseline.cjs --strict
+
+      - name: Upload QA reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-reports-pr-${{ github.event.pull_request.number }}
+          path: qa-reports/
+          retention-days: 14
+
+      - name: Résumé QA
+        if: always()
+        run: |
+          echo "## Rapport QA · PR #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -d qa-reports ]; then
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            node scripts/qa-check-baseline.cjs --json >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo '{"error": "baseline check unavailable"}' >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠ qa-reports absent — aucun agent n'a tourné." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Voir les **Artifacts** de ce run pour les rapports détaillés." >> $GITHUB_STEP_SUMMARY
+
+  qa-full:
+    name: QA complet (push main)
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers (chromium + webkit)
+        run: npx playwright install chromium webkit --with-deps
+
+      - name: Start Vite dev server (and wait for ready)
+        run: |
+          nohup npm run dev -- --port 5174 --strictPort > /tmp/vite.log 2>&1 &
+          echo "VITE_PID=$!" >> $GITHUB_ENV
+          npx wait-on http://localhost:5174 -t 60000
+          echo "✓ Vite dev server ready on :5174"
+
+      - name: QA fast complet (4 agents, chromium + webkit)
+        run: npm run qa:fast
+        continue-on-error: true
+
+      - name: Vérification baseline
+        run: node scripts/qa-check-baseline.cjs --strict
+
+      - name: Upload QA reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-reports-${{ github.sha }}
+          path: qa-reports/
+          retention-days: 30
+
+      - name: Résumé QA
+        if: always()
+        run: |
+          echo "## Rapport QA · push ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -d qa-reports ]; then
+            echo '```json' >> $GITHUB_STEP_SUMMARY
+            node scripts/qa-check-baseline.cjs --json >> $GITHUB_STEP_SUMMARY 2>/dev/null || echo '{"error": "baseline check unavailable"}' >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠ qa-reports absent — aucun agent n'a tourné." >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Voir les **Artifacts** de ce run pour les rapports détaillés." >> $GITHUB_STEP_SUMMARY
