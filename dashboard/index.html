@@ -501,6 +501,14 @@ function rendreStatsAgent(agent, stats) {
     if (stats.anomaliesAvertissements) parts.push(`${stats.anomaliesAvertissements} avertissement${stats.anomaliesAvertissements > 1 ? 's' : ''}`);
     return parts.join(' · ');
   }
+  if (agent === 'console-errors') {
+    const parts = [];
+    if (stats.erreurs) parts.push(`${stats.erreurs} erreur${stats.erreurs > 1 ? 's' : ''}`);
+    if (stats.avertissements) parts.push(`${stats.avertissements} avertissement${stats.avertissements > 1 ? 's' : ''}`);
+    if (parts.length === 0) parts.push('aucune anomalie');
+    parts.push(`${stats.pagesVisitees ?? 0} pages visitées`);
+    return parts.join(' · ');
+  }
   if (agent === 'playwright-e2e') {
     const parts = [`${stats.ok ?? 0} / ${stats.total ?? 0} tests verts`];
     if (stats.ko) parts.push(`${stats.ko} échec${stats.ko > 1 ? 's' : ''}`);

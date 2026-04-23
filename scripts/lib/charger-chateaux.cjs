@@ -28,4 +28,10 @@ function chargerChateaux() {
   return cache;
 }
 
-module.exports = { chargerChateaux };
+function getChateauxVitrine() {
+  return chargerChateaux().filter(
+    (c) => c.estLaUne === true && c.slug && Array.isArray(c.chambres) && c.chambres.length > 0
+  );
+}
+
+module.exports = { chargerChateaux, getChateauxVitrine };

@@ -37,6 +37,13 @@ const AGENTS = [
     flags: () => [],
   },
   {
+    id: 'console-errors',
+    libelle: 'Erreurs console',
+    script: 'scripts/agents/console-errors.cjs',
+    actif: () => true,
+    flags: () => [],
+  },
+  {
     id: 'playwright-e2e',
     libelle: 'Tests E2E',
     script: 'scripts/agents/playwright-e2e.cjs',
