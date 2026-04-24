@@ -19,6 +19,14 @@
         "ancien": 2,
         "nouveau": 3,
         "raison": "Absorbe un 3e critical button-name sur la même iframe YouTube (.ytmVideoInfoChannelAvatar) que les 2 déjà tolérés. Le baseline du 2026-04-23 observait 2 occurrences (vitrine-ouverte:blanc-buisson sur chromium-desktop et webkit-desktop). Le scan complet 3 navigateurs du 2026-04-24 remonte une 3e occurrence au checkpoint modale-reservation:blanc-buisson (chromium-desktop) : l'iframe YouTube du videoBackground reste montée dans le DOM derrière la modale de réservation, donc axe la re-scanne et redétecte le même faux positif tiers. Pas un bug applicatif — même faux positif YouTube non-actionnable que les 2 déjà absorbés, simplement détecté à un checkpoint supplémentaire. Avec max=3, la CI qa-full verra actuel=3 (à seuil, tangent OK) et la CI qa-fast PR verra actuel=1 (sous seuil, OK). Disparaîtra entièrement si videoBackground Blanc Buisson retiré ou migré vers vidéo HTML5 native."
+      },
+      {
+        "date": "2026-04-24",
+        "agent": "console-errors",
+        "champ": "avertissements",
+        "ancien": 3,
+        "nouveau": 3,
+        "raison": "Reformulation de la dette (seuil inchangé). Composition observée post-fix networkidle→domcontentloaded (commit eb7bb14) : Pexels chromium (16 occ ERR_ABORTED) + Open-Meteo webkit-desktop (4 occ 'Load request cancelled') + Open-Meteo mobile-safari (5 occ 'Load request cancelled'). Les 2 YouTube (qoe stats + log_event) précédemment observés ont disparu : le scan plus précoce avec domcontentloaded ne laisse plus le temps à l'iframe YouTube d'émettre ses beacons analytics avant fermeture de parcours. Les 2 Open-Meteo sont nouveaux et résultent de l'AbortController du commit b47b70d (météo découplée) : le parcours agent plus rapide ferme la vitrine avant que le fetch météo aboutisse → cancel légitime, signale que l'AbortController fonctionne, pas une fuite. Aucun changement de seuil (max=3 absorbe toujours les 3 warnings uniques potentiels), mise à jour purement documentaire pour refléter la vraie composition observée et éviter qu'un futur lecteur ne tente de 'fixer' les warnings Open-Meteo qui sont le comportement cible."
       }
     ]
   },
@@ -44,7 +52,7 @@
       "avertissements": {
         "max": 3,
         "actuel": 3,
-        "dette": "3 warnings uniques sur CDN externes observés sur le scope local complet (3 navigateurs) : 1 Pexels vidéo Hero home (12 occurrences ERR_ABORTED chromium-desktop, artefacts StrictMode dev + parcours agent multi-goto) + 1 YouTube qoe stats (Blanc Buisson videoBackground, 2 occurrences webkit-desktop) + 1 YouTube log_event (mobile-safari, 3 occurrences). En CI qa-full mobile-safari est exclu (trop lent sous Ubuntu headless) → actuel=2 observé, sous max=3. En CI qa-fast PR seul chromium tourne → actuel=1 observé, sous max=3. Aucun impact prod (StrictMode strippé du bundle, les 3 warnings sont des artefacts de test). Pexels disparaîtra au remplacement par vidéo propriétaire prévu par Matthieu. YouTube qoe + log_event disparaîtront si videoBackground Blanc Buisson retiré ou migré vers vidéo HTML5 native."
+        "dette": "3 warnings uniques sur CDN externes observés sur le scope local complet (3 navigateurs chromium-desktop + webkit-desktop + mobile-safari) : 1 Pexels vidéo Hero home (16 occurrences ERR_ABORTED chromium-desktop, artefacts StrictMode dev + parcours agent multi-goto) + 1 Open-Meteo forecast (fetch météo Briottières, 4 occurrences 'Load request cancelled' webkit-desktop) + 1 Open-Meteo forecast (fetch météo Briottières, 5 occurrences 'Load request cancelled' mobile-safari). Les 2 warnings Open-Meteo sont le comportement voulu par l'AbortController du commit b47b70d (météo découplée du fetch) : le parcours agent plus rapide depuis eb7bb14 ferme la vitrine avant que le fetch météo aboutisse → cancel légitime, pas une fuite. Composition précédente (2 YouTube qoe + log_event) éliminée par le fix networkidle→domcontentloaded d'eb7bb14 : le scan plus précoce ne laisse plus le temps à l'iframe YouTube d'émettre ses beacons analytics avant fin de parcours. En CI qa-full (3 navigateurs depuis réactivation mobile-safari du 2026-04-24) → actuel entre 1 et 3 selon le timing des cancellations Open-Meteo en environnement CI (sous max=3 dans tous les cas). En CI qa-fast PR (chromium uniquement) → actuel=1 observé (Pexels seul), sous max=3. Aucun impact prod (StrictMode strippé du bundle, AbortController est le comportement cible). Pexels disparaîtra au remplacement par vidéo propriétaire prévu par Matthieu."
       }
     },
     "validation-donnees": {
