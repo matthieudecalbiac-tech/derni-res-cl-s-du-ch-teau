@@ -191,7 +191,7 @@ export default function EspaceMembre({ user, onClose, onDeconnexion }) {
               {/* Colonne photo */}
               <div className="em-entree-photo-col" onClick={() => setTransitionChateau(c)}>
                 <div className="em-entree-photo-wrapper">
-                  <img src={c.image} alt={c.nom} className="em-entree-photo" loading="lazy" />
+                  <img src={c.image || c.images?.[0]} alt={c.nom} className="em-entree-photo" loading="lazy" />
                   <div className="em-entree-photo-overlay" />
                   <div className="em-entree-photo-coins">
                     <div className="em-pc em-pc--tg" />

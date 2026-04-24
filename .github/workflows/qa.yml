@@ -11,14 +11,17 @@
 #     tournent que sur push main via qa-full.
 #
 #   • Push sur main (job qa-full) :
-#     parcours complet ~30-40 min, 2 navigateurs (chromium-desktop + webkit-desktop),
-#     timeout 60 min. Lance les 4 agents via `npm run qa:fast` avec env vars
-#     pour exclure mobile-safari.
-#     mobile-safari (webkit iPhone 14) est EXCLU de la CI : trop lent sous
-#     Ubuntu headless (waitForLoadState timeout 30s, parcours qui ne termine
-#     pas sous 45 min). Il reste testable en local via `npm run qa:fast`
-#     sans restriction d'env vars — c'est le vrai environnement de validation
-#     Safari mobile.
+#     parcours complet ~30-40 min, 3 navigateurs (chromium-desktop + webkit-desktop
+#     + mobile-safari), timeout 60 min. Lance les 4 agents via `npm run qa:fast`
+#     sans restriction d'env vars.
+#     Historique mobile-safari : auparavant EXCLU de la CI car trop lent sous
+#     Ubuntu headless (waitForLoadState networkidle qui ne terminait pas sous
+#     45 min). Réactivé le 2026-04-24 après deux fixes : networkidle remplacé
+#     par domcontentloaded (commit 69df395) + météo vitrine découplée du fetch
+#     avec AbortController (commit b47b70d). Timeout CI maintenu à 60 min par
+#     sécurité le temps de valider la stabilité en production. À reconsidérer
+#     après 5-10 runs qa-full verts stables (réduction possible à 30-40 min
+#     comme avant l'exclusion).
 #
 # Verdict final dans les 2 jobs : scripts/qa-check-baseline.cjs --strict.
 # Les seuils de tolérance sont dans qa-baseline.json à la racine (voir champs
@@ -26,10 +29,12 @@
 # Une régression sous ces seuils = CI rouge. Une nouvelle dette assumée =
 # commit chore(qa): révision baseline séparé avec justification.
 #
-# Variables d'env utilisées par les agents pour restreindre les navigateurs :
-#   CONSOLE_SKIP_BROWSERS=webkit-desktop,mobile-safari → agent console-errors
-#   A11Y_SKIP_BROWSERS=webkit-desktop,mobile-safari    → agent a11y-axe
-#   (ces env vars sont supportées par les agents eux-mêmes, pas par le YAML)
+# Variables d'env supportées par les agents pour restreindre les navigateurs
+# (toujours disponibles, plus utilisées par la CI depuis la réactivation
+# mobile-safari du 2026-04-24, utiles en local pour débugger un navigateur) :
+#   CONSOLE_SKIP_BROWSERS=<list> → agent console-errors
+#   A11Y_SKIP_BROWSERS=<list>    → agent a11y-axe
+#   E2E_PROJECTS=<list>          → agent playwright-e2e
 #
 # Artifacts : qa-reports/ est uploadé dans tous les cas (if: always()) pour
 # permettre de débugger même quand la CI est rouge. Rétention 14 jours en PR,
@@ -153,11 +158,9 @@ jobs:
           npx wait-on http://localhost:5174 -t 60000
           echo "✓ Vite dev server ready on :5174"
 
-      - name: QA fast complet (4 agents, 2 navigateurs)
+      - name: QA fast complet (4 agents, 3 navigateurs — tentative mobile-safari)
         env:
-          E2E_PROJECTS: chromium-desktop,webkit-desktop
-          CONSOLE_SKIP_BROWSERS: mobile-safari
-          A11Y_SKIP_BROWSERS: mobile-safari
+          E2E_PROJECTS: chromium-desktop,webkit-desktop,mobile-safari
         run: npm run qa:fast
         continue-on-error: true
 
