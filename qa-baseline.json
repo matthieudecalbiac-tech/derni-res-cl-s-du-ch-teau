@@ -11,15 +11,23 @@
         "ancien": null,
         "nouveau": 3,
         "raison": "Ouverture de la surveillance des warnings console (champ jusqu'ici non suivi dans le MAPPING de scripts/qa-check-baseline.cjs — trou de couverture révélé pendant cette révision, corrigé en parallèle). Absorbe les 3 warnings uniques observés sur le scope local complet (npm run qa:fast, 3 navigateurs chromium-desktop + webkit-desktop + mobile-safari) : 1 Pexels vidéo Hero home (12 occurrences ERR_ABORTED chromium-desktop) + 1 YouTube qoe stats (Blanc Buisson videoBackground, 2 occurrences webkit-desktop) + 1 YouTube log_event (mobile-safari). Calibration sur le scope LE PLUS EXHAUSTIF et pas sur le scope CI (qa-full exclut mobile-safari, qa-fast PR ne teste que chromium) : le baseline doit absorber toutes les observations légitimes pour qu'une révision locale avant push ne déclenche pas de faux positif. Avec max=3, la CI qa-full verra actuel=2 (sous seuil, OK) et la CI qa-fast PR verra actuel=1 (sous seuil, OK) — couverture cohérente tous environnements. Ces warnings sont des artefacts de React 19 StrictMode double-mount en dev + parcours agent multi-goto, sans impact production. Diagnostic complet : investigation phase 1 branche fix/hero-remount-pexels."
+      },
+      {
+        "date": "2026-04-24",
+        "agent": "a11y-axe",
+        "champ": "violationsCritical",
+        "ancien": 2,
+        "nouveau": 3,
+        "raison": "Absorbe un 3e critical button-name sur la même iframe YouTube (.ytmVideoInfoChannelAvatar) que les 2 déjà tolérés. Le baseline du 2026-04-23 observait 2 occurrences (vitrine-ouverte:blanc-buisson sur chromium-desktop et webkit-desktop). Le scan complet 3 navigateurs du 2026-04-24 remonte une 3e occurrence au checkpoint modale-reservation:blanc-buisson (chromium-desktop) : l'iframe YouTube du videoBackground reste montée dans le DOM derrière la modale de réservation, donc axe la re-scanne et redétecte le même faux positif tiers. Pas un bug applicatif — même faux positif YouTube non-actionnable que les 2 déjà absorbés, simplement détecté à un checkpoint supplémentaire. Avec max=3, la CI qa-full verra actuel=3 (à seuil, tangent OK) et la CI qa-fast PR verra actuel=1 (sous seuil, OK). Disparaîtra entièrement si videoBackground Blanc Buisson retiré ou migré vers vidéo HTML5 native."
       }
     ]
   },
   "seuils": {
     "a11y-axe": {
       "violationsCritical": {
-        "max": 2,
-        "actuel": 2,
-        "dette": "2 critical button-name sur iframe YouTube (.ytmVideoInfoChannelAvatar) de Blanc Buisson videoBackground JQ9m51Bl900. Faux positif tiers non-actionnable."
+        "max": 3,
+        "actuel": 3,
+        "dette": "3 critical button-name sur iframe YouTube (.ytmVideoInfoChannelAvatar) de Blanc Buisson videoBackground JQ9m51Bl900. Faux positif tiers non-actionnable : l'iframe YouTube reste montée dans le DOM tant que la vitrine est ouverte, donc axe la re-scanne à chaque checkpoint où elle est visible. Occurrences : vitrine-ouverte:blanc-buisson (chromium-desktop + webkit-desktop, 2 nav) + modale-reservation:blanc-buisson (chromium-desktop, 1 nav). Disparaîtra si videoBackground Blanc Buisson retiré ou migré vers vidéo HTML5 native."
       },
       "violationsSerious": {
         "max": 30,
