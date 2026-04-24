@@ -261,7 +261,7 @@ export default function CarteExplorer({ onClose, onOuvrirChateau }) {
                     onClick={() => onOuvrirChateau(c)}
                   >
                     <img
-                      src={c.image}
+                      src={c.image || c.images?.[0]}
                       alt={c.nom}
                       className="carte-chateau-item-img"
                     />

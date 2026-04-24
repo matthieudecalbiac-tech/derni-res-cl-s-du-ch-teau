@@ -127,7 +127,7 @@ function App() {
         <DernieresClés onClose={() => setDernieresOuvert(false)} />
       )}
       {(transitionChateau || chateauSelectionne) && (
-        (transitionChateau || chateauSelectionne).id === 8 || (transitionChateau || chateauSelectionne).id === 7
+        (transitionChateau || chateauSelectionne).estLaUne === true
           ? <VitrineChateau chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
           : <ChateauModal chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}

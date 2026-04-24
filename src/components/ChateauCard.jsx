@@ -22,7 +22,7 @@ export default function ChateauCard({ chateau, onClick }) {
       <div className="carte-image-wrapper">
         <img
           className="carte-image"
-          src={chateau.image}
+          src={chateau.image || chateau.images?.[0]}
           alt={chateau.nom}
           loading="lazy"
         />

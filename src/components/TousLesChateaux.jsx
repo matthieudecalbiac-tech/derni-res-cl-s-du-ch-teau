@@ -106,7 +106,7 @@ export default function TousLesChateaux({ onClose, onSelectChateau }) {
               >
                 <div className="tcc-photo-wrapper">
                   <img
-                    src={c.image}
+                    src={c.image || c.images?.[0]}
                     alt={c.nom}
                     className="tcc-photo"
                     loading="lazy"
