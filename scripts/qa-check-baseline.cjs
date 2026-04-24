@@ -60,6 +60,7 @@ const MAPPING = [
   ['a11y-axe',             'violationsCritical',  'violationsCritical',       'critical'],
   ['a11y-axe',             'violationsSerious',   'violationsSerious',        'serious'],
   ['console-errors',       'erreurs',             'erreurs',                  'erreurs'],
+  ['console-errors',       'avertissements',      'avertissements',           'avertissements'],
   ['validation-donnees',   'erreurs',             'anomaliesErreurs',         'erreurs'],
   ['validation-donnees',   'avertissements',      'anomaliesAvertissements',  'avertissements'],
   ['playwright-e2e',       'ko',                  'ko',                       'ko'],

@@ -3,7 +3,16 @@
     "version": 1,
     "dateCreation": "2026-04-23",
     "commentaire": "Baseline initiale après audit QA d'avril 2026. Les seuils reflètent la dette identifiée et documentée dans les commits feat(qa):* et fix(a11y):* de la branche feature/dashboard-generique. À réviser quand un chantier de résolution démarre : pass éditorial Tanguy (images + typographie), refonte tokens couleurs Tanguy, ou retrait du videoBackground Blanc Buisson.",
-    "revisions": []
+    "revisions": [
+      {
+        "date": "2026-04-24",
+        "agent": "console-errors",
+        "champ": "avertissements",
+        "ancien": null,
+        "nouveau": 3,
+        "raison": "Ouverture de la surveillance des warnings console (champ jusqu'ici non suivi dans le MAPPING de scripts/qa-check-baseline.cjs — trou de couverture révélé pendant cette révision, corrigé en parallèle). Absorbe les 3 warnings uniques observés sur le scope local complet (npm run qa:fast, 3 navigateurs chromium-desktop + webkit-desktop + mobile-safari) : 1 Pexels vidéo Hero home (12 occurrences ERR_ABORTED chromium-desktop) + 1 YouTube qoe stats (Blanc Buisson videoBackground, 2 occurrences webkit-desktop) + 1 YouTube log_event (mobile-safari). Calibration sur le scope LE PLUS EXHAUSTIF et pas sur le scope CI (qa-full exclut mobile-safari, qa-fast PR ne teste que chromium) : le baseline doit absorber toutes les observations légitimes pour qu'une révision locale avant push ne déclenche pas de faux positif. Avec max=3, la CI qa-full verra actuel=2 (sous seuil, OK) et la CI qa-fast PR verra actuel=1 (sous seuil, OK) — couverture cohérente tous environnements. Ces warnings sont des artefacts de React 19 StrictMode double-mount en dev + parcours agent multi-goto, sans impact production. Diagnostic complet : investigation phase 1 branche fix/hero-remount-pexels."
+      }
+    ]
   },
   "seuils": {
     "a11y-axe": {
@@ -23,6 +32,11 @@
         "max": 1,
         "actuel": 1,
         "dette": "1 fragment JS /www.youtube.com'. sur webkit-desktop uniquement. Disparaîtra si videoBackground Blanc Buisson retiré."
+      },
+      "avertissements": {
+        "max": 3,
+        "actuel": 3,
+        "dette": "3 warnings uniques sur CDN externes observés sur le scope local complet (3 navigateurs) : 1 Pexels vidéo Hero home (12 occurrences ERR_ABORTED chromium-desktop, artefacts StrictMode dev + parcours agent multi-goto) + 1 YouTube qoe stats (Blanc Buisson videoBackground, 2 occurrences webkit-desktop) + 1 YouTube log_event (mobile-safari, 3 occurrences). En CI qa-full mobile-safari est exclu (trop lent sous Ubuntu headless) → actuel=2 observé, sous max=3. En CI qa-fast PR seul chromium tourne → actuel=1 observé, sous max=3. Aucun impact prod (StrictMode strippé du bundle, les 3 warnings sont des artefacts de test). Pexels disparaîtra au remplacement par vidéo propriétaire prévu par Matthieu. YouTube qoe + log_event disparaîtront si videoBackground Blanc Buisson retiré ou migré vers vidéo HTML5 native."
       }
     },
     "validation-donnees": {
