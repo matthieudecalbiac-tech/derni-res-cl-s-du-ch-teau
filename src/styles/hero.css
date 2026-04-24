@@ -632,3 +632,25 @@
 .hero-cta-btn:hover .hero-cta-btn-fleche {
   transform: translateX(4px);
 }
+
+/* ── Poster statique (fallback reduced-motion) ── */
+.hero-poster {
+  display: none;
+}
+
+/* Respect accessibilité : utilisateurs avec prefers-reduced-motion
+   voient le poster statique au lieu de la vidéo animée. Evite nausées,
+   migraines vestibulaires, distractions cognitives. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-video {
+    display: none;
+  }
+  .hero-poster {
+    display: block;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}

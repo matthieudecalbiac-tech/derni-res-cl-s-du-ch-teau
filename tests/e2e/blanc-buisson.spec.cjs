@@ -13,7 +13,7 @@ const { test, expect } = require('@playwright/test');
 
 async function ouvrirBlancBuisson(page) {
   await page.goto('/');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   const article = page.locator('.une-semaine-demeure').filter({ hasText: /Blanc Buisson/i });
   await expect(article).toBeVisible();
   const cta = article.locator('.une-semaine-cta');
@@ -42,7 +42,7 @@ test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
 
   test('La home charge et propose Blanc Buisson dans « La Une »', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     const article = page.locator('.une-semaine-demeure').filter({ hasText: /Blanc Buisson/i });
     await expect(article).toBeVisible();
     await expect(article).toContainText(/Blanc Buisson/i);

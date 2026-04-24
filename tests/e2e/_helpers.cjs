@@ -29,7 +29,7 @@ function regexNom(nom) {
  */
 async function ouvrirVitrine(page, chateau) {
   await page.goto('/');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
 
   const article = page
     .locator('.une-semaine-demeure')

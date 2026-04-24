@@ -17,7 +17,7 @@ const { test, expect } = require('@playwright/test');
 
 async function ouvrirBriottieres(page) {
   await page.goto('/');
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   const article = page.locator('.une-semaine-demeure').filter({ hasText: /Briotti[èe]res/i });
   await expect(article).toBeVisible();
   const cta = article.locator('.une-semaine-cta');
@@ -46,7 +46,7 @@ test.describe('Vitrine Briottières · parcours critiques', () => {
 
   test('La home charge et propose Briottières dans « La Une »', async ({ page }) => {
     await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await expect(page).toHaveTitle(/./);
     const article = page.locator('.une-semaine-demeure').filter({ hasText: /Briotti[èe]res/i });
     await expect(article).toBeVisible();
