@@ -6,7 +6,7 @@
  * (chromium-desktop, webkit-desktop, mobile-safari).
  *
  * Checkpoints par navigateur :
- *   1. home (après goto + networkidle)
+ *   1. home (après goto + domcontentloaded)
  *   Pour chaque château avec estLaUne:true (vitrines) :
  *   2. vitrine-ouverte:<slug> (après ouvrirVitrine, .vc3-overlay.vc3-visible)
  *   3. modale-reservation:<slug> (après clic .vc3-header-cta, modale visible)
@@ -114,7 +114,7 @@ function regexNom(nom) {
 
 async function ouvrirVitrineSurHome(page, chateau) {
   await page.goto(BASE_URL);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   const article = page.locator('.une-semaine-demeure').filter({ hasText: regexNom(chateau.nom) });
   const cta = article.locator('.une-semaine-cta');
   await cta.scrollIntoViewIfNeeded();
@@ -150,7 +150,7 @@ async function auditerPage(page, checkpoint, navigateur) {
 async function executerParcours(page, nav, chateaux, audits) {
   // Home
   await page.goto(BASE_URL);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   audits.push(await auditerPage(page, 'home', nav.id));
 
   for (const ch of chateaux) {

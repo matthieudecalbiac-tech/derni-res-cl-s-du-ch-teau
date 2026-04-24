@@ -7,7 +7,7 @@
  * strict, on capture et on rapporte.
  *
  * Parcours par navigateur :
- *   1. Home → networkidle → scroll complet
+ *   1. Home → domcontentloaded → scroll complet
  *   2. Pour chaque château estLaUne:true :
  *      - Ouvre la vitrine (retry x3 mobile-safari)
  *      - Scroll complet de .vc3-corps
@@ -150,7 +150,7 @@ async function scrollVitrine(page) {
 
 async function ouvrirVitrineSurHome(page, chateau) {
   await page.goto(BASE_URL);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   const article = page.locator('.une-semaine-demeure').filter({ hasText: regexNom(chateau.nom) });
   const cta = article.locator('.une-semaine-cta');
   await cta.scrollIntoViewIfNeeded();
@@ -206,7 +206,7 @@ async function parcoursVitrine(page, chateau, compteurs) {
 async function parcoursComplet(page, chateaux, compteurs) {
   compteurs.pages = 1;
   await page.goto(BASE_URL);
-  await page.waitForLoadState('networkidle');
+  await page.waitForLoadState('domcontentloaded');
   await scrollPage(page);
   compteurs.actions += 2;
 
