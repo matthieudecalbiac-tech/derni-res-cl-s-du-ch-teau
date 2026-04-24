@@ -93,15 +93,7 @@ function App() {
         userConnecte={userConnecte}
       />
       <main>
-        <Hero
-          onOuvrirAuth={(mode) => ouvrirAuth(mode, true)}
-          onOuvrirClub={() => setClubOuvert(true)}
-          onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
-          onOuvrirVitrines={() => setVitrinesOuvert(true)}
-        onOuvrirProprietaires={() => setProprietairesOuvert(true)}
-          onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
-          onOuvrirConciergerie={() => setConciergerieOuvert(true)}
-        />
+        <Hero />
         <BandeauOffres
           onOuvrirDernieres={() => setDernieresOuvert(true)}
           onOuvrirVitrines={() => setVitrinesOuvert(true)}
