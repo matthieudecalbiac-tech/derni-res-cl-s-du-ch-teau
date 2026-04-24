@@ -39,16 +39,24 @@ export default function VitrineChateau({ chateau, onClose }) {
     const onMove = (e) => setCursorPos({ x: e.clientX, y: e.clientY });
     window.addEventListener("mousemove", onMove);
 
-    // Météo temps réel
-    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${chateau.coordonnees?.lat||48.92}&longitude=${chateau.coordonnees?.lng||0.73}&current=temperature_2m,weathercode,windspeed_10m&timezone=Europe/Paris`)
+    // Météo temps réel — AbortController + timeout 5s pour éviter le hang
+    // indéfini sur réseau CI flaky (sinon meteo reste null, bloc meteo jamais
+    // rendu, test E2E .vc3-meteo-lieu timeout).
+    const meteoCtrl = new AbortController();
+    const meteoTimeoutId = setTimeout(() => meteoCtrl.abort(), 5000);
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${chateau.coordonnees?.lat||48.92}&longitude=${chateau.coordonnees?.lng||0.73}&current=temperature_2m,weathercode,windspeed_10m&timezone=Europe/Paris`, { signal: meteoCtrl.signal })
       .then(r => r.json())
       .then(d => {
+        clearTimeout(meteoTimeoutId);
         const code = d.current?.weathercode;
         const temp = Math.round(d.current?.temperature_2m);
         const desc = code <= 1 ? 'Ciel dégagé' : code <= 3 ? 'Nuageux' : code <= 67 ? 'Pluie' : 'Variable';
         const phrase = code <= 1 ? "Le parc est à son meilleur aujourd'hui." : code <= 3 ? "Lumière dorée sur les douves." : "Soirée idéale au coin du feu.";
         setMeteo({ temp, desc, phrase });
-      }).catch(() => setMeteo({ temp: 14, desc: 'Variable', phrase: "Le château vous attend." }));
+      }).catch(() => {
+        clearTimeout(meteoTimeoutId);
+        setMeteo({ temp: 14, desc: 'Variable', phrase: "Le château vous attend." });
+      });
 
     // Prochaine disponibilité simulée
     const today = new Date();
@@ -84,6 +92,8 @@ export default function VitrineChateau({ chateau, onClose }) {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("mousemove", onMove);
+      clearTimeout(meteoTimeoutId);
+      meteoCtrl.abort();
     };
   }, [onClose]);
 
@@ -407,20 +417,22 @@ export default function VitrineChateau({ chateau, onClose }) {
         )}
 
         {/* ══ MÉTÉO EN TEMPS RÉEL ══ */}
-        {meteo && (
-          <div className="vc3-meteo">
-            <div className="vc3-meteo-inner">
-              <div className="vc3-meteo-now">
-                <span className="vc3-meteo-temp">{meteo.temp}°</span>
-                <div className="vc3-meteo-details">
-                  <span className="vc3-meteo-desc">{meteo.desc}</span>
-                  <span className="vc3-meteo-lieu">En ce moment à {chateau.ville || chateau.departement} · {chateau.region}</span>
-                </div>
+        {/* Le nom de lieu est rendu indépendamment du fetch météo : c'est une
+            donnée statique (chateau.ville / chateau.region) qui ne doit pas
+            être gatée par une API externe qui peut hang en CI. Seules temp /
+            desc / phrase dépendent de la réponse fetch. */}
+        <div className="vc3-meteo">
+          <div className="vc3-meteo-inner">
+            <div className="vc3-meteo-now">
+              <span className="vc3-meteo-temp">{meteo ? `${meteo.temp}°` : '—'}</span>
+              <div className="vc3-meteo-details">
+                <span className="vc3-meteo-desc">{meteo?.desc || 'Chargement…'}</span>
+                <span className="vc3-meteo-lieu">En ce moment à {chateau.ville || chateau.departement} · {chateau.region}</span>
               </div>
-              <p className="vc3-meteo-phrase">⚜ &nbsp; {meteo.phrase}</p>
             </div>
+            {meteo?.phrase && <p className="vc3-meteo-phrase">⚜ &nbsp; {meteo.phrase}</p>}
           </div>
-        )}
+        </div>
 
         {/* ══ DISTANCE + PROCHAIN DÉPART ══ */}
         <div className="vc3-depart">
