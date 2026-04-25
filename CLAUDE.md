@@ -18,7 +18,7 @@ Vite + React 19. No test runner and no linter are configured.
 - `npm run build` — production build
 - `npm run preview` — serve the built output
 
-`pnpm-lock.yaml` and `package-lock.json` both exist; npm is the one wired up via scripts.
+`package-lock.json` is the lockfile in use; npm is wired up via scripts. (`pnpm-lock.yaml` was removed in commit ede6b25 on April 25, 2026 to resolve a Vercel deployment desync.)
 
 ## Architecture
 
