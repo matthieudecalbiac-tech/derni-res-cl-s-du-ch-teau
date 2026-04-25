@@ -159,11 +159,11 @@ export default function Header({
             {MENU_ITEMS.map((item, i) => (
               <button
                 key={item.id}
-                className={`hm-item hm-item--${item.couleur}\${itemSurvole === item.id ? " hm-item--actif" : ""}`}
+                className={`hm-item hm-item--${item.couleur}${itemSurvole === item.id ? " hm-item--actif" : ""}`}
                 onClick={() => handleAction(item.action)}
                 onMouseEnter={() => setItemSurvole(item.id)}
                 onMouseLeave={() => setItemSurvole(null)}
-                style={{ animationDelay: menuOuvert ? `\${i * 80}ms` : "0ms" }}
+                style={{ animationDelay: menuOuvert ? `${i * 80}ms` : "0ms" }}
               >
                 <div className="hm-item-gauche">
                   <span className="hm-item-num">0{i + 1}</span>
