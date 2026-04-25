@@ -139,7 +139,7 @@ export default function Header({
 
       <div
         className={`hm-overlay${menuOuvert ? " hm-overlay--ouvert" : ""}`}
-        inert={!menuOuvert ? "" : undefined}
+        inert={!menuOuvert}
       >
         <div className="hm-fond-deco" />
 
