@@ -139,7 +139,7 @@ export default function Header({
 
       <div
         className={`hm-overlay${menuOuvert ? " hm-overlay--ouvert" : ""}`}
-        aria-hidden={!menuOuvert}
+        inert={!menuOuvert ? "" : undefined}
       >
         <div className="hm-fond-deco" />
 
