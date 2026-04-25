@@ -75,3 +75,9 @@ CSS classes inside vitrine components (`VitrineChateau`, `VitrinePermanente`, `V
 - For any bulk find/replace or codemod on project files, always write a **`.cjs` script** and run it with `node`. Never use `python -c '...'` inline one-liners, and never use `sed`/`awk` for multi-line JSX/CSS rewrites — the `.cjs` pattern is what has been used historically and what the user expects to review.
 - `*-knowledge.txt` files at the repo root and `Header.jsx.bak` are reference snapshots, not live code. Don't modify them unless asked.
 - `lcc-backup*.bundle` are git bundles kept as backups.
+
+## Dette technique
+
+Liste des chantiers non bloquants identifiés en cours de session. Mise à jour : retirer une ligne quand la dette est résolue.
+
+- **Filtre erreurs réseau tiers (console-errors agent)** : ajouter des IGNORE_PATTERNS dans `scripts/agents/console-errors.cjs` pour ignorer les HTTP 4xx/5xx vers domaines externes (`api.open-meteo.com`, `images.pexels.com`, `images.unsplash.com`, `www.youtube.com`). Permet de redescendre `qa-baseline.json:console-errors.erreurs.max` de 3 à 1. Estimé 1-2h. Branche candidate : `refactor/console-errors-filter`. Identifié le 2026-04-25 suite au run CI #18.
