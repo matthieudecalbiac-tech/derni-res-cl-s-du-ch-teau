@@ -324,4 +324,12 @@ button,
     --s-xl: 4rem;
   }
 }
-\nbody.vitrine-open .lys-pattern{display:none!important;visibility:hidden!important;opacity:0!important}\nbody.vitrine-open .lys-pattern-hideable{display:none!important}\nbody.vitrine-open{background:#07101E}\nbody.vitrine-open .lys-pattern,body.vitrine-open .cles-lys-pattern{opacity:0!important;pointer-events:none!important}\nbody.vitrine-open svg rect[fill]{opacity:0!important}\nbody.vitrine-open .lys-pattern svg{opacity:0!important}\nbody.vitrine-open .cles-lys-pattern{opacity:0!important}
+
+body.vitrine-open .lys-pattern { display: none !important; visibility: hidden !important; opacity: 0 !important; }
+body.vitrine-open .lys-pattern-hideable { display: none !important; }
+body.vitrine-open { background: #07101E; }
+body.vitrine-open .lys-pattern,
+body.vitrine-open .cles-lys-pattern { opacity: 0 !important; pointer-events: none !important; }
+body.vitrine-open svg rect[fill] { opacity: 0 !important; }
+body.vitrine-open .lys-pattern svg { opacity: 0 !important; }
+body.vitrine-open .cles-lys-pattern { opacity: 0 !important; }

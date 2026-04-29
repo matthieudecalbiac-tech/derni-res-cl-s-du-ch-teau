@@ -290,7 +290,7 @@ export default function ChateauModal({ chateau, onClose }) {
               <div className="cp-activites-grille">
                 {chateau.activites?.map((a, i) => (
                   <div key={i} className="cp-activite">
-                    
+                    <span className="cp-activite-icone">{a.icone}</span>
                     <div className="cp-activite-nom">{a.nom}</div>
                     <div className="cp-activite-desc">{a.description}</div>
                   </div>

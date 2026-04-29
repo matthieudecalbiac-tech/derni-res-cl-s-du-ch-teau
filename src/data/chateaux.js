@@ -1163,7 +1163,6 @@ export const chateaux = [
       "Balade à cheval dans les bois",
       "Visite des châteaux de la Loire (à partir de 45 min)",
     ],
-    coordonnees: { lat: 47.5833, lng: -0.4167 },
     regionNarrative: "L'Anjou est l'une des provinces les plus douces de France — ni la brutalité de l'Atlantique, ni la rigueur continentale. Un bocage généreux, des châteaux discrets, des vignes qui donnent le Savennières et le Layon. Les Briottières s'inscrivent dans ce paysage comme une évidence : une demeure qui n'a jamais cherché à impressionner, seulement à accueillir.",
     regionHistoire: "Le Maine-et-Loire fut longtemps le cœur du royaume des Plantagenets. Angers, capitale de l’Anjou, vit naître Henri II d’Angleterre et le roi René, dernier duc d’Anjou, ce prince lettré qui fit de sa cour l’une des plus brillantes d’Europe. La Loire, classée au patrimoine mondial de l’Unesco, borde le département au sud. L’Anjou bleu au nord — où se trouvent les Briottières — est un pays de bocage, de forêts et d’étangs, plus discret que la Loire mais tout aussi envoutant.",
     alentours: [

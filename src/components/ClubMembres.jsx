@@ -6,6 +6,7 @@ import "../styles/club-membres.css";
 
 function getDatesPossibles() {
   const today = new Date();
+  const dates = [];
   for (let i = 0; i <= 60; i++) {
     const d = new Date(today);
     d.setDate(today.getDate() + i);

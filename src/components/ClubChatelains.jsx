@@ -103,7 +103,6 @@ export default function ClubChatelains({ onClose, onOuvrirAuth, user, ongletInit
     };
   }, [onClose]);
 
-  console.log("CLUB RENDER");
   return (
     <div className="club-overlay">
       {/* Header */}
