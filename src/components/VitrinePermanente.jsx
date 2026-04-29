@@ -83,9 +83,9 @@ export default function VitrinePermanente({ onClose }) {
               <div className="vit-carte-corps">
                 <h3 className="vit-carte-nom">{c.nom}</h3>
                 <p className="vit-carte-accroche">{c.accroche}</p>
-                {c.proprietaires?.[0]?.citation && (
+                {c.proprietaires?.citation && (
                   <p className="vit-carte-citation">
-                    « {c.proprietaires[0].citation.substring(0, 90)}… »
+                    « {c.proprietaires.citation.substring(0, 90)}… »
                   </p>
                 )}
                 <div className="vit-carte-pied">

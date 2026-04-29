@@ -102,7 +102,7 @@ export default function Header({
 
   return (
     <>
-      <header className={`header${solide ? " header--solide" : ""}\${menuOuvert ? " header--menu-ouvert" : ""}`}>
+      <header className={`header${solide ? " header--solide" : ""}${menuOuvert ? " header--menu-ouvert" : ""}`}>
         <div className="header-inner">
           <button
             className="header-logo"
