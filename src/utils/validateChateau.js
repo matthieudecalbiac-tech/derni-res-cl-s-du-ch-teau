@@ -53,6 +53,18 @@ function isArray(v) { return Array.isArray(v); }
 function isObject(v) { return v !== null && typeof v === "object" && !Array.isArray(v); }
 
 /**
+ * Construit le label « Château {nomCourt} (id {id}) » pour les
+ * messages d'erreur, en strippant le préfixe « Château (de|du|des|d') »
+ * du nom complet pour éviter les doublons « Château Château de X ».
+ */
+function makeLabel(chateau) {
+  const nomBrut = isStringNonEmpty(chateau?.nom) ? chateau.nom : "?";
+  const nomCourt = nomBrut.replace(/^Château (de |du |des |d')?/i, "");
+  const id = chateau?.id ?? "?";
+  return `Château ${nomCourt} (id ${id})`;
+}
+
+/**
  * Valide un château unique. Throw avec rapport exhaustif si invalide.
  *
  * @param {import("../types/Chateau.js").Chateau} chateau
@@ -61,7 +73,7 @@ function isObject(v) { return v !== null && typeof v === "object" && !Array.isAr
 export function validateChateau(chateau) {
   const errors = collectErrors(chateau);
   if (errors.length > 0) {
-    const label = `Château ${chateau?.nom ?? "?"} (id ${chateau?.id ?? "?"})`;
+    const label = makeLabel(chateau);
     throw new Error(
       `${label} : ${errors.length} erreur(s) :\n  - ${errors.join("\n  - ")}`
     );
@@ -86,7 +98,7 @@ export function validateChateauxArray(chateaux) {
   // Validation par château
   chateaux.forEach((c) => {
     const errs = collectErrors(c);
-    const label = `Château ${c?.nom ?? "?"} (id ${c?.id ?? "?"})`;
+    const label = makeLabel(c);
     errs.forEach((e) => allErrors.push(`${label} : ${e}`));
   });
 
