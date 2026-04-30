@@ -1,19 +1,13 @@
 import React, { useState } from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
-// import ClesAlaUne from "./components/ClesAlaUne"; // remplacé par la refonte accueil
-// import BlocChiffres from "./components/BlocChiffres"; // retiré de l'accueil refondu
 import BandeauOffres from "./components/BandeauOffres";
 import CitationPont from "./components/CitationPont";
 import UneDeLaSemaine from "./components/UneDeLaSemaine";
 import HeureAuxDemeures from "./components/HeureAuxDemeures";
 import PiedPatrimoine from "./components/PiedPatrimoine";
 import { useHorloge } from "./utils/heure";
-import TousLesChateaux from "./components/TousLesChateaux";
-import CommentCaMarche from "./components/CommentCaMarche";
 import Conciergerie from "./components/Services";
-import Temoignages from "./components/Temoignages";
-// import Footer from "./components/Footer"; // remplacé par PiedPatrimoine sur l'accueil
 import ChateauModal from "./components/ChateauModal";
 import VitrineChateau from "./components/VitrineChateau";
 import CarteExplorer from "./components/CarteExplorer";
@@ -24,19 +18,16 @@ import ClubBienvenue from "./components/ClubBienvenue";
 import ClubMembres from "./components/ClubMembres";
 import ClesEvenementiel from "./components/ClesEvenementiel";
 import APropos from "./components/APropos";
-import EspaceMembre from "./components/EspaceMembre";
 import VitrinePermanente from "./components/VitrinePermanente";
-import DernieresClés from "./components/DernieresCles";
+import DernieresCles from "./components/DernieresCles";
 import TransitionPorte from "./components/TransitionPorte";
 import PartenairesChateaux from "./components/PartenairesChateaux";
-import PatrimoineSection from "./components/PatrimoineSection";
 
 
 
 function App() {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [carteOuverte, setCarteOuverte] = useState(false);
-  const [tousOuvert, setTousOuvert] = useState(false);
   const [authOuvert, setAuthOuvert] = useState(false);
   const [authMode, setAuthMode] = useState("inscription");
   const venaitDuClubRef = React.useRef(false);
@@ -48,7 +39,6 @@ function App() {
   const [evenementielOuvert, setEvenementielOuvert] = useState(false);
   const [conciergerieOuvert, setConciergerieOuvert] = useState(false);
   const [aProposOuvert, setAProposOuvert] = useState(false);
-  const [espaceMembreOuvert, setEspaceMembreOuvert] = useState(false);
   const [vitrinesOuvert, setVitrinesOuvert] = useState(false);
   const [proprietairesOuvert, setProprietairesOuvert] = useState(false);
   const [dernieresOuvert, setDernieresOuvert] = useState(false);
@@ -70,7 +60,6 @@ function App() {
 
   const ouvrirChateau = (chateau) => {
     setCarteOuverte(false);
-    setTousOuvert(false);
     setTransitionChateau(chateau);
   };
 
@@ -79,7 +68,6 @@ function App() {
       
       <Header
         onOuvrirCarte={() => setCarteOuverte(true)}
-        onOuvrirTous={() => setTousOuvert(true)}
         onOuvrirAuth={(mode) => ouvrirAuth(mode, true)}
         onOuvrirCompte={() => setCompteOuvert(true)}
         onOuvrirClub={() => setClubOuvert(true)}
@@ -124,7 +112,7 @@ function App() {
         <VitrinePermanente onClose={() => setVitrinesOuvert(false)} />
       )}
       {dernieresOuvert && (
-        <DernieresClés onClose={() => setDernieresOuvert(false)} />
+        <DernieresCles onClose={() => setDernieresOuvert(false)} />
       )}
       {(transitionChateau || chateauSelectionne) && (
         (transitionChateau || chateauSelectionne).estLaUne === true
@@ -144,12 +132,6 @@ function App() {
         <CarteExplorer
           onClose={() => setCarteOuverte(false)}
           onOuvrirChateau={ouvrirChateau}
-        />
-      )}
-      {tousOuvert && (
-        <TousLesChateaux
-          onClose={() => setTousOuvert(false)}
-          onSelectChateau={ouvrirChateau}
         />
       )}
       {authOuvert && (
@@ -199,16 +181,6 @@ function App() {
         <Conciergerie onClose={() => setConciergerieOuvert(false)} overlay={true} />
       )}
       {aProposOuvert && <APropos onClose={() => setAProposOuvert(false)} />}
-      {espaceMembreOuvert && userConnecte && (
-        <EspaceMembre
-          user={userConnecte}
-          onClose={() => setEspaceMembreOuvert(false)}
-          onDeconnexion={() => {
-            setUserConnecte(null);
-            setEspaceMembreOuvert(false);
-          }}
-        />
-      )}
     </div>
   );
 }
