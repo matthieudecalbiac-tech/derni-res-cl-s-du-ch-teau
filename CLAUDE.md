@@ -1,83 +1,270 @@
-# CLAUDE.md
+# CLAUDE.md — Les Clés du Château
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Ce fichier guide Claude Code lors de toute intervention sur ce dépôt, et sert également de référence à tout contributeur humain (Matthieu, co-fondateurs, futurs collaborateurs).
 
-## Project
+## Projet
 
-**Les Dernières Clés du Château** — a French-language single-page marketing site offering last-minute stays in châteaux within ~3h of Paris. UI, component names, comments, and content are in French; preserve that when editing or adding strings.
+### Objectif
 
-### Editorial voice (non-negotiable)
-- Tone is **patrimonial / editorial**, never promotional. Avoid marketing-speak, superlatives, urgency tropes, and emoji in copy.
-- When referring to the Fondation du Patrimoine contribution, always phrase it as **"une partie de nos recettes"**. Never cite a fixed percentage, even if the user gives one conversationally — it must stay vague in the UI.
+**Les Clés du Château** est une plateforme patrimoniale française (en ligne sur [lcc-black.vercel.app](https://lcc-black.vercel.app)) qui propose des séjours d'exception dans des châteaux privés à moins de 3 h de Paris. Cible court terme : ~30 châteaux partenaires. UI, contenu, noms de composants et commentaires sont en français — préserver cette langue pour toute modification.
 
-## Commands
+### Co-fondateurs
 
-Vite + React 19. No test runner and no linter are configured.
+- **Dimitri** — Stratégie & développement
+- **Julien** — SEO & avocat
+- **Matthieu** — Développement & CRM
+- **Tanguy** — Direction artistique
 
-- `npm run dev` — start the Vite dev server
-- `npm run build` — production build
-- `npm run preview` — serve the built output
+### Voix éditoriale (non négociable)
 
-`package-lock.json` is the lockfile in use; npm is wired up via scripts. (`pnpm-lock.yaml` was removed in commit ede6b25 on April 25, 2026 to resolve a Vercel deployment desync.)
+Quatre règles strictes qui s'appliquent à toute copie UI ou contenu du site :
+
+1. **Fondation du Patrimoine** : toujours « **une partie de nos recettes** » est reversée. Jamais de pourcentage fixe, même si le user en mentionne un en conversation — la formule reste vague à l'écran.
+2. **Statut partenariat** : pour tout château listé, parler de « **partenariat en cours de discussions** » plutôt que d'affirmer un partenariat conclu. Aucune affirmation engageante sans validation explicite.
+3. **Citations propriétaires** : ne jamais inventer ni reformuler une citation attribuée à un propriétaire de château. Soit on a la quote validée par eux, soit le bloc citation est omis.
+4. **« Le Blanc Buisson »** : toujours avec article (« Le Blanc Buisson », pas « Blanc Buisson » seul). Nom canonique du château id 8.
+
+Ton général : **patrimonial / éditorial**, jamais promotionnel. Pas de superlatifs, pas de tropes d'urgence (« vite ! », « plus que X jours ! »), pas d'emoji dans la copy.
+
+### Stack technique
+
+- **Frontend** : React 19.2, Vite 6.4, JavaScript (pas de TypeScript pour l'instant)
+- **Cartes** : Leaflet 1.9 + react-leaflet 5 (CDN pour Leaflet, npm pour react-leaflet)
+- **Tests** : Playwright 1.59 + axe-core 4.11 (E2E, visuels, a11y)
+- **Performance** : Lighthouse 13 via scripts QA
+- **Backend** : Supabase **planifié** (Phase 2.3, pas encore branché)
+- **Paiement** : Stripe **planifié**
+- **Déploiement** : Vercel
+- **Email transactionnel** : Brevo
+
+## Comment ajouter un nouveau château
+
+C'est l'opération la plus fréquente. Deux modes selon le niveau d'éditorialisation souhaité.
+
+### Vitrine standard (id 1-6)
+
+Édit `src/data/chateaux.js`, ajouter un objet en suivant le schéma des entrées id 1-6 (champs : `id`, `nom`, `slug`, `region`, `departement`, `distanceParis`, `urgence`, `chambresRestantes`, `prix`, `prixBarre`, `reduction`, `coordonnees`, `image`, `images`, `style`, `siecle`, `accroche`, `histoire`, `description`, `timeline`, `proprietaires`, `chambres`, `experiences`, `activites`, `alentours`, `tags`, `petitDejeuner`, `parking`, `wifi`, `animaux`, `couleurTheme`, `accentTheme`).
+
+Photos : URL Unsplash ou autre CDN public. Pas de fichier local nécessaire.
+
+Le château apparaîtra dans : `VitrinePermanente`, `DernieresCles` (si `urgence` défini), `CarteExplorer`, `ClubMembres`. Détail ouvert via `ChateauModal`.
+
+### Vitrine premium (id 7+, layout `VitrineChateau`)
+
+Édit `src/data/chateaux.js` avec `estLaUne: true` et le schéma riche : champs supplémentaires `chiffresCles`, `ville`, `regionNarrative`, `regionHistoire`, `proprietaires.initiale`, `proprietaires.nomAffiche`, `alentours[].icone`, `alentours[].description`, optionnel `videoBackground` (ID YouTube).
+
+Photos : **locales** dans `/public/` avec préfixe alphabétique court désignant le château (`bb-` pour Le Blanc Buisson, `bri-` pour Briottières, etc.).
+
+L'aiguillage vers le layout premium est automatique dès que `estLaUne: true` (cf. Architecture § Aiguillage).
+
+### Photos locales
+
+- Format préféré : **AVIF** (poids minimal, qualité préservée)
+- Chemin : `/public/<prefixe>-<nom>.avif`
+- Référence dans `chateaux.js` : `"/<prefixe>-<nom>.avif"` (slash initial, Vite résout depuis `/public/`)
+
+### Test après ajout
+
+```bash
+npm run dev
+```
+
+Naviguer vers la home, vérifier que le château apparaît dans les overlays attendus. Pour une vitrine premium : ouvrir l'overlay `Vitrines permanentes` puis cliquer sur le château pour valider l'animation `TransitionPorte` puis `VitrineChateau`.
+
+> ⚠ **Schéma data unifié à venir (Phase 2.1).** En attendant, copier intégralement un château existant comme template, puis adapter les valeurs.
+
+## Commandes
+
+Vite + React 19. Aucun runner de tests JS, aucun linter installé.
+
+- `npm run dev` — démarre le serveur de dev Vite
+- `npm run build` — build de production
+- `npm run preview` — sert le build
+
+`package-lock.json` est le lockfile en usage ; npm est branché via les scripts. (`pnpm-lock.yaml` a été retiré dans le commit `ede6b25` du 25 avril 2026 pour résoudre une désynchronisation déploiement Vercel.)
+
+### Scripts QA
+
+- `npm run qa` — E2E + visuel
+- `npm run qa:fast` — E2E seulement
+- `npm run qa:full` — E2E + visuel + Lighthouse
+- `npm run qa:baseline` — vérifie les seuils contre `qa-baseline.json`
+- `npm run qa:ci` — pipeline CI (qa:fast + baseline strict)
+- `npm run qa:dashboard` — dashboard local des résultats
 
 ## Architecture
 
-### Single-component shell with overlay state in `App.jsx`
-`src/App.jsx` is the entire router. The page renders `Header` + `Hero` + a few landing sections, and every other "page" (château detail, map explorer, auth, account, club flow, à-propos, etc.) is a full-screen overlay component mounted conditionally based on a `useState` boolean in `App`. Navigation callbacks (`onOuvrirX`) are drilled from `App` down through `Header`, `Hero`, `Footer`, and others to toggle those booleans. When adding a new page/overlay, follow the same pattern: add a `xxxOuvert` state in `App.jsx`, mount the component conditionally at the bottom, and drill an `onOuvrirXxx` prop to whichever triggers open it.
+### Application shell (`App.jsx`)
 
-### Two kinds of château detail pages
-Clicking a château goes through `ouvrirChateau()` which sets `transitionChateau`, plays `TransitionPorte`, then opens a detail overlay. The overlay type is chosen by id:
+`src/App.jsx` est le seul routeur du site. La page rend `Header` + `Hero` + quelques sections d'accueil, et toutes les autres « pages » (détail château, carte explorateur, auth, compte, club, à-propos, etc.) sont des composants overlay plein écran montés conditionnellement via un booléen `useState` dans `App`. Les callbacks de navigation (`onOuvrirX`) sont drillés depuis `App` vers `Header` (et autres). Pour ajouter une nouvelle page/overlay : ajouter un état `xxxOuvert` dans `App.jsx`, monter le composant conditionnellement à la fin, drill une prop `onOuvrirXxx` vers le déclencheur.
 
-```jsx
-(chateau.id === 8 || chateau.id === 7)
-  ? <VitrineChateau ... />   // premium editorial layout
-  : <ChateauModal ... />     // standard modal
-```
+### Aiguillage vitrine standard / premium
 
-`VitrineChateau.jsx` is a richer, one-off "vitrine" experience (scroll progress, time-of-day theming, cursor tracking, météo, etc.). Only two châteaux are wired to it today:
+L'aiguillage entre layout premium (`VitrineChateau`) et layout standard (`ChateauModal`) se fait via le flag **`estLaUne === true`** sur le château (`App.jsx:118`).
+
+Pour promouvoir un château au layout vitrine premium, il suffit d'ajouter `estLaUne: true` dans son objet dans `chateaux.js` — **aucune modification d'`App.jsx` n'est requise**.
+
+Châteaux actuellement avec `estLaUne` :
 - **id 7 — Les Briottières**
 - **id 8 — Le Blanc Buisson**
 
-`ChateauModal.jsx` is the default for everything else. If you promote more châteaux to the vitrine layout, update that id check in `App.jsx`.
+### Données
 
-### Data
-All château content is hardcoded in `src/data/chateaux.js` as a single exported array. There is no backend — prices, availability ("J-7", "chambresRestantes"), images, history, timeline, and coordinates all live in this file. Auth, reservations, and club membership are UI-only flows with no persistence.
+Source unique : `src/data/chateaux.js` (tableau exporté `chateaux`). Aucun backend pour l'instant — prix, disponibilités, images, histoire, timeline, coordonnées vivent ici. Auth, réservations et adhésion club sont des flux UI sans persistance.
 
-### Styles
-- One CSS file per component under `src/styles/`, imported directly from the component.
-- `src/styles/global.css` owns the design tokens (CSS custom properties on `:root`, spacing and shadow scales). Reuse these tokens rather than introducing new colors or fonts.
-- Fonts and Leaflet CSS/JS are loaded via CDN in `index.html` (not npm imports).
+> ⚠ **Schéma actuellement hétérogène entre id 1-6 et id 7-8** (cf. Dette technique Phase 2.1).
 
-#### Brand palette (canonical values)
+### Styles & design tokens
+
+- Un fichier CSS par composant dans `src/styles/`, importé directement depuis le composant.
+- `src/styles/global.css` détient les design tokens (CSS custom properties sur `:root`, échelles d'espacement et d'ombre). Réutiliser ces tokens plutôt que d'introduire des couleurs ou polices nouvelles.
+- Les polices et CSS/JS Leaflet sont chargés via CDN dans `index.html` (pas d'imports npm).
+
+#### Palette canonique
+
 - **Navy** `#07101E`
 - **Or** `#C09840`
 - **Crème** `#F7F2E8`
 
-#### Typographies (canonical stack)
+#### Typographies canoniques
+
 - **Playfair Display** — display / titres
 - **Crimson Pro** — texte éditorial
 - **Cormorant Garamond** — sérif secondaire / accents
 
-If a token in `global.css` drifts from these canonical values, the canonical values above win — update the token, don't introduce a parallel one.
+Si un token de `global.css` diverge de ces valeurs canoniques, les valeurs canoniques ci-dessus gagnent — mettre à jour le token, ne pas introduire de variante parallèle.
 
-#### Vitrines — class-name convention
-CSS classes inside vitrine components (`VitrineChateau`, `VitrinePermanente`, `VitrineClub`, `VitrineDernieresCle`, and their CSS files) must use the **`vc3-`** prefix. Do not mix bare class names into vitrine markup or CSS — scope everything under `vc3-` to keep the vitrine styles isolated from the rest of the site.
+#### Convention de nommage CSS — vitrines premium
 
-### Maps
-`react-leaflet` is used in `CarteExplorer` / `CarteFrance`, but Leaflet itself is loaded from the unpkg CDN in `index.html` rather than bundled.
+Les classes CSS dans les composants vitrines (`VitrineChateau`, `VitrinePermanente`, `VitrineClub`, `VitrineDernieresCle` et leurs CSS) doivent utiliser le préfixe **`vc3-`**. Ne pas mélanger des classes nues dans le markup ou le CSS vitrine — tout scoper sous `vc3-` pour isoler les styles vitrine du reste du site.
+
+### Cartes (Leaflet)
+
+- `CarteExplorer` est le **seul** consommateur de `react-leaflet`.
+- `DernieresCles` charge Leaflet via `window.L` (CDN), pas via `react-leaflet`.
+- `CarteFrance.jsx` a été supprimé en Chantier 1.2.
 
 ### Animations
-`src/hooks/useScrollAnimation.js` is a small `IntersectionObserver` hook (`const [ref, visible] = useScrollAnimation()`) used to trigger fade-ins on scroll. Prefer it over ad-hoc observer logic.
 
-## Repo hygiene notes
+`src/hooks/useScrollAnimation.js` est un petit hook `IntersectionObserver` (`const [ref, visible] = useScrollAnimation()`) utilisé pour déclencher des fade-in au scroll. Préférer ce hook plutôt qu'une logique observer ad hoc.
 
-- `fix.cjs`…`fix9.cjs` at the repo root are one-shot Node scripts that previously rewrote image URLs in `src/data/chateaux.js` and `src/components/VitrineChateau.jsx`. They are not part of the build — do not import or extend them; write a new `fixN.cjs` only if you need a similar one-off migration.
-- For any bulk find/replace or codemod on project files, always write a **`.cjs` script** and run it with `node`. Never use `python -c '...'` inline one-liners, and never use `sed`/`awk` for multi-line JSX/CSS rewrites — the `.cjs` pattern is what has been used historically and what the user expects to review.
-- `*-knowledge.txt` files at the repo root and `Header.jsx.bak` are reference snapshots, not live code. Don't modify them unless asked.
-- `lcc-backup*.bundle` are git bundles kept as backups.
+## Roadmap stratégique post-audit (avr 2026)
+
+### PHASE 1 — Démine immédiat ✅ TERMINÉE
+
+- ✅ **1.1 Fix bugs visibles** (`8f429db`) — 28 avr 2026
+- ✅ **1.2 Purge code mort** (`7696328` + `0d51c1a`) — 30 avr 2026
+- ✅ **1.3 MAJ doc CLAUDE.md** (commit présent) — 30 avr 2026
+
+### PHASE 2 — Data layer SOLIDE (~6-8 h)
+
+- **2.1** Schéma unifié `chateaux.js` (réconcilier id 1-6 et id 7-8)
+- **2.2** Service `useChateaux` + `useCompteurs` (point d'entrée unique, helper `useNombreEnLettres`)
+- **2.3** Async-ready Supabase prep (préparation du swap d'implémentation)
+
+### PHASE 3 — Suppression mensonges factuels (~2 h)
+
+`Hero`, `VitrinePermanente`, `BandeauOffres`, `HeureAuxDemeures` consomment des chiffres en dur (« 81 domaines », « 31 demeures », etc.). À transformer en consommateurs de `useCompteurs()` exposé par la Phase 2.2 — actualisation automatique selon le nombre réel de châteaux dans `chateaux.js`.
+
+### PHASE 4 — Cohérence visuelle (~4-5 h)
+
+- **4.1** Tokens design conformes brand book (Navy/Or, Playfair/Crimson dans `global.css`)
+- **4.2** `ChateauCarte` mutualisé (5+ duplicats fusionnés)
+- **4.3** Pass A11y color-contrast
+- **4.4** Vidéo Le Blanc Buisson YouTube → HTML5 natif
+- **4.5** `offres.css` à creuser (suppression possible si BandeauOffres ne l'utilise pas)
+
+### PHASE 5 — Modules data-driven (~3 h)
+
+- **5.1** Module C (Club) connecté à `chateaux.js` (suppression `CHATEAUX_CLUB` hardcodé)
+- **5.2** Module D (Événementiel) data-driven
+- **5.3** `HeureAuxDemeures` sélection dynamique (suppression hardcoding ids `[6,5,1]` + `[7,8,2,3]`)
+
+### PHASE 6 — Pass éditorial Tanguy (asynchrone)
+
+Photos manquantes (Pierrefonds, Chantilly, Ferté-Saint-Aubin), 78 apostrophes droites, ton final.
+
+## Historique des chantiers
+
+| Chantier | Date | Hash | Bilan | Tag de prudence |
+|---|---|---|---|---|
+| 1.1 — 7 bugs visibles | 28 avr 2026 | `8f429db` | +14 / −7 lignes, 7 fichiers | — |
+| 1.2 — Purge code mort | 30 avr 2026 | `7696328` + `0d51c1a` | +2 / −3 784 lignes, 22 fichiers | `pre-purge-1.2` (sur `47f782c`) |
+| 1.3 — MAJ doc CLAUDE.md | 30 avr 2026 | (commit présent) | doc only | — |
+
+### Surface du repo post-Chantier 1.2
+
+- `/src/components` : **18** composants `.jsx` (32 → 18, −14)
+- `/src/styles` : **21** fichiers `.css` (28 → 21, −7)
+- `App.jsx` : **188** lignes (216 → 188, −28)
+- Bundle production : JS **574 kB**, CSS **227 kB**
+
+## Conventions de chantier
+
+### Pattern « 2 commits pour les chantiers de purge »
+
+Pour les chantiers de suppression de code mort, séparer en 2 commits :
+
+1. **Déconnexion logique** — modifier les fichiers vivants pour supprimer toutes les références au code à purger (imports, states, JSX, props).
+2. **Suppression disque** — `git rm` les fichiers physiques.
+
+Garantit que chaque commit laisse `main` avec un build clean (atomicité). Permet `git revert <commit2>` granulaire si un fichier supprimé s'avère utile.
+
+### Tag de prudence avant chantiers structurels
+
+```bash
+git tag pre-<chantier> main && git push origin pre-<chantier>
+```
+
+Filet de sécurité 6 mois pour rollback ou diff comparatif.
+
+Tags actifs : `pre-purge-1.2` (posé sur `47f782c`).
+
+### Discipline byte-level pour les Edits
+
+Avant un Edit sur fichier source, en cas de doute sur les caractères invisibles (NBSP, CRLF, indentation 4 vs 6 vs 8 espaces) :
+
+```bash
+awk 'NR==X' fichier.jsx | od -c | head -5
+```
+
+Permet de détecter les U+00A0 (NBSP) typiques des textes français collés depuis Word/web, ou les CRLF/LF mal préservés.
+
+### Edits ciblés un par un (jamais sed multi-stage)
+
+Pour la maintenance ciblée d'`App.jsx` ou autres fichiers vivants (refactor, purge), préférer **N Edits ciblés successifs à 1 sed multi-stage**.
+
+Justification : risque de corruption silencieuse de l'encodage UTF-8/CRLF, patterns sed fragiles, pas de diff intermédiaire reviewable. Pattern validé en Chantiers 1.1 (7 Edits) et 1.2 (16 Edits).
+
+**Exception** : codemods bulk sur `chateaux.js` (transformations homogènes appliquées à toutes les entrées) restent légitimes en script `.cjs` — cf. Hygiène du repo.
+
+## Hygiène du repo
+
+- `fix.cjs`…`fix9.cjs` à la racine sont des scripts Node one-shot ayant servi à réécrire les URLs d'images dans `src/data/chateaux.js` et `src/components/VitrineChateau.jsx`. Ils ne font pas partie du build — ne pas les importer ni les étendre ; écrire un nouveau `fixN.cjs` uniquement pour une migration similaire ponctuelle.
+- Pour tout find/replace ou codemod **bulk** sur `chateaux.js` (transformation homogène sur toutes les entrées), écrire un script `.cjs` et l'exécuter avec `node`. Ne jamais utiliser `python -c '...'` inline. (Pour la maintenance ciblée d'autres fichiers, cf. Conventions de chantier § Edits ciblés.)
+- `*-knowledge.txt` à la racine sont des snapshots de référence, pas du code vivant. Ne pas modifier sans demande explicite.
+- `lcc-backup*.bundle` sont des bundles git conservés comme sauvegardes.
 
 ## Dette technique
 
-Liste des chantiers non bloquants identifiés en cours de session. Mise à jour : retirer une ligne quand la dette est résolue.
+Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne quand la dette est résolue, ou la déplacer dans Historique des chantiers.
 
-- **Filtre erreurs réseau tiers (console-errors agent)** : ajouter des IGNORE_PATTERNS dans `scripts/agents/console-errors.cjs` pour ignorer les HTTP 4xx/5xx vers domaines externes (`api.open-meteo.com`, `images.pexels.com`, `images.unsplash.com`, `www.youtube.com`). Permet de redescendre `qa-baseline.json:console-errors.erreurs.max` de 3 à 1. Estimé 1-2h. Branche candidate : `refactor/console-errors-filter`. Identifié le 2026-04-25 suite au run CI #18.
+- **[Phase 1.x] Filtre baseline-check console-errors** : ajouter des `IGNORE_PATTERNS` dans `scripts/agents/console-errors.cjs` pour ignorer les HTTP 4xx/5xx vers domaines externes (`api.open-meteo.com`, `images.pexels.com`, `images.unsplash.com`, `www.youtube.com`). Permet de redescendre `qa-baseline.json:console-errors.erreurs.max` de 3 à 1 (3 absorbe la variance CDN actuellement). Estimé 1-2 h. Branche candidate : `refactor/console-errors-filter`. Identifié le 25 avril 2026 suite au run CI #18.
+
+- **[Phase 2.1] Schéma data unifié id 1-6 vs 7-8** : incohérence détectée par audit du 29 avril 2026. id 1-6 ont `tags`/`experiences`/`noteSur5`/`activites` (objets) ; id 7-8 ont `chiffresCles`/`regionNarrative`/`proprietaires.initiale`/`activites` (strings). À réconcilier en un schéma unique avant de pouvoir réutiliser un composant `ChateauCarte` (Phase 4.2) ou un service `useChateaux` (Phase 2.2) sans branchements multiples.
+
+- **[Phase 2.2] Service `useChateaux` + `useCompteurs`** : centraliser `getChateaux` / `getChateauBySlug` / `getChateauById` dans un seul service. Exposer `useCompteurs()` pour les chiffres affichés en surface (Phase 3). Ajouter helper `useNombreEnLettres(n)` pour l'écriture des nombres en français (« trente-et-une demeures »).
+
+- **[Phase 3] Compteurs dynamiques (ajout stratégique Matthieu)** : les surfaces vivantes affichent des chiffres en dur qui ne reflètent pas la data réelle.
+  - `Hero.jsx` : « 81 domaines sélectionnés »
+  - `VitrinePermanente.jsx` : « 81 Domaines / 7 Régions »
+  - `BandeauOffres.jsx` : « 8 chambres » + « 31 demeures »
+  - `HeureAuxDemeures.jsx` : « VOIR LES TRENTE-ET-UNE DEMEURES »
+  
+  À transformer en consommateurs de `useCompteurs()` (Phase 2.2) pour actualisation automatique selon le contenu réel de `chateaux.js`.
+
+- **[Phase 4.2] `ChateauCarte` mutualisé** : 5+ implémentations dupliquées détectées dans `VitrinePermanente`, `CarteExplorer`, `DernieresCles`, `ClubMembres`, `HeureAuxDemeures`, `UneDeLaSemaine`. Fusion en un composant unique avec variantes (`eyebrow`, `editorial`, `last-minute`, `vitrine`, `club`).
+
+- **[Phase 4.4] Vidéo Le Blanc Buisson YouTube → HTML5 natif** : −3 critical a11y absorbés au baseline. iframe YouTube `JQ9m51Bl900` actuelle non a11y-compliante. Migration vers vidéo HTML5 native dans `/public/` retire ces faux positifs et donne le contrôle complet sur le poster, l'autoplay et la coupure mobile.
+
+- **[Phase 4.5] `offres.css` à creuser** : épargné en Chantier 1.2 par prudence (importé par `BandeauOffres` vivant). À vérifier si `BandeauOffres` utilise réellement les classes de `offres.css` ou si l'import est lui-même mort. Si mort : suppression possible (~593 lignes).
