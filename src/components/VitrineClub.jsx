@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { derivePrix } from "../utils/derivePrix";
 import "../styles/vitrine-club.css";
 
 export default function VitrineClub({ chateau, user, onClose }) {
@@ -16,7 +17,7 @@ export default function VitrineClub({ chateau, user, onClose }) {
 
   const prixFinal = chateau.prixBarre
     ? Math.round(chateau.prixBarre * (1 - (chateau.reduction || 0) / 100))
-    : chateau.prix;
+    : derivePrix(chateau);
   const chambre = chateau.chambres?.[chambreActive];
 
   return (

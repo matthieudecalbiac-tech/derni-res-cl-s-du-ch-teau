@@ -1,4 +1,5 @@
 import { chateaux } from "../data/chateaux";
+import { derivePrix } from "../utils/derivePrix";
 import "../styles/une-semaine.css";
 
 const ROMAINS = ["I", "II", "III", "IV"];
@@ -11,7 +12,7 @@ export default function UneDeLaSemaine({ onOuvrirChateau }) {
     <section className="une-semaine">
       {selection.map((chateau, i) => {
         const inverse = i % 2 === 1;
-        const prix = chateau.chambres?.[0]?.prix ?? chateau.prix ?? chateau.prixBarre;
+        const prix = derivePrix(chateau);
         const nomPoint = chateau.nom + ".";
         const lettrine = nomPoint.substring(0, 1);
         const reste = nomPoint.substring(1);
