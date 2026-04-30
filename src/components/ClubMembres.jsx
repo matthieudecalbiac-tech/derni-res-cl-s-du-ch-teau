@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { chateaux } from "../data/chateaux";
+import { derivePrix } from "../utils/derivePrix";
 import TransitionPorte from "./TransitionPorte";
 import VitrineClub from "./VitrineClub";
 import "../styles/club-membres.css";
@@ -170,7 +171,7 @@ export default function ClubMembres({ user, onClose }) {
       {/* Liste châteaux — 1 par ligne */}
       <div className="cm-liste">
         {chateaux.map(c => {
-          const prixFinal = c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100)) : c.prix;
+          const prixFinal = c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100)) : derivePrix(c);
           const packages = PACKAGES_CHATEAU[c.id] || ["Séjour prestige avec petit-déjeuner", "Visite privée du domaine", "Accès aux jardins"];
           return (
             <div key={c.id} className="cm-ligne">

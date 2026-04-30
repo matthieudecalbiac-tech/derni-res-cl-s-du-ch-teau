@@ -16,7 +16,8 @@
     "qa:report": "npx playwright show-report",
     "qa:prod": "cross-env QA_TARGET=prod node scripts/qa-run.cjs --fast",
     "qa:baseline": "node scripts/qa-check-baseline.cjs",
-    "qa:ci": "npm run qa:fast && node scripts/qa-check-baseline.cjs --strict"
+    "qa:ci": "npm run qa:fast && node scripts/qa-check-baseline.cjs --strict",
+    "validate:chateaux": "node scripts/validate-chateaux.cjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.2",

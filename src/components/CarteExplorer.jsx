@@ -10,6 +10,7 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { chateaux } from "../data/chateaux";
+import { derivePrix } from "../utils/derivePrix";
 import "../styles/carte-explorer.css";
 
 // Fix icône Leaflet
@@ -261,7 +262,7 @@ export default function CarteExplorer({ onClose, onOuvrirChateau }) {
                     onClick={() => onOuvrirChateau(c)}
                   >
                     <img
-                      src={c.image || c.images?.[0]}
+                      src={c.images?.[0]}
                       alt={c.nom}
                       className="carte-chateau-item-img"
                     />
@@ -284,7 +285,7 @@ export default function CarteExplorer({ onClose, onOuvrirChateau }) {
                         )}
                       </div>
                       <div className="carte-chateau-item-prix">
-                        {c.prix} € / nuit
+                        {derivePrix(c)} € / nuit
                       </div>
                     </div>
                   </div>
@@ -357,7 +358,7 @@ export default function CarteExplorer({ onClose, onOuvrirChateau }) {
                           fontWeight: 600,
                         }}
                       >
-                        {c.prix} € / nuit
+                        {derivePrix(c)} € / nuit
                       </span>
                       <br />
                       <button

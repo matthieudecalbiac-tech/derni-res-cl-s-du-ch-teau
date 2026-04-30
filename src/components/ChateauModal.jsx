@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { derivePrix } from "../utils/derivePrix";
 import "../styles/chateau-page.css";
 
 export default function ChateauModal({ chateau, onClose }) {
@@ -63,7 +64,7 @@ export default function ChateauModal({ chateau, onClose }) {
         </div>
         <div className="cp-header-droite">
           <span className="cp-header-prix">
-            {chambre ? chambre.prix : chateau.prix} € <span>/ nuit</span>
+            {chambre?.prix ?? derivePrix(chateau)} € <span>/ nuit</span>
           </span>
           <button
             className="cp-header-cta"
@@ -393,7 +394,7 @@ export default function ChateauModal({ chateau, onClose }) {
                     {chateau.prixBarre} € / nuit
                   </span>
                   <span className="cp-resa-prix">
-                    {chambre ? chambre.prix : chateau.prix} €
+                    {chambre?.prix ?? derivePrix(chateau)} €
                   </span>
                   <span className="cp-resa-prix-nuit">
                     par nuit · taxes incluses
@@ -401,7 +402,7 @@ export default function ChateauModal({ chateau, onClose }) {
                   <span className="cp-resa-economie">
                     Économie de{" "}
                     {chateau.prixBarre -
-                      (chambre ? chambre.prix : chateau.prix)}{" "}
+                      (chambre?.prix ?? derivePrix(chateau))}{" "}
                     €
                   </span>
                 </div>
@@ -458,13 +459,6 @@ export default function ChateauModal({ chateau, onClose }) {
           <div className="cp-equip-card">
             <div className="cp-equip-titre">Équipements</div>
             <div className="cp-equip-liste">
-              <span
-                className={
-                  "cp-equip " + (chateau.petitDejeuner ? "inclus" : "non")
-                }
-              >
-                {chateau.petitDejeuner ? "✓" : "✕"} Petit-déjeuner
-              </span>
               <span
                 className={"cp-equip " + (chateau.parking ? "inclus" : "non")}
               >
