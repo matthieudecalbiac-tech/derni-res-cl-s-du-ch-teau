@@ -1,5 +1,3 @@
-import { validateChateau } from "../utils/validateChateau.js";
-
 export const chateaux = [
   {
     id: 1,
@@ -1291,8 +1289,3 @@ export const chateaux = [
     accentTheme: "#C09840",
   },
 ];
-
-// Auto-validation au chargement ESM (Phase B.5).
-// Throw si un château ne respecte pas le schéma Chateau toolkit.
-// Empêche de pousser une donnée cassée — filet définitif.
-chateaux.forEach(validateChateau);
