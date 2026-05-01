@@ -159,6 +159,9 @@ Les classes CSS dans les composants vitrines (`VitrineChateau`, `VitrinePermanen
 ### PHASE 2 — Data layer SOLIDE (~6-8 h)
 
 - **2.1** Schéma unifié `chateaux.js` (réconcilier id 1-6 et id 7-8)
+  - ✅ Phase A3 toolkit (PR #8, mergée 30 avr 2026)
+  - ⏳ Phase B enrichissement éditorial (en cours)
+  - 🔒 Phase C activation auto-validation
 - **2.2** Service `useChateaux` + `useCompteurs` (point d'entrée unique, helper `useNombreEnLettres`)
 - **2.3** Async-ready Supabase prep (préparation du swap d'implémentation)
 
@@ -190,6 +193,7 @@ Photos manquantes (Pierrefonds, Chantilly, Ferté-Saint-Aubin), 78 apostrophes d
 |---|---|---|---|---|
 | 1.1 — 7 bugs visibles | 28 avr 2026 | `8f429db` | +14 / −7 lignes, 7 fichiers | — |
 | 1.2 — Purge code mort | 30 avr 2026 | `7696328` + `0d51c1a` | +2 / −3 784 lignes, 22 fichiers | `pre-purge-1.2` (sur `47f782c`) |
+| 2.1 Phase A3 — Toolkit Chateau | 30 avr 2026 | PR #8 (`faf1333`) | +607 / −26 lignes, 10 fichiers (4 nouveaux + 6 modifiés) | — |
 | 1.3 — MAJ doc CLAUDE.md | 30 avr 2026 | (commit présent) | doc only | — |
 
 ### Surface du repo post-Chantier 1.2
@@ -238,6 +242,16 @@ Justification : risque de corruption silencieuse de l'encodage UTF-8/CRLF, patte
 
 **Exception** : codemods bulk sur `chateaux.js` (transformations homogènes appliquées à toutes les entrées) restent légitimes en script `.cjs` — cf. Hygiène du repo.
 
+### Dry-run avant Edits multi-fichiers
+
+Pour les chantiers touchant **≥3 fichiers**, faire un dry-run d'inventaire **avant exécution** :
+
+1. Pour chaque fichier impacté : lister chemin import à ajouter (vérifier profondeur relative), Edits exacts (OLD/NEW), inspection byte-level préalable (NBSP, indentation, encoding).
+2. Identifier les pièges potentiels : matches multiples du même pattern, structures JSX environnantes, faux positifs sed/grep.
+3. Faire valider le rapport par le user avant exécution.
+
+Justification : 10 min de dry-run = 30 min de débogage évitées. Pattern validé en Chantier 2.1 Commit 4 (5 fichiers, 14 Edits, 0 régression).
+
 ## Hygiène du repo
 
 - `fix.cjs`…`fix9.cjs` à la racine sont des scripts Node one-shot ayant servi à réécrire les URLs d'images dans `src/data/chateaux.js` et `src/components/VitrineChateau.jsx`. Ils ne font pas partie du build — ne pas les importer ni les étendre ; écrire un nouveau `fixN.cjs` uniquement pour une migration similaire ponctuelle.
@@ -250,6 +264,12 @@ Justification : risque de corruption silencieuse de l'encodage UTF-8/CRLF, patte
 Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne quand la dette est résolue, ou la déplacer dans Historique des chantiers.
 
 - **[Phase 1.x] Filtre baseline-check console-errors** : ajouter des `IGNORE_PATTERNS` dans `scripts/agents/console-errors.cjs` pour ignorer les HTTP 4xx/5xx vers domaines externes (`api.open-meteo.com`, `images.pexels.com`, `images.unsplash.com`, `www.youtube.com`). Permet de redescendre `qa-baseline.json:console-errors.erreurs.max` de 3 à 1 (3 absorbe la variance CDN actuellement). Estimé 1-2 h. Branche candidate : `refactor/console-errors-filter`. Identifié le 25 avril 2026 suite au run CI #18.
+
+- **[Phase 1.x] Convention import sans extension à formaliser** : règle implicite du repo (`from "../data/chateaux"` sans `.js`) non documentée. À formaliser dans CLAUDE.md § Architecture, soit via une note explicite, soit via ESLint si on ajoute un linter plus tard. Identifié pendant Chantier 2.1 Phase A3 (1er mai 2026 — relecture 30 avr).
+
+- **[Phase 1.x] Audit line endings + `.gitattributes`** : `UneDeLaSemaine.jsx` était en LF dans un repo majoritairement CRLF (détecté pendant Chantier 2.1 Phase A3). Probablement d'autres fichiers en LF dans le repo. À régler via `.gitattributes` à la racine forçant CRLF sur `.jsx/.js/.cjs/.md/.css/.json/.html`, puis `git add --renormalize .`. ~30 min.
+
+- **[Phase 1.x] CI workflow `validate:chateaux`** : ajouter `npm run validate:chateaux` en pre-build dans `.github/workflows/qa.yml` (ou job dédié). Empêche le merge d'un château incomplet. ~15 min. À faire **après Phase B** (sinon CI plante immédiatement avec 98 erreurs actuelles).
 
 - **[Phase 2.1] Schéma data unifié id 1-6 vs 7-8** : incohérence détectée par audit du 29 avril 2026. id 1-6 ont `tags`/`experiences`/`noteSur5`/`activites` (objets) ; id 7-8 ont `chiffresCles`/`regionNarrative`/`proprietaires.initiale`/`activites` (strings). À réconcilier en un schéma unique avant de pouvoir réutiliser un composant `ChateauCarte` (Phase 4.2) ou un service `useChateaux` (Phase 2.2) sans branchements multiples.
 
@@ -268,3 +288,8 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 - **[Phase 4.4] Vidéo Le Blanc Buisson YouTube → HTML5 natif** : −3 critical a11y absorbés au baseline. iframe YouTube `JQ9m51Bl900` actuelle non a11y-compliante. Migration vers vidéo HTML5 native dans `/public/` retire ces faux positifs et donne le contrôle complet sur le poster, l'autoplay et la coupure mobile.
 
 - **[Phase 4.5] `offres.css` à creuser** : épargné en Chantier 1.2 par prudence (importé par `BandeauOffres` vivant). À vérifier si `BandeauOffres` utilise réellement les classes de `offres.css` ou si l'import est lui-même mort. Si mort : suppression possible (~593 lignes).
+
+- **[Phase 6.x] Pass éditorial vitrine premium (avec Tanguy)** : bugs visuels préexistants détectés pendant test visuel Chantier 2.1 Phase A3 :
+  - Coquille « Brouillaird » → « Brouillard » dans `VitrineChateau` diptyque (~ligne 322)
+  - Image fond diptyque jour : URL Unsplash temple asiatique (Wat Pho/Wat Arun) à remplacer par image patrimoine français
+  - Audit complet à faire de toutes les URLs Unsplash dans `chateaux.js` + composants pour cohérence patrimoniale française (vérifier qu'aucune photo non-française n'apparaît dans une vitrine)
