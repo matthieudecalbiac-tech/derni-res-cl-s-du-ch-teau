@@ -158,34 +158,41 @@ Les classes CSS dans les composants vitrines (`VitrineChateau`, `VitrinePermanen
 
 ### PHASE 2 — Data layer SOLIDE (~6-8 h)
 
-- **2.1** Schéma unifié `chateaux.js` (réconcilier id 1-6 et id 7-8)
-  - ✅ Phase A3 toolkit (PR #8, mergée 30 avr 2026)
-  - ⏳ Phase B enrichissement éditorial (en cours)
-  - 🔒 Phase C activation auto-validation
+- **2.1** Schéma unifié `chateaux.js` (réconcilier id 1-6 et id 7-8) ✅ TERMINÉE
+  - ✅ Phase A3 toolkit (PR #8 `faf1333`, mergée 30 avr 2026)
+  - ✅ Phase B+C remplissage technique mocks + filet runtime (PR #9 `720cbdb`, mergée 1er mai 2026)
 - **2.2** Service `useChateaux` + `useCompteurs` (point d'entrée unique, helper `useNombreEnLettres`)
 - **2.3** Async-ready Supabase prep (préparation du swap d'implémentation)
 
-### PHASE 3 — Suppression mensonges factuels (~2 h)
+### PHASE 3 — Auth & rôles (~30-50 h) 🔒
 
-`Hero`, `VitrinePermanente`, `BandeauOffres`, `HeureAuxDemeures` consomment des chiffres en dur (« 81 domaines », « 31 demeures », etc.). À transformer en consommateurs de `useCompteurs()` exposé par la Phase 2.2 — actualisation automatique selon le nombre réel de châteaux dans `chateaux.js`.
+Fondation des 3 espaces utilisateurs.
 
-### PHASE 4 — Cohérence visuelle (~4-5 h)
+- **3.1** Authentification Supabase (signup/login/reset, magic links + Google OAuth) — ~10-15 h
+- **3.2** Modèle de rôles (admin / client / hôtel) — schemas Supabase `user_profiles`, `chateau_owners`, `wishlists` — ~8-10 h
+- **3.3** Row Level Security (RLS) Supabase — policies par rôle — ~6-8 h
+- **3.4** Routing protégé React (`ProtectedRoute`, 3 espaces) — ~6-10 h
 
-- **4.1** Tokens design conformes brand book (Navy/Or, Playfair/Crimson dans `global.css`)
-- **4.2** `ChateauCarte` mutualisé (5+ duplicats fusionnés)
-- **4.3** Pass A11y color-contrast
-- **4.4** Vidéo Le Blanc Buisson YouTube → HTML5 natif
-- **4.5** `offres.css` à creuser (suppression possible si BandeauOffres ne l'utilise pas)
+### PHASE 4 — Espaces utilisateurs (~80-120 h) 🔒
 
-### PHASE 5 — Modules data-driven (~3 h)
+- **4.1** Espace Client (~25-35 h) : profil, wishlist, réservations, club, avis
+- **4.2** Espace Hôtel (~30-40 h) ⭐ DIFFÉRENCIATEUR LCC : calendrier dispos, tarifs, vitrine éditable, réservations, finances. UI patrimoniale, jamais « dashboard SaaS B2B ».
+- **4.3** Espace Admin (~25-35 h) : CRUD châteaux, dashboards, modération, finances, contenu éditorial
 
-- **5.1** Module C (Club) connecté à `chateaux.js` (suppression `CHATEAUX_CLUB` hardcodé)
-- **5.2** Module D (Événementiel) data-driven
-- **5.3** `HeureAuxDemeures` sélection dynamique (suppression hardcoding ids `[6,5,1]` + `[7,8,2,3]`)
+### PHASE 5 — Réservation transactionnelle (~40-60 h) 🔒
 
-### PHASE 6 — Pass éditorial Tanguy (asynchrone)
+- **5.1** Calendrier disponibilités client — ~10-15 h
+- **5.2** Stripe Payment Intents (Connect platform) — ~15-20 h
+- **5.3** Email transactionnel Brevo — ~8-10 h
+- **5.4** Webhooks Stripe → Supabase Edge Functions — ~7-15 h
 
-Photos manquantes (Pierrefonds, Chantilly, Ferté-Saint-Aubin), 78 apostrophes droites, ton final.
+### PHASE 6 — Pass éditorial Tanguy (~15-25 h) 🔒
+
+En parallèle des Phases 3-5. Audit URLs Unsplash, coquilles, cohérence éditoriale. Coordonné avec Tanguy (direction artistique).
+
+### PHASE 7 — Module D événementiel (Q3/Q4 2026, ~50-70 h) 🔒
+
+Location châteaux pour événements privés (mariages, séminaires). Hors scope court terme.
 
 ## Historique des chantiers
 
@@ -193,8 +200,11 @@ Photos manquantes (Pierrefonds, Chantilly, Ferté-Saint-Aubin), 78 apostrophes d
 |---|---|---|---|---|
 | 1.1 — 7 bugs visibles | 28 avr 2026 | `8f429db` | +14 / −7 lignes, 7 fichiers | — |
 | 1.2 — Purge code mort | 30 avr 2026 | `7696328` + `0d51c1a` | +2 / −3 784 lignes, 22 fichiers | `pre-purge-1.2` (sur `47f782c`) |
+| 1.3 — Refonte CLAUDE.md FR + roadmap | 30 avr 2026 | `5abf983` | doc only, +232 / −45 lignes | — |
 | 2.1 Phase A3 — Toolkit Chateau | 30 avr 2026 | PR #8 (`faf1333`) | +607 / −26 lignes, 10 fichiers (4 nouveaux + 6 modifiés) | — |
-| 1.3 — MAJ doc CLAUDE.md | 30 avr 2026 | (commit présent) | doc only | — |
+| 1.4 — MAJ doc post-Phase A3 | 30 avr 2026 | `0917548` | doc only, +25 lignes | — |
+| 2.1 Phase B+C — Conformité schéma + filet | 1er mai 2026 | PR #9 (`720cbdb`) | +179 / −154 lignes cumulées, 7 commits atomiques (data + main.jsx + qa-baseline.json), 3 bugs résolus avec discipline | `pre-schema-2.1` (sur `0917548`) |
+| 1.5 — MAJ doc post-Phase B+C | 1er mai 2026 | (commit présent) | doc only | — |
 
 ### Surface du repo post-Chantier 1.2
 
@@ -252,6 +262,30 @@ Pour les chantiers touchant **≥3 fichiers**, faire un dry-run d'inventaire **a
 
 Justification : 10 min de dry-run = 30 min de débogage évitées. Pattern validé en Chantier 2.1 Commit 4 (5 fichiers, 14 Edits, 0 régression).
 
+### Contraintes sur `src/data/chateaux.js`
+
+Le fichier `chateaux.js` est chargé dans **3 contextes** distincts :
+
+1. **Vite (dev + prod)** : import ESM moderne, tolère absence d'extension.
+2. **Script CLI Node natif** (`scripts/validate-chateaux.cjs`) : import dynamique, exige extension `.js`.
+3. **Hack CI CommonJS** (`scripts/lib/charger-chateaux.cjs` via `new Function('module', 'exports', code)`) : exécute le code en CommonJS, NE supporte PAS les `import` ESM top-level.
+
+**RÈGLE** : `chateaux.js` doit rester un **pur fichier `export const`**, sans `import` ni autre side-effect (`forEach`, `console.log`, etc.). Pour activer un filet runtime, passer par `src/main.jsx` avec `import.meta.env.DEV` (cf. apprentissage Phase B.5, 1er mai 2026).
+
+### Régressions volontaires sur métriques CI (`qa-baseline.json`)
+
+Le système `qa-baseline.json` + `qa-check-baseline.cjs` détecte les régressions sur les métriques d'agents CI (a11y-axe, console-errors, validation-donnees, playwright-e2e). Quand une régression est **volontaire et acceptée** (ex : nouvelle dette consciente après un pivot stratégique), suivre cette procédure :
+
+1. Mettre à jour le seuil `max` de la métrique concernée dans `qa-baseline.json` (ajouter une marge de ~3 unités pour absorber les futures fluctuations).
+2. Mettre à jour la valeur `actuel` (= ce que la CI verra).
+3. Étendre la `dette` pour distinguer les sources (ex : « X historiques + Y nouveaux liés à <raison> »).
+4. **Ajouter une entrée en tête de `meta.revisions`** (ordre chronologique inversé) avec : `date`, `agent`, `champ`, `ancien`, `nouveau`, `raison` détaillée.
+5. **Commit séparé** : `chore(qa): révision baseline <agent>.<champ>`.
+
+Test local avant push : `node scripts/qa-check-baseline.cjs --strict` doit retourner exit 0 (« OK »).
+
+Apprentissage Phase B+C (1er mai 2026) : régression `validation-donnees.avertissements` 78 → 97 (+19 placeholder Phase B), absorbée en `max=100`.
+
 ## Hygiène du repo
 
 - `fix.cjs`…`fix9.cjs` à la racine sont des scripts Node one-shot ayant servi à réécrire les URLs d'images dans `src/data/chateaux.js` et `src/components/VitrineChateau.jsx`. Ils ne font pas partie du build — ne pas les importer ni les étendre ; écrire un nouveau `fixN.cjs` uniquement pour une migration similaire ponctuelle.
@@ -265,13 +299,17 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - **[Phase 1.x] Filtre baseline-check console-errors** : ajouter des `IGNORE_PATTERNS` dans `scripts/agents/console-errors.cjs` pour ignorer les HTTP 4xx/5xx vers domaines externes (`api.open-meteo.com`, `images.pexels.com`, `images.unsplash.com`, `www.youtube.com`). Permet de redescendre `qa-baseline.json:console-errors.erreurs.max` de 3 à 1 (3 absorbe la variance CDN actuellement). Estimé 1-2 h. Branche candidate : `refactor/console-errors-filter`. Identifié le 25 avril 2026 suite au run CI #18.
 
-- **[Phase 1.x] Convention import sans extension à formaliser** : règle implicite du repo (`from "../data/chateaux"` sans `.js`) non documentée. À formaliser dans CLAUDE.md § Architecture, soit via une note explicite, soit via ESLint si on ajoute un linter plus tard. Identifié pendant Chantier 2.1 Phase A3 (1er mai 2026 — relecture 30 avr).
+- **[Phase 1.x] RÉVISER convention import — extension `.js` requise pour modules chargés par Node natif** : Vite tolère l'absence d'extension, mais Node natif (utilisé par `scripts/validate-chateaux.cjs` via dynamic import) exige `.js` explicite. Apprentissage Phase B.5 (1er mai 2026) : `chateaux.js` qui importe `validateChateau` doit utiliser `from "../utils/validateChateau.js"` (avec extension). À formaliser : convention « extension `.js` partout » ou « exception documentée pour modules chargés par Node ». ~1-2 h migration de tous les imports si Option A (cohérence).
+
+- **[Phase 1.x] Optimisation bundle prod — extraire filet dev** : le filet `validateChateau` activé en B.5 bis via `import.meta.env.DEV` dans `main.jsx` génère +9 kB résiduels en prod (overhead runtime ESM des dynamic imports, malgré constant folding de Rollup). Solution : extraire dans `src/dev/validateAtBoot.js` chargé via dynamic import sans top-level await depuis `main.jsx`. ~30 min. Identifié 1er mai 2026.
+
+- **[Phase 1.x] Documenter `scripts/lib/charger-chateaux.cjs`** : utilise un hack `new Function('module', 'exports', code)` pour exécuter `chateaux.js` en mode CommonJS dans les agents CI (a11y-axe, console-errors, playwright-e2e). Ce hack ne supporte PAS les `import` ESM. **Règle implicite** : `chateaux.js` doit rester un pur fichier `export const`, sans `import` top-level. Apprentissage Phase B.5 (1er mai 2026) : le commit B.5 initial avait ajouté un import qui cassait 3 agents CI. Rectifié en B.5 bis en déplaçant le filet dans `main.jsx`. Cf. nouvelle convention « Contraintes sur `chateaux.js` ».
+
+- **[Phase 1.x] Investiguer écart `validation-donnees.avertissements` local vs CI** : en local Windows, le validateur retourne 78 avertissements ; en CI Linux Ubuntu, 97. Probable cause : multi-browser playwright-e2e ou contexte Node différent. À investiguer pour comprendre si la métrique est fiable. Pas urgent (la baseline absorbe les deux valeurs avec max=100). ~1-2 h. Identifié 1er mai 2026.
 
 - **[Phase 1.x] Audit line endings + `.gitattributes`** : `UneDeLaSemaine.jsx` était en LF dans un repo majoritairement CRLF (détecté pendant Chantier 2.1 Phase A3). Probablement d'autres fichiers en LF dans le repo. À régler via `.gitattributes` à la racine forçant CRLF sur `.jsx/.js/.cjs/.md/.css/.json/.html`, puis `git add --renormalize .`. ~30 min.
 
-- **[Phase 1.x] CI workflow `validate:chateaux`** : ajouter `npm run validate:chateaux` en pre-build dans `.github/workflows/qa.yml` (ou job dédié). Empêche le merge d'un château incomplet. ~15 min. À faire **après Phase B** (sinon CI plante immédiatement avec 98 erreurs actuelles).
-
-- **[Phase 2.1] Schéma data unifié id 1-6 vs 7-8** : incohérence détectée par audit du 29 avril 2026. id 1-6 ont `tags`/`experiences`/`noteSur5`/`activites` (objets) ; id 7-8 ont `chiffresCles`/`regionNarrative`/`proprietaires.initiale`/`activites` (strings). À réconcilier en un schéma unique avant de pouvoir réutiliser un composant `ChateauCarte` (Phase 4.2) ou un service `useChateaux` (Phase 2.2) sans branchements multiples.
+- **[Phase 1.x] CI workflow `validate:chateaux` pre-build** : ajouter `npm run validate:chateaux` en step de `.github/workflows/qa.yml` (pre-build). Empêche le merge d'une PR avec un schéma cassé. ~15 min. **Possible maintenant que Phase B+C est terminée** (avant, ça aurait planté la CI avec 98 erreurs). À faire dès que possible.
 
 - **[Phase 2.2] Service `useChateaux` + `useCompteurs`** : centraliser `getChateaux` / `getChateauBySlug` / `getChateauById` dans un seul service. Exposer `useCompteurs()` pour les chiffres affichés en surface (Phase 3). Ajouter helper `useNombreEnLettres(n)` pour l'écriture des nombres en français (« trente-et-une demeures »).
 
