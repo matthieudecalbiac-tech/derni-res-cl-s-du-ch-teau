@@ -10,12 +10,9 @@ export const chateaux = [
     distanceParis: "55 km · 45 min",
     urgence: "J-7",
     chambresRestantes: 2,
-    prix: 380,
     prixBarre: 620,
     reduction: 39,
     coordonnees: { lat: 48.5681, lng: 2.7157 },
-    image:
-      "https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?w=1200&q=80",
       "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=80",
@@ -125,12 +122,6 @@ export const chateaux = [
         ],
       },
     ],
-    experiences: [
-      "Dîner aux chandelles",
-      "Visite privée nocturne",
-      "Jardins à la française",
-      "Spa baroque",
-    ],
     activites: [
       {
         icone: "✦",
@@ -175,11 +166,6 @@ export const chateaux = [
     ],
     regionNarrative: "L'Île-de-France réunit les grandes résidences royales et nobiliaires de France. Vaux-le-Vicomte, en Seine-et-Marne, s'inscrit dans cette tradition de proximité avec le pouvoir. Le domaine, aux portes de la Brie, illustre l'art des jardins à la française au XVIIe siècle.",
     regionHistoire: "La Seine-et-Marne fut historiquement le pays de Brie, terre fertile et prospère sous l'Ancien Régime. Sa proximité avec Paris et la Cour y attira l'aristocratie et les officiers du roi. Châteaux de Fontainebleau, Vaux-le-Vicomte, Champs-sur-Marne et Blandy-les-Tours témoignent de ce passé d'apparat et de pouvoir.",
-    tags: ["Jardins", "Gastronomie", "Histoire", "Spa"],
-    dateDisponible: "Ce week-end",
-    noteSur5: 4.9,
-    nbAvis: 127,
-    petitDejeuner: true,
     parking: true,
     wifi: true,
     animaux: false,
@@ -198,12 +184,9 @@ export const chateaux = [
     distanceParis: "85 km · 1h10",
     urgence: "J-10",
     chambresRestantes: 4,
-    prix: 290,
     prixBarre: 450,
     reduction: 36,
     coordonnees: { lat: 49.3442, lng: 2.9797 },
-    image:
-      "https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?w=1200&q=80",
     ],
@@ -312,12 +295,6 @@ export const chateaux = [
         ],
       },
     ],
-    experiences: [
-      "Chevauchée en forêt de Compiègne",
-      "Dîner médiéval",
-      "Tir à l'arc",
-      "Visite des remparts",
-    ],
     activites: [
       {
         icone: "✦",
@@ -363,11 +340,6 @@ export const chateaux = [
     ],
     regionNarrative: "Les Hauts-de-France, autour de Compiègne, sont une terre de forêts royales et de châteaux où l'histoire s'est jouée à plusieurs reprises. Pierrefonds, dans l'Oise, illustre la fascination du XIXe siècle pour le Moyen Âge réinventé par Viollet-le-Duc.",
     regionHistoire: "L'Oise fut au cœur du royaume capétien, terre des seigneurs de Valois et résidence des rois de France à Compiègne. Forêts profondes, abbayes médiévales et palais impériaux y composent un paysage patrimonial dense, marqué aussi par les deux guerres mondiales — la signature de l'Armistice de 1918 s'y est tenue.",
-    tags: ["Équitation", "Forêt", "Histoire", "Aventure"],
-    dateDisponible: "Samedi prochain",
-    noteSur5: 4.7,
-    nbAvis: 89,
-    petitDejeuner: true,
     parking: true,
     wifi: true,
     animaux: true,
@@ -386,12 +358,9 @@ export const chateaux = [
     distanceParis: "48 km · 35 min",
     urgence: "J-15",
     chambresRestantes: 6,
-    prix: 450,
     prixBarre: 680,
     reduction: 34,
     coordonnees: { lat: 49.1936, lng: 2.4847 },
-    image:
-      "https://images.unsplash.com/photo-1659526062822-72f35fedff25?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1659526062822-72f35fedff25?w=1200&q=80",
       "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80",
@@ -501,12 +470,6 @@ export const chateaux = [
         ],
       },
     ],
-    experiences: [
-      "Polo & hippodrome",
-      "Musée Condé",
-      "Crème Chantilly originale",
-      "Promenade en calèche",
-    ],
     activites: [
       {
         icone: "✦",
@@ -552,11 +515,6 @@ export const chateaux = [
     ],
     regionNarrative: "À une heure de Paris, la plaine cantilienne ouvre les Hauts-de-France sur un paysage de forêts royales et de grands domaines. Chantilly, terre des Condé puis du duc d'Aumale, abrite l'un des plus importants ensembles patrimoniaux français au nord de la capitale.",
     regionHistoire: "Le pays de Chantilly fut longtemps le territoire des Montmorency et des Condé, princes du sang et grands soldats du royaume. Le duc d'Aumale, fils de Louis-Philippe, légua le domaine à l'Institut de France en 1886 avec sa collection de peintures, l'une des plus importantes en France après celle du Louvre.",
-    tags: ["Art", "Équitation", "Gastronomie", "Parc"],
-    dateDisponible: "Dans 2 semaines",
-    noteSur5: 4.8,
-    nbAvis: 203,
-    petitDejeuner: true,
     parking: true,
     wifi: true,
     animaux: false,
@@ -574,12 +532,9 @@ export const chateaux = [
     distanceParis: "65 km · 50 min",
     urgence: "J-7",
     chambresRestantes: 3,
-    prix: 520,
     prixBarre: 790,
     reduction: 34,
     coordonnees: { lat: 48.4025, lng: 2.7017 },
-    image:
-      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1200&q=80",
       "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=80",
@@ -690,12 +645,6 @@ export const chateaux = [
         ],
       },
     ],
-    experiences: [
-      "Escalade en forêt",
-      "Appartements royaux",
-      "Spa & hammam",
-      "Table gastronomique",
-    ],
     activites: [
       {
         icone: "✦",
@@ -742,11 +691,6 @@ export const chateaux = [
     ],
     regionNarrative: "La forêt de Fontainebleau, vaste de 25 000 hectares, forme un écrin sauvage rare aux portes de l'Île-de-France. Le château, résidence favorite de trente rois de France, s'y déploie depuis le XIIe siècle au cœur des chaos de grès et des chemins forestiers.",
     regionHistoire: "Fontainebleau fut la seule résidence royale française habitée sans interruption pendant huit siècles, de Saint Louis à Napoléon III. François Ier y créa la première École de Fontainebleau en invitant les artistes italiens du XVIe siècle. Napoléon Ier y signa son abdication en 1814 — les Adieux entrés dans la légende française.",
-    tags: ["Forêt", "Sport", "Histoire", "Spa"],
-    dateDisponible: "Ce week-end",
-    noteSur5: 4.8,
-    nbAvis: 341,
-    petitDejeuner: true,
     parking: true,
     wifi: true,
     animaux: true,
@@ -765,12 +709,9 @@ export const chateaux = [
     distanceParis: "155 km · 1h30",
     urgence: "J-10",
     chambresRestantes: 5,
-    prix: 220,
     prixBarre: 350,
     reduction: 37,
     coordonnees: { lat: 47.7197, lng: 1.9558 },
-    image:
-      "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1200&q=80",
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80",
@@ -879,12 +820,6 @@ export const chateaux = [
         ],
       },
     ],
-    experiences: [
-      "Chasse & pêche",
-      "Cuisine d'époque",
-      "Promenade en Sologne",
-      "Feu de cheminée",
-    ],
     activites: [
       {
         icone: "✦",
@@ -929,11 +864,6 @@ export const chateaux = [
     ],
     regionNarrative: "Le Loiret, en lisière nord du Centre-Val de Loire, ouvre les paysages de Sologne — étangs, forêts de pins, manoirs de chasse. La Ferté-Saint-Aubin s'inscrit dans cette tradition d'aristocratie rurale française, à mi-chemin entre Orléans et les grands châteaux ligériens du Val de Loire.",
     regionHistoire: "Le Centre-Val de Loire est la terre des grands châteaux royaux et nobiliaires de la Renaissance — Chambord, Cheverny, Chenonceau, Blois. Le Val de Loire est inscrit au patrimoine mondial de l'UNESCO depuis 2000. La Sologne au nord, ancienne réserve de chasse des rois et de la noblesse, conserve ses étangs, ses forêts et ses traditions cynégétiques.",
-    tags: ["Authenticité", "Nature", "Gastronomie", "Intimité"],
-    dateDisponible: "Samedi prochain",
-    noteSur5: 4.6,
-    nbAvis: 74,
-    petitDejeuner: true,
     parking: true,
     wifi: false,
     animaux: true,
@@ -951,12 +881,9 @@ export const chateaux = [
     distanceParis: "370 km · 3h",
     urgence: "J-15",
     chambresRestantes: 8,
-    prix: 195,
     prixBarre: 310,
     reduction: 37,
     coordonnees: { lat: 46.3764, lng: 4.6897 },
-    image:
-      "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?w=1200&q=80",
       "https://images.unsplash.com/photo-1760372057956-d20c2195c7a2?w=1200&q=80",
@@ -1068,12 +995,6 @@ export const chateaux = [
         ],
       },
     ],
-    experiences: [
-      "Dégustation vins",
-      "Visite des vignes",
-      "Table d'hôtes",
-      "Donjon panoramique",
-    ],
     activites: [
       {
         icone: "✦",
@@ -1120,11 +1041,6 @@ export const chateaux = [
     ],
     regionNarrative: "Le Mâconnais, au sud de la Bourgogne, ouvre les coteaux des grands blancs de chardonnay — Pouilly-Fuissé, Mâcon Villages, Saint-Véran. Pierreclos s'élève au cœur de ce paysage viticole, sur les hauteurs qui dominent la Saône et marquent le début des reliefs du Beaujolais.",
     regionHistoire: "La Bourgogne fut au Moyen Âge l'un des duchés les plus puissants d'Europe occidentale, rivale du royaume de France. Cluny y rayonna comme premier ordre monastique de la chrétienté. Le Mâconnais, terre frontière entre Bourgogne et Lyonnais, vit naître Lamartine et conserve un patrimoine roman et viticole exceptionnel — les Climats du vignoble sont classés à l'UNESCO.",
-    tags: ["Vin", "Gastronomie", "Nature", "Panorama"],
-    dateDisponible: "Dans 2 semaines",
-    noteSur5: 4.7,
-    nbAvis: 112,
-    petitDejeuner: true,
     parking: true,
     wifi: true,
     animaux: false,
