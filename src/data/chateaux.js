@@ -1,19 +1,18 @@
 export const chateaux = [
   {
     id: 1,
+    isDemoMock: true,
     nom: "Château de Vaux-le-Vicomte",
     slug: "vaux-le-vicomte",
     region: "Île-de-France",
     departement: "Seine-et-Marne",
+    ville: "Maincy",
     distanceParis: "55 km · 45 min",
     urgence: "J-7",
     chambresRestantes: 2,
-    prix: 380,
     prixBarre: 620,
     reduction: 39,
     coordonnees: { lat: 48.5681, lng: 2.7157 },
-    image:
-      "https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?w=1200&q=80",
       "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1200&q=80",
@@ -55,9 +54,17 @@ export const chateaux = [
         evenement: "Labellisé Patrimoine Exceptionnel de France",
       },
     ],
+    chiffresCles: [
+      { val: "1661", lab: "Inauguration" },
+      { val: "33 ha", lab: "Domaine" },
+      { val: "XVIIe", lab: "Siècle" },
+      { val: "55 km", lab: "De Paris" },
+    ],
     proprietaires: {
       nom: "Famille de Vogüé",
       depuis: "1875",
+      initiale: "F",
+      nomAffiche: "amille de Vogüé",
       portrait:
         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
       citation:
@@ -115,12 +122,6 @@ export const chateaux = [
         ],
       },
     ],
-    experiences: [
-      "Dîner aux chandelles",
-      "Visite privée nocturne",
-      "Jardins à la française",
-      "Spa baroque",
-    ],
     activites: [
       {
         icone: "✦",
@@ -158,20 +159,13 @@ export const chateaux = [
       },
     ],
     alentours: [
-      { nom: "Forêt de Fontainebleau", distance: "20 km", type: "nature" },
-      { nom: "Melun (marché provençal)", distance: "6 km", type: "village" },
-      { nom: "Château de Fontainebleau", distance: "18 km", type: "culture" },
-      {
-        nom: "Barbizon (village des peintres)",
-        distance: "25 km",
-        type: "culture",
-      },
+      { nom: "Forêt de Fontainebleau", distance: "20 km", type: "nature", icone: "✦", description: "Massif forestier de 25 000 hectares classé, célèbre pour ses chaos rocheux et ses sentiers ouverts à la randonnée et à l'escalade." },
+      { nom: "Melun (marché provençal)", distance: "6 km", type: "village", icone: "◆", description: "Préfecture de Seine-et-Marne, marché animé plusieurs fois par semaine au cœur de la vieille ville sur la Seine." },
+      { nom: "Château de Fontainebleau", distance: "18 km", type: "culture", icone: "◆", description: "Résidence royale habitée pendant huit siècles, classée au patrimoine mondial de l'UNESCO depuis 1981." },
+      { nom: "Barbizon (village des peintres)", distance: "25 km", type: "culture", icone: "◆", description: "Village des peintres pré-impressionnistes, où Millet et Théodore Rousseau ont vécu et travaillé au XIXe siècle." },
     ],
-    tags: ["Jardins", "Gastronomie", "Histoire", "Spa"],
-    dateDisponible: "Ce week-end",
-    noteSur5: 4.9,
-    nbAvis: 127,
-    petitDejeuner: true,
+    regionNarrative: "L'Île-de-France réunit les grandes résidences royales et nobiliaires de France. Vaux-le-Vicomte, en Seine-et-Marne, s'inscrit dans cette tradition de proximité avec le pouvoir. Le domaine, aux portes de la Brie, illustre l'art des jardins à la française au XVIIe siècle.",
+    regionHistoire: "La Seine-et-Marne fut historiquement le pays de Brie, terre fertile et prospère sous l'Ancien Régime. Sa proximité avec Paris et la Cour y attira l'aristocratie et les officiers du roi. Châteaux de Fontainebleau, Vaux-le-Vicomte, Champs-sur-Marne et Blandy-les-Tours témoignent de ce passé d'apparat et de pouvoir.",
     parking: true,
     wifi: true,
     animaux: false,
@@ -181,19 +175,18 @@ export const chateaux = [
   // TODO pass éditorial Tanguy : ajouter 1-2 vraies photos du château
   {
     id: 2,
+    isDemoMock: true,
     nom: "Château de Pierrefonds",
     slug: "pierrefonds",
     region: "Hauts-de-France",
     departement: "Oise",
+    ville: "Pierrefonds",
     distanceParis: "85 km · 1h10",
     urgence: "J-10",
     chambresRestantes: 4,
-    prix: 290,
     prixBarre: 450,
     reduction: 36,
     coordonnees: { lat: 49.3442, lng: 2.9797 },
-    image:
-      "https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?w=1200&q=80",
     ],
@@ -234,9 +227,17 @@ export const chateaux = [
           "Classement Monument Historique et ouverture partielle au public",
       },
     ],
+    chiffresCles: [
+      { val: "1190", lab: "Construction initiale" },
+      { val: "1885", lab: "Restauration Viollet-le-Duc" },
+      { val: "XIIe–XIXe", lab: "Siècles" },
+      { val: "85 km", lab: "De Paris" },
+    ],
     proprietaires: {
       nom: "Centre des Monuments Nationaux",
       depuis: "1885",
+      initiale: "C",
+      nomAffiche: "entre des Monuments Nationaux",
       portrait:
         "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80",
       citation:
@@ -294,12 +295,6 @@ export const chateaux = [
         ],
       },
     ],
-    experiences: [
-      "Chevauchée en forêt de Compiègne",
-      "Dîner médiéval",
-      "Tir à l'arc",
-      "Visite des remparts",
-    ],
     activites: [
       {
         icone: "✦",
@@ -338,20 +333,13 @@ export const chateaux = [
       },
     ],
     alentours: [
-      { nom: "Forêt de Compiègne", distance: "5 km", type: "nature" },
-      {
-        nom: "Compiègne (palais impérial)",
-        distance: "14 km",
-        type: "culture",
-      },
-      { nom: "Clairière de l'Armistice", distance: "12 km", type: "histoire" },
-      { nom: "Village de Pierrefonds", distance: "0.5 km", type: "village" },
+      { nom: "Forêt de Compiègne", distance: "5 km", type: "nature", icone: "✦", description: "Massif royal de 14 500 hectares, ancienne réserve de chasse des rois et empereurs, sentiers et clairières ouverts au public." },
+      { nom: "Compiègne (palais impérial)", distance: "14 km", type: "culture", icone: "◆", description: "Résidence d'été des rois de France et de Napoléon III, vaste palais ouvert à la visite et abritant le musée du Second Empire." },
+      { nom: "Clairière de l'Armistice", distance: "12 km", type: "patrimoine", icone: "⚜", description: "Lieu de signature de l'Armistice du 11 novembre 1918, mémorial reconstruit après la Seconde Guerre mondiale." },
+      { nom: "Village de Pierrefonds", distance: "0.5 km", type: "village", icone: "◆", description: "Bourg médiéval pittoresque dominé par le château, étapes de promenade autour de l'étang et des halles." },
     ],
-    tags: ["Équitation", "Forêt", "Histoire", "Aventure"],
-    dateDisponible: "Samedi prochain",
-    noteSur5: 4.7,
-    nbAvis: 89,
-    petitDejeuner: true,
+    regionNarrative: "Les Hauts-de-France, autour de Compiègne, sont une terre de forêts royales et de châteaux où l'histoire s'est jouée à plusieurs reprises. Pierrefonds, dans l'Oise, illustre la fascination du XIXe siècle pour le Moyen Âge réinventé par Viollet-le-Duc.",
+    regionHistoire: "L'Oise fut au cœur du royaume capétien, terre des seigneurs de Valois et résidence des rois de France à Compiègne. Forêts profondes, abbayes médiévales et palais impériaux y composent un paysage patrimonial dense, marqué aussi par les deux guerres mondiales — la signature de l'Armistice de 1918 s'y est tenue.",
     parking: true,
     wifi: true,
     animaux: true,
@@ -361,19 +349,18 @@ export const chateaux = [
   // TODO pass éditorial Tanguy : ajouter 1-2 vraies photos du château
   {
     id: 3,
+    isDemoMock: true,
     nom: "Château de Chantilly",
     slug: "chantilly",
     region: "Hauts-de-France",
     departement: "Oise",
+    ville: "Chantilly",
     distanceParis: "48 km · 35 min",
     urgence: "J-15",
     chambresRestantes: 6,
-    prix: 450,
     prixBarre: 680,
     reduction: 34,
     coordonnees: { lat: 49.1936, lng: 2.4847 },
-    image:
-      "https://images.unsplash.com/photo-1659526062822-72f35fedff25?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1659526062822-72f35fedff25?w=1200&q=80",
       "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80",
@@ -415,9 +402,17 @@ export const chateaux = [
           "Restauration complète des Grandes Écuries, ouverture de l'hôtel",
       },
     ],
+    chiffresCles: [
+      { val: "1484", lab: "Premier château" },
+      { val: "6 300 ha", lab: "Forêt domaniale" },
+      { val: "XVIe–XIXe", lab: "Siècles" },
+      { val: "48 km", lab: "De Paris" },
+    ],
     proprietaires: {
       nom: "Institut de France",
       depuis: "1886",
+      initiale: "I",
+      nomAffiche: "nstitut de France",
       portrait:
         "https://images.unsplash.com/photo-1560250097-0dc005d9af94?w=400&q=80",
       citation:
@@ -475,12 +470,6 @@ export const chateaux = [
         ],
       },
     ],
-    experiences: [
-      "Polo & hippodrome",
-      "Musée Condé",
-      "Crème Chantilly originale",
-      "Promenade en calèche",
-    ],
     activites: [
       {
         icone: "✦",
@@ -519,16 +508,13 @@ export const chateaux = [
       },
     ],
     alentours: [
-      { nom: "Forêt de Chantilly", distance: "0 km", type: "nature" },
-      { nom: "Senlis (cité médiévale)", distance: "10 km", type: "village" },
-      { nom: "Abbaye de Royaumont", distance: "12 km", type: "culture" },
-      { nom: "Hippodrome de Chantilly", distance: "1 km", type: "sport" },
+      { nom: "Forêt de Chantilly", distance: "0 km", type: "nature", icone: "✦", description: "Forêt domaniale de 6 300 hectares contiguë au château, sentiers, étangs et site classé Natura 2000." },
+      { nom: "Senlis (cité médiévale)", distance: "10 km", type: "village", icone: "◆", description: "Cité épiscopale aux ruelles pavées, cathédrale gothique du XIIe siècle et remparts gallo-romains préservés." },
+      { nom: "Abbaye de Royaumont", distance: "12 km", type: "culture", icone: "◆", description: "Abbaye cistercienne fondée par Saint Louis en 1228, aujourd'hui centre culturel et musical international." },
+      { nom: "Hippodrome de Chantilly", distance: "1 km", type: "sport", icone: "✦", description: "L'un des plus prestigieux hippodromes d'Europe, accueille le Prix du Jockey Club et le Prix de Diane chaque année." },
     ],
-    tags: ["Art", "Équitation", "Gastronomie", "Parc"],
-    dateDisponible: "Dans 2 semaines",
-    noteSur5: 4.8,
-    nbAvis: 203,
-    petitDejeuner: true,
+    regionNarrative: "À une heure de Paris, la plaine cantilienne ouvre les Hauts-de-France sur un paysage de forêts royales et de grands domaines. Chantilly, terre des Condé puis du duc d'Aumale, abrite l'un des plus importants ensembles patrimoniaux français au nord de la capitale.",
+    regionHistoire: "Le pays de Chantilly fut longtemps le territoire des Montmorency et des Condé, princes du sang et grands soldats du royaume. Le duc d'Aumale, fils de Louis-Philippe, légua le domaine à l'Institut de France en 1886 avec sa collection de peintures, l'une des plus importantes en France après celle du Louvre.",
     parking: true,
     wifi: true,
     animaux: false,
@@ -537,19 +523,18 @@ export const chateaux = [
   },
   {
     id: 4,
+    isDemoMock: true,
     nom: "Château de Fontainebleau",
     slug: "fontainebleau",
     region: "Île-de-France",
     departement: "Seine-et-Marne",
+    ville: "Fontainebleau",
     distanceParis: "65 km · 50 min",
     urgence: "J-7",
     chambresRestantes: 3,
-    prix: 520,
     prixBarre: 790,
     reduction: 34,
     coordonnees: { lat: 48.4025, lng: 2.7017 },
-    image:
-      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1200&q=80",
       "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=80",
@@ -592,9 +577,17 @@ export const chateaux = [
           "Ouverture des appartements privés en hébergement d'exception",
       },
     ],
+    chiffresCles: [
+      { val: "1137", lab: "Première tour" },
+      { val: "25 000 ha", lab: "Forêt domaniale" },
+      { val: "8 siècles", lab: "Habité sans interruption" },
+      { val: "65 km", lab: "De Paris" },
+    ],
     proprietaires: {
       nom: "République Française — CMN",
       depuis: "1793",
+      initiale: "R",
+      nomAffiche: "épublique Française — CMN",
       portrait:
         "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&q=80",
       citation:
@@ -652,12 +645,6 @@ export const chateaux = [
         ],
       },
     ],
-    experiences: [
-      "Escalade en forêt",
-      "Appartements royaux",
-      "Spa & hammam",
-      "Table gastronomique",
-    ],
     activites: [
       {
         icone: "✦",
@@ -697,24 +684,13 @@ export const chateaux = [
       },
     ],
     alentours: [
-      { nom: "Forêt de Fontainebleau", distance: "0 km", type: "nature" },
-      {
-        nom: "Barbizon (village des peintres)",
-        distance: "8 km",
-        type: "culture",
-      },
-      {
-        nom: "Moret-sur-Loing (cité médiévale)",
-        distance: "12 km",
-        type: "village",
-      },
-      { nom: "Vaux-le-Vicomte", distance: "18 km", type: "culture" },
+      { nom: "Forêt de Fontainebleau", distance: "0 km", type: "nature", icone: "✦", description: "25 000 hectares de forêt royale classée, paradis des grimpeurs et des randonneurs, à pied du château." },
+      { nom: "Barbizon (village des peintres)", distance: "8 km", type: "culture", icone: "◆", description: "Village où vécurent Millet, Rousseau et l'École de Barbizon, mouvement précurseur de l'impressionnisme français." },
+      { nom: "Moret-sur-Loing (cité médiévale)", distance: "12 km", type: "village", icone: "◆", description: "Cité fortifiée sur le Loing, ancienne place forte royale aux portes ogivales et aux maisons à colombages." },
+      { nom: "Vaux-le-Vicomte", distance: "18 km", type: "culture", icone: "◆", description: "Chef-d'œuvre du Grand Siècle, modèle direct de Versailles, à dix-huit kilomètres au nord-ouest." },
     ],
-    tags: ["Forêt", "Sport", "Histoire", "Spa"],
-    dateDisponible: "Ce week-end",
-    noteSur5: 4.8,
-    nbAvis: 341,
-    petitDejeuner: true,
+    regionNarrative: "La forêt de Fontainebleau, vaste de 25 000 hectares, forme un écrin sauvage rare aux portes de l'Île-de-France. Le château, résidence favorite de trente rois de France, s'y déploie depuis le XIIe siècle au cœur des chaos de grès et des chemins forestiers.",
+    regionHistoire: "Fontainebleau fut la seule résidence royale française habitée sans interruption pendant huit siècles, de Saint Louis à Napoléon III. François Ier y créa la première École de Fontainebleau en invitant les artistes italiens du XVIe siècle. Napoléon Ier y signa son abdication en 1814 — les Adieux entrés dans la légende française.",
     parking: true,
     wifi: true,
     animaux: true,
@@ -724,19 +700,18 @@ export const chateaux = [
   // TODO pass éditorial Tanguy : ajouter 1-2 vraies photos du château
   {
     id: 5,
+    isDemoMock: true,
     nom: "Château de La Ferté-Saint-Aubin",
     slug: "ferte-saint-aubin",
     region: "Centre-Val de Loire",
     departement: "Loiret",
+    ville: "La Ferté-Saint-Aubin",
     distanceParis: "155 km · 1h30",
     urgence: "J-10",
     chambresRestantes: 5,
-    prix: 220,
     prixBarre: 350,
     reduction: 37,
     coordonnees: { lat: 47.7197, lng: 1.9558 },
-    image:
-      "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1200&q=80",
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80",
@@ -777,9 +752,17 @@ export const chateaux = [
           "Lancement des séjours immersifs en chambre d'hôtes de prestige",
       },
     ],
+    chiffresCles: [
+      { val: "1635", lab: "Construction" },
+      { val: "5", lab: "Générations Jouffroy-Gonsans" },
+      { val: "XVIIe", lab: "Siècle" },
+      { val: "155 km", lab: "De Paris" },
+    ],
     proprietaires: {
       nom: "Famille de Jouffroy-Gonsans",
       depuis: "1840",
+      initiale: "F",
+      nomAffiche: "amille de Jouffroy-Gonsans",
       portrait:
         "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80",
       citation:
@@ -837,12 +820,6 @@ export const chateaux = [
         ],
       },
     ],
-    experiences: [
-      "Chasse & pêche",
-      "Cuisine d'époque",
-      "Promenade en Sologne",
-      "Feu de cheminée",
-    ],
     activites: [
       {
         icone: "✦",
@@ -880,20 +857,13 @@ export const chateaux = [
       },
     ],
     alentours: [
-      { nom: "Forêt de Sologne", distance: "0 km", type: "nature" },
-      { nom: "Orléans (cathédrale)", distance: "20 km", type: "culture" },
-      { nom: "Chambord", distance: "35 km", type: "culture" },
-      {
-        nom: "La Ferté-Saint-Aubin (village)",
-        distance: "2 km",
-        type: "village",
-      },
+      { nom: "Forêt de Sologne", distance: "0 km", type: "nature", icone: "✦", description: "Pays de bocages et d'étangs, forêts de pins et de chênes, ancienne terre de chasse royale au sud d'Orléans." },
+      { nom: "Orléans (cathédrale)", distance: "20 km", type: "culture", icone: "◆", description: "Capitale historique du Val de Loire, cathédrale Sainte-Croix gothique flamboyant, mémoire de Jeanne d'Arc." },
+      { nom: "Chambord", distance: "35 km", type: "culture", icone: "◆", description: "Plus grand château de la Loire, chef-d'œuvre de la Renaissance française commandé par François Ier en 1519." },
+      { nom: "La Ferté-Saint-Aubin (village)", distance: "2 km", type: "village", icone: "◆", description: "Bourg solognot traversé par le Cosson, halles couvertes du XIXe siècle, gare ouverte sur la ligne Paris-Orléans." },
     ],
-    tags: ["Authenticité", "Nature", "Gastronomie", "Intimité"],
-    dateDisponible: "Samedi prochain",
-    noteSur5: 4.6,
-    nbAvis: 74,
-    petitDejeuner: true,
+    regionNarrative: "Le Loiret, en lisière nord du Centre-Val de Loire, ouvre les paysages de Sologne — étangs, forêts de pins, manoirs de chasse. La Ferté-Saint-Aubin s'inscrit dans cette tradition d'aristocratie rurale française, à mi-chemin entre Orléans et les grands châteaux ligériens du Val de Loire.",
+    regionHistoire: "Le Centre-Val de Loire est la terre des grands châteaux royaux et nobiliaires de la Renaissance — Chambord, Cheverny, Chenonceau, Blois. Le Val de Loire est inscrit au patrimoine mondial de l'UNESCO depuis 2000. La Sologne au nord, ancienne réserve de chasse des rois et de la noblesse, conserve ses étangs, ses forêts et ses traditions cynégétiques.",
     parking: true,
     wifi: false,
     animaux: true,
@@ -902,19 +872,18 @@ export const chateaux = [
   },
   {
     id: 6,
+    isDemoMock: true,
     nom: "Château de Pierreclos",
     slug: "pierreclos",
     region: "Bourgogne-Franche-Comté",
     departement: "Saône-et-Loire",
+    ville: "Pierreclos",
     distanceParis: "370 km · 3h",
     urgence: "J-15",
     chambresRestantes: 8,
-    prix: 195,
     prixBarre: 310,
     reduction: 37,
     coordonnees: { lat: 46.3764, lng: 4.6897 },
-    image:
-      "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?w=800&q=80",
     images: [
       "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?w=1200&q=80",
       "https://images.unsplash.com/photo-1760372057956-d20c2195c7a2?w=1200&q=80",
@@ -958,9 +927,17 @@ export const chateaux = [
         evenement: "Restauration du donjon et ouverture des chambres d'hôtes",
       },
     ],
+    chiffresCles: [
+      { val: "1180", lab: "Donjon" },
+      { val: "12 ha", lab: "Vignes Mâconnais" },
+      { val: "XIIe–XVe", lab: "Siècles" },
+      { val: "370 km", lab: "De Paris" },
+    ],
     proprietaires: {
       nom: "Famille Goyard",
       depuis: "1920",
+      initiale: "F",
+      nomAffiche: "amille Goyard",
       portrait:
         "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80",
       citation:
@@ -1018,12 +995,6 @@ export const chateaux = [
         ],
       },
     ],
-    experiences: [
-      "Dégustation vins",
-      "Visite des vignes",
-      "Table d'hôtes",
-      "Donjon panoramique",
-    ],
     activites: [
       {
         icone: "✦",
@@ -1063,20 +1034,13 @@ export const chateaux = [
       },
     ],
     alentours: [
-      { nom: "Mâcon (vieille ville)", distance: "12 km", type: "village" },
-      { nom: "Cluny (abbaye médiévale)", distance: "15 km", type: "culture" },
-      { nom: "Solutré (roche)", distance: "5 km", type: "nature" },
-      {
-        nom: "Pouilly-Fuissé (vignoble)",
-        distance: "8 km",
-        type: "gastronomie",
-      },
+      { nom: "Mâcon (vieille ville)", distance: "12 km", type: "village", icone: "◆", description: "Préfecture de Saône-et-Loire sur les rives de la Saône, vieille ville aux toits de tuiles romaines et marché couvert animé." },
+      { nom: "Cluny (abbaye médiévale)", distance: "15 km", type: "culture", icone: "◆", description: "Vestiges de la plus grande abbaye bénédictine d'Europe, fondée en 910, centre rayonnant de la chrétienté médiévale." },
+      { nom: "Solutré (roche)", distance: "5 km", type: "nature", icone: "✦", description: "Éperon rocheux mythique du Mâconnais, site préhistorique majeur et panorama exceptionnel sur le vignoble." },
+      { nom: "Pouilly-Fuissé (vignoble)", distance: "8 km", type: "gastronomie", icone: "◆", description: "Appellation emblématique du Mâconnais, grands vins blancs de chardonnay sur sols argilo-calcaires." },
     ],
-    tags: ["Vin", "Gastronomie", "Nature", "Panorama"],
-    dateDisponible: "Dans 2 semaines",
-    noteSur5: 4.7,
-    nbAvis: 112,
-    petitDejeuner: true,
+    regionNarrative: "Le Mâconnais, au sud de la Bourgogne, ouvre les coteaux des grands blancs de chardonnay — Pouilly-Fuissé, Mâcon Villages, Saint-Véran. Pierreclos s'élève au cœur de ce paysage viticole, sur les hauteurs qui dominent la Saône et marquent le début des reliefs du Beaujolais.",
+    regionHistoire: "La Bourgogne fut au Moyen Âge l'un des duchés les plus puissants d'Europe occidentale, rivale du royaume de France. Cluny y rayonna comme premier ordre monastique de la chrétienté. Le Mâconnais, terre frontière entre Bourgogne et Lyonnais, vit naître Lamartine et conserve un patrimoine roman et viticole exceptionnel — les Climats du vignoble sont classés à l'UNESCO.",
     parking: true,
     wifi: true,
     animaux: false,
@@ -1100,6 +1064,7 @@ export const chateaux = [
     ],
     accroche: "Sept générations d’une même famille, cinquante hectares d’Anjou, une table aux chandelles chaque soir",
     urgence: "J-10",
+    chambresRestantes: 3,
     prixBarre: 480,
     reduction: 18,
     histoire: "Nées au coeur de l'Anjou à la fin du Moyen Âge, les Briottières ont traversé les siècles entre nobles alliances et bâtisseurs passionnés. La chapelle Saint-Bonaventure, édifiée en 1528, en témoigne. Acquis au XIXe siècle par Alfred de Mieulle, aïeul de l'actuel propriétaire, le Château devient une élégante demeure estivale entourée d'un parc à l'anglaise de 50 hectares. Madame de Staël l'a aimée. George Sand et Chopin y ont séjourné. Depuis sept générations, chaque famille y a cultivé un art de vivre singulier.",
@@ -1156,12 +1121,36 @@ export const chateaux = [
       },
     ],
     activites: [
-      "Dîner aux chandelles chaque soir (table d’hôtes familiale)",
-      "Piscine extérieure dans le parc",
-      "Tennis, trampoline, vélos",
-      "Promenades dans le parc de 50 hectares",
-      "Balade à cheval dans les bois",
-      "Visite des châteaux de la Loire (à partir de 45 min)",
+      {
+        icone: "◆",
+        nom: "Dîner aux chandelles",
+        description: "Table d’hôtes familiale dressée chaque soir dans la grande salle, à la lueur des chandelles. Cuisine maison, vins de l’Anjou — Savennières, Layon — partagés à la table des propriétaires.",
+      },
+      {
+        icone: "✦",
+        nom: "Piscine dans le parc",
+        description: "Piscine extérieure nichée au cœur des cinquante hectares de parc à l’anglaise, ouverte aux beaux jours. Une parenthèse silencieuse, loin des bassins d’hôtel.",
+      },
+      {
+        icone: "✦",
+        nom: "Tennis, trampoline, vélos",
+        description: "Court de tennis privé, trampoline pour enfants, et flotte de vélos à disposition pour explorer les allées du parc et le bocage angevin alentour.",
+      },
+      {
+        icone: "✦",
+        nom: "Promenades dans le parc à l’anglaise",
+        description: "Cinquante hectares dessinés au XIXe siècle par le paysagiste Châtelain. Allées centenaires, cèdres, étangs et jardins de lavande — un parc qui change à chaque saison.",
+      },
+      {
+        icone: "✦",
+        nom: "Balade à cheval dans les bois",
+        description: "Sortie équestre dans le bocage angevin entourant le domaine, à l’heure où le tourisme dort encore. Accompagnement par un guide équestre local.",
+      },
+      {
+        icone: "⚜",
+        nom: "Châteaux de la Loire à proximité",
+        description: "Saumur, Brissac, le Plessis-Bourré, Angers — les grands châteaux ligériens à partir de quarante-cinq minutes de route. Les Briottières comme camp de base discret pour les explorer.",
+      },
     ],
     regionNarrative: "L'Anjou est l'une des provinces les plus douces de France — ni la brutalité de l'Atlantique, ni la rigueur continentale. Un bocage généreux, des châteaux discrets, des vignes qui donnent le Savennières et le Layon. Les Briottières s'inscrivent dans ce paysage comme une évidence : une demeure qui n'a jamais cherché à impressionner, seulement à accueillir.",
     regionHistoire: "Le Maine-et-Loire fut longtemps le cœur du royaume des Plantagenets. Angers, capitale de l’Anjou, vit naître Henri II d’Angleterre et le roi René, dernier duc d’Anjou, ce prince lettré qui fit de sa cour l’une des plus brillantes d’Europe. La Loire, classée au patrimoine mondial de l’Unesco, borde le département au sud. L’Anjou bleu au nord — où se trouvent les Briottières — est un pays de bocage, de forêts et d’étangs, plus discret que la Loire mais tout aussi envoutant.",
@@ -1201,6 +1190,7 @@ export const chateaux = [
     siecle: "XIIIe siècle",
     distanceParis: "2h de Paris",
     urgence: "J-15",
+    chambresRestantes: 2,
     prixBarre: 380,
     reduction: 21,
     histoire: "En 1290, sous le règne de Philippe le Bel, Colinet Lecomte fait édifier le Blanc Buisson pour protéger les paysans du Pays d’Ouche contre les brigands. Sept siècles ont passé. Le château n’a appartenu qu’à trois familles, transmis presque toujours par mariage ou héritage. Au XIVe siècle, les troupes du roi Jean II assiègent la demeure et détruisent son premier étage. Il faudra attendre le XVe siècle pour que Marie Colinet Le Conte et Jean II du Merle le reconstruisent, mélant douves, tourelles, pont-levis et échauguéttes dans un style à la charnière du Góthique et de la Renaissance. En 1801, vendu pour la première et unique fois, il entre dans la famille Pillons de Saint-Philbert, ancêtres des propriétaires actuels. Aujourd’hui, Maïté et Éric de la Fresnaye l’habitent, le restaurent et l’animent avec une passion intègre. Le château n’est pas un musée : c’est une maison vivante, où chaque pièce semble habitée, comme si le temps s’y était arrêté.",
@@ -1248,12 +1238,36 @@ export const chateaux = [
       },
     ],
     activites: [
-      "Visite guidée du château et de ses douves",
-      "Féstival Médiéval annuel au printemps",
-      "Spectacles Son et Lumières",
-      "Ateliers culinaires, œnologie, herboristerie",
-      "Sylvothérapie dans le parc classé",
-      "Murder Party médiévale",
+      {
+        icone: "⚜",
+        nom: "Visite guidée du château",
+        description: "Visite menée par Maïté ou Éric de la Fresnaye à travers les pièces habitées, le donjon du XIIIe siècle, les ponts-levis et les douves intégrales. Sept siècles d’histoire d’une seule maison.",
+      },
+      {
+        icone: "★",
+        nom: "Festival médiéval de printemps",
+        description: "Rendez-vous annuel autour de Pâques. Reconstitutions historiques, troubadours, banquet médiéval dans la cour du donjon. Le château ouvre exceptionnellement ses jardins le temps d’un week-end.",
+      },
+      {
+        icone: "◆",
+        nom: "Son et lumières d’été",
+        description: "Mise en scène de l’histoire du Blanc Buisson sur les murs du donjon, plusieurs soirs par été. Sept siècles racontés par la pierre elle-même, depuis Colinet Lecomte jusqu’à aujourd’hui.",
+      },
+      {
+        icone: "◆",
+        nom: "Ateliers d’art de vivre",
+        description: "Sessions de cuisine normande, dégustations œnologiques de cidres et calvados, ateliers d’herboristerie au potager. Programme variable selon la saison et les invités du moment.",
+      },
+      {
+        icone: "✦",
+        nom: "Sylvothérapie au parc classé",
+        description: "Marches conscientes parmi les essences rares du parc de huit hectares — chênes pluricentenaires, hêtres, ifs. Le silence du Pays d’Ouche au plus près des arbres.",
+      },
+      {
+        icone: "◆",
+        nom: "Enquête médiévale immersive",
+        description: "Enquête immersive en costume dans les pièces du château et les douves, le temps d’une nuit. Sur réservation pour groupes privés. Cadre du XIIIe siècle, scénario sur mesure.",
+      },
     ],
     coordonnees: { lat: 48.9167, lng: 0.7333 },
     regionNarrative: "Le Pays d’Ouche est l’une des contrées les plus secrets de Normandie. Ni côtière ni touristique, cette terre de bocages, de forêts denses et d’étangs silencieux s’étend entre l’Eure et l’Orne, loin des circuits battus. On y croise des abbayes cisterciennes, des manoirs de brique et de silex, des villages où le temps semble suspendu. Le Blanc Buisson s’inscrit dans ce paysage comme il y a sept siècles : discret, intact, vivant.",

@@ -190,6 +190,9 @@ function collectErrors(c) {
   if (c.estLaUne !== undefined && !isBoolean(c.estLaUne)) {
     errors.push(`champ "estLaUne" doit être un booléen (optionnel, défaut false)`);
   }
+  if (c.isDemoMock !== undefined && !isBoolean(c.isDemoMock)) {
+    errors.push(`champ "isDemoMock" doit être un booléen (optionnel, défaut false)`);
+  }
   if (c.videoBackground !== undefined && !isStringNonEmpty(c.videoBackground)) {
     errors.push(`champ "videoBackground" doit être une string non vide (optionnel)`);
   }
