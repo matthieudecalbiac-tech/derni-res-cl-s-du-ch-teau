@@ -115,6 +115,7 @@
  *
  * # Aiguillage vitrine
  * @property {boolean} [estLaUne] — Optionnel, défaut false. Si true → routing vers VitrineChateau (layout premium). Sinon → ChateauModal (layout standard). Cf. App.jsx:118
+ * @property {boolean} [isDemoMock] — Optionnel, défaut false. Marque un château comme « stub de démonstration » (contenu placeholder, pas de valeur éditoriale, à supprimer dès qu'un vrai château signe). Permet de filtrer les mocks programmatiquement (`chateaux.filter(c => !c.isDemoMock)`) et de les distinguer dans l'IDE et la CI. Les vrais châteaux n'ont PAS ce champ (pas `false` explicite, simplement absent).
  *
  * # Médias
  * @property {string[]} images — Min 1, idéal 3+. URLs CDN externes (Unsplash) ou locales (/public/<prefixe>-<...>.avif)
