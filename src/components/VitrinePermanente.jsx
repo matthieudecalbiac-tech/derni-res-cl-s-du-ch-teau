@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { chateaux } from "../data/chateaux";
+import { useChateaux } from "../hooks/useChateaux";
 import ChateauModal from "./ChateauModal";
 import VitrineChateau from "./VitrineChateau";
 import TransitionPorte from "./TransitionPorte";
@@ -23,6 +23,7 @@ export default function VitrinePermanente({ onClose }) {
     };
   }, [onClose, chateauSelectionne]);
 
+  const chateaux = useChateaux();
   const regions = ["tous", ...Array.from(new Set(chateaux.map(c => c.region)))];
   const chateauxFiltres = filtre === "tous" ? chateaux : chateaux.filter(c => c.region === filtre);
 
