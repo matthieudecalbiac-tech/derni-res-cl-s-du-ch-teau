@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { chateaux } from "../data/chateaux";
+import { useChateaux } from "../hooks/useChateaux";
 import VitrineDernieresCle from "./VitrineDernieresCle";
 import TransitionPorte from "./TransitionPorte";
 import "../styles/dernieres-cles.css";
@@ -44,6 +44,7 @@ export default function DernieresCles({ onClose }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
+  const chateaux = useChateaux();
   const chateauxFiltres = chateauxDisponibles(chateaux, dateArrivee);
 
   useEffect(() => {

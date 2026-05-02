@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { chateaux } from "../data/chateaux";
+import { useChateaux } from "../hooks/useChateaux";
 import { derivePrix } from "../utils/derivePrix";
 import TransitionPorte from "./TransitionPorte";
 import VitrineClub from "./VitrineClub";
@@ -60,6 +60,7 @@ export default function ClubMembres({ user, onClose }) {
   const [calMois, setCalMois] = useState(today.getMonth());
   const [calAnnee, setCalAnnee] = useState(today.getFullYear());
 
+  const chateaux = useChateaux();
   const numeroMembre = user?.id || Math.floor(Math.random() * 9000 + 1000);
 
   const handleDate = (d) => {

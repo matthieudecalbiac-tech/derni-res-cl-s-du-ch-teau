@@ -1,10 +1,11 @@
-import { chateaux } from "../data/chateaux";
+import { useChateaux } from "../hooks/useChateaux";
 import { derivePrix } from "../utils/derivePrix";
 import "../styles/une-semaine.css";
 
 const ROMAINS = ["I", "II", "III", "IV"];
 
 export default function UneDeLaSemaine({ onOuvrirChateau }) {
+  const chateaux = useChateaux();
   const selection = chateaux.filter((c) => c.estLaUne === true).slice(0, 4);
   if (selection.length === 0) return null;
 
