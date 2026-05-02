@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { chateaux } from "../data/chateaux";
+import { useChateaux } from "../hooks/useChateaux";
 import ambiances from "../data/ambiances";
 import { useHorloge, getPlageHoraire } from "../utils/heure";
 import "../styles/heure-aux-demeures.css";
@@ -43,17 +43,18 @@ function tronquerPhrase(s, max = 55) {
 }
 
 export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres }) {
+  const chateaux = useChateaux();
   // TODO — sélection curatoriale dynamique à venir.
   // Pour l'instant : 3 cartes postales (ids 6, 5, 1) puis 4 entrées d'index (7, 8, 2, 3).
   const cartes = useMemo(() => {
     const idsCartes = [6, 5, 1];
     return idsCartes.map((id) => chateaux.find((c) => c.id === id)).filter(Boolean);
-  }, []);
+  }, [chateaux]);
 
   const index = useMemo(() => {
     const idsIndex = [7, 8, 2, 3];
     return idsIndex.map((id) => chateaux.find((c) => c.id === id)).filter(Boolean);
-  }, []);
+  }, [chateaux]);
 
   const affiches = useMemo(() => [...cartes, ...index], [cartes, index]);
 
