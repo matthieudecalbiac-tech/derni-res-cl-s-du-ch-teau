@@ -10,7 +10,6 @@ import { useHorloge } from "./utils/heure";
 import Conciergerie from "./components/Services";
 import ChateauModal from "./components/ChateauModal";
 import VitrineChateau from "./components/VitrineChateau";
-import CarteExplorer from "./components/CarteExplorer";
 import AuthModal from "./components/AuthModal";
 import CompteUser from "./components/CompteUser";
 import ClubChatelains from "./components/ClubChatelains";
@@ -27,7 +26,6 @@ import PartenairesChateaux from "./components/PartenairesChateaux";
 
 function App() {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
-  const [carteOuverte, setCarteOuverte] = useState(false);
   const [authOuvert, setAuthOuvert] = useState(false);
   const [authMode, setAuthMode] = useState("inscription");
   const venaitDuClubRef = React.useRef(false);
@@ -59,7 +57,6 @@ function App() {
   };
 
   const ouvrirChateau = (chateau) => {
-    setCarteOuverte(false);
     setTransitionChateau(chateau);
   };
 
@@ -67,7 +64,6 @@ function App() {
     <div className="app">
       
       <Header
-        onOuvrirCarte={() => setCarteOuverte(true)}
         onOuvrirAuth={(mode) => ouvrirAuth(mode, true)}
         onOuvrirCompte={() => setCompteOuvert(true)}
         onOuvrirClub={() => setClubOuvert(true)}
@@ -126,12 +122,6 @@ function App() {
             setChateauSelectionne(transitionChateau);
             setTransitionChateau(null);
           }}
-        />
-      )}
-      {carteOuverte && (
-        <CarteExplorer
-          onClose={() => setCarteOuverte(false)}
-          onOuvrirChateau={ouvrirChateau}
         />
       )}
       {authOuvert && (
