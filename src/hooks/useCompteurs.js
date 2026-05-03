@@ -16,7 +16,9 @@ import { chateaux as chateauxData } from "../data/chateaux";
  *   parRegion: Object<string, number>,
  *   regionsCouvertes: number,
  *   urgences: number,
- *   urgentesJ7: number
+ *   urgentesJ7: number,
+ *   chambresRestantes: number,
+ *   chambresUrgentes: number
  * }}
  */
 export function useCompteurs({ excludeMocks = false } = {}) {
@@ -40,12 +42,24 @@ export function useCompteurs({ excludeMocks = false } = {}) {
       (c) => c.urgence === "J-7"
     ).length;
 
+    const chambresRestantes = source.reduce(
+      (acc, c) => acc + (c.chambresRestantes || 0),
+      0
+    );
+
+    const chambresUrgentes = source.reduce(
+      (acc, c) => acc + (c.urgence ? c.chambresRestantes || 0 : 0),
+      0
+    );
+
     return {
       total,
       parRegion,
       regionsCouvertes,
       urgences,
       urgentesJ7,
+      chambresRestantes,
+      chambresUrgentes,
     };
   }, [excludeMocks]);
 }
