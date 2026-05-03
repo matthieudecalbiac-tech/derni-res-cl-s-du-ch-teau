@@ -29,7 +29,7 @@ Ton général : **patrimonial / éditorial**, jamais promotionnel. Pas de superl
 ### Stack technique
 
 - **Frontend** : React 19.2, Vite 6.4, JavaScript (pas de TypeScript pour l'instant)
-- **Cartes** : Leaflet 1.9 + react-leaflet 5 (CDN pour Leaflet, npm pour react-leaflet)
+- **Cartes** : Leaflet 1.9 (CDN dans `index.html`) — `react-leaflet` (npm) retiré en Chantier 2.2 avec la suppression de `CarteExplorer`
 - **Tests** : Playwright 1.59 + axe-core 4.11 (E2E, visuels, a11y)
 - **Performance** : Lighthouse 13 via scripts QA
 - **Backend** : Supabase **planifié** (Phase 2.3, pas encore branché)
@@ -47,7 +47,7 @@ C'est l'opération la plus fréquente. Deux modes selon le niveau d'éditorialis
 
 Photos : URL Unsplash ou autre CDN public. Pas de fichier local nécessaire.
 
-Le château apparaîtra dans : `VitrinePermanente`, `DernieresCles` (si `urgence` défini), `CarteExplorer`, `ClubMembres`. Détail ouvert via `ChateauModal`.
+Le château apparaîtra dans : `VitrinePermanente`, `DernieresCles` (si `urgence` défini), `ClubMembres`. Détail ouvert via `ChateauModal`.
 
 ### Vitrine premium (id 7+, layout `VitrineChateau`)
 
@@ -140,13 +140,26 @@ Les classes CSS dans les composants vitrines (`VitrineChateau`, `VitrinePermanen
 
 ### Cartes (Leaflet)
 
-- `CarteExplorer` est le **seul** consommateur de `react-leaflet`.
-- `DernieresCles` charge Leaflet via `window.L` (CDN), pas via `react-leaflet`.
-- `CarteFrance.jsx` a été supprimé en Chantier 1.2.
+- `DernieresCles` est le **seul** consommateur actuel — utilise Leaflet via `window.L` (CDN dans `index.html`), pas via npm.
+- `react-leaflet` (npm) **retiré en Chantier 2.2** avec la suppression de `CarteExplorer.jsx` (seul consommateur historique).
+- `CarteFrance.jsx` supprimé en Chantier 1.2 ; `CarteExplorer.jsx` supprimé en Chantier 2.2.
 
 ### Animations
 
 `src/hooks/useScrollAnimation.js` est un petit hook `IntersectionObserver` (`const [ref, visible] = useScrollAnimation()`) utilisé pour déclencher des fade-in au scroll. Préférer ce hook plutôt qu'une logique observer ad hoc.
+
+### Hooks data (`src/hooks/`)
+
+Service centralisé d'accès aux données châteaux. Tous les composants **doivent** passer par ces hooks plutôt que d'importer directement `chateaux` depuis `src/data/chateaux.js`. Préparation Phase 2.3 (Supabase async).
+
+- **`useChateaux({ excludeMocks })`** — liste complète, filtrable par `isDemoMock`. Mémoisé.
+- **`useChateau(slug)`** — récupère un château par son slug (préparé Phase 3+ pour URLs SEO `/chateau/<slug>`).
+- **`useChateauById(id)`** — récupère un château par son id. Pattern le plus fréquent.
+- **`useCompteurs({ excludeMocks })`** — retourne `{ total, parRegion, regionsCouvertes, urgences, urgentesJ7 }`. Prêt pour Phase 2.2.bis.
+- **`nombreEnLettres(n)`** + **`useNombreEnLettres(n)`** — convertit 0-9999 en lettres françaises (réforme 1990). Prêt pour Phase 2.2.bis (« quatre-vingts demeures »).
+- **`useScrollAnimation()`** (existant) — `IntersectionObserver` pour fade-in scroll.
+
+⚠ **Règle stricte** : aucun composant ne doit `import { chateaux } from "../data/chateaux"`. Le grep `git grep "from.*data/chateaux" src/components/` doit retourner **0 résultat**.
 
 ## Roadmap stratégique post-audit (avr 2026)
 
@@ -161,7 +174,9 @@ Les classes CSS dans les composants vitrines (`VitrineChateau`, `VitrinePermanen
 - **2.1** Schéma unifié `chateaux.js` (réconcilier id 1-6 et id 7-8) ✅ TERMINÉE
   - ✅ Phase A3 toolkit (PR #8 `faf1333`, mergée 30 avr 2026)
   - ✅ Phase B+C remplissage technique mocks + filet runtime (PR #9 `720cbdb`, mergée 1er mai 2026)
-- **2.2** Service `useChateaux` + `useCompteurs` (point d'entrée unique, helper `useNombreEnLettres`)
+- **2.2** Service `useChateaux` + `useCompteurs` + helper `useNombreEnLettres` ✅ TERMINÉE
+  - ✅ Hooks créés + 5/5 composants vivants migrés + cleanup CarteExplorer mort (PR #10 `1f02992`, mergée 3 mai 2026)
+  - 🔒 **Phase 2.2.bis** — Migration des 7 chiffres hardcodés vers `useCompteurs()` + `useNombreEnLettres()` : Hero (« 81 domaines »), BandeauOffres (« 8 chambres » + « 31 demeures »), VitrinePermanente (« 81 / 7 Régions »), HeureAuxDemeures (« TRENTE-ET-UNE »), APropos + PartenairesChateaux (« 7 Régions couvertes »). ~2 h.
 - **2.3** Async-ready Supabase prep (préparation du swap d'implémentation)
 
 ### PHASE 3 — Auth & rôles (~30-50 h) 🔒
@@ -204,14 +219,17 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
 | 2.1 Phase A3 — Toolkit Chateau | 30 avr 2026 | PR #8 (`faf1333`) | +607 / −26 lignes, 10 fichiers (4 nouveaux + 6 modifiés) | — |
 | 1.4 — MAJ doc post-Phase A3 | 30 avr 2026 | `0917548` | doc only, +25 lignes | — |
 | 2.1 Phase B+C — Conformité schéma + filet | 1er mai 2026 | PR #9 (`720cbdb`) | +179 / −154 lignes cumulées, 7 commits atomiques (data + main.jsx + qa-baseline.json), 3 bugs résolus avec discipline | `pre-schema-2.1` (sur `0917548`) |
-| 1.5 — MAJ doc post-Phase B+C | 1er mai 2026 | (commit présent) | doc only | — |
+| 1.5 — MAJ doc post-Phase B+C | 1er mai 2026 | `7002416` | doc only, +61 / −23 lignes | — |
+| 2.2 — Service useChateaux + cleanup CarteExplorer | 2-3 mai 2026 | PR #10 (`1f02992`) | +206 / −406 lignes, 10 commits, 5 composants migrés + 1 mort retiré, bundle JS −28 % (583→421 kB) | `pre-phase-2.2` (sur `7002416`) |
+| 1.6 — MAJ doc post-Phase 2.2 | 3 mai 2026 | (commit présent) | doc only | — |
 
-### Surface du repo post-Chantier 1.2
+### Surface du repo post-Chantier 2.2
 
-- `/src/components` : **18** composants `.jsx` (32 → 18, −14)
-- `/src/styles` : **21** fichiers `.css` (28 → 21, −7)
-- `App.jsx` : **188** lignes (216 → 188, −28)
-- Bundle production : JS **574 kB**, CSS **227 kB**
+- `/src/components` : **17** composants `.jsx` (18 → 17, −1 : `CarteExplorer` en Chantier 2.2)
+- `/src/styles` : 21 fichiers `.css` (inchangé — `carte-explorer.css` à supprimer en suivi, cf. Dette technique)
+- `/src/hooks` : **4** hooks `.js` (1 → 4 : `useChateaux`, `useCompteurs`, `useNombreEnLettres` + `useScrollAnimation` existant)
+- `App.jsx` : **178** lignes (188 → 178, −10)
+- Bundle production : JS **421 kB** (574 → 421, **−26 %**), CSS **206 kB** (227 → 206, **−9 %**)
 
 ## Conventions de chantier
 
@@ -286,6 +304,19 @@ Test local avant push : `node scripts/qa-check-baseline.cjs --strict` doit retou
 
 Apprentissage Phase B+C (1er mai 2026) : régression `validation-donnees.avertissements` 78 → 97 (+19 placeholder Phase B), absorbée en `max=100`.
 
+### Convention deps `useMemo` / `useEffect` / `useCallback` consommant `chateaux`
+
+Pour **tout** `useMemo` / `useEffect` / `useCallback` qui consomme `chateaux` (directement ou via une fonction qui le reçoit en argument) : **ajouter `chateaux` aux deps**.
+
+Justification : `useChateaux()` retourne aujourd'hui une référence stable (mémoisée), mais Phase 2.3 (Supabase async) introduira `{ chateaux, loading, error }` avec référence changeante. Les deps correctes garantissent un re-calcul automatique.
+
+Bénéfices anticipés :
+- Phase 2.3 : zéro régression au branchement async
+- Phase 4 : `useChateaux({ excludeMocks })` retourne une autre référence → recalcul automatique
+- ESLint `react-hooks/exhaustive-deps` (futur Phase 3+) : warning pré-corrigé
+
+Apprentissages Chantier 2.2.D.3 (`HeureAuxDemeures`, fix preventif) et 2.2.D.6 (`CarteExplorer`, **bug latent réel** : useEffect ne se serait jamais re-déclenché si `chateaux` changeait — composant retiré, mais convention acquise).
+
 ## Hygiène du repo
 
 - `fix.cjs`…`fix9.cjs` à la racine sont des scripts Node one-shot ayant servi à réécrire les URLs d'images dans `src/data/chateaux.js` et `src/components/VitrineChateau.jsx`. Ils ne font pas partie du build — ne pas les importer ni les étendre ; écrire un nouveau `fixN.cjs` uniquement pour une migration similaire ponctuelle.
@@ -311,17 +342,22 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - **[Phase 1.x] CI workflow `validate:chateaux` pre-build** : ajouter `npm run validate:chateaux` en step de `.github/workflows/qa.yml` (pre-build). Empêche le merge d'une PR avec un schéma cassé. ~15 min. **Possible maintenant que Phase B+C est terminée** (avant, ça aurait planté la CI avec 98 erreurs). À faire dès que possible.
 
-- **[Phase 2.2] Service `useChateaux` + `useCompteurs`** : centraliser `getChateaux` / `getChateauBySlug` / `getChateauById` dans un seul service. Exposer `useCompteurs()` pour les chiffres affichés en surface (Phase 3). Ajouter helper `useNombreEnLettres(n)` pour l'écriture des nombres en français (« trente-et-une demeures »).
+- **[Phase 1.x] Désinstaller `react-leaflet` + `leaflet` npm** : depuis Chantier 2.2.D.6, plus aucun composant n'importe `react-leaflet` (`CarteExplorer` supprimé). `DernieresCles` utilise `window.L` (CDN dans `index.html`). Ces deux paquets npm sont morts dans `package.json`. À retirer : `npm uninstall react-leaflet leaflet`. Vérifier ensuite que l'import `import "leaflet/dist/leaflet.css"` (s'il reste) est aussi retiré. ~5 min. Identifié 3 mai 2026.
 
-- **[Phase 3] Compteurs dynamiques (ajout stratégique Matthieu)** : les surfaces vivantes affichent des chiffres en dur qui ne reflètent pas la data réelle.
+- **[Phase 1.x] Suppression `src/styles/carte-explorer.css`** : importé uniquement par `CarteExplorer.jsx` supprimé en Chantier 2.2.D.6. Plus aucun consommateur. À retirer : `git rm src/styles/carte-explorer.css`. ~1 min. Identifié 3 mai 2026.
+
+- **[Phase 4.x] Memoize `chateauxFiltres` dans `DernieresCles.jsx`** : `chateauxFiltres = chateauxDisponibles(chateaux, dateArrivee)` recalculé à chaque render → référence change → `useEffect` ligne 69 (markers Leaflet) se redéclenche à chaque render. Optimisation : `const chateauxFiltres = useMemo(() => chateauxDisponibles(chateaux, dateArrivee), [chateaux, dateArrivee]);`. Pré-existant à la migration Phase 2.2 (pas une régression). ~5 min. Identifié 2 mai 2026.
+
+- **[Phase 2.2.bis] Compteurs dynamiques (ajout stratégique Matthieu)** : les surfaces vivantes affichent des chiffres en dur qui ne reflètent pas la data réelle.
   - `Hero.jsx` : « 81 domaines sélectionnés »
   - `VitrinePermanente.jsx` : « 81 Domaines / 7 Régions »
   - `BandeauOffres.jsx` : « 8 chambres » + « 31 demeures »
   - `HeureAuxDemeures.jsx` : « VOIR LES TRENTE-ET-UNE DEMEURES »
+  - `APropos.jsx` + `PartenairesChateaux.jsx` : « 7 Régions couvertes »
   
-  À transformer en consommateurs de `useCompteurs()` (Phase 2.2) pour actualisation automatique selon le contenu réel de `chateaux.js`.
+  À transformer en consommateurs de `useCompteurs()` + `useNombreEnLettres()` (hooks créés en Chantier 2.2) pour actualisation automatique selon le contenu réel de `chateaux.js`. Estimé ~2 h.
 
-- **[Phase 4.2] `ChateauCarte` mutualisé** : 5+ implémentations dupliquées détectées dans `VitrinePermanente`, `CarteExplorer`, `DernieresCles`, `ClubMembres`, `HeureAuxDemeures`, `UneDeLaSemaine`. Fusion en un composant unique avec variantes (`eyebrow`, `editorial`, `last-minute`, `vitrine`, `club`).
+- **[Phase 4.2] `ChateauCarte` mutualisé** : implémentations dupliquées détectées dans `VitrinePermanente`, `DernieresCles`, `ClubMembres`, `HeureAuxDemeures`, `UneDeLaSemaine`. Fusion en un composant unique avec variantes (`eyebrow`, `editorial`, `last-minute`, `vitrine`, `club`).
 
 - **[Phase 4.4] Vidéo Le Blanc Buisson YouTube → HTML5 natif** : −3 critical a11y absorbés au baseline. iframe YouTube `JQ9m51Bl900` actuelle non a11y-compliante. Migration vers vidéo HTML5 native dans `/public/` retire ces faux positifs et donne le contrôle complet sur le poster, l'autoplay et la coupure mobile.
 
