@@ -71,6 +71,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validation schéma chateaux.js (fail-fast)
+        run: npm run validate:chateaux
+
       - name: Install Playwright browsers (chromium only)
         run: npx playwright install chromium --with-deps
 
@@ -147,6 +150,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Validation schéma chateaux.js (fail-fast)
+        run: npm run validate:chateaux
 
       - name: Install Playwright browsers (chromium + webkit)
         run: npx playwright install chromium webkit --with-deps
