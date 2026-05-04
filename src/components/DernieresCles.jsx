@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useChateaux } from "../hooks/useChateaux";
 import VitrineDernieresCle from "./VitrineDernieresCle";
 import TransitionPorte from "./TransitionPorte";
@@ -45,7 +45,10 @@ export default function DernieresCles({ onClose }) {
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
   const chateaux = useChateaux();
-  const chateauxFiltres = chateauxDisponibles(chateaux, dateArrivee);
+  const chateauxFiltres = useMemo(
+    () => chateauxDisponibles(chateaux, dateArrivee),
+    [chateaux, dateArrivee]
+  );
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
