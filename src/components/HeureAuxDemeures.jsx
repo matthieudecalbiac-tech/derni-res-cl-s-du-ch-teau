@@ -43,7 +43,7 @@ function tronquerPhrase(s, max = 55) {
 }
 
 export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres }) {
-  const chateaux = useChateaux();
+  const { chateaux, loading, error } = useChateaux();
   // TODO — sélection curatoriale dynamique à venir.
   // Pour l'instant : 3 cartes postales (ids 6, 5, 1) puis 4 entrées d'index (7, 8, 2, 3).
   const cartes = useMemo(() => {
