@@ -60,7 +60,7 @@ export default function ClubMembres({ user, onClose }) {
   const [calMois, setCalMois] = useState(today.getMonth());
   const [calAnnee, setCalAnnee] = useState(today.getFullYear());
 
-  const chateaux = useChateaux();
+  const { chateaux, loading, error } = useChateaux();
   const numeroMembre = user?.id || Math.floor(Math.random() * 9000 + 1000);
 
   const handleDate = (d) => {
