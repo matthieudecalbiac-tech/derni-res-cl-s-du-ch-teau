@@ -23,7 +23,7 @@ export default function VitrinePermanente({ onClose }) {
     };
   }, [onClose, chateauSelectionne]);
 
-  const chateaux = useChateaux();
+  const { chateaux, loading, error } = useChateaux();
   const regions = ["tous", ...Array.from(new Set(chateaux.map(c => c.region)))];
   const chateauxFiltres = filtre === "tous" ? chateaux : chateaux.filter(c => c.region === filtre);
 
