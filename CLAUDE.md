@@ -155,7 +155,7 @@ Service centralisé d'accès aux données châteaux. Tous les composants **doive
 - **`useChateaux({ excludeMocks })`** — liste complète, filtrable par `isDemoMock`. Mémoisé.
 - **`useChateau(slug)`** — récupère un château par son slug (préparé Phase 3+ pour URLs SEO `/chateau/<slug>`).
 - **`useChateauById(id)`** — récupère un château par son id. Pattern le plus fréquent.
-- **`useCompteurs({ excludeMocks })`** — retourne `{ total, parRegion, regionsCouvertes, urgences, urgentesJ7 }`. Prêt pour Phase 2.2.bis.
+- **`useCompteurs({ excludeMocks })`** — retourne `{ total, parRegion, regionsCouvertes, urgences, urgentesJ7, chambresRestantes, chambresUrgentes }`. Étendu en Phase 2.2.bis (3 mai 2026).
 - **`nombreEnLettres(n)`** + **`useNombreEnLettres(n)`** — convertit 0-9999 en lettres françaises (réforme 1990). Prêt pour Phase 2.2.bis (« quatre-vingts demeures »).
 - **`useScrollAnimation()`** (existant) — `IntersectionObserver` pour fade-in scroll.
 
@@ -176,7 +176,10 @@ Service centralisé d'accès aux données châteaux. Tous les composants **doive
   - ✅ Phase B+C remplissage technique mocks + filet runtime (PR #9 `720cbdb`, mergée 1er mai 2026)
 - **2.2** Service `useChateaux` + `useCompteurs` + helper `useNombreEnLettres` ✅ TERMINÉE
   - ✅ Hooks créés + 5/5 composants vivants migrés + cleanup CarteExplorer mort (PR #10 `1f02992`, mergée 3 mai 2026)
-  - 🔒 **Phase 2.2.bis** — Migration des 7 chiffres hardcodés vers `useCompteurs()` + `useNombreEnLettres()` : Hero (« 81 domaines »), BandeauOffres (« 8 chambres » + « 31 demeures »), VitrinePermanente (« 81 / 7 Régions »), HeureAuxDemeures (« TRENTE-ET-UNE »), APropos + PartenairesChateaux (« 7 Régions couvertes »). ~2 h.
+  - ✅ **Phase 2.2.bis** ✅ TERMINÉE PARTIELLEMENT (3 mai 2026, branche `feat/dynamic-counters`)
+    - Extension `useCompteurs` (`chambresRestantes` + `chambresUrgentes`)
+    - Migration `BandeauOffres` « 8 chambres » → `compteurs.chambresUrgentes` (correction bug factuel : 8 → 33)
+    - Cibles éditoriales (Hero 81, BandeauOffres 31, VitrinePermanente 81/7, HeureAuxDemeures « TRENTE-ET-UNE », APropos + PartenairesChateaux 7) restent hardcodées : décision Matthieu — seront branchées sur Espace Admin (Phase 5.x) pour modification 1-click par Dimitri/Tanguy sans deploy.
 - **2.3** Async-ready Supabase prep (préparation du swap d'implémentation)
 
 ### PHASE 3 — Auth & rôles (~30-50 h) 🔒
@@ -222,6 +225,7 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
 | 1.5 — MAJ doc post-Phase B+C | 1er mai 2026 | `7002416` | doc only, +61 / −23 lignes | — |
 | 2.2 — Service useChateaux + cleanup CarteExplorer | 2-3 mai 2026 | PR #10 (`1f02992`) | +206 / −406 lignes, 10 commits, 5 composants migrés + 1 mort retiré, bundle JS −28 % (583→421 kB) | `pre-phase-2.2` (sur `7002416`) |
 | 1.6 — MAJ doc post-Phase 2.2 | 3 mai 2026 | (commit présent) | doc only | — |
+| 2.2.bis — Extension useCompteurs + migration BandeauOffres | 3 mai 2026 | PR à venir | +45 / −28 lignes (2 fichiers), correction bug factuel 8 → 33 chambres | `pre-phase-2.2.bis` (sur `fc6e022`) |
 
 ### Surface du repo post-Chantier 2.2
 
@@ -261,6 +265,14 @@ awk 'NR==X' fichier.jsx | od -c | head -5
 ```
 
 Permet de détecter les U+00A0 (NBSP) typiques des textes français collés depuis Word/web, ou les CRLF/LF mal préservés.
+
+### Convention encoding CRLF après Edit multi-lignes
+
+Le tool Edit (Claude Code) peut convertir CRLF → LF silencieusement sur les Edits déplaçant un bloc de >10 lignes. Le diff Git affiche alors TOUT le fichier comme modifié (pollution Git history massive).
+
+Convention : exécuter `unix2dos` systématiquement après tout Edit multi-lignes ou déplacement de bloc, MÊME si le fichier semblait correctement encodé avant.
+
+Précédent identifié : `BandeauOffres.jsx` Phase 2.2.bis (3 mai 2026) — 28 lignes déplacées top-level → body, CRLF perdu silencieusement, restauré via `unix2dos` avant commit.
 
 ### Edits ciblés un par un (jamais sed multi-stage)
 
@@ -348,14 +360,16 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - **[Phase 4.x] Memoize `chateauxFiltres` dans `DernieresCles.jsx`** : `chateauxFiltres = chateauxDisponibles(chateaux, dateArrivee)` recalculé à chaque render → référence change → `useEffect` ligne 69 (markers Leaflet) se redéclenche à chaque render. Optimisation : `const chateauxFiltres = useMemo(() => chateauxDisponibles(chateaux, dateArrivee), [chateaux, dateArrivee]);`. Pré-existant à la migration Phase 2.2 (pas une régression). ~5 min. Identifié 2 mai 2026.
 
-- **[Phase 2.2.bis] Compteurs dynamiques (ajout stratégique Matthieu)** : les surfaces vivantes affichent des chiffres en dur qui ne reflètent pas la data réelle.
-  - `Hero.jsx` : « 81 domaines sélectionnés »
-  - `VitrinePermanente.jsx` : « 81 Domaines / 7 Régions »
-  - `BandeauOffres.jsx` : « 8 chambres » + « 31 demeures »
-  - `HeureAuxDemeures.jsx` : « VOIR LES TRENTE-ET-UNE DEMEURES »
-  - `APropos.jsx` + `PartenairesChateaux.jsx` : « 7 Régions couvertes »
-  
-  À transformer en consommateurs de `useCompteurs()` + `useNombreEnLettres()` (hooks créés en Chantier 2.2) pour actualisation automatique selon le contenu réel de `chateaux.js`. Estimé ~2 h.
+- **[Phase 2.2.bis] Compteurs dynamiques (ajout stratégique Matthieu)** — ✅ RÉSOLUE PARTIELLEMENT (3 mai 2026)
+  - ✅ `BandeauOffres.jsx` « 8 chambres » → `compteurs.chambresUrgentes` (commit `fd564cd`, branche `feat/dynamic-counters`)
+  - ⏸ Reste à brancher (Phase 5.x via Espace Admin, cf. nouvelle dette ci-dessous) :
+    - `Hero.jsx` : « 81 domaines »
+    - `BandeauOffres.jsx` : « 31 demeures »
+    - `VitrinePermanente.jsx` : « 81 / 7 Régions »
+    - `HeureAuxDemeures.jsx` : « TRENTE-ET-UNE DEMEURES »
+    - `APropos.jsx` + `PartenairesChateaux.jsx` : « 7 Régions couvertes »
+
+- **[Phase 5.x] Cibles éditoriales depuis Espace Admin** : les chiffres affichés en surface (81 domaines, 31 demeures, 7 régions, « TRENTE-ET-UNE DEMEURES », etc.) seront branchés sur un champ DB éditable via l'Espace Admin construit en Phase 5.x. Permet à Dimitri (stratégie) et Tanguy (DA) de modifier en 1 click sans deploy. Décision Matthieu 3 mai 2026 lors de Phase 2.2.bis : refus de créer `src/data/objectifs.js` (dette qui serait supprimée à l'arrivée de l'admin).
 
 - **[Phase 4.2] `ChateauCarte` mutualisé** : implémentations dupliquées détectées dans `VitrinePermanente`, `DernieresCles`, `ClubMembres`, `HeureAuxDemeures`, `UneDeLaSemaine`. Fusion en un composant unique avec variantes (`eyebrow`, `editorial`, `last-minute`, `vitrine`, `club`).
 

@@ -1,33 +1,36 @@
+import { useCompteurs } from "../hooks/useCompteurs";
 import "../styles/bandeau-offres.css";
 
-const OFFRES = [
-  {
-    num: "— OFFRE I —",
-    icone: "◈",
-    titre: "Les Dernières Clés",
-    desc: "Les chambres ouvertes cette semaine, à court terme.",
-    lien: "8 chambres disponibles →",
-    action: "dernieres",
-  },
-  {
-    num: "— OFFRE II —",
-    icone: "⚜",
-    titre: "Les Vitrines Permanentes",
-    desc: "Les demeures à réserver toute l'année, en direct avec les familles.",
-    lien: "31 demeures →",
-    action: "vitrines",
-  },
-  {
-    num: "— OFFRE III —",
-    icone: "✦",
-    titre: "Le Club des Châtelains",
-    desc: "Les séjours confidentiels, réservés aux membres.",
-    lien: "Devenir membre →",
-    action: "club",
-  },
-];
-
 export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines, onOuvrirClub }) {
+  const compteurs = useCompteurs();
+
+  const OFFRES = [
+    {
+      num: "— OFFRE I —",
+      icone: "◈",
+      titre: "Les Dernières Clés",
+      desc: "Les chambres ouvertes cette semaine, à court terme.",
+      lien: `${compteurs.chambresUrgentes} chambres disponibles →`,
+      action: "dernieres",
+    },
+    {
+      num: "— OFFRE II —",
+      icone: "⚜",
+      titre: "Les Vitrines Permanentes",
+      desc: "Les demeures à réserver toute l'année, en direct avec les familles.",
+      lien: "31 demeures →",
+      action: "vitrines",
+    },
+    {
+      num: "— OFFRE III —",
+      icone: "✦",
+      titre: "Le Club des Châtelains",
+      desc: "Les séjours confidentiels, réservés aux membres.",
+      lien: "Devenir membre →",
+      action: "club",
+    },
+  ];
+
   const gererClic = (action) => {
     if (action === "dernieres") onOuvrirDernieres?.();
     else if (action === "vitrines") onOuvrirVitrines?.();
