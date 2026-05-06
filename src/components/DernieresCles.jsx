@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useChateaux } from "../hooks/useChateaux";
 import VitrineDernieresCle from "./VitrineDernieresCle";
 import TransitionPorte from "./TransitionPorte";
+import SkeletonChateau from "./SkeletonChateau";
 import "../styles/dernieres-cles.css";
 
 function getDatesPossibles() {
@@ -44,7 +45,7 @@ export default function DernieresCles({ onClose }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
-  const chateaux = useChateaux();
+  const { chateaux, loading, error } = useChateaux();
   const chateauxFiltres = useMemo(
     () => chateauxDisponibles(chateaux, dateArrivee),
     [chateaux, dateArrivee]
@@ -186,7 +187,10 @@ export default function DernieresCles({ onClose }) {
               {dateArrivee && dateDepart && <span className="dk-liste-dates"> · {formatDate(dateArrivee)} → {formatDate(dateDepart)}</span>}
             </div>
             <div className="dk-liste-items">
-              {chateauxFiltres.map(c => {
+              {loading ? (
+                <SkeletonChateau count={6} />
+              ) : (
+                chateauxFiltres.map(c => {
                 const classBadge = { "J-7": "dk-badge-j7", "J-10": "dk-badge-j10", "J-15": "dk-badge-j15" }[c.urgence] || "dk-badge-j15";
                 const prixFinal = c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100)) : c.chambres?.[0]?.prix;
                 return (
@@ -210,7 +214,8 @@ export default function DernieresCles({ onClose }) {
                     </div>
                   </div>
                 );
-              })}
+              })
+              )}
             </div>
           </div>
         </div>
