@@ -1,5 +1,9 @@
-import { useMemo } from "react";
-import { chateaux as chateauxData } from "../data/chateaux";
+import { useState, useEffect } from "react";
+import {
+  getChateaux as getChateauxService,
+  getChateauBySlug,
+  getChateauById as getChateauByIdService,
+} from "../services/chateauxService";
 
 /**
  * Hook principal pour accéder à la liste des châteaux.
@@ -10,12 +14,35 @@ import { chateaux as chateauxData } from "../data/chateaux";
  * @returns {Array} Liste des châteaux
  */
 export function useChateaux({ excludeMocks = false } = {}) {
-  return useMemo(() => {
-    if (excludeMocks) {
-      return chateauxData.filter((c) => !c.isDemoMock);
-    }
-    return chateauxData;
+  const [chateaux, setChateaux] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    getChateauxService({ excludeMocks })
+      .then((data) => {
+        if (!cancelled) {
+          setChateaux(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [excludeMocks]);
+
+  return { chateaux, loading, error };
 }
 
 /**
@@ -27,10 +54,35 @@ export function useChateaux({ excludeMocks = false } = {}) {
  * @returns {Object|undefined}
  */
 export function useChateau(slug) {
-  return useMemo(
-    () => chateauxData.find((c) => c.slug === slug),
-    [slug]
-  );
+  const [chateau, setChateau] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    getChateauBySlug(slug)
+      .then((data) => {
+        if (!cancelled) {
+          setChateau(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  return { chateau, loading, error };
 }
 
 /**
@@ -42,8 +94,33 @@ export function useChateau(slug) {
  * @returns {Object|undefined}
  */
 export function useChateauById(id) {
-  return useMemo(
-    () => chateauxData.find((c) => c.id === id),
-    [id]
-  );
+  const [chateau, setChateau] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    getChateauByIdService(id)
+      .then((data) => {
+        if (!cancelled) {
+          setChateau(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
+
+  return { chateau, loading, error };
 }

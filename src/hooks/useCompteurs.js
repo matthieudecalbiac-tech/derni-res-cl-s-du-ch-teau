@@ -1,5 +1,5 @@
-import { useMemo } from "react";
-import { chateaux as chateauxData } from "../data/chateaux";
+import { useState, useEffect } from "react";
+import { getCompteurs as getCompteursService } from "../services/chateauxService";
 
 /**
  * Hook compteurs dynamiques basés sur la data `chateaux.js`.
@@ -22,44 +22,41 @@ import { chateaux as chateauxData } from "../data/chateaux";
  * }}
  */
 export function useCompteurs({ excludeMocks = false } = {}) {
-  return useMemo(() => {
-    const source = excludeMocks
-      ? chateauxData.filter((c) => !c.isDemoMock)
-      : chateauxData;
+  const [compteurs, setCompteurs] = useState({
+    total: 0,
+    parRegion: {},
+    regionsCouvertes: 0,
+    urgences: 0,
+    urgentesJ7: 0,
+    chambresRestantes: 0,
+    chambresUrgentes: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-    const total = source.length;
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
 
-    const parRegion = source.reduce((acc, c) => {
-      acc[c.region] = (acc[c.region] || 0) + 1;
-      return acc;
-    }, {});
+    getCompteursService({ excludeMocks })
+      .then((data) => {
+        if (!cancelled) {
+          setCompteurs(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err);
+          setLoading(false);
+        }
+      });
 
-    const regionsCouvertes = Object.keys(parRegion).length;
-
-    const urgences = source.filter((c) => c.urgence).length;
-
-    const urgentesJ7 = source.filter(
-      (c) => c.urgence === "J-7"
-    ).length;
-
-    const chambresRestantes = source.reduce(
-      (acc, c) => acc + (c.chambresRestantes || 0),
-      0
-    );
-
-    const chambresUrgentes = source.reduce(
-      (acc, c) => acc + (c.urgence ? c.chambresRestantes || 0 : 0),
-      0
-    );
-
-    return {
-      total,
-      parRegion,
-      regionsCouvertes,
-      urgences,
-      urgentesJ7,
-      chambresRestantes,
-      chambresUrgentes,
+    return () => {
+      cancelled = true;
     };
   }, [excludeMocks]);
+
+  return { compteurs, loading, error };
 }

@@ -2,7 +2,7 @@ import { useCompteurs } from "../hooks/useCompteurs";
 import "../styles/bandeau-offres.css";
 
 export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines, onOuvrirClub }) {
-  const compteurs = useCompteurs();
+  const { compteurs, loading, error } = useCompteurs();
 
   const OFFRES = [
     {

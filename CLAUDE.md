@@ -32,7 +32,7 @@ Ton général : **patrimonial / éditorial**, jamais promotionnel. Pas de superl
 - **Cartes** : Leaflet 1.9 (CDN dans `index.html`) — `react-leaflet` (npm) retiré en Chantier 2.2 avec la suppression de `CarteExplorer`
 - **Tests** : Playwright 1.59 + axe-core 4.11 (E2E, visuels, a11y)
 - **Performance** : Lighthouse 13 via scripts QA
-- **Backend** : Supabase **planifié** (Phase 2.3, pas encore branché)
+- **Backend** : Supabase **planifié** (couche services async-ready depuis Phase 2.3 / 6 mai 2026, swap data layer trivial)
 - **Paiement** : Stripe **planifié**
 - **Déploiement** : Vercel
 - **Email transactionnel** : Brevo
@@ -152,14 +152,33 @@ Les classes CSS dans les composants vitrines (`VitrineChateau`, `VitrinePermanen
 
 Service centralisé d'accès aux données châteaux. Tous les composants **doivent** passer par ces hooks plutôt que d'importer directement `chateaux` depuis `src/data/chateaux.js`. Préparation Phase 2.3 (Supabase async).
 
-- **`useChateaux({ excludeMocks })`** — liste complète, filtrable par `isDemoMock`. Mémoisé.
-- **`useChateau(slug)`** — récupère un château par son slug (préparé Phase 3+ pour URLs SEO `/chateau/<slug>`).
-- **`useChateauById(id)`** — récupère un château par son id. Pattern le plus fréquent.
-- **`useCompteurs({ excludeMocks })`** — retourne `{ total, parRegion, regionsCouvertes, urgences, urgentesJ7, chambresRestantes, chambresUrgentes }`. Étendu en Phase 2.2.bis (3 mai 2026).
+Tous les hooks data retournent depuis Phase 2.3 (6 mai 2026) le pattern `{ data, loading, error }` (async via `chateauxService`). Pattern cancellation uniforme (`let cancelled = false` + cleanup).
+
+- **`useChateaux({ excludeMocks })`** — retourne `{ chateaux, loading, error }`. Initial state `chateaux = []`.
+- **`useChateau(slug)`** — retourne `{ chateau, loading, error }`. Initial state `chateau = null`. Préparé Phase 3+ pour URLs SEO `/chateau/<slug>`.
+- **`useChateauById(id)`** — retourne `{ chateau, loading, error }`. Initial state `chateau = null`.
+- **`useCompteurs({ excludeMocks })`** — retourne `{ compteurs, loading, error }`. Initial state objet 7 champs à zéro (`total`, `parRegion`, `regionsCouvertes`, `urgences`, `urgentesJ7`, `chambresRestantes`, `chambresUrgentes`). Étendu en Phase 2.2.bis (3 mai 2026), refactor async Phase 2.3 (6 mai 2026).
 - **`nombreEnLettres(n)`** + **`useNombreEnLettres(n)`** — convertit 0-9999 en lettres françaises (réforme 1990). Prêt pour Phase 2.2.bis (« quatre-vingts demeures »).
 - **`useScrollAnimation()`** (existant) — `IntersectionObserver` pour fade-in scroll.
 
 ⚠ **Règle stricte** : aucun composant ne doit `import { chateaux } from "../data/chateaux"`. Le grep `git grep "from.*data/chateaux" src/components/` doit retourner **0 résultat**.
+
+### Services data (`src/services/`)
+
+Couche d'abstraction async entre les hooks et la source de vérité (Phase 2.3, 6 mai 2026).
+
+- **`src/services/chateauxService.js`** — 4 fonctions async exportées :
+  - `getChateaux({ excludeMocks })` → `Promise<Chateau[]>`
+  - `getChateauBySlug(slug)` → `Promise<Chateau | null>`
+  - `getChateauById(id)` → `Promise<Chateau | null>`
+  - `getCompteurs({ excludeMocks })` → `Promise<Compteurs>`
+
+Aujourd'hui : lit `src/data/chateaux.js` (statique).
+Demain : `await supabase.from("chateaux").select(...)` — hooks et composants ne changeront pas.
+
+**Mock latency** : `VITE_FAKE_LATENCY=300 npm run dev` simule la latence Supabase pour tester les loading states. Variable lue une fois au load via IIFE. Désactivée par défaut (0). Cf. `.env.example`.
+
+⚠ **Règle stricte** : aucun hook ne doit `import { chateaux } from "../data/chateaux"`. Tous les hooks data passent désormais par `chateauxService`.
 
 ## Roadmap stratégique post-audit (avr 2026)
 
@@ -180,7 +199,12 @@ Service centralisé d'accès aux données châteaux. Tous les composants **doive
     - Extension `useCompteurs` (`chambresRestantes` + `chambresUrgentes`)
     - Migration `BandeauOffres` « 8 chambres » → `compteurs.chambresUrgentes` (correction bug factuel : 8 → 33)
     - Cibles éditoriales (Hero 81, BandeauOffres 31, VitrinePermanente 81/7, HeureAuxDemeures « TRENTE-ET-UNE », APropos + PartenairesChateaux 7) restent hardcodées : décision Matthieu — seront branchées sur Espace Admin (Phase 5.x) pour modification 1-click par Dimitri/Tanguy sans deploy.
-- **2.3** Async-ready Supabase prep (préparation du swap d'implémentation)
+- **2.3** Async-ready Supabase prep ✅ TERMINÉE (4-6 mai 2026, branche `feat/async-ready-supabase`)
+  - Couche services `src/services/chateauxService.js` — 4 fonctions async (`getChateaux`, `getChateauBySlug`, `getChateauById`, `getCompteurs`)
+  - Hooks `useChateaux`/`useCompteurs` refactor pattern `{ data, loading, error }` + cancellation
+  - Migration 6 composants (BandeauOffres, UneDeLaSemaine, VitrinePermanente, HeureAuxDemeures, ClubMembres, DernieresCles)
+  - Création `SkeletonChateau` (placeholder patrimonial) pour DernieresCles
+  - Mock latency `VITE_FAKE_LATENCY` env var (cf. `.env.example`)
 
 ### PHASE 3 — Auth & rôles (~30-50 h) 🔒
 
@@ -225,15 +249,22 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
 | 1.5 — MAJ doc post-Phase B+C | 1er mai 2026 | `7002416` | doc only, +61 / −23 lignes | — |
 | 2.2 — Service useChateaux + cleanup CarteExplorer | 2-3 mai 2026 | PR #10 (`1f02992`) | +206 / −406 lignes, 10 commits, 5 composants migrés + 1 mort retiré, bundle JS −28 % (583→421 kB) | `pre-phase-2.2` (sur `7002416`) |
 | 1.6 — MAJ doc post-Phase 2.2 | 3 mai 2026 | (commit présent) | doc only | — |
-| 2.2.bis — Extension useCompteurs + migration BandeauOffres | 3 mai 2026 | PR à venir | +45 / −28 lignes (2 fichiers), correction bug factuel 8 → 33 chambres | `pre-phase-2.2.bis` (sur `fc6e022`) |
+| 2.2.bis — Extension useCompteurs + migration BandeauOffres | 3 mai 2026 | PR #11 (`aad16f9`) | +45 / −28 lignes (2 fichiers), correction bug factuel 8 → 33 chambres | `pre-phase-2.2.bis` (sur `fc6e022`) |
+| 1.7 — MAJ doc post-Phase 2.2.bis | 4 mai 2026 | `a3d44bb` | doc only, +24 / −10 lignes (PR #11) | — |
+| 1.X — npm audit fix vite + postcss | 4 mai 2026 | `0ade589` | +6 / −6 lignes lockfile, 3 GHSA résolues (vite Path Traversal + WebSocket File Read, postcss XSS) | `pre-fix-npm-audit` (sur `aad16f9`) |
+| 1.X — Memoize chateauxFiltres | 4 mai 2026 | `35a0581` | +5 / −2 lignes, useEffect Leaflet stabilisé | `pre-fix-memoize-chateauxFiltres` (sur `0ade589`) |
+| 1.X — CI validate:chateaux fail-fast | 4 mai 2026 | PR #12 (`e0407fb`) | +6 / 0 lignes, fail-fast schema avant install Playwright | `pre-fix-ci-validate-chateaux` (sur `35a0581`) |
+| 2.3 — Async-ready Supabase prep | 4-6 mai 2026 | PR à venir | +335 / −63 lignes (8 commits, 9 fichiers : 3 nouveaux + 6 modifiés), 6 composants migrés, SkeletonChateau patrimonial | `pre-phase-2.3` (sur `e0407fb`) + `pre-c8-dernierescles` (sur `1967cd3`) |
 
-### Surface du repo post-Chantier 2.2
+### Surface du repo post-Phase 2.3
 
-- `/src/components` : **17** composants `.jsx` (18 → 17, −1 : `CarteExplorer` en Chantier 2.2)
-- `/src/styles` : 21 fichiers `.css` (inchangé — `carte-explorer.css` à supprimer en suivi, cf. Dette technique)
-- `/src/hooks` : **4** hooks `.js` (1 → 4 : `useChateaux`, `useCompteurs`, `useNombreEnLettres` + `useScrollAnimation` existant)
-- `App.jsx` : **178** lignes (188 → 178, −10)
-- Bundle production : JS **421 kB** (574 → 421, **−26 %**), CSS **206 kB** (227 → 206, **−9 %**)
+- `/src/components` : **18** composants `.jsx` (17 → 18, +1 : `SkeletonChateau` en Phase 2.3 C8)
+- `/src/services` : **1** nouveau dossier (`chateauxService.js`, couche async Phase 2.3)
+- `/src/styles` : **21** fichiers `.css` (21 → 21, +`skeleton-chateau.css` − `carte-explorer.css` supprimé Chantier 1.X du 4 mai)
+- `/src/hooks` : **4** hooks `.js` (inchangé en nombre, refactor pattern `{ data, loading, error }` Phase 2.3)
+- `App.jsx` : **178** lignes (inchangé)
+- `.env.example` : nouveau fichier (documente `VITE_FAKE_LATENCY`)
+- Bundle production : JS **422.6 kB** (421 → 422.6, +0.4 % pour async/loading + skeleton), CSS **206.7 kB** (206 → 206.7, +670 octets skeleton)
 
 ## Conventions de chantier
 
@@ -273,6 +304,18 @@ Le tool Edit (Claude Code) peut convertir CRLF → LF silencieusement sur les Ed
 Convention : exécuter `unix2dos` systématiquement après tout Edit multi-lignes ou déplacement de bloc, MÊME si le fichier semblait correctement encodé avant.
 
 Précédent identifié : `BandeauOffres.jsx` Phase 2.2.bis (3 mai 2026) — 28 lignes déplacées top-level → body, CRLF perdu silencieusement, restauré via `unix2dos` avant commit.
+
+### Runtime rouge intermédiaire dans PR atomique
+
+Vite build est compilation pure (pas de TypeScript) → ne détecte pas les type mismatches cross-fichier. Un build VERT ne valide PAS le runtime. Pour les PR atomiques (multi-commits qui se complètent), accepter un runtime cassé entre commits intermédiaires si la PR finale rétablit l'invariant.
+
+Précédent identifié : Phase 2.3 C2 (4 mai 2026) — refactor `useChateaux`/`useCompteurs` pour pattern `{ data, loading, error }`. Build vert mais composants attendaient un Array → runtime cassé pendant 6 commits (C2-C7) jusqu'à migration progressive.
+
+Garde-fous :
+- Tag de prudence sur main avant la branche atomique (`pre-phase-X.Y`)
+- Build sanity à chaque commit pour détecter les syntax errors (mais pas les type errors)
+- PR atomique obligatoire — aucun commit intermédiaire mergeable seul
+- Test visuel local AVANT merge final pour preuve runtime end-to-end
 
 ### Edits ciblés un par un (jamais sed multi-stage)
 
@@ -352,13 +395,13 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - **[Phase 1.x] Audit line endings + `.gitattributes`** : `UneDeLaSemaine.jsx` était en LF dans un repo majoritairement CRLF (détecté pendant Chantier 2.1 Phase A3). Probablement d'autres fichiers en LF dans le repo. À régler via `.gitattributes` à la racine forçant CRLF sur `.jsx/.js/.cjs/.md/.css/.json/.html`, puis `git add --renormalize .`. ~30 min.
 
-- **[Phase 1.x] CI workflow `validate:chateaux` pre-build** : ajouter `npm run validate:chateaux` en step de `.github/workflows/qa.yml` (pre-build). Empêche le merge d'une PR avec un schéma cassé. ~15 min. **Possible maintenant que Phase B+C est terminée** (avant, ça aurait planté la CI avec 98 erreurs). À faire dès que possible.
+- ~~**[Phase 1.x] CI workflow `validate:chateaux` pre-build**~~ ✅ Résolue (Chantier 1.X, 4 mai 2026, PR #12 `e0407fb`) — step ajouté dans `qa.yml` aux 2 jobs (qa-fast + qa-full), fail-fast en ~30s avant install Playwright.
 
-- **[Phase 1.x] Désinstaller `react-leaflet` + `leaflet` npm** : depuis Chantier 2.2.D.6, plus aucun composant n'importe `react-leaflet` (`CarteExplorer` supprimé). `DernieresCles` utilise `window.L` (CDN dans `index.html`). Ces deux paquets npm sont morts dans `package.json`. À retirer : `npm uninstall react-leaflet leaflet`. Vérifier ensuite que l'import `import "leaflet/dist/leaflet.css"` (s'il reste) est aussi retiré. ~5 min. Identifié 3 mai 2026.
+- ~~**[Phase 1.x] Désinstaller `react-leaflet` + `leaflet` npm**~~ ✅ Résolue (Chantier 1.6, 3 mai 2026, commit `fc6e022`) — `npm uninstall react-leaflet leaflet`, package.json/lock allégés, build inchangé (tree-shake déjà fait).
 
-- **[Phase 1.x] Suppression `src/styles/carte-explorer.css`** : importé uniquement par `CarteExplorer.jsx` supprimé en Chantier 2.2.D.6. Plus aucun consommateur. À retirer : `git rm src/styles/carte-explorer.css`. ~1 min. Identifié 3 mai 2026.
+- ~~**[Phase 1.x] Suppression `src/styles/carte-explorer.css`**~~ ✅ Résolue (Chantier 1.6, 3 mai 2026, commit `fc6e022`) — `git rm` du fichier orphelin.
 
-- **[Phase 4.x] Memoize `chateauxFiltres` dans `DernieresCles.jsx`** : `chateauxFiltres = chateauxDisponibles(chateaux, dateArrivee)` recalculé à chaque render → référence change → `useEffect` ligne 69 (markers Leaflet) se redéclenche à chaque render. Optimisation : `const chateauxFiltres = useMemo(() => chateauxDisponibles(chateaux, dateArrivee), [chateaux, dateArrivee]);`. Pré-existant à la migration Phase 2.2 (pas une régression). ~5 min. Identifié 2 mai 2026.
+- ~~**[Phase 4.x] Memoize `chateauxFiltres` dans `DernieresCles.jsx`**~~ ✅ Résolue (Chantier 1.X, 4 mai 2026, commit `35a0581`) — wrap `useMemo([chateaux, dateArrivee])`, useEffect Leaflet stabilisé, +5/-2 lignes, +20 octets bundle.
 
 - **[Phase 2.2.bis] Compteurs dynamiques (ajout stratégique Matthieu)** — ✅ RÉSOLUE PARTIELLEMENT (3 mai 2026)
   - ✅ `BandeauOffres.jsx` « 8 chambres » → `compteurs.chambresUrgentes` (commit `fd564cd`, branche `feat/dynamic-counters`)
@@ -370,6 +413,10 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
     - `APropos.jsx` + `PartenairesChateaux.jsx` : « 7 Régions couvertes »
 
 - **[Phase 5.x] Cibles éditoriales depuis Espace Admin** : les chiffres affichés en surface (81 domaines, 31 demeures, 7 régions, « TRENTE-ET-UNE DEMEURES », etc.) seront branchés sur un champ DB éditable via l'Espace Admin construit en Phase 5.x. Permet à Dimitri (stratégie) et Tanguy (DA) de modifier en 1 click sans deploy. Décision Matthieu 3 mai 2026 lors de Phase 2.2.bis : refus de créer `src/data/objectifs.js` (dette qui serait supprimée à l'arrivée de l'admin).
+
+- **[Phase 4.x] Polish DernieresCles ternaire indentation** : après wrap `loading ? Skeleton : map` en C8 (6 mai 2026), le body de `chateauxFiltres.map()` reste à 16 espaces au lieu de 18 idéal (cosmétique, fonctionnel). Sera corrigé automatiquement au prochain Prettier save format si configuré. ~1 min. Identifié 6 mai 2026.
+
+- **[Phase 4.x] SkeletonChateau réutilisable VitrinePermanente / ClubMembres** : actuellement utilisé uniquement dans `DernieresCles` (Phase 2.3 C8). Si UX premium souhaitée pour les autres listes, intégrer le ternaire `{ loading ? <SkeletonChateau /> : map }`. ~30 min total (2 composants × 15 min). Identifié 6 mai 2026.
 
 - **[Phase 4.2] `ChateauCarte` mutualisé** : implémentations dupliquées détectées dans `VitrinePermanente`, `DernieresCles`, `ClubMembres`, `HeureAuxDemeures`, `UneDeLaSemaine`. Fusion en un composant unique avec variantes (`eyebrow`, `editorial`, `last-minute`, `vitrine`, `club`).
 
