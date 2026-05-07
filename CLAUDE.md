@@ -255,6 +255,7 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
 | 1.X — Memoize chateauxFiltres | 4 mai 2026 | `35a0581` | +5 / −2 lignes, useEffect Leaflet stabilisé | `pre-fix-memoize-chateauxFiltres` (sur `0ade589`) |
 | 1.X — CI validate:chateaux fail-fast | 4 mai 2026 | PR #12 (`e0407fb`) | +6 / 0 lignes, fail-fast schema avant install Playwright | `pre-fix-ci-validate-chateaux` (sur `35a0581`) |
 | 2.3 — Async-ready Supabase prep | 4-6 mai 2026 | PR à venir | +335 / −63 lignes (8 commits, 9 fichiers : 3 nouveaux + 6 modifiés), 6 composants migrés, SkeletonChateau patrimonial | `pre-phase-2.3` (sur `e0407fb`) + `pre-c8-dernierescles` (sur `1967cd3`) |
+| 1.7 — `.gitattributes` posé (discipline byte-level préventive) | 7 mai 2026 | `d677f0f` | +78 / 0 lignes, 1 fichier (`.gitattributes`), 0 fichier reformaté par `--renormalize` (repo déjà conforme CRLF/UTF-8 sans BOM) | `pre-gitattributes-renorm` (sur `62724da`) |
 
 ### Surface du repo post-Phase 2.3
 
@@ -393,7 +394,7 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - **[Phase 1.x] Investiguer écart `validation-donnees.avertissements` local vs CI** : en local Windows, le validateur retourne 78 avertissements ; en CI Linux Ubuntu, 97. Probable cause : multi-browser playwright-e2e ou contexte Node différent. À investiguer pour comprendre si la métrique est fiable. Pas urgent (la baseline absorbe les deux valeurs avec max=100). ~1-2 h. Identifié 1er mai 2026.
 
-- **[Phase 1.x] Audit line endings + `.gitattributes`** : `UneDeLaSemaine.jsx` était en LF dans un repo majoritairement CRLF (détecté pendant Chantier 2.1 Phase A3). Probablement d'autres fichiers en LF dans le repo. À régler via `.gitattributes` à la racine forçant CRLF sur `.jsx/.js/.cjs/.md/.css/.json/.html`, puis `git add --renormalize .`. ~30 min.
+- ~~**[Phase 1.x] Audit line endings + `.gitattributes`**~~ ✅ Résolue (Chantier 1.7, 7 mai 2026, commit `d677f0f`) — `.gitattributes` posé à la racine (UTF-8 sans BOM + CRLF, binaires flaggés `.bundle`/images/polices/médias, `.sh` en LF). `git add --renormalize .` a touché **0 fichier de code** : la discipline byte-level accumulée depuis Phase 1.6+ avait déjà rendu le repo conforme. Le filet est désormais purement préventif (futur collaborateur, IDE différent, copier-coller web).
 
 - ~~**[Phase 1.x] CI workflow `validate:chateaux` pre-build**~~ ✅ Résolue (Chantier 1.X, 4 mai 2026, PR #12 `e0407fb`) — step ajouté dans `qa.yml` aux 2 jobs (qa-fast + qa-full), fail-fast en ~30s avant install Playwright.
 
