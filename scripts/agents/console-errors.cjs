@@ -258,11 +258,31 @@ async function runNavigateur(nav, chateaux) {
       if (type !== 'error' && type !== 'warning') return;
       const texte = msg.text();
       if (estBruit(texte)) return;
+
+      // Corrélation URL pour console.error orphelines (Phase 1.x Chantier 1.8).
+      // Une console.error type "Failed to load resource: net::ERR_FAILED" n'a
+      // pas d'URL exposée par Playwright. On cherche en arrière la dernière
+      // requestfailed dans une fenêtre de 5 secondes pour récupérer son URL,
+      // afin que les IGNORE_PATTERNS URL la filtrent uniformément.
+      let urlAssociee = null;
+      if (type === 'error' && /failed to load resource|net::|err_/i.test(texte)) {
+        const FENETRE_MS = 5000;
+        const maintenant = Date.now();
+        for (let i = events.length - 1; i >= 0; i--) {
+          const e = events[i];
+          if (e.ts && maintenant - e.ts > FENETRE_MS) break;
+          if (e.urlEchouee) { urlAssociee = e.urlEchouee; break; }
+        }
+        if (urlAssociee && estBruit(urlAssociee)) return;
+      }
+
       events.push({
         type: type === 'error' ? 'erreur' : 'avertissement',
         message: texte,
         navigateur: nav.id,
         urlPage: page.url(),
+        ...(urlAssociee ? { urlAssociee } : {}),
+        ts: Date.now(),
       });
     });
     page.on('pageerror', (err) => {
@@ -273,6 +293,7 @@ async function runNavigateur(nav, chateaux) {
         message: texte,
         navigateur: nav.id,
         urlPage: page.url(),
+        ts: Date.now(),
       });
     });
     page.on('requestfailed', (req) => {
@@ -286,6 +307,7 @@ async function runNavigateur(nav, chateaux) {
         urlEchouee: url,
         navigateur: nav.id,
         urlPage: page.url(),
+        ts: Date.now(),
       });
     });
 
@@ -301,6 +323,7 @@ async function runNavigateur(nav, chateaux) {
       message: `Crash parcours : ${String((err && err.message) || err)}`,
       navigateur: nav.id,
       urlPage: '(inconnue)',
+      ts: Date.now(),
     });
   } finally {
     if (browser) await browser.close().catch(() => {});
