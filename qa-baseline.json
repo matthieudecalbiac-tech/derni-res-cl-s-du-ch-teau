@@ -5,6 +5,14 @@
     "commentaire": "Baseline initiale après audit QA d'avril 2026. Les seuils reflètent la dette identifiée et documentée dans les commits feat(qa):* et fix(a11y):* de la branche feature/dashboard-generique. À réviser quand un chantier de résolution démarre : pass éditorial Tanguy (images + typographie), refonte tokens couleurs Tanguy, ou retrait du videoBackground Blanc Buisson.",
     "revisions": [
       {
+        "date": "2026-05-07",
+        "agent": "console-errors",
+        "metrique": "erreurs.max + avertissements.max",
+        "ancien": "erreurs.max=3, avertissements.max=3",
+        "nouveau": "erreurs.max=2, avertissements.max=1",
+        "raison": "Phase 1.x Chantier 1.8 — IGNORE_PATTERNS CDN externes posés (commit 8caf238) + corrélation URL orphelines (commit 700bc69). Bruit CI réduit empiriquement de 96% (artefact e52da93: 63 occurrences → 1-2 résiduelles). Résidus identifiés: (a) compute-pressure iframe YouTube Blanc Buisson [Phase 4.4], (b) Load request cancelled mobile-safari sur /bri-1.avif [Phase 4.x ouverte]."
+      },
+      {
         "date": "2026-05-01",
         "agent": "validation-donnees",
         "champ": "avertissements",
@@ -61,14 +69,14 @@
     },
     "console-errors": {
       "erreurs": {
-        "max": 3,
+        "max": 2,
         "actuel": 1,
-        "dette": "actuel=1 = état nominal observé sur la majorité des runs CI (1 fragment JS /www.youtube.com'. sur webkit-desktop uniquement, faux positif tiers, disparaîtra si videoBackground Blanc Buisson retiré ou migré HTML5 natif). max=3 = marge d'absorption pour la variabilité environnementale CI sur les domaines tiers : HTTP 429 Open-Meteo rate-limit (observé run #18 du 2026-04-25 sur mobile-safari, runner GitHub Actions partagé), Pexels parfois remonté en erreur au lieu de warning selon timing CDN, Unsplash 429 occasionnel. La marge à 3 (et non 2) couvre une éventuelle 3e variation future sans repasser rouge à chaque flake. Solution propre planifiée : commit refactor/console-errors-filter (~1-2h, prochaine session) qui ajoutera des IGNORE_PATTERNS pour HTTP 4xx/5xx vers domaines externes connus dans scripts/agents/console-errors.cjs, ce qui permettra de redescendre max à 1 (cf. section Dette technique dans CLAUDE.md)."
+        "dette": "actuel=1 = état local courant post-Phase 1.x C1+C2 (résidu: erreur 'Permissions policy violation: compute-pressure' issue de l'iframe YouTube Blanc Buisson, sera auto-résolue Phase 4.4 vidéo HTML5). max=2 = marge sécuritaire CI absorbant aussi l'entrée 'Load request cancelled' mobile-safari sur localhost:5174/bri-1.avif (dette Phase 4.x ouverte, suspecte re-mount Phase 2.3). À resserrer max=0 ou 1 quand Phase 4.4 ET Phase 4.x #9 résolues."
       },
       "avertissements": {
-        "max": 3,
-        "actuel": 3,
-        "dette": "3 warnings uniques sur CDN externes observés sur le scope local complet (3 navigateurs chromium-desktop + webkit-desktop + mobile-safari) : 1 Pexels vidéo Hero home (16 occurrences ERR_ABORTED chromium-desktop, artefacts StrictMode dev + parcours agent multi-goto) + 1 Open-Meteo forecast (fetch météo Briottières, 4 occurrences 'Load request cancelled' webkit-desktop) + 1 Open-Meteo forecast (fetch météo Briottières, 5 occurrences 'Load request cancelled' mobile-safari). Les 2 warnings Open-Meteo sont le comportement voulu par l'AbortController du commit b47b70d (météo découplée du fetch) : le parcours agent plus rapide depuis eb7bb14 ferme la vitrine avant que le fetch météo aboutisse → cancel légitime, pas une fuite. Composition précédente (2 YouTube qoe + log_event) éliminée par le fix networkidle→domcontentloaded d'eb7bb14 : le scan plus précoce ne laisse plus le temps à l'iframe YouTube d'émettre ses beacons analytics avant fin de parcours. En CI qa-full (3 navigateurs depuis réactivation mobile-safari du 2026-04-24) → actuel entre 1 et 3 selon le timing des cancellations Open-Meteo en environnement CI (sous max=3 dans tous les cas). En CI qa-fast PR (chromium uniquement) → actuel=1 observé (Pexels seul), sous max=3. Aucun impact prod (StrictMode strippé du bundle, AbortController est le comportement cible). Pexels disparaîtra au remplacement par vidéo propriétaire prévu par Matthieu."
+        "max": 1,
+        "actuel": 0,
+        "dette": "actuel=0 = bruit CDN externe entièrement filtré par IGNORE_PATTERNS Phase 1.x C2 (commit 8caf238) : videos.pexels.com, images.pexels.com, images.unsplash.com, api.open-meteo.com, www.youtube.com, i.ytimg.com. max=1 = marge sécuritaire variance CI cross-browser."
       }
     },
     "validation-donnees": {
