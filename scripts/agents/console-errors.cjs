@@ -308,8 +308,13 @@ async function runNavigateur(nav, chateaux) {
       if (estBruit(url)) return;
       const fail = req.failure();
       const errText = (fail && fail.errorText) || 'requête échouée';
+      // Cancel = comportement intentionnel du browser (navigation avant fin
+      // de chargement), pas une régression applicative. Classifié en
+      // avertissement quel que soit l'origine, contrairement aux vrais
+      // échecs réseau locaux qui restent en erreur.
+      const isCancel = /cancel|abort/i.test(errText);
       events.push({
-        type: estRessourceExterne(url) ? 'avertissement' : 'erreur',
+        type: (isCancel || estRessourceExterne(url)) ? 'avertissement' : 'erreur',
         message: `Requête échouée : ${errText}`,
         urlEchouee: url,
         navigateur: nav.id,
