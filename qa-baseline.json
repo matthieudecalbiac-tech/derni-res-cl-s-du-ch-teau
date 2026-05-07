@@ -7,6 +7,14 @@
       {
         "date": "2026-05-07",
         "agent": "console-errors",
+        "metrique": "erreurs.max + avertissements.max (suite Chantier 1.8)",
+        "ancien": "erreurs.max=2, avertissements.max=1",
+        "nouveau": "erreurs.max=1, avertissements.max=2",
+        "raison": "Phase 4.x Chantier 1.9 — reclassification des cancels comme avertissement (commit 062c490). Un cancel ('Load request cancelled', 'Aborted') est un comportement intentionnel du browser (navigation avant fin de chargement), pas une régression applicative. Les vraies régressions images (404/500) restent couvertes par le test E2E 'Images locales /bri-*.avif sans 404'. Permet : (a) erreurs.max resserré 2→1 (bri-1.avif sort de erreurs); (b) avertissements.max ouvert 1→2 (absorbe les cancels reclassifiés). Net: pression QA accrue côté erreurs (vraies régressions), pression desserrée côté avertissements (bruit légitime)."
+      },
+      {
+        "date": "2026-05-07",
+        "agent": "console-errors",
         "metrique": "erreurs.max + avertissements.max",
         "ancien": "erreurs.max=3, avertissements.max=3",
         "nouveau": "erreurs.max=2, avertissements.max=1",
@@ -69,14 +77,14 @@
     },
     "console-errors": {
       "erreurs": {
-        "max": 2,
+        "max": 1,
         "actuel": 1,
-        "dette": "actuel=1 = état local courant post-Phase 1.x C1+C2 (résidu: erreur 'Permissions policy violation: compute-pressure' issue de l'iframe YouTube Blanc Buisson, sera auto-résolue Phase 4.4 vidéo HTML5). max=2 = marge sécuritaire CI absorbant aussi l'entrée 'Load request cancelled' mobile-safari sur localhost:5174/bri-1.avif (dette Phase 4.x ouverte, suspecte re-mount Phase 2.3). À resserrer max=0 ou 1 quand Phase 4.4 ET Phase 4.x #9 résolues."
+        "dette": "actuel=1 = état local courant post-Phase 4.x Chantier 1.9 (résidu: erreur 'Permissions policy violation: compute-pressure' issue de l'iframe YouTube Blanc Buisson, sera auto-résolue Phase 4.4 vidéo HTML5). max=1 = strict après reclassification cancels en avertissement (commit 062c490). bri-1.avif mobile-safari désormais classé en avertissement légitime, plus dans erreurs. À resserrer max=0 quand Phase 4.4 résolue."
       },
       "avertissements": {
-        "max": 1,
+        "max": 2,
         "actuel": 0,
-        "dette": "actuel=0 = bruit CDN externe entièrement filtré par IGNORE_PATTERNS Phase 1.x C2 (commit 8caf238) : videos.pexels.com, images.pexels.com, images.unsplash.com, api.open-meteo.com, www.youtube.com, i.ytimg.com. max=1 = marge sécuritaire variance CI cross-browser."
+        "dette": "actuel=0 = bruit CDN externe entièrement filtré par IGNORE_PATTERNS Phase 1.x C2 + cancels reclassifiés depuis Phase 4.x Chantier 1.9 (commit 062c490). max=2 = absorbe en CI : (a) cancel mobile-safari sur images locales pendant navigation rapide entre vitrines (bri-1.avif et similaires), (b) variance cancels Open-Meteo / autres CDN externes mal filtrés par corrélation URL (trou C1 sur responses 4xx/5xx, dette Phase 1.x ouverte)."
       }
     },
     "validation-donnees": {
