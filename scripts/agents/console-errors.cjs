@@ -322,6 +322,24 @@ async function runNavigateur(nav, chateaux) {
         ts: Date.now(),
       });
     });
+    page.on('response', (res) => {
+      // Corrélation 4xx/5xx orphelines (Phase 1.x Chantier 1.10).
+      // Playwright émet 'response' (pas 'requestfailed') pour les responses
+      // HTTP d'erreur. Sans ce listener, leur URL n'entre jamais dans events[]
+      // et la corrélation du listener console échoue silencieusement.
+      const status = res.status();
+      if (status < 400) return;
+      const url = res.url();
+      if (estBruit(url)) return;
+      events.push({
+        type: estRessourceExterne(url) ? 'avertissement' : 'erreur',
+        message: `Réponse HTTP ${status}`,
+        urlEchouee: url,
+        navigateur: nav.id,
+        urlPage: page.url(),
+        ts: Date.now(),
+      });
+    });
 
     await Promise.race([
       parcoursComplet(page, chateaux, compteurs),
