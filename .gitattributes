@@ -1,0 +1,78 @@
+# ═══════════════════════════════════════════════════════
+# .gitattributes — Les Clés du Château (LCC)
+# Discipline byte-level : UTF-8 sans BOM + CRLF sur texte
+# Convention codifiée dans CLAUDE.md
+# ═══════════════════════════════════════════════════════
+
+# Auto-detect text files, force CRLF on checkout (Windows dev)
+* text=auto eol=crlf
+
+# ── Source code ───────────────────────────────────────
+*.js     text eol=crlf
+*.jsx    text eol=crlf
+*.cjs    text eol=crlf
+*.mjs    text eol=crlf
+*.ts     text eol=crlf
+*.tsx    text eol=crlf
+
+# ── Styles ────────────────────────────────────────────
+*.css    text eol=crlf
+*.scss   text eol=crlf
+*.sass   text eol=crlf
+
+# ── Markup & data ─────────────────────────────────────
+*.html   text eol=crlf
+*.md     text eol=crlf
+*.json   text eol=crlf
+*.yml    text eol=crlf
+*.yaml   text eol=crlf
+*.xml    text eol=crlf
+*.txt    text eol=crlf
+*.svg    text eol=crlf
+
+# ── Config files ──────────────────────────────────────
+.gitignore     text eol=crlf
+.gitattributes text eol=crlf
+.editorconfig  text eol=crlf
+.env*          text eol=crlf
+.eslintrc*     text eol=crlf
+.prettierrc*   text eol=crlf
+*.config.js    text eol=crlf
+*.config.cjs   text eol=crlf
+
+# ── Shell scripts (LF requis pour exécution Linux/CI) ──
+*.sh     text eol=lf
+
+# ── Images (binaires, jamais de conversion) ───────────
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.avif   binary
+*.ico    binary
+*.bmp    binary
+*.tiff   binary
+
+# ── Documents (binaires) ──────────────────────────────
+*.pdf    binary
+*.zip    binary
+*.gz     binary
+*.tar    binary
+*.7z     binary
+*.bundle binary
+
+# ── Polices (binaires) ────────────────────────────────
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.otf    binary
+*.eot    binary
+
+# ── Médias (binaires) ─────────────────────────────────
+*.mp4    binary
+*.webm   binary
+*.mov    binary
+*.mp3    binary
+*.wav    binary
+*.ogg    binary
