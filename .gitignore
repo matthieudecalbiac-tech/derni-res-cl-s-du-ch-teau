@@ -37,6 +37,9 @@ qa-reports/
 test-results/
 playwright-report/
 
+# Artefacts CI temporaires (telecharges manuellement pour debug/calibration)
+tmp-ci-artifacts/
+
 # Variables d'environnement
 .env
 .env.local
