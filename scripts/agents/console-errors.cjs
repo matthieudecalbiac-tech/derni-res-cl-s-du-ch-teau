@@ -59,6 +59,13 @@ const IGNORE_PATTERNS = [
   /\[HMR\]/i,
   /favicon\.ico/i,
   /\[violation\].*handler took/i,
+  // ─── Phase 1.x Chantier 1.8 — domaines CDN externes (variance CI) ───
+  /videos\.pexels\.com/i,
+  /images\.pexels\.com/i,
+  /images\.unsplash\.com/i,
+  /api\.open-meteo\.com/i,
+  /www\.youtube\.com/i,
+  /i\.ytimg\.com/i,
 ];
 
 function estBruit(texte) {
