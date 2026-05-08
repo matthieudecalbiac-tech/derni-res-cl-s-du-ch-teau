@@ -141,6 +141,7 @@ CREATE TABLE IF NOT EXISTS public.chateaux (
   siecle                      text,
   style                       text,
   distance_paris              integer,                     -- minutes (cible LCC : ≤ 180)
+  distance_paris_label        text,                        -- "55 km · 45 min" (label brut éditorial)
   urgence                     text,                        -- ex. "DERNIÈRES CLÉS"
 
   -- Géo

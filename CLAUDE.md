@@ -271,6 +271,55 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
 - `.env.example` : nouveau fichier (documente `VITE_FAKE_LATENCY`)
 - Bundle production : JS **422.6 kB** (421 → 422.6, +0.4 % pour async/loading + skeleton), CSS **206.7 kB** (206 → 206.7, +670 octets skeleton)
 
+### Sprint S1-δ — Migration Supabase (mai 2026)
+
+**Branche :** `feature/supabase-foundation`
+**Objectif Sprint S1 :** infrastructure Supabase complète (schema + RLS + seed + client React) avant tout refactor UI.
+**Statut au 8 mai 2026 PM :** 7 commits sur 7 du sprint S1 livrés (Phases 1-3 + Phase 4.1). Phase 4.2-4.7 à venir. Push sur origin à jour.
+
+#### Phase 1 — Schema initial (S1-α)
+- **Commit :** `98daa73` — feat(supabase): schema initial S1-α
+- **Livré :** 14 tables (chateaux + 4 filles + modules + chateau_modules + offres + reservations + chambres + disponibilites + chateau_owners + users + audit_log + migrations_log), 5 enums, 18 indexes, 13 triggers, 64 COMMENT (789 lignes `supabase/schema.sql`)
+- **Architecture :** multi-modules (A vitrine permanente, B Dernières Clés, C Club Châtelains, D événementiel reporté), conforme décisions business du pivot du 8 mai 2026
+
+#### Phase 1.5 — README bootstrap
+- **Commit :** `104f82a` — docs(supabase): README — bootstrap
+- **Livré :** `supabase/README.md` (63 lignes) — ordre d'exécution schema → policies → seed, conventions
+
+#### Phase 2 — RLS Policies (S1-β)
+- **Commit :** `477fe6e` — feat(supabase): RLS policies S1-β
+- **Livré :** 3 helpers SECURITY DEFINER (is_admin, is_chatelain, is_chatelain_of), 1 trigger user provisioning (handle_new_user), 14 ENABLE RLS, 2 vues publiques (chateau_modules_public, reservations_client_view), 46 policies (5 users + 20 chateaux/filles + 10 modules/offres + 8 commerce + 3 ops)
+- **Décisions actées :** commissions invisibles client, chatelain READ-ONLY reservations, Module C caché 100% via requires_role NOT NULL
+- **Dette notée :** RLS reservations_update_client_cancel autorise UPDATE trop large — à durcir S2 via RPC SECURITY DEFINER
+
+#### Phase 3 — Seed initial (S1-γ)
+- **Commit :** `91ad4dc` — feat(supabase): seed initial S1-γ
+- **Livré :** 180 INSERT idempotents — 4 modules + 8 châteaux + 23 chambres + 48 amenities + 48 timeline + 36 alentours + 12 chateau_modules + 1 migrations_log
+- **Générateur :** `scripts/generate-seed.cjs` (563 lignes, UUIDs SHA-1 déterministes pour idempotence)
+- **Note :** seul 2 des 8 châteaux ont une offre Module B active (Briottières id 7 + Blanc Buisson id 8) — conforme stratégie "Dernières Clés rares par nature"
+
+#### Phase 4 — Client React + GRANTs + smoke test (S1-δ Phase 1-2)
+- **Commit :** `0eeedf6` — feat(supabase): client React + GRANTs + smoke test
+- **Livré :** projet Supabase `lcc-prod` créé (eu-west-1, ref ynoieryxfqiqjscqieum), bootstrap appliqué, client React partagé `src/lib/supabase.js`, smoke test 5/5 ✓ (`scripts/smoke-test-supabase.cjs`), section 10 GRANTS Postgres ajoutée dans policies.sql (32 GRANTs nécessaires avec nouveau format sb_publishable_*)
+- **Validation runtime :** count chateaux=8, count chambres=23, Briottières par slug, vue chateau_modules_public=12, INSERT bloqué (42501)
+- **Dette notée :** audit_log GRANTs élargis à authenticated (durcir S5), 2 vulns npm audit non bloquantes (basic-ftp HIGH, ip-address MODERATE — pas exposées dans bundle browser)
+
+#### Phase 5 — Audit chateauxService.js (S1-δ Phase 3)
+- **Commit :** `ce674fc` — docs(supabase): audit Phase 3 chateauxService.js
+- **Livré :** `supabase/AUDIT-PHASE3-chateauxService.md` (141 lignes) — service actuel 87 lignes 4 fonctions, 2 hooks consommateurs (useChateaux × 5 composants, useCompteurs × 1), mapping 38 colonnes documenté
+- **4 trouvailles critiques :** prixBarre/reduction/chambresRestantes absents schema, id number→uuid casse idsCartes/idsIndex, distanceParis format change, parking/wifi/animaux strings vs bool
+- **Décisions Phase 4 actées (8 mai PM) :**
+  1. prixBarre/reduction via jointure offres (architecture pérenne multi-modules) + null pour châteaux sans offre Module B (option α)
+  2. Slugs partout (Q1=C confirmé) — App.jsx estLaUne, HeureAuxDemeures arrays slugs
+  3. Label brut distance_paris_label (ALTER TABLE)
+  4. Helper `src/services/_mapping.js` aplatit amenities
+
+#### Phase 4 sous-action 4.1 — Schema patch distance_paris_label (en cours)
+- **À commit prochain (Sous-action 4.1)**
+- **Livré :** colonne `distance_paris_label text` ajoutée dans schema.sql, migration `supabase/migrations/2026-05-08-add-distance-paris-label.sql` (idempotent), inauguration du dossier `supabase/migrations/`
+- **Pattern inauguré :** chaque modif Supabase post-bootstrap = 1 fichier `migrations/YYYY-MM-DD-description.sql`. Le `schema.sql` représente l'état désiré final ; les migrations représentent l'historique chronologique pour les bases déjà déployées.
+- **Sous-actions 4.2-4.7 à venir :** seed update populate, helper mapping, refactor service, refactor App.jsx, refactor HeureAuxDemeures.jsx, tests UI manuels
+
 ## Conventions de chantier
 
 ### Pattern « 2 commits pour les chantiers de purge »
