@@ -558,7 +558,60 @@ CREATE POLICY migrations_log_insert_admin ON public.migrations_log
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- 10. RÉCAP MATRICE RLS
+-- 10. GRANTS POSTGRES (nécessaires avec les nouvelles clés sb_publishable_*)
+-- ═══════════════════════════════════════════════════════════════════════════
+-- Avec le nouveau format de clé Supabase (sb_publishable_* / sb_secret_*),
+-- les GRANT par défaut sur public ne sont plus appliqués automatiquement
+-- aux nouvelles tables. Il faut les déclarer explicitement.
+--
+-- Lecture publique (anon + authenticated)
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+
+-- Tables de contenu éditorial : lecture publique (RLS filtre déjà en
+-- profondeur, mais Postgres exige le GRANT pour évaluer la requête)
+GRANT SELECT ON public.chateaux           TO anon, authenticated;
+GRANT SELECT ON public.chambres           TO anon, authenticated;
+GRANT SELECT ON public.chateau_amenities  TO anon, authenticated;
+GRANT SELECT ON public.chateau_timeline   TO anon, authenticated;
+GRANT SELECT ON public.chateau_alentours  TO anon, authenticated;
+GRANT SELECT ON public.modules            TO anon, authenticated;
+GRANT SELECT ON public.disponibilites     TO anon, authenticated;
+
+-- Tables business : lecture pour authenticated seulement
+-- (RLS filtre ensuite par rôle utilisateur)
+GRANT SELECT ON public.offres             TO anon, authenticated;
+GRANT SELECT ON public.chateau_modules    TO authenticated;
+GRANT SELECT ON public.chateau_owners     TO authenticated;
+GRANT SELECT ON public.reservations       TO authenticated;
+GRANT SELECT ON public.users              TO authenticated;
+GRANT SELECT ON public.audit_log          TO authenticated;
+GRANT SELECT ON public.migrations_log     TO authenticated;
+
+-- Écritures (RLS filtre la portée par rôle utilisateur)
+GRANT INSERT, UPDATE, DELETE ON public.chateaux           TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.chambres           TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.chateau_amenities  TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.chateau_timeline   TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.chateau_alentours  TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.disponibilites     TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.offres             TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.chateau_modules    TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.modules            TO authenticated;
+GRANT INSERT, UPDATE         ON public.users              TO authenticated;
+GRANT INSERT, UPDATE         ON public.reservations       TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.chateau_owners     TO authenticated;
+GRANT INSERT                 ON public.audit_log          TO authenticated;
+GRANT INSERT                 ON public.migrations_log     TO authenticated;
+
+-- Sequences (pour les SERIAL si présents — pas le cas ici, mais idempotent)
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
+
+-- Note : les RLS gèrent finement qui peut faire quoi sur quelles lignes.
+-- Ces GRANT autorisent juste Postgres à évaluer les policies.
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
+-- 11. RÉCAP MATRICE RLS
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Légende : R=Read, C=Create, U=Update, D=Delete, CRUD=tous, —=interdit
 --           own=via chateau_owners ; self=user_id=auth.uid()
