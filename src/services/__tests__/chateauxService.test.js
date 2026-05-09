@@ -178,7 +178,8 @@ describe("getCompteurs", () => {
     const c = await getCompteurs();
     expect(c.nbChateaux).toBe(2);
     expect(c.nbVitrinesPremium).toBe(1); // seulement Briottières estLaUne
-    expect(c.chambresUrgentes).toBe(2);  // les 2 fixtures ont .urgence définie
+    // chambresUrgentes retiré en Phase 4.5 (option C slogan fixe)
+    expect(c.chambresUrgentes).toBeUndefined();
   });
 
   it("chambresRestantes = 0 (dette Phase 4.4)", async () => {

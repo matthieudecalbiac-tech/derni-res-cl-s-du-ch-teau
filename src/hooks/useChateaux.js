@@ -9,8 +9,10 @@ import {
  * Hook principal pour accéder à la liste des châteaux.
  *
  * @param {Object} [options]
- * @param {boolean} [options.excludeMocks=false] - Si true, filtre les
- *   châteaux marqués `isDemoMock=true`. Default : false (compat).
+ * @param {boolean} [options.excludeMocks=false] - Si true, ne retourne
+ *   que les châteaux `estLaUne === true` (Briottières + Blanc Buisson en
+ *   Sprint S1, plus en S2+). Voir `_isMock()` dans chateauxService.js
+ *   pour la définition centralisée. Default : false (compat).
  * @returns {Array} Liste des châteaux
  */
 export function useChateaux({ excludeMocks = false } = {}) {

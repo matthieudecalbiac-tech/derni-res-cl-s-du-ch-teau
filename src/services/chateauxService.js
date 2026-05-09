@@ -183,13 +183,15 @@ export async function getChateauBySlug(slug) {
  * null sur cette propriété. Sera réparée S2 via RPC
  * `count_chambres_disponibles()`.
  *
+ * Phase 4.5 (option C) : retrait de `chambresUrgentes` — BandeauOffres
+ * affiche maintenant un slogan fixe sans chiffre dynamique.
+ *
  * @param {Object} [options]
  * @param {boolean} [options.excludeMocks=false]
  * @returns {Promise<{
  *   nbChateaux: number,
  *   nbVitrinesPremium: number,
  *   chambresRestantes: number,
- *   chambresUrgentes: number,
  * }>}
  */
 export async function getCompteurs({ excludeMocks = false } = {}) {
@@ -202,9 +204,6 @@ export async function getCompteurs({ excludeMocks = false } = {}) {
       (sum, c) => sum + (c.chambresRestantes ?? 0),
       0
     ),
-    chambresUrgentes: chateaux.filter(
-      (c) => c.urgence != null && c.urgence !== ""
-    ).length,
   };
 }
 

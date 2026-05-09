@@ -345,8 +345,8 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
 - **Robustesse :** fallback null/[] systématique, JSDoc complète, aucun mapper ne crash
 - **chambresRestantes :** hardcoded null (RPC count_chambres_disponibles en S2)
 
-#### Phase 4 sous-action 4.4 — Refactor chateauxService.js Supabase-backed (en cours)
-- **À commit prochain (Sous-action 4.4)**
+#### Phase 4 sous-action 4.4 — Refactor chateauxService.js Supabase-backed
+- **Commit :** `40ef9dc` — feat(react): refactor chateauxService.js Supabase-backed S1-δ Phase 4.4
 - **Livré :**
   - `src/services/chateauxService.js` refactor complet (200 lignes)
   - `src/services/__tests__/chateauxService.test.js` (193 lignes, 14 tests)
@@ -365,6 +365,19 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
   - JSDoc `useChateaux.js:13` mentionne encore `isDemoMock` (sémantique remplacée par `estLaUne === false` via `_isMock()` privé) — mise à jour cosmétique
   - `compteurs.chambresUrgentes` retourne désormais un count de châteaux avec urgence (pas la somme des chambres restantes). À renommer en `compteurs.nbChateauxUrgents` + adapter le wording JSX `BandeauOffres.jsx:13` ("${compteurs.nbChateauxUrgents} châteaux en dernière minute" plutôt que "chambres disponibles")
   - **Justification du report** : le scope strict de 4.4 est le service, pas le rename d'API consommée par les composants. 4.5 (App.jsx) est le bon moment pour toucher les composants connexes.
+
+#### Phase 4 sous-action 4.5 — Refactor App.jsx + dette 4.5 (en cours)
+- **À commit prochain (Sous-action 4.5)**
+- **Périmètre réel (audit) :**
+  - App.jsx ligne 114 : NO-OP ✅ déjà sur `estLaUne === true` (dette CLAUDE.md "À régler avant 9e château" déjà résolue dans Sprint 5-β v2 — à retirer de la liste dette technique)
+- **Livré :**
+  - `chateauxService.js` : retrait `compteurs.chambresUrgentes` (devenu inutile sans wording numérique côté JSX)
+  - `BandeauOffres.jsx:13` : slogan fixe `"Les Dernières Clés du moment →"` (Option C cohérent avec storytelling LCC "Dernières Clés rares par nature")
+  - `useChateaux.js:13` : JSDoc actualisée (référence `estLaUne === true` via `_isMock()` au lieu de l'obsolète `isDemoMock`)
+  - `chateauxService.test.js` : assertion `chambresUrgentes` muée en `toBeUndefined()` (preuve que le champ est bien retiré)
+- **Storytelling :** Option C choisie pour éviter les chiffres incohérents qu'il faudrait synchroniser avec la réalité. Le slogan reste vrai indéfiniment.
+- **Tests :** 46/46 passing (32 mapper + 14 service après mutation assertion)
+- **Validation visuelle requise :** Matthieu lance `npm run dev` et confirme que la home affiche correctement (sans erreur console, BandeauOffres avec slogan fixe, aiguillage VitrineChateau OK pour Briottières/Blanc Buisson)
 
 ## Conventions de chantier
 
