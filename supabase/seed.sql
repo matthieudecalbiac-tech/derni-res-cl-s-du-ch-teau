@@ -286,7 +286,36 @@ ON CONFLICT (chateau_id, module_id) DO UPDATE SET
   est_actif               = EXCLUDED.est_actif,
   commission_pct_negociee = EXCLUDED.commission_pct_negociee;
 
--- 8. migrations_log (1 ligne — trace S1-γ)
+-- 8. offres (1 ligne — Briottières Module B "Les Dernières Clés du moment")
+-- Ajouté manuellement Phase 5 (9 mai 2026) — le générateur generate-seed.cjs
+-- ne couvre pas encore la table offres. Dette tracée pour Sprint S2.
+INSERT INTO public.offres (
+  id, chateau_id, module_id, chambre_id,
+  titre, description,
+  prix_base_cents, prix_promo_cents, reduction_pct,
+  date_debut, date_fin,
+  visible, requires_role, ordre
+) VALUES (
+  '7e7b6a5c-9876-5432-8abc-def012345abc',
+  '35015d71-5591-570c-8023-cc077d981cd4',  -- Briottières
+  '636f3128-5185-5803-8ca4-13b8dff29592',  -- Module B (Les Dernières Clés)
+  'fd55a143-cdd3-5f9d-8dd4-56888b0b8ce4',  -- Chambre Verte (290€)
+  'Les Dernières Clés du moment — Chambre Verte',
+  'Une nuit dans la chambre la plus demandée du château, à un tarif privilégié. Cinquante hectares de parc à l''anglaise, dîner aux chandelles à la table d''hôtes, lumière du matin sur le bocage angevin.',
+  29000, 23780, 18.00,
+  '2026-05-09', '2026-08-09',
+  true, NULL, 1
+)
+ON CONFLICT (id) DO UPDATE SET
+  titre            = EXCLUDED.titre,
+  description      = EXCLUDED.description,
+  prix_base_cents  = EXCLUDED.prix_base_cents,
+  prix_promo_cents = EXCLUDED.prix_promo_cents,
+  reduction_pct    = EXCLUDED.reduction_pct,
+  visible          = EXCLUDED.visible,
+  ordre            = EXCLUDED.ordre;
+
+-- 9. migrations_log (1 ligne — trace S1-γ)
 INSERT INTO public.migrations_log (id, nom_migration, rows_affected, notes) VALUES
   ('79ad5de0-5f01-51aa-8209-9e9b1ce0f9eb', 'S1-gamma_seed_initial_2026-05-08', 180, 'Seed initial 8 châteaux : 4 modules + 8 chateaux + 23 chambres + 48 amenities + 48 timeline + 36 alentours + 12 chateau_modules. Source : src/data/chateaux.js. UUIDs déterministes.')
 ON CONFLICT (nom_migration) DO UPDATE SET

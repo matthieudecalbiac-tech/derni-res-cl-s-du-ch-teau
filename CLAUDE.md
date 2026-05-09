@@ -598,3 +598,40 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 **Test reproduction global** : `npm run dev` → DevTools → Toggle device toolbar (Ctrl+Shift+M) → iPhone 14 Pro (375×812) ou Tablet (768px) → Naviguer home + modals + vitrine.
 
 **Périmètre estimé fix** : ~6-10h refactor CSS + media queries + tests manuels Tanguy. À planifier en S5 dédié.
+
+### Dette générateur de seed (Sprint S2)
+
+**Détectée** : Sprint S1-δ Phase 5 (9-10 mai 2026) — le générateur `scripts/generate-seed.cjs` ne contient pas de `buildOffresSQL()`. L'INSERT INTO public.offres a été ajouté manuellement dans `supabase/seed.sql` en Phase 5.
+
+**Risque** : si on régénère le seed via `node scripts/generate-seed.cjs > supabase/seed.sql`, l'INSERT offres sera perdu.
+
+**Action S2** : ajouter `buildOffresSQL()` dans le générateur, alimenté par les offres définies dans `src/data/chateaux.js` ou équivalent. Estimé ~30 min.
+
+**Mitigation S1** : la migration `2026-05-09-seed-offre-briottieres.sql` est idempotente et peut être rejouée dans Supabase Dashboard si besoin.
+
+#### Phase 5 — Tests RLS croisés Supabase (✅ TERMINÉE)
+- **Validation effectuée Matthieu (10 mai 2026) : 23/23 PASS**
+- **Hash commit** : `7e2c228`
+- **Décisions actées Matthieu (Q1=A, Q2=A, Q3=C)** :
+  - Q1 profondeur : smoke RLS (~30 min, 11 tests critiques)
+  - Q2 format : script SQL exécutable dans Supabase Dashboard SQL Editor
+  - Q3 gravité : cas par cas (haute = fix S1, moyenne = dette S2, basse = note S5)
+- **Livré :**
+  - `supabase/tests-rls.sql` (356 lignes) : 11 tests smoke + 12 loop filet sécurité = 23 vérifications
+    - Pattern `CREATE TEMP TABLE rls_test_results` + `INSERT INTO` + `SELECT` final (RAISE NOTICE invisible dans Dashboard SQL Editor 2026)
+    - GRANT INSERT/SELECT à anon sur la table temp (sinon 42501 sur la table de tests elle-même)
+    - SET LOCAL ROLE 'anon' au début (transaction implicite SQL Editor)
+    - Tests SELECT/INSERT privés wrappés BEGIN/EXCEPTION pour catcher 42501 sans tuer le DO block
+  - `supabase/tests-rls-RESULTS.md` : rapport rempli avec 23 verdicts + synthèse defense-in-depth + notes
+  - `supabase/seed.sql` (+30 lignes section 8. offres) : INSERT 1 offre Briottières Module B Chambre Verte (290€/237€/-18%, visible=true, requires_role=NULL)
+  - `supabase/migrations/2026-05-09-seed-offre-briottieres.sql` (65 lignes) : migration idempotente ON CONFLICT DO UPDATE, exécutée et validée Matthieu via Supabase Dashboard
+- **Découvertes techniques Phase 5 :**
+  1. Defense-in-depth : anon sans GRANT sur tables privées obtient 42501 AVANT évaluation RLS. Le test PASS si l'erreur est levée.
+  2. RAISE NOTICE invisible dans Supabase Dashboard SQL Editor 2026 — contourné par CREATE TEMP TABLE + SELECT final.
+  3. SET LOCAL ROLE 'anon' nécessite GRANT INSERT/SELECT à anon sur table TEMP de collecte.
+  4. Seed S1-γ avait omis la table `offres` (bug du générateur). Corrigé manuellement Phase 5, dette `buildOffresSQL()` tracée pour Sprint S2.
+- **Hors scope reporté Sprint S2 :**
+  - Tests authenticated client/chatelain/admin (nécessitent Auth Phase 3 + seed users)
+  - Isolation client : voir mes résas vs autres
+  - Châtelain SELECT chateau_modules privé avec commission
+  - `buildOffresSQL()` dans le générateur de seed
