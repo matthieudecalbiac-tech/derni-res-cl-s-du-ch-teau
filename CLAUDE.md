@@ -566,7 +566,7 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - **[Phase 4.2] `ChateauCarte` mutualisé** : implémentations dupliquées détectées dans `VitrinePermanente`, `DernieresCles`, `ClubMembres`, `HeureAuxDemeures`, `UneDeLaSemaine`. Fusion en un composant unique avec variantes (`eyebrow`, `editorial`, `last-minute`, `vitrine`, `club`).
 
-- **[Phase 4.4] Vidéo Le Blanc Buisson YouTube → HTML5 natif** : (a) −3 critical a11y absorbés au baseline ; (b) +1 erreur "Permissions policy violation: compute-pressure" en local Chromium (Phase 1.x C2 absorbée par baseline `console-errors.erreurs.max=2`, à resserrer post-migration). iframe YouTube `JQ9m51Bl900` actuelle non a11y-compliante. Migration vers vidéo HTML5 native dans `/public/` retire ces faux positifs et donne le contrôle complet sur le poster, l'autoplay et la coupure mobile. **Bloqueur business** : récupérer auprès de Maïté & Éric de la Fresnaye le master vidéo source haute qualité + cession de droits écrite pour usage LCC commercial. **Périmètre tech post-réception** : 4 composants à migrer (VitrineChateau, ChateauModal, VitrineDernieresCle, VitrineClub) + 2 fichiers CSS (vitrine-chateau.css, chateau-page.css). Sera triviale après Phase 4.2 ChateauCarte mutualisé.
+- **[Phase 4.4] Vidéo Le Blanc Buisson YouTube → HTML5 natif** : (a) −3 critical a11y absorbés au baseline ; (b) +1 erreur "Permissions policy violation: compute-pressure" en local Chromium (Phase 1.x C2 absorbée par baseline `console-errors.erreurs.max=2`, à resserrer post-migration). iframe YouTube `JQ9m51Bl900` actuelle non a11y-compliante. Migration vers vidéo HTML5 native dans `/public/` retire ces faux positifs et donne le contrôle complet sur le poster, l'autoplay et la coupure mobile. **Bloqueur business** : récupérer auprès de Maïté & Éric de la Fresnaye le master vidéo source haute qualité + cession de droits écrite pour usage LCC commercial. **Périmètre tech post-réception** : 4 composants à migrer (VitrineChateau, ChateauModal, VitrineDernieresCle, VitrineClub) + 2 fichiers CSS (vitrine-chateau.css, chateau-page.css). Sera triviale après Phase 4.2 ChateauCarte mutualisé. **Reset baseline post-migration** : Sprint S1 Phase 5 a passé `qa-baseline.json:seuils.a11y-axe.violationsCritical.max` de 3 à 10 pour absorber 5 occurrences cross-browser du faux positif YouTube. Après migration HTML5 + suppression de `videoBackground: 'JQ9m51Bl900'` du legacy `src/data/chateaux.js` id 8, les 5 critical button-name disparaissent automatiquement → reset `max` à 0 (et `actuel` à 0).
 
 - **[Phase 4.5] `offres.css` à creuser** : épargné en Chantier 1.2 par prudence (importé par `BandeauOffres` vivant). À vérifier si `BandeauOffres` utilise réellement les classes de `offres.css` ou si l'import est lui-même mort. Si mort : suppression possible (~593 lignes).
 
@@ -574,6 +574,19 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
   - Coquille « Brouillaird » → « Brouillard » dans `VitrineChateau` diptyque (~ligne 322)
   - Image fond diptyque jour : URL Unsplash temple asiatique (Wat Pho/Wat Arun) à remplacer par image patrimoine français
   - Audit complet à faire de toutes les URLs Unsplash dans `chateaux.js` + composants pour cohérence patrimoniale française (vérifier qu'aucune photo non-française n'apparaît dans une vitrine)
+
+- **[Phase 6.x] Pass éditorial Tanguy — déduplication images Unsplash** : Sprint S1 Phase 5 a réutilisé des URLs Unsplash entre châteaux pour atteindre `images.length ≥ 3` (fix erreurs validation-donnees) :
+  - `photo-1566073771259-6a8506099945` : Chantilly + Vaux + Briottières + Fontainebleau + Pierrefonds (5 châteaux)
+  - `photo-1520250497591-112f2f40a3f4` : Fontainebleau + Pierrefonds (2)
+  - `photo-1562602833-0f4ab2fc46e3` : Vaux + Chantilly (2)
+  - `photo-1578683010236-d716f9a3f461` : Fontainebleau + Ferté-Saint-Aubin (2)
+  À remplacer par photos uniques par château validées par Tanguy lors du pass éditorial Phase 6.x.
+
+- **[Phase 6.x] Pass éditorial Tanguy — sémantique images Pierrefonds** : Pierrefonds (forteresse arthurienne médiévale néo-gothique) reçoit en Sprint S1 Phase 5 deux URLs Unsplash au caractère plus Renaissance/classique (`photo-1566073771259-6a8506099945` + `photo-1520250497591-112f2f40a3f4`) au lieu de photos médiévales authentiques. À remplacer au pass éditorial Tanguy.
+
+- **[Sprint S2 ou S5] Refactor agent `a11y-axe.cjs` — exclure iframes tiers** : plutôt que relax baseline (Option A choisie Sprint S1 Phase 5, `violationsCritical.max=10`), implémenter Option B propre : configurer axe avec `exclude: 'iframe[src*="youtube.com"]'` dans `scripts/agents/a11y-axe.cjs`. Plus chirurgical, sémantique correcte (axe ne descend plus dans les iframes tiers). Permet de remettre `violationsCritical.max` à 0 même avant la migration HTML5 Phase 4.4. ~30 min.
+
+- **[Sprint S2 ou S5] Audit exhaustif violations a11y "serious"** : 30 violations a11y "serious" actuellement absorbées par baseline (`max=30 actuel=30`, tangent). Distribution probable : `color-contrast` (micro-textes or-sur-crème, eyebrows opacity 0.55, Cormorant italic gris clair) + `aria-prohibited-attr` iframe YouTube. Audit dédié à programmer pour identifier et corriger ou tracer chacune. Pas bloquant CI mais hygiène. ~2-3 h audit + ~5-10 h fix CSS tokens Tanguy.
 
 ### Dette responsive mobile (Sprint S5+ ou pré-prod)
 
@@ -605,7 +618,12 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 **Risque** : si on régénère le seed via `node scripts/generate-seed.cjs > supabase/seed.sql`, l'INSERT offres sera perdu.
 
-**Action S2** : ajouter `buildOffresSQL()` dans le générateur, alimenté par les offres définies dans `src/data/chateaux.js` ou équivalent. Estimé ~30 min.
+**Action S2 — finalisation** : ajouter `buildOffresSQL()` dans le générateur, alimenté par les offres définies dans `src/data/chateaux.js` ou équivalent. Une fois `buildOffresSQL()` ajouté, régénération complète de `supabase/seed.sql` possible sans perdre de données. Estimé ~30 min.
+
+**Patches déjà appliqués (Sprint S1 Phase 4.3d, audit CI 9 mai 2026)** : 3 corrections d'hygiène pour empêcher les futures régénérations de reproduire la régression Phase 4.1 :
+- `deriveOwnerInitiale(propData)` : honor `proprietaires.initiale` legacy (V/F) avant fallback `nom.charAt(0)`
+- `deriveOwnerNomAffiche(propData)` : honor `proprietaires.nomAffiche` legacy (albray/resnaye) avant fallback strip "Famille "
+- `chiffres_cles` : sérialise `c.chiffresCles` en JSONB (au lieu de hardcode NULL)
 
 **Mitigation S1** : la migration `2026-05-09-seed-offre-briottieres.sql` est idempotente et peut être rejouée dans Supabase Dashboard si besoin.
 
