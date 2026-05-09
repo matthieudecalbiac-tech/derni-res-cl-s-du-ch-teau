@@ -314,11 +314,17 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
   3. Label brut distance_paris_label (ALTER TABLE)
   4. Helper `src/services/_mapping.js` aplatit amenities
 
-#### Phase 4 sous-action 4.1 — Schema patch distance_paris_label (en cours)
-- **À commit prochain (Sous-action 4.1)**
+#### Phase 4 sous-action 4.1 — Schema patch distance_paris_label
+- **Commit :** `c6f3f06` — feat(supabase): ajout distance_paris_label S1-δ Phase 4.1
 - **Livré :** colonne `distance_paris_label text` ajoutée dans schema.sql, migration `supabase/migrations/2026-05-08-add-distance-paris-label.sql` (idempotent), inauguration du dossier `supabase/migrations/`
 - **Pattern inauguré :** chaque modif Supabase post-bootstrap = 1 fichier `migrations/YYYY-MM-DD-description.sql`. Le `schema.sql` représente l'état désiré final ; les migrations représentent l'historique chronologique pour les bases déjà déployées.
 - **Sous-actions 4.2-4.7 à venir :** seed update populate, helper mapping, refactor service, refactor App.jsx, refactor HeureAuxDemeures.jsx, tests UI manuels
+
+#### Phase 4 sous-action 4.2 — Seed update distance_paris_label (en cours)
+- **À commit prochain (Sous-action 4.2)**
+- **Livré :** migration `supabase/migrations/2026-05-09-populate-distance-paris-label.sql` (8 UPDATE par slug, idempotente)
+- **Régénération :** `scripts/generate-seed.cjs` mis à jour (cols + values), `supabase/seed.sql` régénéré avec `distance_paris_label` dans chaque INSERT chateau
+- **Données :** valeurs éditoriales d'origine respectées — id 1-6 format "X km · Y min", id 7-8 format "Xh de Paris"
 
 ## Conventions de chantier
 

@@ -160,7 +160,7 @@ ON CONFLICT (code) DO UPDATE SET
 function buildChateauxSQL(chateaux) {
   const cols = [
     "id", "nom", "slug", "region", "departement", "ville", "accroche", "siecle", "style",
-    "distance_paris", "urgence", "coordonnees_lat", "coordonnees_lng",
+    "distance_paris", "distance_paris_label", "urgence", "coordonnees_lat", "coordonnees_lng",
     "histoire", "description", "region_narrative", "region_histoire", "chiffres_cles",
     "images", "video_background_youtube_id",
     "prop_nom", "prop_depuis", "prop_initiale", "prop_nom_affiche",
@@ -185,6 +185,7 @@ function buildChateauxSQL(chateaux) {
       sqlEscape(c.siecle),
       sqlEscape(c.style),
       sqlEscape(parseDistanceParis(c.distanceParis)),
+      sqlEscape(c.distanceParis ?? null),       // label brut éditorial
       sqlEscape(c.urgence),
       sqlEscape(coord.lat ?? null),
       sqlEscape(coord.lng ?? null),
