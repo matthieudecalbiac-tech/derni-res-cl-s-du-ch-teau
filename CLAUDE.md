@@ -326,8 +326,8 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
 - **Régénération :** `scripts/generate-seed.cjs` mis à jour (cols + values), `supabase/seed.sql` régénéré avec `distance_paris_label` dans chaque INSERT chateau
 - **Données :** valeurs éditoriales d'origine respectées — id 1-6 format "X km · Y min", id 7-8 format "Xh de Paris"
 
-#### Phase 4 sous-action 4.3 — Helper _mapping.js (en cours)
-- **À commit prochain (Sous-action 4.3)**
+#### Phase 4 sous-action 4.3 — Helper _mapping.js
+- **Commit :** `e8890e2` — feat(react): helper mapping Supabase ↔ React + Vitest 32/32 S1-δ Phase 4.3
 - **Livré :** infrastructure Vitest + helper de mapping Supabase ↔ React
   - `src/services/_mapping.js` (320 lignes) : 6 mappers atomiques + 1 wrapper `mapChateau`
   - `src/services/__fixtures__/chateaux.fixtures.js` (304 lignes) : BRIOTTIERES (avec offre B) + VAUX (sans offre B) + MINIMAL (edge case)
@@ -344,6 +344,27 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
 - **Module B détecté par UUID** `MODULE_B_ID` (déterministe via SHA-1 seed)
 - **Robustesse :** fallback null/[] systématique, JSDoc complète, aucun mapper ne crash
 - **chambresRestantes :** hardcoded null (RPC count_chambres_disponibles en S2)
+
+#### Phase 4 sous-action 4.4 — Refactor chateauxService.js Supabase-backed (en cours)
+- **À commit prochain (Sous-action 4.4)**
+- **Livré :**
+  - `src/services/chateauxService.js` refactor complet (200 lignes)
+  - `src/services/__tests__/chateauxService.test.js` (193 lignes, 14 tests)
+- **API publique (5 fonctions, drop-in replacement) :**
+  - `getChateaux({ excludeMocks })` → cache global, 1 round-trip
+  - `getChateauById(id)` / `getChateauBySlug(slug)` → lookups locaux
+  - `getCompteurs({ excludeMocks })` → dérivé du cache (0 round-trip extra)
+  - `invalidateCache()` → NEW Phase 4.4 (pour S2 booking flow + S5 admin UI)
+- **Architecture cache :** Map mémoire TTL 5 min, 1 round-trip Supabase pour servir N requêtes UI
+- **Helper centralisé :** `_isMock(chateau)` (`estLaUne === false`) — fini le hardcoding `id===1||2||3` dans 4-5 endroits
+- **VITE_FAKE_LATENCY conservé** pour DX tests UI Phase 4.7
+- **Compat hook useChateaux** : aucun changement requis (signatures préservées)
+- **Tests :** 46/46 (32 mapper + 14 service avec mock Supabase chaining via helpers `mockSupabaseSuccess`/`Error`)
+- **Dette tracée** : `compteurs.chambresRestantes = 0` (mapper retourne null en Phase 4) — sera réparée S2 via RPC `count_chambres_disponibles()`
+- **Dette tracée pour Sous-action 4.5 :**
+  - JSDoc `useChateaux.js:13` mentionne encore `isDemoMock` (sémantique remplacée par `estLaUne === false` via `_isMock()` privé) — mise à jour cosmétique
+  - `compteurs.chambresUrgentes` retourne désormais un count de châteaux avec urgence (pas la somme des chambres restantes). À renommer en `compteurs.nbChateauxUrgents` + adapter le wording JSX `BandeauOffres.jsx:13` ("${compteurs.nbChateauxUrgents} châteaux en dernière minute" plutôt que "chambres disponibles")
+  - **Justification du report** : le scope strict de 4.4 est le service, pas le rename d'API consommée par les composants. 4.5 (App.jsx) est le bon moment pour toucher les composants connexes.
 
 ## Conventions de chantier
 
