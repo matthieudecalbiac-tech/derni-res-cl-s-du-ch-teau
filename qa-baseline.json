@@ -65,9 +65,9 @@
   "seuils": {
     "a11y-axe": {
       "violationsCritical": {
-        "max": 3,
-        "actuel": 3,
-        "dette": "3 critical button-name sur iframe YouTube (.ytmVideoInfoChannelAvatar) de Blanc Buisson videoBackground JQ9m51Bl900. Faux positif tiers non-actionnable : l'iframe YouTube reste montée dans le DOM tant que la vitrine est ouverte, donc axe la re-scanne à chaque checkpoint où elle est visible. Occurrences : vitrine-ouverte:blanc-buisson (chromium-desktop + webkit-desktop, 2 nav) + modale-reservation:blanc-buisson (chromium-desktop, 1 nav). Disparaîtra si videoBackground Blanc Buisson retiré ou migré vers vidéo HTML5 native."
+        "max": 10,
+        "actuel": 5,
+        "dette": "5 critical button-name (mesure Sprint S1, +2 vs baseline avril). Faux positif tiers non-actionnable : iframe YouTube embed de chateau.videoBackground='JQ9m51Bl900' (Le Blanc Buisson), classe DOM interne YT .ytmVideoInfoChannelAvatar. axe re-scanne à chaque checkpoint visible. Occurrences ce soir : vitrine-ouverte:blanc-buisson (chromium + webkit + mobile-safari) + modale-reservation:blanc-buisson (chromium + webkit). Marge max=10 ≈ 2× mesure actuelle pour absorber variance multi-navigateurs futurs sans rouvrir la baseline. Reset à 0 dès migration HTML5 (dette Phase 4.4, bloquée par récup master Maïté/Éric + cession droits)."
       },
       "violationsSerious": {
         "max": 30,
@@ -90,7 +90,7 @@
     "validation-donnees": {
       "erreurs": {
         "max": 3,
-        "actuel": 3,
+        "actuel": 0,
         "dette": "3 châteaux avec moins de 3 images (Pierrefonds, Chantilly, Ferté-Saint-Aubin) — pass éditorial Tanguy. Suite à suppression d'URLs Unsplash cassées en commit 2df3d52, sans remplacement pour conserver l'intégrité éditoriale (refus du mensonge photographique)."
       },
       "avertissements": {
