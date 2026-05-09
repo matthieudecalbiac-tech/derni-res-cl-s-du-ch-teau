@@ -78,6 +78,9 @@ jobs:
         run: npx playwright install chromium --with-deps
 
       - name: Start Vite dev server (and wait for ready)
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: |
           nohup npm run dev -- --port 5174 --strictPort > /tmp/vite.log 2>&1 &
           echo "VITE_PID=$!" >> $GITHUB_ENV
@@ -158,6 +161,9 @@ jobs:
         run: npx playwright install chromium webkit --with-deps
 
       - name: Start Vite dev server (and wait for ready)
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: |
           nohup npm run dev -- --port 5174 --strictPort > /tmp/vite.log 2>&1 &
           echo "VITE_PID=$!" >> $GITHUB_ENV

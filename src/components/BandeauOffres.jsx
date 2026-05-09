@@ -10,7 +10,7 @@ export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines, onO
       icone: "◈",
       titre: "Les Dernières Clés",
       desc: "Les chambres ouvertes cette semaine, à court terme.",
-      lien: `${compteurs.chambresUrgentes} chambres disponibles →`,
+      lien: "Les Dernières Clés du moment →",
       action: "dernieres",
     },
     {

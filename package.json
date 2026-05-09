@@ -17,7 +17,9 @@
     "qa:prod": "cross-env QA_TARGET=prod node scripts/qa-run.cjs --fast",
     "qa:baseline": "node scripts/qa-check-baseline.cjs",
     "qa:ci": "npm run qa:fast && node scripts/qa-check-baseline.cjs --strict",
-    "validate:chateaux": "node scripts/validate-chateaux.cjs"
+    "validate:chateaux": "node scripts/validate-chateaux.cjs",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.11.2",
@@ -27,9 +29,11 @@
     "cross-env": "^10.1.0",
     "lighthouse": "^13.1.0",
     "vite": "^6.0.3",
+    "vitest": "^3.2.4",
     "wait-on": "^9.0.5"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.105.4",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   }

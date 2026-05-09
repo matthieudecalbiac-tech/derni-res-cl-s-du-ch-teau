@@ -77,6 +77,15 @@ async function ouvrirChateauModal(page, chateau) {
   // (cartes éditoriales .journal-carte + index grille .journal-index-entree).
   // onClick déclenche onOuvrirChateau → App.ouvrirChateau → ChateauModal
   // (aiguillage estLaUne ? VitrineChateau : ChateauModal dans App.jsx:114-116).
+
+  // Garantit que HeureAuxDemeures a fini son render initial après fetch async Supabase
+  // Sans ce wait, mobile-safari peut atteindre le filter avant que React n'ait rendu les cartes
+  // (domcontentloaded ne couvre pas l'état post-fetch des SPA)
+  await expect(
+    page.locator('.journal-carte, .journal-index-entree').first(),
+    'HeureAuxDemeures: aucun château rendu (data Supabase pas hydratée ?)'
+  ).toBeVisible({ timeout: 10000 });
+
   const article = page.locator('.journal-carte, .journal-index-entree')
     .filter({ hasText: regexNom(chateau.nom) });
 

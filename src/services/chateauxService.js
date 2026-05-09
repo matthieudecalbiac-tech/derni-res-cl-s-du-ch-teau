@@ -1,23 +1,73 @@
-/**
- * Service couche données châteaux
- *
- * Aujourd'hui : statique (lit src/data/chateaux.js)
- * Demain : Supabase (await supabase.from('chateaux').select(...))
- *
- * Toutes les fonctions sont async pour préparer le swap
- * sans toucher aux hooks ni composants consommateurs.
- *
- * Phase 2.3 (4 mai 2026)
- */
+// ═══════════════════════════════════════════════════════════════════════════
+// chateauxService.js — Service de lecture châteaux Supabase-backed
+// ═══════════════════════════════════════════════════════════════════════════
+// Sprint S1-δ Phase 4.4 — Refactor depuis lecture src/data/chateaux.js
+//
+// ARCHITECTURE
+//   - Cache global "all_chateaux" en Map mémoire (TTL 5 min)
+//   - getChateaux({ excludeMocks }) charge tout, filtre côté client
+//   - getChateauById/BySlug/Compteurs : lookups locaux après cache
+//   - 1 seul round-trip Supabase pour servir N requêtes UI
+//   - mapChateau() transforme rowSupabase → format React (Phase 4.3)
+//
+// API publique (drop-in replacement de l'ancien service)
+//   - getChateaux({ excludeMocks })  → Promise<Chateau[]>
+//   - getChateauById(id)             → Promise<Chateau | null>
+//   - getChateauBySlug(slug)         → Promise<Chateau | null>
+//   - getCompteurs({ excludeMocks }) → Promise<Compteurs>
+//   - invalidateCache()              → void  (NEW pour S2 booking flow)
+//
+// SÉMANTIQUE excludeMocks
+//   - false (défaut) : retourne TOUS les châteaux (8 en Sprint S1)
+//   - true : retourne uniquement les châteaux estLaUne === true
+//     (= Briottières + Blanc Buisson en S1, plus en S2+)
+//
+// DETTE TECHNIQUE NOTÉE
+//   - chambresRestantes : null en Phase 4 (mapper Phase 4.3)
+//   - Conséquence : compteurs.chambresRestantes = 0 (somme de nulls)
+//   - Sera réparée S2 via RPC Supabase count_chambres_disponibles()
+//
+// ROBUSTESSE
+//   - Erreurs Supabase loggées console.error + propagées au caller
+//   - Cache miss après TTL → refresh transparent
+//   - VITE_FAKE_LATENCY conservé pour DX (tests UI ralentis Phase 4.7)
+// ═══════════════════════════════════════════════════════════════════════════
 
-import { chateaux as chateauxData } from "../data/chateaux";
+import { supabase } from "../lib/supabase.js";
+import { mapChateau } from "./_mapping.js";
 
-/**
- * Helper interne : simule une latence Supabase pour tester les loading states.
- * Activé via VITE_FAKE_LATENCY env var (en ms). Défaut : 0 (pas de latence).
- *
- * Usage : VITE_FAKE_LATENCY=300 npm run dev
- */
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CONSTANTES
+// ─────────────────────────────────────────────────────────────────────────────
+
+const CACHE_TTL_MS  = 5 * 60 * 1000;
+const CACHE_KEY_ALL = "all_chateaux";
+
+// SELECT avec auto-joins pour 1 round-trip
+const SELECT_FULL = `
+  *,
+  chambres(*),
+  chateau_timeline(*),
+  chateau_alentours(*),
+  chateau_amenities(*),
+  offres(*)
+`;
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CACHE & HELPERS PRIVÉS
+// ─────────────────────────────────────────────────────────────────────────────
+
+// Cache module-level. 1 seule entrée 'all_chateaux' avec timestamp.
+// Format : { data: Chateau[], cachedAt: number }
+const _cache = new Map();
+
+function _isCacheValid(entry) {
+  return entry && (Date.now() - entry.cachedAt < CACHE_TTL_MS);
+}
+
+// VITE_FAKE_LATENCY (DX, conservé depuis l'ancien service Phase 2.3)
 const FAKE_LATENCY_MS = (() => {
   const raw = import.meta.env.VITE_FAKE_LATENCY;
   if (!raw) return 0;
@@ -25,63 +75,147 @@ const FAKE_LATENCY_MS = (() => {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
 })();
 
-function applyFakeLatency() {
-  if (FAKE_LATENCY_MS === 0) return Promise.resolve();
-  return new Promise((resolve) => setTimeout(resolve, FAKE_LATENCY_MS));
+async function _withFakeLatency() {
+  if (FAKE_LATENCY_MS > 0) {
+    await new Promise((resolve) => setTimeout(resolve, FAKE_LATENCY_MS));
+  }
 }
 
 /**
- * Liste tous les châteaux, optionnellement sans les mocks.
+ * Helper : un château est "mock" s'il n'est PAS estLaUne.
+ * Centralisé ici pour éviter le hardcoding `id===1||id===2||...`
+ * @param {Object} chateau - Château au format React (mappé)
+ * @returns {boolean}
+ */
+function _isMock(chateau) {
+  return chateau?.estLaUne !== true;
+}
+
+/**
+ * Round-trip Supabase + mapping.
+ * @returns {Promise<Object[]>} Tableau de châteaux mappés (format React).
+ * @throws Si Supabase retourne une erreur.
+ */
+async function _fetchAllChateaux() {
+  const { data, error } = await supabase
+    .from("chateaux")
+    .select(SELECT_FULL)
+    .order("est_la_une", { ascending: false })
+    .order("nom", { ascending: true });
+
+  if (error) {
+    console.error("[chateauxService] Supabase error:", error);
+    throw new Error(`Failed to fetch chateaux: ${error.message}`);
+  }
+
+  return (data ?? []).map(mapChateau).filter(Boolean);
+}
+
+/**
+ * Récupère le tableau complet (cache si possible, sinon refresh).
+ * Helper interne utilisé par toutes les fonctions publiques.
+ * @returns {Promise<Object[]>}
+ */
+async function _getAllCached() {
+  const cached = _cache.get(CACHE_KEY_ALL);
+  if (_isCacheValid(cached)) {
+    return cached.data;
+  }
+  const fresh = await _fetchAllChateaux();
+  _cache.set(CACHE_KEY_ALL, {
+    data: fresh,
+    cachedAt: Date.now(),
+  });
+  return fresh;
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// API PUBLIQUE
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Retourne tous les châteaux (avec jointures complètes).
+ *
+ * @param {Object} [options]
+ * @param {boolean} [options.excludeMocks=false] - Si true, ne retourne
+ *   que les châteaux `estLaUne === true` (Briottières + Blanc Buisson en S1).
+ * @returns {Promise<Object[]>}
  */
 export async function getChateaux({ excludeMocks = false } = {}) {
-  await applyFakeLatency();
-  return excludeMocks
-    ? chateauxData.filter((c) => !c.isDemoMock)
-    : chateauxData;
+  await _withFakeLatency();
+  const all = await _getAllCached();
+  return excludeMocks ? all.filter((c) => !_isMock(c)) : all;
 }
 
 /**
- * Récupère un château par son slug.
- */
-export async function getChateauBySlug(slug) {
-  await applyFakeLatency();
-  return chateauxData.find((c) => c.slug === slug) || null;
-}
-
-/**
- * Récupère un château par son id.
+ * Retourne un château par UUID. Lookup local sur le cache.
+ *
+ * @param {string} id - UUID Supabase
+ * @returns {Promise<Object | null>}
  */
 export async function getChateauById(id) {
-  await applyFakeLatency();
-  return chateauxData.find((c) => c.id === id) || null;
+  if (!id) return null;
+  await _withFakeLatency();
+  const all = await _getAllCached();
+  return all.find((c) => c.id === id) ?? null;
 }
 
 /**
- * Compteurs agrégés depuis la liste des châteaux.
+ * Retourne un château par slug. Lookup local sur le cache.
+ *
+ * @param {string} slug - Slug humain (ex: "les-briottieres")
+ * @returns {Promise<Object | null>}
+ */
+export async function getChateauBySlug(slug) {
+  if (!slug) return null;
+  await _withFakeLatency();
+  const all = await _getAllCached();
+  return all.find((c) => c.slug === slug) ?? null;
+}
+
+/**
+ * Retourne les compteurs agrégés pour BandeauOffres.
+ * Dérivé localement depuis le cache `getChateaux()` — pas de round-trip
+ * Supabase supplémentaire.
+ *
+ * DETTE Phase 4.4 : `chambresRestantes` est 0 tant que le mapper retourne
+ * null sur cette propriété. Sera réparée S2 via RPC
+ * `count_chambres_disponibles()`.
+ *
+ * Phase 4.5 (option C) : retrait de `chambresUrgentes` — BandeauOffres
+ * affiche maintenant un slogan fixe sans chiffre dynamique.
+ *
+ * @param {Object} [options]
+ * @param {boolean} [options.excludeMocks=false]
+ * @returns {Promise<{
+ *   nbChateaux: number,
+ *   nbVitrinesPremium: number,
+ *   chambresRestantes: number,
+ * }>}
  */
 export async function getCompteurs({ excludeMocks = false } = {}) {
-  await applyFakeLatency();
-  const liste = excludeMocks
-    ? chateauxData.filter((c) => !c.isDemoMock)
-    : chateauxData;
-
-  const parRegion = liste.reduce((acc, c) => {
-    acc[c.region] = (acc[c.region] || 0) + 1;
-    return acc;
-  }, {});
-
+  const chateaux = await getChateaux({ excludeMocks });
   return {
-    total: liste.length,
-    parRegion,
-    regionsCouvertes: Object.keys(parRegion).length,
-    urgences: liste.filter((c) => c.urgence).length,
-    urgentesJ7: liste.filter((c) => c.urgence === "J-7").length,
-    chambresRestantes: liste.reduce(
-      (sum, c) => sum + (c.chambresRestantes || 0),
+    nbChateaux: chateaux.length,
+    nbVitrinesPremium: chateaux.filter((c) => !_isMock(c)).length,
+    // Dette Phase 4.4 — somme de nulls = 0 jusqu'à RPC S2
+    chambresRestantes: chateaux.reduce(
+      (sum, c) => sum + (c.chambresRestantes ?? 0),
       0
     ),
-    chambresUrgentes: liste
-      .filter((c) => c.urgence)
-      .reduce((sum, c) => sum + (c.chambresRestantes || 0), 0),
   };
+}
+
+/**
+ * Invalide le cache. À appeler après une mutation Supabase
+ * (réservation, update château) qui doit être visible immédiatement.
+ *
+ * Phase 4.4 expose cette fonction sans encore l'utiliser — pour S2
+ * booking flow et S5 admin UI.
+ *
+ * @returns {void}
+ */
+export function invalidateCache() {
+  _cache.clear();
 }

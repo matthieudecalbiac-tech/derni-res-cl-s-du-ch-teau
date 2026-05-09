@@ -20,15 +20,15 @@ function weatherCodeLabelBref(code) {
   return "variable";
 }
 
-function getAmbianceLieuDit(id, code) {
+function getAmbianceLieuDit(slug, code) {
   const key = weatherCodeKey(code);
-  const entry = ambiances[id]?.meteoLieuDit?.[key];
+  const entry = ambiances[slug]?.meteoLieuDit?.[key];
   if (!entry || entry.startsWith("/* TODO")) return null;
   return entry;
 }
 
-function getPhrase(id, plage) {
-  const entry = ambiances[id];
+function getPhrase(slug, plage) {
+  const entry = ambiances[slug];
   if (!entry) return null;
   const p = entry[plage] ?? entry.aprem;
   if (!p || p.startsWith("/* TODO")) return null;
@@ -44,16 +44,25 @@ function tronquerPhrase(s, max = 55) {
 
 export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres }) {
   const { chateaux, loading, error } = useChateaux();
-  // TODO — sélection curatoriale dynamique à venir.
-  // Pour l'instant : 3 cartes postales (ids 6, 5, 1) puis 4 entrées d'index (7, 8, 2, 3).
+  /**
+   * Sélection éditoriale "Heure aux demeures" — choix patrimoniaux.
+   * Refactor Phase 4.6 : numbers (legacy) → slugs (UUIDs Supabase).
+   *
+   * - slugsCartes : 3 châteaux narratifs en cartes hero
+   *     Pierreclos (vigne Mâconnais), Ferté-St-Aubin (Sologne intime),
+   *     Vaux-le-Vicomte (Versailles inspiration)
+   * - slugsIndex : 4 châteaux en index visuel secondaire
+   *     2 vedettes (Briottières + Blanc Buisson) + 2 spectaculaires
+   *     (Pierrefonds néo-médiéval + Chantilly Condé)
+   */
   const cartes = useMemo(() => {
-    const idsCartes = [6, 5, 1];
-    return idsCartes.map((id) => chateaux.find((c) => c.id === id)).filter(Boolean);
+    const slugsCartes = ["pierreclos", "ferte-saint-aubin", "vaux-le-vicomte"];
+    return slugsCartes.map((slug) => chateaux.find((c) => c.slug === slug)).filter(Boolean);
   }, [chateaux]);
 
   const index = useMemo(() => {
-    const idsIndex = [7, 8, 2, 3];
-    return idsIndex.map((id) => chateaux.find((c) => c.id === id)).filter(Boolean);
+    const slugsIndex = ["les-briottieres", "blanc-buisson", "pierrefonds", "chantilly"];
+    return slugsIndex.map((slug) => chateaux.find((c) => c.slug === slug)).filter(Boolean);
   }, [chateaux]);
 
   const affiches = useMemo(() => [...cartes, ...index], [cartes, index]);
@@ -74,9 +83,9 @@ export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres })
         const entries = Array.isArray(data) ? data : [data];
         const map = {};
         entries.forEach((entry, i) => {
-          const id = affiches[i]?.id;
-          if (id == null) return;
-          map[id] = {
+          const slug = affiches[i]?.slug;
+          if (!slug) return;
+          map[slug] = {
             temp: entry?.current?.temperature_2m,
             code: entry?.current?.weathercode,
           };
@@ -96,10 +105,10 @@ export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres })
       {/* Bloc A — Trois cartes postales */}
       <div className="journal-demeures-cartes">
         {cartes.map((c) => {
-          const m = meteo[c.id];
-          const lieuDit = getAmbianceLieuDit(c.id, m?.code);
+          const m = meteo[c.slug];
+          const lieuDit = getAmbianceLieuDit(c.slug, m?.code);
           const labelBref = weatherCodeLabelBref(m?.code);
-          const phrase = getPhrase(c.id, plage);
+          const phrase = getPhrase(c.slug, plage);
           return (
             <article
               key={c.id}
@@ -145,8 +154,8 @@ export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres })
 
         <div className="journal-index-grille">
           {index.map((c) => {
-            const m = meteo[c.id];
-            const phrase = tronquerPhrase(getPhrase(c.id, plage), 55);
+            const m = meteo[c.slug];
+            const phrase = tronquerPhrase(getPhrase(c.slug, plage), 55);
             return (
               <article
                 key={c.id}
