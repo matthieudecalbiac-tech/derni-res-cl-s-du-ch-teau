@@ -189,6 +189,8 @@ export const chateaux = [
     coordonnees: { lat: 49.3442, lng: 2.9797 },
     images: [
       "https://images.unsplash.com/photo-1533154683836-84ea7a0bc310?w=1200&q=80",
+      "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80",
+      "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1200&q=80",
     ],
     style: "Médiéval restauré",
     siecle: "XIIe–XIXe",
@@ -364,6 +366,7 @@ export const chateaux = [
     images: [
       "https://images.unsplash.com/photo-1659526062822-72f35fedff25?w=1200&q=80",
       "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80",
+      "https://images.unsplash.com/photo-1562602833-0f4ab2fc46e3?w=1200&q=80",
     ],
     style: "Renaissance & Classique",
     siecle: "XVIe–XIXe",
@@ -715,6 +718,7 @@ export const chateaux = [
     images: [
       "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1200&q=80",
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1200&q=80",
+      "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1200&q=80",
     ],
     style: "Classique ligérien",
     siecle: "XVIIe",
