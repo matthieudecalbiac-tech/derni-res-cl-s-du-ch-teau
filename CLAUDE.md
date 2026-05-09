@@ -366,8 +366,8 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
   - `compteurs.chambresUrgentes` retourne désormais un count de châteaux avec urgence (pas la somme des chambres restantes). À renommer en `compteurs.nbChateauxUrgents` + adapter le wording JSX `BandeauOffres.jsx:13` ("${compteurs.nbChateauxUrgents} châteaux en dernière minute" plutôt que "chambres disponibles")
   - **Justification du report** : le scope strict de 4.4 est le service, pas le rename d'API consommée par les composants. 4.5 (App.jsx) est le bon moment pour toucher les composants connexes.
 
-#### Phase 4 sous-action 4.5 — Refactor App.jsx + dette 4.5 (en cours)
-- **À commit prochain (Sous-action 4.5)**
+#### Phase 4 sous-action 4.5 — Refactor App.jsx + dette 4.5
+- **Commit :** `d86fb7b` — refactor(react): App.jsx estLaUne + dette 4.5 wording S1-δ Phase 4.5
 - **Périmètre réel (audit) :**
   - App.jsx ligne 114 : NO-OP ✅ déjà sur `estLaUne === true` (dette CLAUDE.md "À régler avant 9e château" déjà résolue dans Sprint 5-β v2 — à retirer de la liste dette technique)
 - **Livré :**
@@ -378,6 +378,31 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
 - **Storytelling :** Option C choisie pour éviter les chiffres incohérents qu'il faudrait synchroniser avec la réalité. Le slogan reste vrai indéfiniment.
 - **Tests :** 46/46 passing (32 mapper + 14 service après mutation assertion)
 - **Validation visuelle requise :** Matthieu lance `npm run dev` et confirme que la home affiche correctement (sans erreur console, BandeauOffres avec slogan fixe, aiguillage VitrineChateau OK pour Briottières/Blanc Buisson)
+
+#### Phase 4 sous-action 4.6 — Refactor HeureAuxDemeures.jsx + ambiances.js (en cours)
+- **À commit prochain (Sous-action 4.6)**
+- **Périmètre élargi (audit ACTION 1-2) :**
+  - Découverte audit : `ambiances.js` keyé par numbers (1-8) → cassé avec UUIDs Supabase, lookup retourne `undefined` → storytelling météo/ambiance silencieusement disparu
+  - Décision Option A actée : refactor `ambiances.js` keys numbers → slugs (cohérent avec Q1 "slugs partout")
+  - Mapping 8/8 confirmé via commentaires fichier ambiances.js (concordance directe avec slugs seed Supabase S1-γ)
+- **Livré :**
+  - `src/data/ambiances.js` : 8 keys numbers (1-8) renommées en slugs (vaux-le-vicomte, pierrefonds, chantilly, fontainebleau, ferte-saint-aubin, pierreclos, les-briottieres, blanc-buisson)
+  - JSDoc fichier ambiances.js explicitant le refactor + structure (8 châteaux × 8 phrases = 64 phrases éditoriales)
+  - **Contenu éditorial 100% préservé** (les 64 phrases poétiques Tanguy intactes)
+  - `src/components/HeureAuxDemeures.jsx` : `idsCartes [6,5,1]` et `idsIndex [7,8,2,3]` refactorés en `slugsCartes`/`slugsIndex` avec commentaire éditorial
+  - Adaptation `ambiances[c.id]` → `ambiances[c.slug]`, `meteo[c.id]` → `meteo[c.slug]` (5 sites de modification : helpers `getAmbianceLieuDit`/`getPhrase` paramètres `id` → `slug`, fetch météo `affiches[i]?.slug`, JSX `meteo[c.slug]`)
+  - `key={c.id}` JSX préservé (UUIDs string OK pour React keys)
+- **Décisions design (Option C/A/A) :**
+  - Q1 : slugs + commentaire éditorial (avec extension Option A pour ambiances.js — finding hors brief)
+  - Q2 : amenities NO-OP (non utilisées dans HeureAuxDemeures)
+  - Q3 : pas de tests Vitest (validation visuelle uniquement)
+- **Tests :** 46/46 passing (mapper + service inchangés, refactor pure JSX + data)
+- **Validation visuelle requise** : Matthieu lance `npm run dev` et confirme :
+  - 3 cartes "Heure aux demeures" : Pierreclos + Ferté-St-Aubin + Vaux-le-Vicomte
+  - 4 index : Briottières + Blanc Buisson + Pierrefonds + Chantilly
+  - **CRITIQUE** : phrases poétiques d'ambiance affichées par château (matin/après-midi selon heure)
+  - **CRITIQUE** : météo réelle affichée par château (température, condition)
+  - Console DevTools : pas d'erreur rouge
 
 ## Conventions de chantier
 

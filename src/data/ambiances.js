@@ -4,10 +4,24 @@
 // une action humaine en cours, un ancrage géographique local.
 // Jamais d'adjectifs vides, jamais de "vous", jamais promotionnel.
 
+/**
+ * Ambiances éditoriales — phrases poétiques par château et par moment.
+ *
+ * Structure par entrée :
+ * - matin / aprem / crepuscule / nuit : phrases narratives selon l'heure
+ * - meteoLieuDit : phrases narratives selon condition météo
+ *   (clair, nuageux, pluie, variable)
+ *
+ * Phase 4.6 (9 mai 2026) : keys refactorées de numbers (legacy
+ * data/chateaux.js id 1-8) en slugs (compatible UUIDs Supabase).
+ * Le composant HeureAuxDemeures.jsx consomme via ambiances[chateau.slug].
+ *
+ * Total : 8 châteaux × 8 phrases = 64 phrases éditoriales.
+ */
 export default {
 
   // ─── 1 · VAUX-LE-VICOMTE (Île-de-France) ──────────────────────
-  1: {
+  "vaux-le-vicomte": {
     matin: "Le brouillard se retire des douves. Les jardiniers passent le râteau sur les parterres brodés avant l'ouverture, comme chaque matin depuis trois siècles et demi.",
     aprem: "La géométrie de Le Nôtre projette ses ombres longues sur le Grand Canal. Une calèche remonte l'allée centrale, au pas.",
     crepuscule: "Les premières chandelles s'allument dans l'enfilade des salons. Ce soir, deux mille bougies brûleront jusqu'à minuit dans le grand château.",
@@ -21,7 +35,7 @@ export default {
   },
 
   // ─── 2 · PIERREFONDS (Hauts-de-France) ────────────────────────
-  2: {
+  "pierrefonds": {
     matin: "La brume remonte de la forêt de Compiègne. Les corbeaux du donjon commencent leur ronde habituelle autour des tours de Viollet-le-Duc.",
     aprem: "Un cavalier traverse la clairière en contrebas. Le soleil frappe les tuiles vernissées des toits, comme dans une gravure du Second Empire.",
     crepuscule: "La forteresse se découpe en noir contre un ciel d'encre. Dans la grande salle, le feu est allumé sous la cheminée de pierre.",
@@ -35,7 +49,7 @@ export default {
   },
 
   // ─── 3 · CHANTILLY (Hauts-de-France) ──────────────────────────
-  3: {
+  "chantilly": {
     matin: "Les pur-sang sortent des Grandes Écuries pour l'entraînement. On entend les sabots sur les pavés et le souffle court des lads qui reviennent de l'hippodrome.",
     aprem: "Dans le Cabinet des Livres, un conservateur tourne les pages d'un manuscrit enluminé du duc d'Aumale. Les visiteurs chuchotent devant le Raphaël.",
     crepuscule: "La lumière dorée tombe sur le Grand Château et ses douves. Un cygne trace une ligne lente sur le miroir d'eau du parterre.",
@@ -49,7 +63,7 @@ export default {
   },
 
   // ─── 4 · FONTAINEBLEAU (Île-de-France) ────────────────────────
-  4: {
+  "fontainebleau": {
     matin: "Les grimpeurs sont déjà sur les chaos de grès. On entend les cris étouffés depuis la cour du Cheval-Blanc, où Napoléon fit ses adieux.",
     aprem: "Un guide traverse la galerie François Ier, expliquant les stucs italiens du Primatice à quatre visiteurs silencieux.",
     crepuscule: "La forêt prend ses teintes bronze. Le château se vide des derniers visiteurs, et les appartements royaux retrouvent leur silence de musée.",
@@ -63,7 +77,7 @@ export default {
   },
 
   // ─── 5 · LA FERTÉ-SAINT-AUBIN (Centre-Val de Loire) ──────────
-  5: {
+  "ferte-saint-aubin": {
     matin: "Les brumes de Sologne s'effilochent lentement au-dessus des étangs. Dans les cuisines d'époque, le feu est allumé sous le grand chaudron de cuivre.",
     aprem: "Un héron s'est posé sur le grand étang. Les cuisines du XVIIᵉ sentent la pâte à pain et le gibier de Sologne qu'on prépare pour le soir.",
     crepuscule: "La famille rentre de promenade dans les allées du parc. Le feu crépite dans le grand salon, et les vins de Loire attendent sur la console.",
@@ -77,7 +91,7 @@ export default {
   },
 
   // ─── 6 · PIERRECLOS (Bourgogne) ───────────────────────────────
-  6: {
+  "pierreclos": {
     matin: "Le soleil sort derrière la roche de Solutré. Dans les vignes du Mâconnais, les ouvriers commencent l'épamprage des ceps, rang après rang.",
     aprem: "La lumière descend sur le Mâconnais. Le vigneron prépare la dernière dégustation en cave médiévale, où six millésimes attendent sur la pierre.",
     crepuscule: "La vallée de la Saône prend des teintes d'ambre. Depuis le donjon, par temps clair, les Alpes apparaissent, bleues, à l'horizon.",
@@ -91,7 +105,7 @@ export default {
   },
 
   // ─── 7 · LES BRIOTTIÈRES (Pays de la Loire) ───────────────────
-  7: {
+  "les-briottieres": {
     matin: "La brume se lève sur le parc à l'anglaise. Madeleine dresse le petit-déjeuner sous la véranda, et l'on entend un cheval au loin dans les allées.",
     aprem: "Madeleine dresse la table du dîner dans le grand salon. Les lavandes sentent déjà l'été et l'on entend, au loin, le pas d'un cheval sur l'allée.",
     crepuscule: "Les premières chandelles s'allument dans la salle à manger des Valbray. Arnaud descend à la cave chercher un Savennières pour le dîner.",
@@ -105,7 +119,7 @@ export default {
   },
 
   // ─── 8 · LE BLANC BUISSON (Normandie) ─────────────────────────
-  8: {
+  "blanc-buisson": {
     matin: "Le soleil glisse sur les douves lisses. Dans le parc classé, les chênes centenaires s'éveillent au chant des oiseaux du Pays d'Ouche.",
     aprem: "Le pont-levis brille sous la pluie fine. Dans la salle de garde, le feu est préparé pour le soir, et Maïté reçoit des hôtes dans le grand salon.",
     crepuscule: "La forteresse du XIIIᵉ se découpe en noir contre un ciel normand. Les chandelles sont allumées dans la Suite du Donjon, pour ce soir.",
