@@ -574,3 +574,27 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
   - Coquille « Brouillaird » → « Brouillard » dans `VitrineChateau` diptyque (~ligne 322)
   - Image fond diptyque jour : URL Unsplash temple asiatique (Wat Pho/Wat Arun) à remplacer par image patrimoine français
   - Audit complet à faire de toutes les URLs Unsplash dans `chateaux.js` + composants pour cohérence patrimoniale française (vérifier qu'aucune photo non-française n'apparaît dans une vitrine)
+
+### Dette responsive mobile (Sprint S5+ ou pré-prod)
+
+**Détectée** : Sprint S1-δ Phase 4.7 (9 mai 2026) — Matthieu a testé en mode iPhone (375px) et tablet (768px) via Chrome DevTools Device Emulation.
+
+**Décision Sprint S1** : ne pas fixer maintenant. Polish responsive appartient à Sprint 5 (Tanguy direction artistique) ou pré-prod (juin 2026). Refactor CSS isolé du sprint Supabase J+30.
+
+**6 anomalies à corriger** :
+
+1. **Hero home mobile** : "LA VIE DE CHÂTEAU vous attend" wrappe en plusieurs lignes, "vous attend" apparaît derrière la voiture vidéo background. Lisible mais pas optimal.
+
+2. **Bandeau Fondation Patrimoine mobile** : texte wrappe en 3 lignes ("Aidez-nous à préserver le patrimoine..."), lisible mais pas optimal.
+
+3. **Header VitrinesPermanentes modal** : "Vitrines permanentes" wrappe en 2 lignes au lieu d'une. CSS à adapter dans `.vc3-*` ou équivalent.
+
+4. **Menu hamburger superposition** : ouvrir le burger menu en mode mobile (avec modal VitrinesPermanentes ouvert) superpose le titre du modal et le titre du burger. À tester aussi en home directe (sans modal ouvert) pour isoler le bug.
+
+5. **Header DernieresCles modal mobile** : "Les Clés du Château" + "Les Dernières Clés" affichés en 2 colonnes côte-à-côte alors qu'ils devraient être empilés verticalement.
+
+6. **VitrineChateau en mode tablet (768px)** : layout cassé, retours à la ligne aberrants ("François de" / "Valbray" / "invente le" / "concept du" / "château-hôtel"). Grid CSS qui ne supporte pas la largeur intermédiaire. Test reproduction : DevTools → Tablet 768px → /chateau/les-briottieres → scroll timeline.
+
+**Test reproduction global** : `npm run dev` → DevTools → Toggle device toolbar (Ctrl+Shift+M) → iPhone 14 Pro (375×812) ou Tablet (768px) → Naviguer home + modals + vitrine.
+
+**Périmètre estimé fix** : ~6-10h refactor CSS + media queries + tests manuels Tanguy. À planifier en S5 dédié.
