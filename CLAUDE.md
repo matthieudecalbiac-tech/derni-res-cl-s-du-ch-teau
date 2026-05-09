@@ -320,11 +320,30 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
 - **Pattern inauguré :** chaque modif Supabase post-bootstrap = 1 fichier `migrations/YYYY-MM-DD-description.sql`. Le `schema.sql` représente l'état désiré final ; les migrations représentent l'historique chronologique pour les bases déjà déployées.
 - **Sous-actions 4.2-4.7 à venir :** seed update populate, helper mapping, refactor service, refactor App.jsx, refactor HeureAuxDemeures.jsx, tests UI manuels
 
-#### Phase 4 sous-action 4.2 — Seed update distance_paris_label (en cours)
-- **À commit prochain (Sous-action 4.2)**
+#### Phase 4 sous-action 4.2 — Seed update distance_paris_label
+- **Commit :** `c3cbfff` — feat(supabase): seed update distance_paris_label S1-δ Phase 4.2
 - **Livré :** migration `supabase/migrations/2026-05-09-populate-distance-paris-label.sql` (8 UPDATE par slug, idempotente)
 - **Régénération :** `scripts/generate-seed.cjs` mis à jour (cols + values), `supabase/seed.sql` régénéré avec `distance_paris_label` dans chaque INSERT chateau
 - **Données :** valeurs éditoriales d'origine respectées — id 1-6 format "X km · Y min", id 7-8 format "Xh de Paris"
+
+#### Phase 4 sous-action 4.3 — Helper _mapping.js (en cours)
+- **À commit prochain (Sous-action 4.3)**
+- **Livré :** infrastructure Vitest + helper de mapping Supabase ↔ React
+  - `src/services/_mapping.js` (320 lignes) : 6 mappers atomiques + 1 wrapper `mapChateau`
+  - `src/services/__fixtures__/chateaux.fixtures.js` (304 lignes) : BRIOTTIERES (avec offre B) + VAUX (sans offre B) + MINIMAL (edge case)
+  - `src/services/__tests__/_mapping.test.js` (318 lignes, 32 tests Vitest, 7ms exec)
+  - `vitest.config.js` (22 lignes) : env=node, exclude tests/ Playwright
+  - `package.json` : +`vitest@^3.2.4` devDep + scripts `test:unit` (CI single-pass) + `test:unit:watch` (dev)
+- **API publique :** `mapChateau(rowSupabase) → Chateau`
+- **Mappers atomiques :** mapChateauBase, mapChambre, mapTimelineItem, mapAlentour, flattenAmenities, applyOffreModuleB
+- **Helpers privés :** centsToEuros, safeArray, nullable
+- **Décision γ actée :** contrat 2 niveaux de prix
+  - `chateau.prix/prixBarre/reduction` : tarif Module B (null si pas d'offre B active)
+  - `chateau.prixDepart` : "À partir de" depuis min(chambres.prix), toujours peuplé
+  - Évite propagation de null dans 4-5 composants React (Phase 4.5/4.6)
+- **Module B détecté par UUID** `MODULE_B_ID` (déterministe via SHA-1 seed)
+- **Robustesse :** fallback null/[] systématique, JSDoc complète, aucun mapper ne crash
+- **chambresRestantes :** hardcoded null (RPC count_chambres_disponibles en S2)
 
 ## Conventions de chantier
 
