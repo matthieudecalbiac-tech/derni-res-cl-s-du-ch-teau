@@ -97,17 +97,28 @@ function sqlArrayText(arr) {
   return `ARRAY[${arr.map((s) => sqlEscape(s)).join(",")}]::text[]`;
 }
 
-/** Premier caractère du nom. "Famille de Vogüé" → "F" */
-function deriveOwnerInitiale(propNom) {
-  if (!propNom) return null;
-  return propNom.charAt(0);
+/**
+ * Initiale propriétaire. Honore le champ legacy `proprietaires.initiale`
+ * (ex: "V" pour Valbray) si fourni, sinon premier caractère du nom complet.
+ */
+function deriveOwnerInitiale(propData) {
+  if (!propData) return null;
+  if (propData.initiale) return propData.initiale;     // ← honor legacy field
+  if (!propData.nom) return null;
+  return propData.nom.charAt(0);
 }
 
-/** Retire le préfixe "Famille " s'il existe. "Famille de Vogüé" → "de Vogüé" */
-function deriveOwnerNomAffiche(propNom) {
-  if (!propNom) return null;
-  if (propNom.startsWith("Famille ")) return propNom.substring("Famille ".length);
-  return propNom;
+/**
+ * Nom à afficher (typographie split). Honore le champ legacy
+ * `proprietaires.nomAffiche` (ex: "albray") si fourni, sinon retire
+ * "Famille " du nom complet ou retourne le nom tel quel.
+ */
+function deriveOwnerNomAffiche(propData) {
+  if (!propData) return null;
+  if (propData.nomAffiche) return propData.nomAffiche; // ← honor legacy field
+  if (!propData.nom) return null;
+  if (propData.nom.startsWith("Famille ")) return propData.nom.substring("Famille ".length);
+  return propData.nom;
 }
 
 
@@ -193,13 +204,14 @@ function buildChateauxSQL(chateaux) {
       sqlEscape(c.description),
       sqlEscape(c.regionNarrative ?? null),
       sqlEscape(c.regionHistoire ?? null),
-      "NULL",                                    // chiffres_cles (brief : NULL)
+      // chiffres_cles : JSONB depuis legacy c.chiffresCles, ou NULL si absent
+      c.chiffresCles ? `'${JSON.stringify(c.chiffresCles).replace(/'/g, "''")}'::jsonb` : "NULL",
       sqlArrayText(c.images),
       sqlEscape(c.videoBackground ?? null),
       sqlEscape(p.nom),
       sqlEscape(p.depuis),
-      sqlEscape(deriveOwnerInitiale(p.nom)),
-      sqlEscape(deriveOwnerNomAffiche(p.nom)),
+      sqlEscape(deriveOwnerInitiale(p)),
+      sqlEscape(deriveOwnerNomAffiche(p)),
       sqlEscape(p.portrait),
       sqlEscape(p.citation),
       sqlEscape(p.description),
