@@ -1,0 +1,19 @@
+{
+  "auth": {
+    "magicLink": {
+      "placeholder": "votre@email.com",
+      "send": "Recevoir le lien magique",
+      "sent": "Vérifiez votre boîte mail"
+    }
+  },
+  "booking": {
+    "cta": "Réserver ce séjour",
+    "confirm": "Confirmer la réservation",
+    "cancel": "Annuler"
+  },
+  "common": {
+    "loading": "Chargement…",
+    "back": "Retour",
+    "error": "Une erreur est survenue"
+  }
+}
