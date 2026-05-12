@@ -54,6 +54,7 @@ export const FIXTURE_BRIOTTIERES = {
   prop_description: "Arnaud de Valbray a grandi dans ces murs.",
   est_la_une: true,
   is_demo_mock: false,
+  hero_night_stars: false,
   note_sur_5: null,
   nb_avis: 0,
   date_disponible: null,

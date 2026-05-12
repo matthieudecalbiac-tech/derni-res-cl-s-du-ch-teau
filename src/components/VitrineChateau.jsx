@@ -145,7 +145,7 @@ export default function VitrineChateau({ chateau, onClose }) {
 
         {/* ══ INNOVATION 1 : HERO PARALLAXE NOCTURNE ══ */}
         <section className={"vc3-hero " + (heure.isNight ? "vc3-hero--nuit" : "vc3-hero--jour")}>
-          {chateau.videoBackground && !heure.isNight ? (
+          {chateau.videoBackground ? (
             <div className="vc3-hero-video-wrap">
               <iframe
                 src={`https://www.youtube.com/embed/${chateau.videoBackground}?autoplay=1&mute=1&loop=1&controls=0&playlist=${chateau.videoBackground}`}
@@ -161,17 +161,19 @@ export default function VitrineChateau({ chateau, onClose }) {
           {heure.isNight && (
             <div className="vc3-hero-nuit-overlay">
               <div className="vc3-hero-moon" />
-              <div className="vc3-hero-stars">
-                {[...Array(20)].map((_, i) => (
-                  <div key={i} className="vc3-hero-star" style={{
-                    width: Math.random() > 0.7 ? "3px" : "2px",
-                    height: Math.random() > 0.7 ? "3px" : "2px",
-                    top: Math.random() * 50 + "%",
-                    left: Math.random() * 100 + "%",
-                    opacity: 0.4 + Math.random() * 0.6,
-                  }} />
-                ))}
-              </div>
+              {chateau.heroNightStars === true && (
+                <div className="vc3-hero-stars">
+                  {[...Array(20)].map((_, i) => (
+                    <div key={i} className="vc3-hero-star" style={{
+                      width: Math.random() > 0.7 ? "3px" : "2px",
+                      height: Math.random() > 0.7 ? "3px" : "2px",
+                      top: Math.random() * 50 + "%",
+                      left: Math.random() * 100 + "%",
+                      opacity: 0.4 + Math.random() * 0.6,
+                    }} />
+                  ))}
+                </div>
+              )}
             </div>
           )}
           <div className={"vc3-hero-content " + (heroLoaded ? "vc3-hero-content--in" : "")}>

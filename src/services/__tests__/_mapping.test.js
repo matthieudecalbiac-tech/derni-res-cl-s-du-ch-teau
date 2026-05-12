@@ -38,6 +38,15 @@ describe("mapChateauBase", () => {
     expect(out.proprietaires.nomAffiche).toBe("Arnaud & Madeleine de Valbray");
     expect(out.regionNarrative).toContain("Anjou");
     expect(out.videoBackground).toBeNull();
+    expect(out.heroNightStars).toBe(false);
+  });
+
+  it("heroNightStars : true explicite, absent/null/undefined → false", () => {
+    expect(mapChateauBase({ hero_night_stars: true }).heroNightStars).toBe(true);
+    expect(mapChateauBase({ hero_night_stars: false }).heroNightStars).toBe(false);
+    expect(mapChateauBase({ hero_night_stars: null }).heroNightStars).toBe(false);
+    expect(mapChateauBase({ hero_night_stars: undefined }).heroNightStars).toBe(false);
+    expect(mapChateauBase({}).heroNightStars).toBe(false);
   });
 
   it("Vaux mock : flag is_demo_mock + chiffres_cles null + accent gold", () => {

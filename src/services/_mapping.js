@@ -91,6 +91,7 @@ export function mapChateauBase(row) {
     videoBackground: nullable(row.video_background_youtube_id),
     estLaUne: row.est_la_une === true,
     isDemoMock: row.is_demo_mock === true,
+    heroNightStars: row.hero_night_stars === true,
     couleurTheme: nullable(row.couleur_theme),
     accentTheme: nullable(row.accent_theme),
     coordonnees: {
