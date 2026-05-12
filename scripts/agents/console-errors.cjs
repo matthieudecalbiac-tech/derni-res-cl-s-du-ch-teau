@@ -253,7 +253,7 @@ function estRessourceExterne(url) {
 // ── Exécution d'un navigateur ──
 async function runNavigateur(nav, chateaux) {
   const events = [];
-  const compteurs = { actions: 0, pages: 0 };
+  const compteurs = { actions: 0, pages: 0, cancelsFiltres: 0 };
   let browser;
   try {
     browser = await nav.launcher.launch({ headless: true });
@@ -308,13 +308,23 @@ async function runNavigateur(nav, chateaux) {
       if (estBruit(url)) return;
       const fail = req.failure();
       const errText = (fail && fail.errorText) || 'requête échouée';
-      // Cancel = comportement intentionnel du browser (navigation avant fin
-      // de chargement), pas une régression applicative. Classifié en
-      // avertissement quel que soit l'origine, contrairement aux vrais
-      // échecs réseau locaux qui restent en erreur.
       const isCancel = /cancel|abort/i.test(errText);
+      // Les cancels (net::ERR_ABORTED, Load request cancelled) sont des requêtes
+      // que le navigateur a abandonnées parce que la page a navigué ou qu'un
+      // composant a démonté. Elles n'ont jamais produit d'erreur visible
+      // utilisateur et ne sont pas un bug applicatif. On les compte en
+      // télémétrie brute (compteurs.cancelsFiltres → agrégé dans
+      // occurrencesTotales et reseauxEchecs) pour détecter d'éventuels
+      // cancel-storms (composant qui remonte en boucle), mais on les exclut de
+      // events[] — donc de details[] et des compteurs erreurs/avertissements —
+      // pour ne pas créer de churn de baseline à chaque variation de timing E2E.
+      // Voir CI run #25724409954 (12 mai 2026).
+      if (isCancel) {
+        compteurs.cancelsFiltres++;
+        return;
+      }
       events.push({
-        type: (isCancel || estRessourceExterne(url)) ? 'avertissement' : 'erreur',
+        type: estRessourceExterne(url) ? 'avertissement' : 'erreur',
         message: `Requête échouée : ${errText}`,
         urlEchouee: url,
         navigateur: nav.id,
@@ -382,6 +392,7 @@ async function main() {
   const navigateursActifs = NAVIGATEURS.filter((n) => !skipNavs.has(n.id));
   const allEvents = [];
   let totalActions = 0;
+  let totalCancelsFiltres = 0;
   let pagesParNav = 1 + chateauxVitrine.length;
 
   for (const nav of navigateursActifs) {
@@ -389,6 +400,7 @@ async function main() {
     const { events, compteurs } = await runNavigateur(nav, chateauxVitrine);
     allEvents.push(...events);
     totalActions += compteurs.actions;
+    totalCancelsFiltres += compteurs.cancelsFiltres;
   }
 
   // Dédup : clé = type + message normalisé + navigateur
@@ -405,6 +417,12 @@ async function main() {
       dedup.get(cle).occurrences++;
     }
   }
+
+  // Les cancels filtrés (cf. listener requestfailed) ne sont pas dans allEvents
+  // mais comptent en télémétrie brute : un cancel = +1 occurrence et +1 échec
+  // réseau (il a toujours une URL), comme avant le fix #25724409954.
+  occurrencesTotales += totalCancelsFiltres;
+  reseauxEchecs += totalCancelsFiltres;
 
   const details = [];
   let erreursUniques = 0;
@@ -432,6 +450,7 @@ async function main() {
     avertissements: avertissementsUniques,
     occurrencesTotales,
     reseauxEchecs,
+    cancelsFiltres: totalCancelsFiltres,
   };
 
   const okGlobal = stats.erreurs === 0;
