@@ -510,6 +510,22 @@ Bénéfices anticipés :
 
 Apprentissages Chantier 2.2.D.3 (`HeureAuxDemeures`, fix preventif) et 2.2.D.6 (`CarteExplorer`, **bug latent réel** : useEffect ne se serait jamais re-déclenché si `chateaux` changeait — composant retiré, mais convention acquise).
 
+## Patterns CI / Dette à monitorer
+
+### Flake WebKit runner Ubuntu (12 mai 2026)
+
+Sur le run #25730231771 (commit `84ad228`, post-merge PR #20), 4 erreurs sur `webkit-desktop` : « WebKit encountered an internal error » en chaîne (preconnect `fonts.gstatic.com` → `/@vite/client` → resource → CTA Briottières introuvable → `scrollIntoViewIfNeeded` timeout 30 s → `Crash parcours`). Aucun précédent dans les 12 derniers runs `main`. Re-run sans modification = vert immédiat. **Conclusion** : flake transitoire du runner Ubuntu + Playwright WebKit, pas un bug applicatif. À monitorer si récurrence (> 2 fails WebKit « internal error » en 1 mois) → robustifier l'agent `console-errors.cjs` en classant ce pattern de message comme `flake_infra` non bloquant (ou retry du parcours WebKit).
+
+### Pattern « diagnostic avant code » sur fail CI
+
+Quand un fail CI apparaît après un fix d'agent, **ne pas supposer que le fix est en cause**. Étapes obligatoires :
+1. Télécharger l'artefact CI du run échoué (`actions/runs/<id>/artifacts`, ou via l'UI GitHub → section Artifacts).
+2. Lister les events réels (type / message / url / navigateur).
+3. Chercher des patterns multi-events sur même navigateur ou même URL.
+4. Comparer avec l'historique des runs précédents (`GET /repos/.../actions/runs?branch=main&per_page=10`).
+
+Si le fail concerne **uniquement un navigateur** et **sans précédent dans l'historique** → flake infrastructure, pas bug applicatif. **Re-run avant de coder un fix v2.** Exemple : 12 mai 2026, run #25730231771, 4 erreurs WebKit (cf. ci-dessus) → fausse piste évitée en lisant l'artefact, re-run = vert. (À l'inverse, le run #25724409954 du même jour montrait 3 cancels Supabase sur 3 navigateurs → pattern reproductible → vrai sujet, fix légitime = exclusion des cancels, commit `b1e335a` / PR #20.)
+
 ## Hygiène du repo
 
 - `fix.cjs`…`fix9.cjs` à la racine sont des scripts Node one-shot ayant servi à réécrire les URLs d'images dans `src/data/chateaux.js` et `src/components/VitrineChateau.jsx`. Ils ne font pas partie du build — ne pas les importer ni les étendre ; écrire un nouveau `fixN.cjs` uniquement pour une migration similaire ponctuelle.
