@@ -176,7 +176,7 @@ function buildChateauxSQL(chateaux) {
     "images", "video_background_youtube_id",
     "prop_nom", "prop_depuis", "prop_initiale", "prop_nom_affiche",
     "prop_portrait", "prop_citation", "prop_description",
-    "est_la_une", "is_demo_mock",
+    "est_la_une", "is_demo_mock", "hero_night_stars",
     "note_sur_5", "nb_avis", "date_disponible",
     "couleur_theme", "accent_theme",
     "petit_dejeuner", "parking", "wifi", "animaux",
@@ -217,6 +217,7 @@ function buildChateauxSQL(chateaux) {
       sqlEscape(p.description),
       sqlEscape(c.estLaUne ?? false),
       sqlEscape(c.isDemoMock ?? false),
+      sqlEscape(c.heroNightStars ?? false),
       "NULL",                                    // note_sur_5
       "0",                                       // nb_avis
       "NULL",                                    // date_disponible
