@@ -54,7 +54,7 @@ test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
     await expect(page.locator('.vc3-hero-titre')).toContainText(/lanc Buisson/i);
   });
 
-  test('Hero affiche vidéo YouTube ou image selon l\'heure', async ({ page }) => {
+  test('Hero affiche vidéo YouTube 24/7 + overlay nuit étoilé', async ({ page }) => {
     await ouvrirBlancBuisson(page);
 
     const heurePage = await page.evaluate(() => new Date().getHours());
@@ -64,7 +64,7 @@ test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
       await expect(page.locator('.vc3-hero--nuit')).toBeVisible();
       await expect(page.locator('.vc3-hero-moon')).toBeVisible();
       await expect(page.locator('.vc3-hero-star')).toHaveCount(20);
-      await expect(page.locator('.vc3-hero-iframe')).toHaveCount(0);
+      await expect(page.locator('.vc3-hero-iframe')).toHaveCount(1);
     } else {
       const iframe = page.locator('.vc3-hero-iframe');
       await expect(iframe).toBeVisible();
@@ -155,7 +155,8 @@ test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
 
     await expect(page.locator('.vc3-hero--nuit')).toBeVisible();
     await expect(page.locator('.vc3-hero-moon')).toBeVisible();
-    await expect(page.locator('.vc3-hero-iframe')).toHaveCount(0);
+    await expect(page.locator('.vc3-hero-star')).toHaveCount(20);    // contrat heroNightStars=true Le Blanc Buisson
+    await expect(page.locator('.vc3-hero-iframe')).toHaveCount(1);   // vidéo 24/7 sous overlay nuit
   });
 
 });
