@@ -1179,6 +1179,7 @@ export const chateaux = [
   {
     id: 8,
     estLaUne: true,
+    heroNightStars: true,
     nom: "Château du Blanc Buisson",
     slug: "blanc-buisson",
     region: "Normandie",
