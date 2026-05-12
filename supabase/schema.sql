@@ -171,6 +171,7 @@ CREATE TABLE IF NOT EXISTS public.chateaux (
   -- Aiguillage layout & flags
   est_la_une                  boolean      NOT NULL DEFAULT false,
   is_demo_mock                boolean      NOT NULL DEFAULT false,
+  hero_night_stars            boolean      NOT NULL DEFAULT false,   -- opt-in étoiles overlay nuit (cf. fix/vitrine-night-mode-polish)
 
   -- Stats commerciales
   note_sur_5                  numeric(3,2),
