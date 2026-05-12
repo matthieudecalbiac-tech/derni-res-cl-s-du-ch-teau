@@ -1,0 +1,26 @@
+/* Placeholders des routes S2 (sous-sprint α.1). Style minimal — ces écrans
+   seront remplacés par les vraies implémentations en α.2 / α.3. */
+.s2-placeholder {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  font-family: var(--font-editorial, "Crimson Pro", serif);
+  color: var(--navy, #07101e);
+  background: var(--creme, #f7f2e8);
+  text-align: center;
+}
+.s2-placeholder-route {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 0.95rem;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--or, #c09840);
+  border-radius: 4px;
+}
+.s2-placeholder-note {
+  font-size: 0.85rem;
+  opacity: 0.65;
+}

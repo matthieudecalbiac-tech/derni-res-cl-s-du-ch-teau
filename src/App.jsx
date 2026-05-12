@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import BandeauOffres from "./components/BandeauOffres";
@@ -21,6 +22,17 @@ import VitrinePermanente from "./components/VitrinePermanente";
 import DernieresCles from "./components/DernieresCles";
 import TransitionPorte from "./components/TransitionPorte";
 import PartenairesChateaux from "./components/PartenairesChateaux";
+
+// Sprint S2-α.1 — routing react-router pour les nouveaux écrans transactionnels
+// (pattern strangler fig : les overlays historiques restent inchangés).
+import RequireAuth from "./components/auth/RequireAuth";
+import RequireRole from "./components/auth/RequireRole";
+import BookingFlowPlaceholder from "./components/placeholders/BookingFlowPlaceholder";
+import BookingConfirmationPlaceholder from "./components/placeholders/BookingConfirmationPlaceholder";
+import ClientAccountPlaceholder from "./components/placeholders/ClientAccountPlaceholder";
+import OwnerDashboardPlaceholder from "./components/placeholders/OwnerDashboardPlaceholder";
+import AdminDashboardPlaceholder from "./components/placeholders/AdminDashboardPlaceholder";
+import AuthCallbackPlaceholder from "./components/placeholders/AuthCallbackPlaceholder";
 
 
 
@@ -60,9 +72,12 @@ function App() {
     setTransitionChateau(chateau);
   };
 
-  return (
+  // Contenu historique : home + tous les overlays existants. Servi sur "/" et
+  // sur tout chemin non transactionnel (route catch-all "*" ci-dessous).
+  // INCHANGÉ par rapport à avant S2-α.1 — seul l'enveloppe <Routes> est ajoutée.
+  const homeEtOverlays = (
     <div className="app">
-      
+
       <Header
         onOuvrirAuth={(mode) => ouvrirAuth(mode, true)}
         onOuvrirCompte={() => setCompteOuvert(true)}
@@ -172,6 +187,43 @@ function App() {
       )}
       {aProposOuvert && <APropos onClose={() => setAProposOuvert(false)} />}
     </div>
+  );
+
+  return (
+    <Routes>
+      <Route path="/reserver/:chateauSlug" element={<BookingFlowPlaceholder />} />
+      <Route path="/reservation/:id/confirmation" element={<BookingConfirmationPlaceholder />} />
+      <Route
+        path="/mon-compte"
+        element={
+          <RequireAuth>
+            <ClientAccountPlaceholder />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/chatelain/dashboard"
+        element={
+          <RequireAuth>
+            <RequireRole role="chatelain">
+              <OwnerDashboardPlaceholder />
+            </RequireRole>
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/admin/dashboard"
+        element={
+          <RequireAuth>
+            <RequireRole role="admin">
+              <AdminDashboardPlaceholder />
+            </RequireRole>
+          </RequireAuth>
+        }
+      />
+      <Route path="/auth/callback" element={<AuthCallbackPlaceholder />} />
+      <Route path="*" element={homeEtOverlays} />
+    </Routes>
   );
 }
 
