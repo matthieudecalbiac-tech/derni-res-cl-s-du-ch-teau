@@ -1,0 +1,1150 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   Vitrine — Sprint S2-α.1.5 : 2 niveaux d'onglets (commercial + éditorial)
+   Préfixe vc4- (distinct de vc3- legacy hero/sections).
+   Tokens : navy #07101E, or #C09840, crème #F7F2E8.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --vc4-navy: #07101E;
+  --vc4-navy-2: rgba(8, 14, 26, 0.96);
+  --vc4-or: #C09840;
+  --vc4-or-soft: rgba(192, 152, 64, 0.6);
+  --vc4-or-faint: rgba(192, 152, 64, 0.15);
+  --vc4-creme: #F7F2E8;
+  --vc4-creme-soft: rgba(247, 242, 232, 0.7);
+  --vc4-creme-faint: rgba(247, 242, 232, 0.45);
+}
+
+/* ═══ NIVEAU 1 — Modules commerciaux (sticky) ════════════════════════════════ */
+
+.vc4-onglets-n1-wrap {
+  position: sticky;
+  top: 64px; /* hauteur header VitrineChateau */
+  z-index: 50;
+  background: var(--vc4-navy-2);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--vc4-or-faint);
+  padding: 20px 0 0;
+}
+
+.vc4-onglets-n1 {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  border-bottom: 1px solid var(--vc4-or-faint);
+}
+
+.vc4-onglet-n1 {
+  position: relative;
+  background: none;
+  border: none;
+  padding: 14px 28px;
+  font-family: "Playfair Display", serif;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--vc4-creme-soft);
+  cursor: pointer;
+  transition: color 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vc4-onglet-n1:hover {
+  color: var(--vc4-creme);
+}
+
+.vc4-onglet-n1--actif {
+  color: var(--vc4-or);
+}
+
+.vc4-onglet-n1--actif::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: -1px;
+  height: 3px;
+  background: var(--vc4-or);
+  border-radius: 1px;
+}
+
+.vc4-onglet-n1-lib {
+  white-space: nowrap;
+}
+
+.vc4-onglet-n1-compteur {
+  background: var(--vc4-or-faint);
+  border: 1px solid var(--vc4-or-soft);
+  border-radius: 10px;
+  padding: 1px 7px;
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  color: var(--vc4-or);
+}
+
+.vc4-bandeau-explicatif {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--vc4-creme-faint);
+  text-align: center;
+  padding: 12px 24px;
+  margin: 0;
+  border-bottom: 1px solid var(--vc4-or-faint);
+}
+
+/* ═══ Contenu Permanent ═════════════════════════════════════════════════════ */
+
+.vc4-contenu-permanent {
+  padding: 60px 32px 80px;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.vc4-permanent-intro {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 19px;
+  line-height: 1.65;
+  color: var(--vc4-creme-soft);
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 60px;
+}
+
+.vc4-permanent-titre-wrap {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 0 auto 40px;
+  max-width: 600px;
+}
+
+.vc4-permanent-titre-orn-l {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--vc4-or-soft), transparent);
+}
+
+.vc4-permanent-titre {
+  font-family: "Playfair Display", serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--vc4-creme);
+  margin: 0;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+.vc4-permanent-grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 28px;
+}
+
+.vc4-permanent-chambre {
+  background: rgba(8, 14, 26, 0.55);
+  border: 1px solid var(--vc4-or-faint);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.vc4-permanent-chambre-photo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-size: cover;
+  background-position: center;
+  background-color: #1a1a1a;
+}
+
+.vc4-permanent-chambre-photo-vign {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(7, 16, 30, 0.7));
+}
+
+.vc4-permanent-chambre-prix {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  background: var(--vc4-navy-2);
+  border: 1px solid var(--vc4-or-soft);
+  padding: 6px 12px;
+  font-family: "Playfair Display", serif;
+  font-size: 18px;
+  color: var(--vc4-or);
+  border-radius: 2px;
+}
+
+.vc4-permanent-chambre-prix-suf {
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  color: var(--vc4-creme-soft);
+  margin-left: 4px;
+}
+
+.vc4-permanent-chambre-corps {
+  padding: 22px 22px 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.vc4-permanent-chambre-nom {
+  font-family: "Playfair Display", serif;
+  font-size: 19px;
+  font-weight: 400;
+  color: var(--vc4-creme);
+  margin: 0 0 4px;
+}
+
+.vc4-permanent-chambre-meta {
+  font-family: "Crimson Pro", serif;
+  font-size: 12px;
+  color: var(--vc4-or-soft);
+  letter-spacing: 0.05em;
+  margin: 0 0 12px;
+}
+
+.vc4-permanent-chambre-desc {
+  font-family: "Crimson Pro", serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--vc4-creme-soft);
+  line-height: 1.5;
+  margin: 0 0 14px;
+  flex: 1;
+}
+
+.vc4-permanent-chambre-pills {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vc4-permanent-chambre-pill {
+  font-family: "Crimson Pro", serif;
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  padding: 3px 9px;
+  border: 1px solid var(--vc4-or-faint);
+  border-radius: 12px;
+  color: var(--vc4-creme-faint);
+}
+
+.vc4-permanent-chambre-cta {
+  align-self: flex-start;
+  background: none;
+  border: 1px solid var(--vc4-or-soft);
+  color: var(--vc4-or);
+  padding: 9px 22px;
+  font-family: "Crimson Pro", serif;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.vc4-permanent-chambre-cta:hover {
+  background: var(--vc4-or-faint);
+  color: var(--vc4-creme);
+}
+
+/* ═══ Contenu Dernières Clés ════════════════════════════════════════════════ */
+
+.vc4-contenu-dc {
+  padding: 60px 32px 80px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.vc4-dc-titre-wrap {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 0 auto 50px;
+  max-width: 600px;
+}
+
+.vc4-dc-titre-orn-l {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--vc4-or-soft), transparent);
+}
+
+.vc4-dc-titre {
+  font-family: "Playfair Display", serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--vc4-creme);
+  margin: 0;
+  text-align: center;
+}
+
+.vc4-dc-vide {
+  text-align: center;
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  color: var(--vc4-creme-faint);
+}
+
+.vc4-loading {
+  text-align: center;
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  color: var(--vc4-or-soft);
+  padding: 60px 0;
+}
+
+.vc4-dc-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.vc4-dc-card {
+  display: grid;
+  grid-template-columns: 220px 1fr 200px;
+  gap: 24px;
+  background: rgba(8, 14, 26, 0.55);
+  border: 1px solid var(--vc4-or-faint);
+  border-radius: 4px;
+  padding: 0;
+  overflow: hidden;
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vc4-dc-card--highlight {
+  background: rgba(192, 152, 64, 0.12);
+  border-color: var(--vc4-or);
+  box-shadow: 0 0 0 1px var(--vc4-or-faint), 0 8px 32px rgba(192, 152, 64, 0.15);
+}
+
+.vc4-dc-card-photo {
+  background: linear-gradient(135deg, #1a1410, #2c2218);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.vc4-dc-card-photo-vide {
+  font-size: 36px;
+  color: var(--vc4-or-soft);
+}
+
+.vc4-dc-card-corps {
+  padding: 22px 4px 22px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.vc4-dc-card-head {
+  margin-bottom: 8px;
+}
+
+.vc4-dc-card-titre {
+  font-family: "Playfair Display", serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--vc4-creme);
+  margin: 0 0 4px;
+}
+
+.vc4-dc-card-dates {
+  font-family: "Crimson Pro", serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--vc4-or);
+  text-transform: uppercase;
+}
+
+.vc4-dc-card-desc {
+  font-family: "Crimson Pro", serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--vc4-creme-soft);
+  line-height: 1.5;
+  margin: 8px 0 12px;
+}
+
+.vc4-dc-card-services {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.vc4-dc-card-service {
+  font-family: "Crimson Pro", serif;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border: 1px solid var(--vc4-or-faint);
+  border-radius: 8px;
+  color: var(--vc4-creme-faint);
+}
+
+.vc4-dc-card-urgence {
+  font-family: "Crimson Pro", serif;
+  font-size: 10px;
+  color: #d97a6c;
+  margin: 4px 0 0;
+}
+
+.vc4-dc-card-prix-col {
+  background: rgba(7, 16, 30, 0.5);
+  border-left: 1px solid var(--vc4-or-faint);
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.vc4-dc-card-prix-barre {
+  font-family: "Crimson Pro", serif;
+  font-size: 14px;
+  color: var(--vc4-creme-faint);
+  text-decoration: line-through;
+}
+
+.vc4-dc-card-prix-offre {
+  font-family: "Playfair Display", serif;
+  font-size: 28px;
+  color: var(--vc4-or);
+}
+
+.vc4-dc-card-prix-meta {
+  font-family: "Crimson Pro", serif;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: var(--vc4-creme-faint);
+  text-transform: uppercase;
+}
+
+.vc4-dc-card-cta {
+  margin-top: 12px;
+  background: none;
+  border: 1px solid var(--vc4-or);
+  color: var(--vc4-or);
+  padding: 8px 18px;
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.vc4-dc-card-cta:hover {
+  background: var(--vc4-or);
+  color: var(--vc4-navy);
+}
+
+/* ═══ Contenu Club (variante un peu plus sourde) ════════════════════════════ */
+
+.vc4-contenu-club {
+  padding: 60px 32px 80px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.vc4-club-banniere {
+  text-align: center;
+  margin-bottom: 50px;
+  padding: 24px 32px;
+  border-top: 1px solid var(--vc4-or-faint);
+  border-bottom: 1px solid var(--vc4-or-faint);
+}
+
+.vc4-club-banniere-lys {
+  font-size: 22px;
+  color: var(--vc4-or-soft);
+}
+
+.vc4-club-banniere-titre {
+  font-family: "Playfair Display", serif;
+  font-size: 24px;
+  font-weight: 400;
+  color: var(--vc4-creme);
+  margin: 8px 0 6px;
+}
+
+.vc4-club-banniere-sous {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  color: var(--vc4-creme-soft);
+  margin: 0;
+}
+
+.vc4-club-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.vc4-club-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 220px 1fr 200px;
+  gap: 24px;
+  background: rgba(8, 14, 26, 0.4);
+  border: 1px solid rgba(192, 152, 64, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vc4-club-card--highlight {
+  background: rgba(192, 152, 64, 0.08);
+  border-color: var(--vc4-or-soft);
+  box-shadow: 0 0 0 1px var(--vc4-or-faint), 0 8px 32px rgba(192, 152, 64, 0.12);
+}
+
+.vc4-club-card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--vc4-or-faint);
+  border: 1px solid var(--vc4-or-soft);
+  padding: 3px 10px;
+  font-family: "Crimson Pro", serif;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--vc4-or);
+  text-transform: uppercase;
+  border-radius: 12px;
+}
+
+.vc4-club-card-photo {
+  background: linear-gradient(135deg, #14101a, #221a2c);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.vc4-club-card-photo-vide {
+  font-size: 36px;
+  color: var(--vc4-or-soft);
+}
+
+.vc4-club-card-corps {
+  padding: 22px 4px 22px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.vc4-club-card-head {
+  margin-bottom: 8px;
+}
+
+.vc4-club-card-titre {
+  font-family: "Playfair Display", serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--vc4-creme);
+  margin: 0 0 4px;
+}
+
+.vc4-club-card-dates {
+  font-family: "Crimson Pro", serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--vc4-or-soft);
+  text-transform: uppercase;
+}
+
+.vc4-club-card-desc {
+  font-family: "Crimson Pro", serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--vc4-creme-soft);
+  line-height: 1.5;
+  margin: 8px 0 12px;
+}
+
+.vc4-club-card-services {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.vc4-club-card-service {
+  font-family: "Crimson Pro", serif;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border: 1px solid var(--vc4-or-faint);
+  border-radius: 8px;
+  color: var(--vc4-creme-faint);
+}
+
+.vc4-club-card-urgence {
+  font-family: "Crimson Pro", serif;
+  font-size: 10px;
+  color: var(--vc4-or-soft);
+  margin: 4px 0 0;
+}
+
+.vc4-club-card-prix-col {
+  background: rgba(7, 16, 30, 0.4);
+  border-left: 1px solid var(--vc4-or-faint);
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.vc4-club-card-prix-offre {
+  font-family: "Playfair Display", serif;
+  font-size: 26px;
+  color: var(--vc4-or);
+}
+
+.vc4-club-card-prix-meta {
+  font-family: "Crimson Pro", serif;
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  color: var(--vc4-creme-faint);
+  text-transform: uppercase;
+}
+
+.vc4-club-card-cta {
+  margin-top: 12px;
+  background: none;
+  border: 1px solid var(--vc4-or-soft);
+  color: var(--vc4-or-soft);
+  padding: 8px 18px;
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.vc4-club-card-cta:hover {
+  border-color: var(--vc4-or);
+  color: var(--vc4-or);
+}
+
+/* ═══ Intro Tronc Commun ════════════════════════════════════════════════════ */
+
+.vc4-intro-tronc {
+  background: rgba(4, 8, 16, 0.65);
+  padding: 70px 32px 60px;
+  border-top: 1px solid var(--vc4-or-faint);
+  border-bottom: 1px solid var(--vc4-or-faint);
+}
+
+.vc4-intro-tronc-grid {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 40px;
+  align-items: center;
+}
+
+.vc4-intro-tronc-photo {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background-size: cover;
+  background-position: center;
+  background-color: #1a1a1a;
+}
+
+.vc4-intro-tronc-photo-vign {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(7, 16, 30, 0.2), rgba(7, 16, 30, 0.5));
+}
+
+.vc4-intro-tronc-eyebrow {
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--vc4-or);
+  text-transform: uppercase;
+  margin: 0 0 14px;
+}
+
+.vc4-intro-tronc-paragraphe {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--vc4-creme-soft);
+  margin: 0;
+}
+
+.vc4-intro-tronc-chiffres {
+  max-width: 900px;
+  margin: 50px auto 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  text-align: center;
+}
+
+.vc4-intro-tronc-chiffre {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vc4-intro-tronc-chiffre-val {
+  font-family: "Playfair Display", serif;
+  font-size: 32px;
+  color: var(--vc4-or);
+}
+
+.vc4-intro-tronc-chiffre-lab {
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--vc4-creme-faint);
+  text-transform: uppercase;
+}
+
+/* ═══ NIVEAU 2 — Découverte éditoriale (non-sticky) ══════════════════════════ */
+
+.vc4-onglets-n2-wrap {
+  padding: 50px 32px 24px;
+  text-align: center;
+}
+
+.vc4-onglets-n2-eyebrow {
+  font-family: "Crimson Pro", serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--vc4-or-soft);
+  text-transform: uppercase;
+  margin: 0 0 18px;
+}
+
+.vc4-onglets-n2 {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2px;
+}
+
+.vc4-onglet-n2 {
+  background: none;
+  border: 1px solid transparent;
+  padding: 8px 14px;
+  font-family: "Crimson Pro", serif;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--vc4-creme-soft);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.vc4-onglet-n2:hover {
+  color: var(--vc4-creme);
+  border-color: var(--vc4-or-faint);
+}
+
+.vc4-onglet-n2--actif {
+  border-color: var(--vc4-or);
+  background: rgba(192, 152, 64, 0.12);
+  color: var(--vc4-or);
+}
+
+/* ═══ Contenu thèmes ════════════════════════════════════════════════════════ */
+
+.vc4-contenu-theme {
+  padding: 30px 32px 80px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.vc4-theme-eyebrow {
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--vc4-or);
+  text-transform: uppercase;
+  margin: 0 0 12px;
+}
+
+.vc4-theme-titre {
+  font-family: "Playfair Display", serif;
+  font-size: 26px;
+  font-weight: 400;
+  color: var(--vc4-creme);
+  margin: 0 0 16px;
+}
+
+.vc4-theme-paragraphe {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--vc4-creme-soft);
+  margin: 0;
+}
+
+.vc4-theme-vide {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  color: var(--vc4-creme-faint);
+  text-align: center;
+  padding: 40px 0;
+}
+
+/* Aperçu */
+.vc4-theme-apercu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.vc4-theme-apercu-photos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.vc4-theme-apercu-photo {
+  aspect-ratio: 4 / 3;
+  background-size: cover;
+  background-position: center;
+  background-color: #1a1a1a;
+  cursor: pointer;
+}
+
+/* Histoire */
+.vc4-theme-histoire-intro {
+  margin-bottom: 36px;
+  max-width: 760px;
+}
+
+.vc4-theme-timeline {
+  border-left: 1px solid var(--vc4-or-soft);
+  padding-left: 24px;
+  margin-left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.vc4-theme-tl-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 16px;
+  align-items: baseline;
+}
+
+.vc4-theme-tl-dot {
+  position: absolute;
+  left: -29px;
+  top: 6px;
+  width: 8px;
+  height: 8px;
+  background: var(--vc4-or);
+  border-radius: 50%;
+}
+
+.vc4-theme-tl-annee {
+  font-family: "Playfair Display", serif;
+  font-size: 13px;
+  color: var(--vc4-or);
+  font-style: italic;
+}
+
+.vc4-theme-tl-evt {
+  font-family: "Crimson Pro", serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--vc4-creme-soft);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Famille */
+.vc4-theme-famille-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 36px;
+  align-items: start;
+}
+
+.vc4-theme-famille-portrait {
+  aspect-ratio: 1;
+  background-size: cover;
+  background-position: center;
+  background-color: #1a1a1a;
+}
+
+.vc4-theme-famille-citation {
+  border-left: 2px solid var(--vc4-or);
+  padding-left: 18px;
+  margin: 0 0 16px;
+  position: relative;
+}
+
+.vc4-theme-famille-qmark {
+  font-family: "Playfair Display", serif;
+  font-size: 36px;
+  color: var(--vc4-or-soft);
+  line-height: 0.5;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.vc4-theme-famille-citation p {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--vc4-creme);
+  margin: 0;
+}
+
+.vc4-theme-famille-auteur {
+  font-family: "Playfair Display", serif;
+  font-size: 13px;
+  color: var(--vc4-or);
+  margin: 0 0 4px;
+}
+
+.vc4-theme-famille-depuis {
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--vc4-creme-faint);
+  text-transform: uppercase;
+  margin: 0 0 16px;
+}
+
+.vc4-theme-famille-bio {
+  font-family: "Crimson Pro", serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--vc4-creme-soft);
+  line-height: 1.55;
+  margin: 0;
+}
+
+/* Lieu */
+.vc4-theme-lieu-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 36px;
+  align-items: start;
+}
+
+.vc4-theme-lieu-alentours {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.vc4-theme-alentour {
+  padding: 14px;
+  border: 1px solid var(--vc4-or-faint);
+  border-radius: 2px;
+}
+
+.vc4-theme-alentour-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.vc4-theme-alentour-ico {
+  color: var(--vc4-or);
+  font-size: 11px;
+}
+
+.vc4-theme-alentour-nom {
+  font-family: "Playfair Display", serif;
+  font-size: 13px;
+  color: var(--vc4-creme);
+  flex: 1;
+}
+
+.vc4-theme-alentour-dist {
+  font-family: "Crimson Pro", serif;
+  font-size: 10px;
+  color: var(--vc4-or-soft);
+}
+
+.vc4-theme-alentour-desc {
+  font-family: "Crimson Pro", serif;
+  font-style: italic;
+  font-size: 11px;
+  color: var(--vc4-creme-faint);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Services */
+.vc4-theme-services {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.vc4-theme-service {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--vc4-or-faint);
+  border-radius: 2px;
+}
+
+.vc4-theme-service-ico {
+  color: var(--vc4-or);
+  font-size: 14px;
+}
+
+.vc4-theme-service-nom {
+  font-family: "Crimson Pro", serif;
+  font-size: 12px;
+  color: var(--vc4-creme-soft);
+}
+
+/* Chambres (vue détaillée niveau 2) */
+.vc4-theme-chambres {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vc4-theme-chambre {
+  display: grid;
+  grid-template-columns: 200px 1fr 140px;
+  gap: 20px;
+  align-items: center;
+  border: 1px solid var(--vc4-or-faint);
+  background: rgba(8, 14, 26, 0.4);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.vc4-theme-chambre-photo {
+  width: 200px;
+  height: 140px;
+  background-size: cover;
+  background-position: center;
+  background-color: #1a1a1a;
+}
+
+.vc4-theme-chambre-corps {
+  padding: 8px 4px;
+}
+
+.vc4-theme-chambre-nom {
+  font-family: "Playfair Display", serif;
+  font-size: 16px;
+  font-weight: 400;
+  color: var(--vc4-creme);
+  margin: 0 0 4px;
+}
+
+.vc4-theme-chambre-meta {
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--vc4-or-soft);
+  margin: 0 0 8px;
+}
+
+.vc4-theme-chambre-desc {
+  font-family: "Crimson Pro", serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--vc4-creme-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.vc4-theme-chambre-equipements {
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--vc4-or-soft);
+  margin: 8px 0 0;
+  font-style: normal;
+}
+
+.vc4-theme-chambre-prix {
+  text-align: center;
+  padding: 0 16px;
+  border-left: 1px solid var(--vc4-or-faint);
+}
+
+.vc4-theme-chambre-prix-val {
+  font-family: "Playfair Display", serif;
+  font-size: 22px;
+  color: var(--vc4-or);
+  display: block;
+}
+
+.vc4-theme-chambre-prix-lab {
+  font-family: "Crimson Pro", serif;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--vc4-creme-faint);
+  text-transform: uppercase;
+}
+
+/* ═══ Responsive (mobile-first léger, polish complet en Sprint S5) ═══════════ */
+
+@media (max-width: 720px) {
+  .vc4-onglets-n1-wrap { top: 56px; }
+  .vc4-onglet-n1 { padding: 12px 14px; font-size: 12px; }
+  .vc4-permanent-grille { grid-template-columns: 1fr; }
+  .vc4-dc-card,
+  .vc4-club-card {
+    grid-template-columns: 1fr;
+  }
+  .vc4-dc-card-photo,
+  .vc4-club-card-photo {
+    min-height: 140px;
+  }
+  .vc4-dc-card-prix-col,
+  .vc4-club-card-prix-col {
+    border-left: none;
+    border-top: 1px solid var(--vc4-or-faint);
+  }
+  .vc4-intro-tronc-grid,
+  .vc4-theme-apercu-grid,
+  .vc4-theme-famille-grid,
+  .vc4-theme-lieu-grid {
+    grid-template-columns: 1fr;
+  }
+  .vc4-intro-tronc-chiffres { grid-template-columns: repeat(2, 1fr); }
+  .vc4-theme-services { grid-template-columns: 1fr 1fr; }
+  .vc4-theme-chambre {
+    grid-template-columns: 1fr;
+  }
+  .vc4-theme-chambre-photo { width: 100%; height: 180px; }
+  .vc4-theme-chambre-prix { border-left: none; border-top: 1px solid var(--vc4-or-faint); padding: 12px; }
+}

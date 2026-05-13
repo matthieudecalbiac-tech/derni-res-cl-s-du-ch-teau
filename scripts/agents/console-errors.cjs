@@ -197,13 +197,9 @@ async function parcoursVitrine(page, chateau, compteurs) {
   await page.locator('.vc3-reserve-modal').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
   compteurs.actions += 3;
 
-  const btnPres = page.locator('.vc3-mode-pres-btn');
-  await btnPres.scrollIntoViewIfNeeded();
-  await btnPres.click();
-  await page.locator('.vc3-pres-overlay').waitFor({ state: 'visible', timeout: 5000 });
-  await page.locator('.vc3-pres-close').click();
-  await page.locator('.vc3-pres-overlay').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
-  compteurs.actions += 2;
+  // S2-α.1.5 Option A : mode présentation supprimé (régression volontaire documentée
+  // dans PR #23). Le parcours mode-pres est retiré ; il sera rapatrié si le mode
+  // présentation revient via les régressions à reprendre post-α.1.5.
 
   await page.keyboard.press('Escape');
   await page.locator('.vc3-overlay').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
