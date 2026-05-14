@@ -14,15 +14,17 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('S2-α.1 · routing smoke + non-régression', () => {
 
-  test('Route /mon-compte répond (stub RequireAuth — pas de redirection en α.1)', async ({ page }) => {
+  test('Route /mon-compte sans session → RequireAuth redirect /connexion (Phase 2 α.2)', async ({ page }) => {
+    // Sprint S2-α.2 Phase 2 : RequireAuth est passé du stub return children
+    // à la vraie impl qui redirige vers /connexion si !user. Le test α.1 a été
+    // adapté pour observer le nouveau comportement (cf commit Phase 5.1).
     await page.goto('/mon-compte');
     await page.waitForLoadState('domcontentloaded');
-    const ph = page.locator('.s2-placeholder');
-    await expect(ph).toBeVisible();
-    await expect(ph.locator('.s2-placeholder-route')).toHaveText('/mon-compte');
-    // Le pipeline i18n doit avoir résolu la clé : "Chargement…", pas "common.loading".
-    await expect(ph).toContainText('Chargement');
-    await expect(ph).not.toContainText('common.loading');
+    await expect(page).toHaveURL(/\/connexion$/, { timeout: 5000 });
+    const origin = await page.evaluate(() =>
+      sessionStorage.getItem('auth_redirect_origin')
+    );
+    expect(origin).toBe('/mon-compte');
   });
 
   test('Route /reserver/les-briottieres affiche le placeholder booking', async ({ page }) => {
@@ -31,10 +33,17 @@ test.describe('S2-α.1 · routing smoke + non-régression', () => {
     await expect(page.locator('.s2-placeholder-route')).toHaveText('/reserver/les-briottieres');
   });
 
-  test('Route /chatelain/dashboard affiche le placeholder (stubs RequireAuth/RequireRole)', async ({ page }) => {
+  test('Route /chatelain/dashboard sans session → redirect /connexion (Phase 2 α.2)', async ({ page }) => {
+    // Sprint S2-α.2 Phase 2 : idem /mon-compte — RequireAuth redirige avant
+    // d'évaluer RequireRole. sessionStorage.auth_redirect_origin permettra le
+    // retour post-auth (consommé par /auth/callback).
     await page.goto('/chatelain/dashboard');
     await page.waitForLoadState('domcontentloaded');
-    await expect(page.locator('.s2-placeholder-route')).toHaveText('/chatelain/dashboard');
+    await expect(page).toHaveURL(/\/connexion$/, { timeout: 5000 });
+    const origin = await page.evaluate(() =>
+      sessionStorage.getItem('auth_redirect_origin')
+    );
+    expect(origin).toBe('/chatelain/dashboard');
   });
 
   test('Régression : "/" affiche toujours la home (overlays historiques)', async ({ page }) => {
