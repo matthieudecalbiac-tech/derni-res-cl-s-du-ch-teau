@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import OngletsNiveau1 from "./vitrine/OngletsNiveau1";
 import OngletsNiveau2 from "./vitrine/OngletsNiveau2";
 import ContenuPermanent from "./vitrine/ContenuPermanent";
@@ -7,13 +7,13 @@ import ContenuDernieresCles from "./vitrine/ContenuDernieresCles";
 import ContenuClub from "./vitrine/ContenuClub";
 import IntroTroncCommun from "./vitrine/IntroTroncCommun";
 import ContenuTheme from "./vitrine/ContenuTheme";
+import { useClubMember } from "../hooks/useClubMember";
 import "../styles/vitrine-chateau.css";
 import "../styles/vitrine-onglets.css";
 
-// TODO α.2 : remplacer par check session Supabase (session.user.role === 'club_member')
-const IS_CLUB_MEMBER = false;
-
 export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
+  const isClubMember = useClubMember();
+  const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const [reserve, setReserve] = useState(false);
   const [chambreIdx, setChambreIdx] = useState(0);
@@ -22,15 +22,9 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const [cursorPos, setCursorPos] = useState({ x: -200, y: -200 });
   const [heroLoaded, setHeroLoaded] = useState(false);
   const [clubLockOpen, setClubLockOpen] = useState(false);
-  const [authInfoVisible, setAuthInfoVisible] = useState(false);
   const corpsRef = useRef(null);
 
-  // Sprint S2-α.1.5 FIX E.2 : helper pour fermer proprement la modale Club
-  // ET reset l'info "Se connecter" (sinon elle persiste à la prochaine ouverture).
-  const fermerClubLock = () => {
-    setClubLockOpen(false);
-    setAuthInfoVisible(false);
-  };
+  const fermerClubLock = () => setClubLockOpen(false);
 
   // Onglets : useState local en mode modal, useSearchParams en mode route.
   // Le mode est passé par VitrineChateauRoute pour les URL /chateau/:slug et reste
@@ -47,7 +41,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
 
   // Fallback : club si non-membre → permanent (URL conservée mais contenu différent)
   const moduleEffectif =
-    moduleParam === "club" && !IS_CLUB_MEMBER ? "permanent" : moduleParam;
+    moduleParam === "club" && !isClubMember ? "permanent" : moduleParam;
 
   const chambre = chateau.chambres?.[chambreIdx];
   const prixFinal = chateau.prixBarre
@@ -212,7 +206,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
         <OngletsNiveau1
           chateau={chateau}
           actif={moduleEffectif}
-          isClubMember={IS_CLUB_MEMBER}
+          isClubMember={isClubMember}
           onChange={setModule}
           onClubLock={() => setClubLockOpen(true)}
         />
@@ -227,7 +221,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             onReserver={handleReserver}
           />
         )}
-        {moduleEffectif === "club" && IS_CLUB_MEMBER && (
+        {moduleEffectif === "club" && isClubMember && (
           <ContenuClub
             chateau={chateau}
             offreCible={offreCible}
@@ -302,25 +296,18 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             </p>
             <button
               className="vc3-reserve-btn"
-              onClick={() => setAuthInfoVisible(true)}
+              onClick={() => {
+                // Sprint S2-α.2 Phase 4 : sauvegarde l'URL d'origine pour retour
+                // post-auth (consommé par AuthCallback.jsx via sessionStorage).
+                sessionStorage.setItem(
+                  "auth_redirect_origin",
+                  window.location.pathname + window.location.search,
+                );
+                navigate("/connexion");
+              }}
             >
               Se connecter →
             </button>
-            {authInfoVisible && (
-              <p
-                style={{
-                  fontFamily: "'Cormorant Garamond', serif",
-                  fontStyle: "italic",
-                  fontSize: "13px",
-                  lineHeight: 1.5,
-                  textAlign: "center",
-                  margin: "12px 0 0",
-                  color: "rgba(192, 152, 64, 0.7)",
-                }}
-              >
-                Cette fonctionnalité sera disponible avec l'authentification (sprint S2-α.2, mi-juin 2026).
-              </p>
-            )}
             <button
               onClick={fermerClubLock}
               style={{

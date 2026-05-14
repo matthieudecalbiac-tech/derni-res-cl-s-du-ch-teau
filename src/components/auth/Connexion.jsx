@@ -19,7 +19,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useState, useEffect } from "react";
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import "../../styles/connexion.css";
 
@@ -27,7 +27,8 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const COOLDOWN_SECONDS = 60;
 
 export default function Connexion() {
-  const { user, loading, signInWithMagicLink } = useAuth();
+  const { user, profile, loading, signInWithMagicLink, signOut } = useAuth();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("idle"); // idle | loading | success | error
   const [errorMessage, setErrorMessage] = useState(null);
@@ -40,9 +41,52 @@ export default function Connexion() {
     return () => clearTimeout(t);
   }, [cooldown]);
 
-  // Déjà connecté → redirect home (cas back button après auth)
   if (loading) return null;
-  if (user) return <Navigate to="/" replace />;
+
+  // Sprint S2-α.2 Phase 4.1 : si l'utilisateur est déjà connecté (ex. il a
+  // cliqué "Se connecter" dans la modale Club alors qu'il est role='client'),
+  // afficher un écran d'état au lieu de redirect immédiat — sinon le bouton
+  // "Se connecter" devient inerte côté UX (redirect home sans feedback).
+  if (user && profile) {
+    return (
+      <div className="cnx-page">
+        <div className="cnx-container">
+          <span className="cnx-lys">⚜</span>
+          <h1 className="cnx-titre">Vous êtes connecté</h1>
+          <p className="cnx-sous-titre">
+            Compte : <strong>{user.email}</strong>
+            <br />
+            Rôle : <em>{profile.role}</em>
+          </p>
+          <button
+            type="button"
+            className="cnx-btn"
+            onClick={() => {
+              const origin = sessionStorage.getItem("auth_redirect_origin") || "/";
+              sessionStorage.removeItem("auth_redirect_origin");
+              navigate(origin);
+            }}
+          >
+            Retour à l'accueil
+          </button>
+          <button
+            type="button"
+            className="cnx-btn-secondary"
+            onClick={async () => {
+              // signOut → onAuthStateChange trigger → user=null → ce composant
+              // re-render et affiche le formulaire magic link (état idle)
+              await signOut();
+            }}
+          >
+            Se déconnecter
+          </button>
+          <p className="cnx-footer">
+            ⚜ Une partie de chaque réservation est reversée à la Fondation du Patrimoine.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   const envoyerMagicLink = async () => {
     if (!EMAIL_REGEX.test(email)) {
