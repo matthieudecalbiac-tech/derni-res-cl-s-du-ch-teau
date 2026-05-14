@@ -32,10 +32,12 @@ import BookingConfirmationPlaceholder from "./components/placeholders/BookingCon
 import ClientAccountPlaceholder from "./components/placeholders/ClientAccountPlaceholder";
 import OwnerDashboardPlaceholder from "./components/placeholders/OwnerDashboardPlaceholder";
 import AdminDashboardPlaceholder from "./components/placeholders/AdminDashboardPlaceholder";
-import AuthCallbackPlaceholder from "./components/placeholders/AuthCallbackPlaceholder";
-
 // Sprint S2-α.1.5 — route vitrine SEO /chateau/:slug?onglet=&theme=&offre=
 import VitrineChateauRoute from "./components/VitrineChateauRoute";
+
+// Sprint S2-α.2 — pages auth magic link (remplace AuthCallbackPlaceholder)
+import Connexion from "./components/auth/Connexion";
+import AuthCallback from "./components/auth/AuthCallback";
 
 
 
@@ -224,7 +226,8 @@ function App() {
           </RequireAuth>
         }
       />
-      <Route path="/auth/callback" element={<AuthCallbackPlaceholder />} />
+      <Route path="/connexion" element={<Connexion />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/chateau/:slug" element={<VitrineChateauRoute />} />
       <Route path="*" element={homeEtOverlays} />
     </Routes>
