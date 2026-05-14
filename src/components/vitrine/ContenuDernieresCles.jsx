@@ -8,13 +8,13 @@ export default function ContenuDernieresCles({ chateau, offreCible, onReserver }
 
   useEffect(() => {
     let cancelled = false;
-    getOffresPourChateau(chateau.id, "dernieresCles").then((data) => {
+    getOffresPourChateau(chateau.slug, "dernieresCles").then((data) => {
       if (!cancelled) setOffres(data);
     });
     return () => {
       cancelled = true;
     };
-  }, [chateau.id]);
+  }, [chateau.slug]);
 
   useEffect(() => {
     if (!offreCible || !offres) return;

@@ -12,13 +12,13 @@ function attendre(ms) {
 }
 
 /**
- * @param {number} chateauId
+ * @param {string} chateauSlug - Slug humain (ex: "les-briottieres")
  * @param {"dernieresCles" | "club"} module
  * @returns {Promise<Array>}
  */
-export async function getOffresPourChateau(chateauId, module) {
+export async function getOffresPourChateau(chateauSlug, module) {
   await attendre(LATENCE_MOCK_MS);
-  return mockOffres.filter((o) => o.chateauId === chateauId && o.module === module);
+  return mockOffres.filter((o) => o.chateauSlug === chateauSlug && o.module === module);
 }
 
 /**
@@ -31,11 +31,11 @@ export async function getOffreParId(offreId) {
 }
 
 /**
- * @param {number} chateauId
+ * @param {string} chateauSlug - Slug humain (ex: "les-briottieres")
  * @param {"dernieresCles" | "club"} module
  * @returns {Promise<number>}
  */
-export async function compterOffresPourChateau(chateauId, module) {
-  const offres = await getOffresPourChateau(chateauId, module);
+export async function compterOffresPourChateau(chateauSlug, module) {
+  const offres = await getOffresPourChateau(chateauSlug, module);
   return offres.length;
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import VitrineDernieresCle from "./VitrineDernieresCle";
 import TransitionPorte from "./TransitionPorte";
@@ -35,9 +36,20 @@ function chateauxDisponibles(liste, dateArrivee) {
 }
 
 export default function DernieresCles({ onClose }) {
+  const navigate = useNavigate();
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [transitionChateau, setTransitionChateau] = useState(null);
   const [visible, setVisible] = useState(false);
+
+  // Sprint S2-α.1.5 FIX D : ouvrir la nouvelle vitrine Module B via la route
+  // canonique avec ?onglet=dernieresCles. onClose() en amont pour éviter
+  // l'overlay fantôme au retour /. TransitionPorte animation perdue sur ce path
+  // (trade-off SEO+cohérence URL). VitrineDernieresCle.jsx devient orphelin
+  // (dette nettoyage Sprint S5).
+  const ouvrirChateauModuleB = (c) => {
+    onClose?.();
+    navigate(`/chateau/${c.slug}?onglet=dernieresCles`);
+  };
   const [dateArrivee, setDateArrivee] = useState(null);
   const [dateDepart, setDateDepart] = useState(null);
   const [etape, setEtape] = useState("arrivee");
@@ -88,7 +100,7 @@ export default function DernieresCles({ onClose }) {
       const marker = L.marker([c.coordonnees.lat, c.coordonnees.lng], { icon })
         .addTo(map)
         .bindPopup(`<div style="font-family:Georgia,serif;min-width:180px;padding:4px"><strong style="font-size:0.95rem">${c.nom}</strong><br/><span style="color:#888;font-size:0.82em">${c.region} · ${c.distanceParis}</span><br/><span style="color:#C09840;font-weight:bold;font-size:0.85em">${c.urgence}</span></div>`)
-        .on("click", () => setTransitionChateau(c));
+        .on("click", () => ouvrirChateauModuleB(c));
       markersRef.current[c.id] = marker;
     });
   }, [chateauxFiltres, chateauSurvol, mapInstanceRef.current]);
@@ -197,7 +209,7 @@ export default function DernieresCles({ onClose }) {
                   <div
                     key={c.id}
                     className={"dk-liste-item " + (chateauSurvol === c.id ? "survol" : "")}
-                    onClick={() => setTransitionChateau(c)}
+                    onClick={() => ouvrirChateauModuleB(c)}
                     onMouseEnter={() => survolChateau(c.id)}
                     onMouseLeave={() => setChateauSurvol(null)}
                   >

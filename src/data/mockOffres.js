@@ -9,7 +9,7 @@ export const mockOffres = [
   // ──────────────────────────────────────────────────────────────────────────
   {
     id: "offre-bri-001",
-    chateauId: 7,
+    chateauSlug: "les-briottieres",
     module: "dernieresCles",
     titre: "Weekend de mai aux Briottières",
     description:
@@ -30,7 +30,7 @@ export const mockOffres = [
   },
   {
     id: "offre-bri-002",
-    chateauId: 7,
+    chateauSlug: "les-briottieres",
     module: "dernieresCles",
     titre: "Une semaine d'été au cœur de l'Anjou",
     description:
@@ -50,7 +50,7 @@ export const mockOffres = [
   },
   {
     id: "offre-bri-003",
-    chateauId: 7,
+    chateauSlug: "les-briottieres",
     module: "dernieresCles",
     titre: "Séminaire de cinq jours · privatisation partielle",
     description:
@@ -75,7 +75,7 @@ export const mockOffres = [
   // ──────────────────────────────────────────────────────────────────────────
   {
     id: "offre-bb-001",
-    chateauId: 8,
+    chateauSlug: "blanc-buisson",
     module: "dernieresCles",
     titre: "Weekend au Blanc Buisson",
     description:
@@ -95,7 +95,7 @@ export const mockOffres = [
   },
   {
     id: "offre-bb-002",
-    chateauId: 8,
+    chateauSlug: "blanc-buisson",
     module: "dernieresCles",
     titre: "Une semaine à la fin de l'été",
     description:
@@ -119,7 +119,7 @@ export const mockOffres = [
   // ──────────────────────────────────────────────────────────────────────────
   {
     id: "offre-club-001",
-    chateauId: 7,
+    chateauSlug: "les-briottieres",
     module: "club",
     titre: "Soirée privée des Vendanges",
     description:

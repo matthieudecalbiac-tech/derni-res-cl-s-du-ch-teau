@@ -76,13 +76,34 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(page.locator('[data-onglet-contenu="club"]')).toHaveCount(0);
   });
 
-  test('Test 5 · Onglet Club masqué pour non-membre', async ({ page }) => {
+  test('Test 5 · Onglet Club visible pour tous, click non-membre ouvre modale stub auth', async ({ page }) => {
+    // Sprint S2-α.1.5-FIX : décision UX du 14 mai — l'onglet Club est désormais
+    // toujours visible (effet de découverte). La restriction membre s'applique
+    // au click via modale stub (TODO α.2 : brancher Supabase auth).
     await page.goto('/chateau/les-briottieres');
     await page.waitForLoadState('domcontentloaded');
     await page.locator('.vc4-onglet-n1[data-onglet="permanent"]').waitFor({ timeout: 8000 });
 
-    // L'onglet Club ne doit pas exister dans la nav
-    await expect(page.locator('.vc4-onglet-n1[data-onglet="club"]')).toHaveCount(0);
+    // L'onglet Club EST visible (modules.club=true via _mapping.js fallback)
+    const ongletClub = page.locator('.vc4-onglet-n1[data-onglet="club"]');
+    await expect(ongletClub).toBeVisible({ timeout: 5000 });
+
+    // Click sur Club non-membre → modale stub auth s'ouvre
+    await ongletClub.click();
+    const modaleAuth = page.locator('.vc3-reserve-modal').filter({ hasText: /Club Châtelain/i });
+    await expect(modaleAuth).toBeVisible({ timeout: 5000 });
+    await expect(modaleAuth).toContainText(/Connectez-vous/i);
+
+    // ContenuClub PAS rendu (state moduleActif n'a pas bougé)
+    await expect(page.locator('[data-onglet-contenu="club"]')).toHaveCount(0);
+    await expect(page.locator('[data-onglet-contenu="permanent"]')).toBeVisible();
+
+    // Fermer la modale via bouton Fermer
+    await modaleAuth.locator('button').filter({ hasText: /^Fermer$/ }).click();
+    await expect(modaleAuth).not.toBeVisible({ timeout: 3000 });
+
+    // L'onglet Permanent reste actif après fermeture
+    await expect(page.locator('.vc4-onglet-n1[data-onglet="permanent"]')).toHaveClass(/vc4-onglet-n1--actif/);
   });
 
   test('Test 6 · Click onglet Histoire (niveau 2) → ?theme=histoire + timeline', async ({ page }) => {
@@ -152,6 +173,86 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
 
     // Attendre l'overlay vc3 (Dette 2 : aiguillage estLaUne → VitrineChateau, pas ChateauModal)
     await expect(page.locator('.vc3-overlay')).toBeVisible({ timeout: 8000 });
+  });
+
+  test('Test 11 · Sticky Niveau 1 reste visible après scroll 2000px (R1)', async ({ page }) => {
+    // Sprint S2-α.1.5-FIX : régression R1 (sticky cassé top: 64px) résolue
+    // par top: 0 dans vitrine-onglets.css. Test garantit que le scroll dans
+    // .vc3-corps préserve la barre d'onglets N1 visible.
+    await page.goto('/chateau/les-briottieres');
+    await page.waitForLoadState('domcontentloaded');
+    await page.locator('.vc4-onglet-n1[data-onglet="permanent"]').waitFor({ timeout: 8000 });
+
+    // Scroll de 2000px dans le scroll container .vc3-corps
+    await page.evaluate(() => {
+      const corps = document.querySelector('.vc3-corps');
+      if (corps) corps.scrollTo({ top: 2000, behavior: 'instant' });
+    });
+    await page.waitForTimeout(300);
+
+    // Le bandeau N1 doit rester dans le viewport (sticky)
+    const bandeau = page.locator('.vc4-onglets-n1-wrap');
+    await expect(bandeau).toBeInViewport({ ratio: 0.5 });
+  });
+
+  test('Test 12 · Switch onglet N1 préserve hero + tronc commun (R3)', async ({ page }) => {
+    // Sprint S2-α.1.5-FIX : régression R3 (architecture "vues séparées" perçue)
+    // — l'architecture en code est correcte : Hero + IntroTroncCommun + N2 sont
+    // toujours rendus, indépendamment du module actif. Seule la section module
+    // change.
+    await page.goto('/chateau/les-briottieres');
+    await page.waitForLoadState('domcontentloaded');
+
+    // Permanent par défaut : hero + tronc commun attachés au DOM
+    await expect(page.locator('.vc3-hero')).toBeAttached();
+    await expect(page.locator('[data-section="intro-tronc"]')).toBeAttached();
+    await expect(page.locator('.vc4-onglets-n2-wrap')).toBeAttached();
+    await expect(page.locator('[data-onglet-contenu="permanent"]')).toBeVisible({ timeout: 8000 });
+
+    // Switch vers Dernières Clés
+    await page.locator('.vc4-onglet-n1[data-onglet="dernieresCles"]').click();
+    await expect(page.locator('[data-onglet-contenu="dernieresCles"]')).toBeVisible({ timeout: 8000 });
+
+    // Hero + tronc commun TOUJOURS attachés (jamais unmounted)
+    await expect(page.locator('.vc3-hero')).toBeAttached();
+    await expect(page.locator('[data-section="intro-tronc"]')).toBeAttached();
+    await expect(page.locator('.vc4-onglets-n2-wrap')).toBeAttached();
+
+    // ContenuPermanent disparaît, ContenuDernieresCles apparaît (seule la section module change)
+    await expect(page.locator('[data-onglet-contenu="permanent"]')).toHaveCount(0);
+  });
+
+  test('Test 13 · FIX D : DernieresCles overlay → click château → /chateau/:slug?onglet=dernieresCles', async ({ page, browserName, isMobile }) => {
+    // Sprint S2-α.1.5 FIX D : depuis l'overlay DernieresCles (qui liste les
+    // châteaux avec offres Module B), un click sur une carte doit ouvrir la
+    // vitrine routée /chateau/:slug?onglet=dernieresCles (et pas l'overlay
+    // legacy VitrineDernieresCle qui devient orphelin, dette S5).
+    test.skip(
+      browserName === 'webkit' && isMobile,
+      'S2-α.1.5 Test 13 — non testé sur mobile-safari : dette responsive header z-index (cf Test 10). Couverture maintenue sur chromium-desktop + webkit-desktop.'
+    );
+
+    await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
+
+    // Ouvrir le burger menu et naviguer vers Dernières Clés
+    await page.getByRole('button', { name: /Ouvrir le menu/i }).click();
+    const itemDC = page.locator('button.hm-item').filter({ hasText: /Dernières Clés/i });
+    await expect(itemDC).toBeVisible({ timeout: 5000 });
+    await itemDC.click();
+
+    // Cliquer sur la première carte château de l'overlay (DernieresCles → .dk-liste-item)
+    const carteChat = page.locator('.dk-liste-item').first();
+    await expect(carteChat).toBeVisible({ timeout: 8000 });
+    await carteChat.click();
+
+    // URL doit devenir /chateau/{slug}?onglet=dernieresCles
+    await expect(page).toHaveURL(/\/chateau\/[^?]+\?onglet=dernieresCles/, { timeout: 5000 });
+
+    // Onglet Dernières Clés actif à l'arrivée
+    const ongletDC = page.locator('.vc4-onglet-n1[data-onglet="dernieresCles"]');
+    await expect(ongletDC).toBeVisible({ timeout: 8000 });
+    await expect(ongletDC).toHaveClass(/vc4-onglet-n1--actif/);
   });
 
 });

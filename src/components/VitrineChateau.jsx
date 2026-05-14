@@ -21,7 +21,16 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const [heure, setHeure] = useState({ h: "09", m: "42", isNight: false });
   const [cursorPos, setCursorPos] = useState({ x: -200, y: -200 });
   const [heroLoaded, setHeroLoaded] = useState(false);
+  const [clubLockOpen, setClubLockOpen] = useState(false);
+  const [authInfoVisible, setAuthInfoVisible] = useState(false);
   const corpsRef = useRef(null);
+
+  // Sprint S2-α.1.5 FIX E.2 : helper pour fermer proprement la modale Club
+  // ET reset l'info "Se connecter" (sinon elle persiste à la prochaine ouverture).
+  const fermerClubLock = () => {
+    setClubLockOpen(false);
+    setAuthInfoVisible(false);
+  };
 
   // Onglets : useState local en mode modal, useSearchParams en mode route.
   // Le mode est passé par VitrineChateauRoute pour les URL /chateau/:slug et reste
@@ -205,6 +214,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
           actif={moduleEffectif}
           isClubMember={IS_CLUB_MEMBER}
           onChange={setModule}
+          onClubLock={() => setClubLockOpen(true)}
         />
 
         {moduleEffectif === "permanent" && (
@@ -263,6 +273,72 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             </div>
             <button className="vc3-reserve-btn">Confirmer la réservation →</button>
             <p className="vc3-reserve-fond">⚜ Une partie sera reversée à la Fondation du Patrimoine</p>
+          </div>
+        </div>
+      )}
+
+      {/* MODALE STUB AUTH CLUB — TODO α.2 : brancher Supabase auth */}
+      {clubLockOpen && (
+        <div className="vc3-reserve-overlay" onClick={fermerClubLock}>
+          <div className="vc3-reserve-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="vc3-reserve-close" onClick={fermerClubLock}>✕</button>
+            <div className="vc3-reserve-lys">⚜</div>
+            <h2 className="vc3-reserve-titre">Club Châtelain</h2>
+            <p className="vc3-reserve-sub">Réservé aux membres</p>
+            <div className="vc3-reserve-sep" />
+            <p
+              style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontStyle: "italic",
+                fontSize: "15px",
+                lineHeight: 1.6,
+                textAlign: "center",
+                margin: "0 0 28px",
+                color: "rgba(247, 242, 232, 0.75)",
+                maxWidth: "420px",
+              }}
+            >
+              Connectez-vous pour accéder aux offres exclusives réservées aux membres du Club Châtelain.
+            </p>
+            <button
+              className="vc3-reserve-btn"
+              onClick={() => setAuthInfoVisible(true)}
+            >
+              Se connecter →
+            </button>
+            {authInfoVisible && (
+              <p
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontStyle: "italic",
+                  fontSize: "13px",
+                  lineHeight: 1.5,
+                  textAlign: "center",
+                  margin: "12px 0 0",
+                  color: "rgba(192, 152, 64, 0.7)",
+                }}
+              >
+                Cette fonctionnalité sera disponible avec l'authentification (sprint S2-α.2, mi-juin 2026).
+              </p>
+            )}
+            <button
+              onClick={fermerClubLock}
+              style={{
+                marginTop: "12px",
+                background: "transparent",
+                border: "1px solid rgba(192, 152, 64, 0.6)",
+                color: "rgba(247, 242, 232, 0.7)",
+                padding: "12px 28px",
+                fontFamily: "'Crimson Pro', serif",
+                fontSize: "12px",
+                letterSpacing: "0.08em",
+                cursor: "pointer",
+                transition: "all 0.25s ease",
+                width: "100%",
+              }}
+            >
+              Fermer
+            </button>
           </div>
         </div>
       )}

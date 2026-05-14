@@ -8,13 +8,13 @@ export default function ContenuClub({ chateau, offreCible, onReserver }) {
 
   useEffect(() => {
     let cancelled = false;
-    getOffresPourChateau(chateau.id, "club").then((data) => {
+    getOffresPourChateau(chateau.slug, "club").then((data) => {
       if (!cancelled) setOffres(data);
     });
     return () => {
       cancelled = true;
     };
-  }, [chateau.id]);
+  }, [chateau.slug]);
 
   useEffect(() => {
     if (!offreCible || !offres) return;

@@ -19,7 +19,10 @@
 
 .vc4-onglets-n1-wrap {
   position: sticky;
-  top: 64px; /* hauteur header VitrineChateau */
+  top: 0; /* .vc3-header est sticky dans un FRÈRE flex item — il ne contribue pas
+             à l'offset top du scroll container .vc3-corps. Donc top:0 colle direct
+             contre le top de la zone visible de .vc3-corps, qui se trouve juste
+             sous le header dans le flex parent .vc3-overlay. */
   z-index: 50;
   background: var(--vc4-navy-2);
   backdrop-filter: blur(12px);
@@ -31,57 +34,60 @@
 .vc4-onglets-n1 {
   display: flex;
   justify-content: center;
-  gap: 0;
-  border-bottom: 1px solid var(--vc4-or-faint);
+  gap: 12px;
+  padding: 0 24px 16px;
+  flex-wrap: wrap;
 }
 
 .vc4-onglet-n1 {
   position: relative;
-  background: none;
-  border: none;
-  padding: 14px 28px;
+  background: transparent;
+  border: 1px solid var(--vc4-or-soft);
+  border-radius: 2px;
+  padding: 12px 24px;
   font-family: "Playfair Display", serif;
   font-size: 14px;
   letter-spacing: 0.06em;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-or);
   cursor: pointer;
-  transition: color 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
   display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
 }
 
 .vc4-onglet-n1:hover {
+  background: var(--vc4-or-faint);
+  border-color: var(--vc4-or);
   color: var(--vc4-creme);
 }
 
 .vc4-onglet-n1--actif {
-  color: var(--vc4-or);
+  background: var(--vc4-or);
+  border-color: var(--vc4-or);
+  color: var(--vc4-navy);
 }
 
-.vc4-onglet-n1--actif::after {
-  content: "";
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: -1px;
-  height: 3px;
+.vc4-onglet-n1--actif:hover {
   background: var(--vc4-or);
-  border-radius: 1px;
+  color: var(--vc4-navy);
 }
 
 .vc4-onglet-n1-lib {
-  white-space: nowrap;
+  font-weight: 400;
 }
 
 .vc4-onglet-n1-compteur {
-  background: var(--vc4-or-faint);
-  border: 1px solid var(--vc4-or-soft);
-  border-radius: 10px;
-  padding: 1px 7px;
   font-family: "Crimson Pro", serif;
-  font-size: 11px;
-  color: var(--vc4-or);
+  font-size: 12px;
+  font-style: italic;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+}
+
+.vc4-onglet-n1--actif .vc4-onglet-n1-compteur {
+  opacity: 1;
 }
 
 .vc4-bandeau-explicatif {
@@ -1118,7 +1124,7 @@
 /* ═══ Responsive (mobile-first léger, polish complet en Sprint S5) ═══════════ */
 
 @media (max-width: 720px) {
-  .vc4-onglets-n1-wrap { top: 56px; }
+  .vc4-onglets-n1-wrap { top: 0; }
   .vc4-onglet-n1 { padding: 12px 14px; font-size: 12px; }
   .vc4-permanent-grille { grid-template-columns: 1fr; }
   .vc4-dc-card,

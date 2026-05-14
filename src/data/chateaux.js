@@ -1193,7 +1193,7 @@ export const chateaux = [
   {
     id: 8,
     estLaUne: true,
-    modules: { permanent: true, dernieresCles: true, club: false },
+    modules: { permanent: true, dernieresCles: true, club: true },
     heroNightStars: true,
     nom: "Château du Blanc Buisson",
     slug: "blanc-buisson",
