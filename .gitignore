@@ -33,6 +33,7 @@ fix*.cjs
 # Playwright — outputs runtime
 qa-status.json
 qa-results.json
+qa-fast-log.*
 qa-reports/
 test-results/
 playwright-report/

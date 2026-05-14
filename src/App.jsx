@@ -34,6 +34,9 @@ import OwnerDashboardPlaceholder from "./components/placeholders/OwnerDashboardP
 import AdminDashboardPlaceholder from "./components/placeholders/AdminDashboardPlaceholder";
 import AuthCallbackPlaceholder from "./components/placeholders/AuthCallbackPlaceholder";
 
+// Sprint S2-α.1.5 — route vitrine SEO /chateau/:slug?onglet=&theme=&offre=
+import VitrineChateauRoute from "./components/VitrineChateauRoute";
+
 
 
 function App() {
@@ -222,6 +225,7 @@ function App() {
         }
       />
       <Route path="/auth/callback" element={<AuthCallbackPlaceholder />} />
+      <Route path="/chateau/:slug" element={<VitrineChateauRoute />} />
       <Route path="*" element={homeEtOverlays} />
     </Routes>
   );

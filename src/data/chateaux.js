@@ -2,6 +2,8 @@ export const chateaux = [
   {
     id: 1,
     isDemoMock: true,
+    estLaUne: false,
+    modules: { permanent: true, dernieresCles: false, club: false },
     nom: "Château de Vaux-le-Vicomte",
     slug: "vaux-le-vicomte",
     region: "Île-de-France",
@@ -176,6 +178,8 @@ export const chateaux = [
   {
     id: 2,
     isDemoMock: true,
+    estLaUne: false,
+    modules: { permanent: true, dernieresCles: false, club: false },
     nom: "Château de Pierrefonds",
     slug: "pierrefonds",
     region: "Hauts-de-France",
@@ -352,6 +356,8 @@ export const chateaux = [
   {
     id: 3,
     isDemoMock: true,
+    estLaUne: false,
+    modules: { permanent: true, dernieresCles: false, club: false },
     nom: "Château de Chantilly",
     slug: "chantilly",
     region: "Hauts-de-France",
@@ -527,6 +533,8 @@ export const chateaux = [
   {
     id: 4,
     isDemoMock: true,
+    estLaUne: false,
+    modules: { permanent: true, dernieresCles: false, club: false },
     nom: "Château de Fontainebleau",
     slug: "fontainebleau",
     region: "Île-de-France",
@@ -704,6 +712,8 @@ export const chateaux = [
   {
     id: 5,
     isDemoMock: true,
+    estLaUne: false,
+    modules: { permanent: true, dernieresCles: false, club: false },
     nom: "Château de La Ferté-Saint-Aubin",
     slug: "ferte-saint-aubin",
     region: "Centre-Val de Loire",
@@ -877,6 +887,8 @@ export const chateaux = [
   {
     id: 6,
     isDemoMock: true,
+    estLaUne: false,
+    modules: { permanent: true, dernieresCles: false, club: false },
     nom: "Château de Pierreclos",
     slug: "pierreclos",
     region: "Bourgogne-Franche-Comté",
@@ -1055,6 +1067,7 @@ export const chateaux = [
   {
     id: 7,
     estLaUne: true,
+    modules: { permanent: true, dernieresCles: true, club: true },
     nom: "Château des Briottières",
     slug: "les-briottieres",
     region: "Pays de la Loire",
@@ -1081,6 +1094,7 @@ export const chateaux = [
     proprietaires: {
         nom: "Arnaud & Madeleine de Valbray",
         depuis: "2010",
+        nbGenerations: 7,
         initiale: "V",
         nomAffiche: "albray",
         portrait: "/bri-arnaud.avif",
@@ -1179,6 +1193,7 @@ export const chateaux = [
   {
     id: 8,
     estLaUne: true,
+    modules: { permanent: true, dernieresCles: true, club: true },
     heroNightStars: true,
     nom: "Château du Blanc Buisson",
     slug: "blanc-buisson",
@@ -1208,6 +1223,7 @@ export const chateaux = [
     proprietaires: {
       nom: "Maïté & Éric de la Fresnaye",
       depuis: "2014",
+      nbGenerations: 3,
       initiale: "F",
       nomAffiche: "resnaye",
       portrait: "/bb-eric2.jpg",

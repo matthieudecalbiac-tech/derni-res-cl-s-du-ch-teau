@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { derivePrix } from "../utils/derivePrix";
 import TransitionPorte from "./TransitionPorte";
@@ -50,9 +51,18 @@ const PACKAGES_CHATEAU = {
 };
 
 export default function ClubMembres({ user, onClose }) {
+  const navigate = useNavigate();
   const [transitionChateau, setTransitionChateau] = useState(null);
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [dateArrivee, setDateArrivee] = useState(null);
+
+  // Sprint S2-α.1.5 FIX D : ouvrir la nouvelle vitrine Module C via la route
+  // canonique avec ?onglet=club. onClose() en amont pour éviter l'overlay
+  // fantôme au retour /. VitrineClub.jsx devient orphelin (dette nettoyage S5).
+  const ouvrirChateauModuleC = (c) => {
+    onClose?.();
+    navigate(`/chateau/${c.slug}?onglet=club`);
+  };
   const [dateDepart, setDateDepart] = useState(null);
   const [etape, setEtape] = useState("arrivee");
   const [calVisible, setCalVisible] = useState(false);
@@ -203,7 +213,7 @@ export default function ClubMembres({ user, onClose }) {
                     ))}
                   </div>
                 </div>
-                <button className="cm-ligne-cta" onClick={() => setTransitionChateau(c)}>
+                <button className="cm-ligne-cta" onClick={() => ouvrirChateauModuleC(c)}>
                   Découvrir ce séjour →
                 </button>
               </div>
