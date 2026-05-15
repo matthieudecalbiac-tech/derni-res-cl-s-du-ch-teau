@@ -62,8 +62,9 @@ export default function Connexion() {
             type="button"
             className="cnx-btn"
             onClick={() => {
-              const origin = sessionStorage.getItem("auth_redirect_origin") || "/";
-              sessionStorage.removeItem("auth_redirect_origin");
+              // Mini-Phase 6.1 : localStorage (clé lcc_auth_next)
+              const origin = localStorage.getItem("lcc_auth_next") || "/";
+              localStorage.removeItem("lcc_auth_next");
               navigate(origin);
             }}
           >
@@ -97,11 +98,13 @@ export default function Connexion() {
     setStatus("loading");
     setErrorMessage(null);
     try {
-      // Sprint S2-α.2 Mini-Phase 6 : lit l'URL d'origine sessionStorage
-      // (écrit same-tab par RequireAuth ou par le bouton "Se connecter" de
-      // la modale Club) et la passe en `next` pour survivre au nouveau tab
-      // Gmail via query param ?next= dans emailRedirectTo.
-      const next = sessionStorage.getItem("auth_redirect_origin") || null;
+      // Sprint S2-α.2 Mini-Phase 6.1 : lit localStorage (clé lcc_auth_next,
+      // écrite par RequireAuth ou le bouton "Se connecter" modale Club).
+      // localStorage est cross-tab same-origin → robuste au nouveau tab Gmail.
+      // Le param est aussi passé à signInWithMagicLink qui l'encode en ?next=
+      // dans emailRedirectTo (fallback défensif au cas où Supabase préserve
+      // un jour les query params — actuellement v2 les strip).
+      const next = localStorage.getItem("lcc_auth_next") || null;
       await signInWithMagicLink(email, next);
       setStatus("success");
       setCooldown(COOLDOWN_SECONDS);

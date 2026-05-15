@@ -18,8 +18,10 @@ export default function RequireAuth({ children }) {
   }
 
   if (!user) {
-    sessionStorage.setItem(
-      "auth_redirect_origin",
+    // Sprint S2-α.2 Mini-Phase 6.1 : localStorage cross-tab same-origin
+    // (sessionStorage ne survit pas au nouveau tab Gmail au magic link).
+    localStorage.setItem(
+      "lcc_auth_next",
       location.pathname + location.search,
     );
     return <Navigate to="/connexion" replace />;

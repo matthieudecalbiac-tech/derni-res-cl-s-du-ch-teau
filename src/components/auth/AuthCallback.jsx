@@ -67,15 +67,29 @@ export default function AuthCallback() {
     return () => clearTimeout(t);
   }, [user, loading]);
 
-  // Quand user est défini → restore l'URL d'origine via ?next= + cleanup
+  // Quand user est défini → restore l'URL d'origine + cleanup
   useEffect(() => {
     if (!user) return;
-    // Mini-Phase 6 : lit `?next=` (survit au nouveau tab Gmail, contrairement
-    // à sessionStorage). Whitelist : pas d'open redirect sur URLs externes.
-    // Fallback "/" si absent ou invalide.
-    const next = searchParams.get("next");
-    const origin = isPathInterneValide(next) ? next : "/";
-    // Cleanup sessionStorage (devenu stale après auth réussie — hygiène)
+    // Sprint S2-α.2 Mini-Phase 6.1 : lecture ordonnée des sources.
+    //   PRIMARY  : localStorage["lcc_auth_next"] (cross-tab same-origin,
+    //              survit au nouveau tab Gmail — cas nominal 99%)
+    //   FALLBACK : searchParams.get("next") (défensif au cas où Supabase
+    //              préserve un jour les query params — actuellement v2
+    //              strip les query params de emailRedirectTo)
+    //   FINAL    : "/" (cross-device, localStorage non partagé)
+    // Whitelist isPathInterneValide appliquée aux 2 sources (anti open-redirect).
+    const localStored = localStorage.getItem("lcc_auth_next");
+    const fromQuery = searchParams.get("next");
+
+    let origin = "/";
+    if (isPathInterneValide(localStored)) {
+      origin = localStored;
+    } else if (isPathInterneValide(fromQuery)) {
+      origin = fromQuery;
+    }
+
+    // Cleanup primary + sessionStorage legacy (hygiène, devenu stale)
+    localStorage.removeItem("lcc_auth_next");
     sessionStorage.removeItem("auth_redirect_origin");
     navigate(origin, { replace: true });
   }, [user, navigate, searchParams]);

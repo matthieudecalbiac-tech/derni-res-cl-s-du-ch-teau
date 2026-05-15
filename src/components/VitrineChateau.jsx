@@ -297,10 +297,12 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             <button
               className="vc3-reserve-btn"
               onClick={() => {
-                // Sprint S2-α.2 Phase 4 : sauvegarde l'URL d'origine pour retour
-                // post-auth (consommé par AuthCallback.jsx via sessionStorage).
-                sessionStorage.setItem(
-                  "auth_redirect_origin",
+                // Sprint S2-α.2 Mini-Phase 6.1 : bascule sessionStorage →
+                // localStorage. sessionStorage est session-scoped à un tab,
+                // ne survit pas au nouveau tab Gmail. localStorage est
+                // cross-tab same-origin → robuste au flow magic link.
+                localStorage.setItem(
+                  "lcc_auth_next",
                   window.location.pathname + window.location.search,
                 );
                 navigate("/connexion");

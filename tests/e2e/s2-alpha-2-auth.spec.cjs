@@ -96,7 +96,7 @@ test.describe('S2-α.2 · auth magic link (user non-connecté)', () => {
     await expect(btnRenvoyer).toContainText(/Renvoyer le lien \(\d+s\)/);
   });
 
-  test('Test 4 · Modale Club non-membre → "Se connecter" → /connexion + sessionStorage', async ({ page }) => {
+  test('Test 4 · Modale Club non-membre → "Se connecter" → /connexion + localStorage (Mini-Phase 6.1)', async ({ page }) => {
     await page.goto('/chateau/les-briottieres');
     await page.waitForLoadState('domcontentloaded');
     await page.locator('.vc4-onglet-n1[data-onglet="permanent"]').waitFor({ timeout: 8000 });
@@ -106,15 +106,16 @@ test.describe('S2-α.2 · auth magic link (user non-connecté)', () => {
     const modale = page.locator('.vc3-reserve-modal').filter({ hasText: /Club Châtelain/i });
     await expect(modale).toBeVisible({ timeout: 5000 });
 
-    // Click "Se connecter" (NB : la note inline α.1.5-FIX a été retirée Phase 4)
+    // Click "Se connecter"
     await modale.locator('button').filter({ hasText: /^Se connecter →$/ }).click();
 
     // URL devient /connexion
     await expect(page).toHaveURL(/\/connexion$/, { timeout: 5000 });
 
-    // sessionStorage auth_redirect_origin = /chateau/les-briottieres
+    // Mini-Phase 6.1 : localStorage["lcc_auth_next"] = /chateau/les-briottieres
+    // (sessionStorage abandonné — ne survit pas au nouveau tab Gmail)
     const origin = await page.evaluate(() =>
-      sessionStorage.getItem('auth_redirect_origin')
+      localStorage.getItem('lcc_auth_next')
     );
     expect(origin).toBe('/chateau/les-briottieres');
 
@@ -122,7 +123,7 @@ test.describe('S2-α.2 · auth magic link (user non-connecté)', () => {
     await expect(page.locator('#cnx-email')).toBeFocused({ timeout: 3000 });
   });
 
-  test('Test 5 · /mon-compte sans session → redirect /connexion + sessionStorage origin', async ({ page }) => {
+  test('Test 5 · /mon-compte sans session → redirect /connexion + localStorage origin (Mini-Phase 6.1)', async ({ page }) => {
     // Goto /mon-compte (route wrappée dans <RequireAuth>)
     await page.goto('/mon-compte');
     await page.waitForLoadState('domcontentloaded');
@@ -130,9 +131,9 @@ test.describe('S2-α.2 · auth magic link (user non-connecté)', () => {
     // RequireAuth observe user=null + !loading → Navigate to /connexion
     await expect(page).toHaveURL(/\/connexion$/, { timeout: 5000 });
 
-    // sessionStorage auth_redirect_origin = /mon-compte (posée par RequireAuth)
+    // Mini-Phase 6.1 : localStorage["lcc_auth_next"] = /mon-compte (posée par RequireAuth)
     const origin = await page.evaluate(() =>
-      sessionStorage.getItem('auth_redirect_origin')
+      localStorage.getItem('lcc_auth_next')
     );
     expect(origin).toBe('/mon-compte');
 
@@ -140,12 +141,13 @@ test.describe('S2-α.2 · auth magic link (user non-connecté)', () => {
     await expect(page.locator('#cnx-email')).toBeVisible();
   });
 
-  test('Test 6 · sessionStorage origin → emailRedirectTo contient ?next= encodé (Mini-Phase 6)', async ({ page }) => {
-    // Sprint S2-α.2 Mini-Phase 6 : redirect cross-tab via ?next=.
-    // Vérifie que Connexion.jsx lit sessionStorage et passe la valeur à
-    // signInWithMagicLink, qui construit emailRedirectTo avec ?next= encodé.
-    //
-    // Capture la requête OTP outbound via page.route().
+  test('Test 6 · localStorage primary + ?next= fallback défensif (Mini-Phase 6.1 belt-and-suspenders)', async ({ page }) => {
+    // Sprint S2-α.2 Mini-Phase 6.1 : double piste défensive
+    //   PRIMARY  : localStorage["lcc_auth_next"] (cross-tab same-origin)
+    //   FALLBACK : ?next= encodé dans emailRedirectTo (AuthContext inchangé)
+    // Le test prouve que les 2 pistes sont activées simultanément
+    // (le SDK Supabase v2 strip actuellement le ?next= → localStorage prend
+    // le relais, mais si Supabase préserve un jour le param, on l'a gratuit).
     let interceptedBody = null;
     let interceptedUrl = null;
     await page.route('**/auth/v1/otp**', async (route) => {
@@ -162,12 +164,13 @@ test.describe('S2-α.2 · auth magic link (user non-connecté)', () => {
       });
     });
 
-    // Poser sessionStorage auth_redirect_origin avant /connexion
-    // (simule RequireAuth ou bouton "Se connecter" modale Club)
+    // Poser localStorage["lcc_auth_next"] avant /connexion
+    // (simule RequireAuth ou bouton "Se connecter" modale Club).
+    // localStorage est cross-page same-origin → visible sur /connexion.
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     await page.evaluate(() =>
-      sessionStorage.setItem('auth_redirect_origin', '/chateau/blanc-buisson')
+      localStorage.setItem('lcc_auth_next', '/chateau/blanc-buisson')
     );
 
     // Aller sur /connexion et soumettre
@@ -176,24 +179,27 @@ test.describe('S2-α.2 · auth magic link (user non-connecté)', () => {
     await page.fill('#cnx-email', 'test@example.com');
     await page.locator('button[type="submit"]').click();
 
-    // Attendre le success message (signe que signInWithOtp a été appelé + mock OK)
+    // Attendre le success message (signInWithOtp appelé + mock OK)
     await expect(page.locator('.cnx-success-msg')).toBeVisible({ timeout: 5000 });
 
-    // Vérifier que la requête OTP contenait emailRedirectTo avec ?next= encodé
-    // Format SDK v2 : Supabase met l'emailRedirectTo dans le query param
-    // `redirect_to` de l'URL OTP, en DOUBLE-encodant son contenu (notre %2F
-    // devient %252F). Pour matcher le pattern original, on décode une fois.
+    // PREUVE PISTE 1 — localStorage est toujours posé avant signInWithOtp
+    // (Connexion.jsx ne consomme pas localStorage, seul AuthCallback le clear)
+    const localStoredPreSubmit = await page.evaluate(() =>
+      localStorage.getItem('lcc_auth_next')
+    );
+    expect(localStoredPreSubmit).toBe('/chateau/blanc-buisson');
+
+    // PREUVE PISTE 2 — emailRedirectTo contient ?next= en outbound
+    // (fallback défensif gratuit, AuthContext.jsx inchangé Mini-Phase 6.1).
+    // Format SDK v2 : Supabase met emailRedirectTo dans query param
+    // redirect_to en DOUBLE-encodant (notre %2F devient %252F).
     expect(interceptedBody || interceptedUrl).toBeTruthy();
     const redirectUrl =
       interceptedBody?.options?.emailRedirectTo ||
       interceptedBody?.gotrue_meta_security?.emailRedirectTo ||
       interceptedBody?.email_redirect_to ||
-      interceptedUrl; // fallback : scan l'URL de requête (query param)
+      interceptedUrl;
 
-    // Décodage 1×  pour absorber le re-encoding query param Supabase :
-    //   "redirect_to=http%3A%2F...%3Fnext%3D%252Fchateau%252Fblanc-buisson"
-    //   → après decodeURIComponent : "...?next=%2Fchateau%2Fblanc-buisson"
-    //   → match sur "next=%2Fchateau%2Fblanc-buisson"
     const decoded = decodeURIComponent(redirectUrl);
     expect(decoded).toMatch(/next=%2Fchateau%2Fblanc-buisson/);
   });
