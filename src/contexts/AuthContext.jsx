@@ -90,12 +90,20 @@ export function AuthProvider({ children }) {
   // ──────────────────────────────────────────────────────────────────────
   // 3. Actions exposées
   // ──────────────────────────────────────────────────────────────────────
-  const signInWithMagicLink = async (email) => {
+  const signInWithMagicLink = async (email, next = null) => {
+    // Sprint S2-α.2 Mini-Phase 6 : `next` est encodé dans emailRedirectTo
+    // via query param `?next=`. Ce param survit au nouveau tab Gmail
+    // (contrairement à sessionStorage qui est session-scoped à un tab).
+    // AuthCallback.jsx lira useSearchParams().get("next") avec whitelist
+    // anti open-redirect.
+    const callbackUrl = `${window.location.origin}/auth/callback${
+      next ? `?next=${encodeURIComponent(next)}` : ""
+    }`;
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
         // Force le retour sur l'origine actuelle (dev/preview/prod cohérent)
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: callbackUrl,
       },
     });
     if (error) throw error;

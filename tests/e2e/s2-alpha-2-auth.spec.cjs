@@ -140,4 +140,62 @@ test.describe('S2-α.2 · auth magic link (user non-connecté)', () => {
     await expect(page.locator('#cnx-email')).toBeVisible();
   });
 
+  test('Test 6 · sessionStorage origin → emailRedirectTo contient ?next= encodé (Mini-Phase 6)', async ({ page }) => {
+    // Sprint S2-α.2 Mini-Phase 6 : redirect cross-tab via ?next=.
+    // Vérifie que Connexion.jsx lit sessionStorage et passe la valeur à
+    // signInWithMagicLink, qui construit emailRedirectTo avec ?next= encodé.
+    //
+    // Capture la requête OTP outbound via page.route().
+    let interceptedBody = null;
+    let interceptedUrl = null;
+    await page.route('**/auth/v1/otp**', async (route) => {
+      interceptedUrl = route.request().url();
+      try {
+        interceptedBody = route.request().postDataJSON();
+      } catch {
+        interceptedBody = null;
+      }
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ data: {}, error: null }),
+      });
+    });
+
+    // Poser sessionStorage auth_redirect_origin avant /connexion
+    // (simule RequireAuth ou bouton "Se connecter" modale Club)
+    await page.goto('/');
+    await page.waitForLoadState('domcontentloaded');
+    await page.evaluate(() =>
+      sessionStorage.setItem('auth_redirect_origin', '/chateau/blanc-buisson')
+    );
+
+    // Aller sur /connexion et soumettre
+    await page.goto('/connexion');
+    await page.waitForLoadState('domcontentloaded');
+    await page.fill('#cnx-email', 'test@example.com');
+    await page.locator('button[type="submit"]').click();
+
+    // Attendre le success message (signe que signInWithOtp a été appelé + mock OK)
+    await expect(page.locator('.cnx-success-msg')).toBeVisible({ timeout: 5000 });
+
+    // Vérifier que la requête OTP contenait emailRedirectTo avec ?next= encodé
+    // Format SDK v2 : Supabase met l'emailRedirectTo dans le query param
+    // `redirect_to` de l'URL OTP, en DOUBLE-encodant son contenu (notre %2F
+    // devient %252F). Pour matcher le pattern original, on décode une fois.
+    expect(interceptedBody || interceptedUrl).toBeTruthy();
+    const redirectUrl =
+      interceptedBody?.options?.emailRedirectTo ||
+      interceptedBody?.gotrue_meta_security?.emailRedirectTo ||
+      interceptedBody?.email_redirect_to ||
+      interceptedUrl; // fallback : scan l'URL de requête (query param)
+
+    // Décodage 1×  pour absorber le re-encoding query param Supabase :
+    //   "redirect_to=http%3A%2F...%3Fnext%3D%252Fchateau%252Fblanc-buisson"
+    //   → après decodeURIComponent : "...?next=%2Fchateau%2Fblanc-buisson"
+    //   → match sur "next=%2Fchateau%2Fblanc-buisson"
+    const decoded = decodeURIComponent(redirectUrl);
+    expect(decoded).toMatch(/next=%2Fchateau%2Fblanc-buisson/);
+  });
+
 });

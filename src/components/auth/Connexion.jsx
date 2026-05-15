@@ -97,7 +97,12 @@ export default function Connexion() {
     setStatus("loading");
     setErrorMessage(null);
     try {
-      await signInWithMagicLink(email);
+      // Sprint S2-α.2 Mini-Phase 6 : lit l'URL d'origine sessionStorage
+      // (écrit same-tab par RequireAuth ou par le bouton "Se connecter" de
+      // la modale Club) et la passe en `next` pour survivre au nouveau tab
+      // Gmail via query param ?next= dans emailRedirectTo.
+      const next = sessionStorage.getItem("auth_redirect_origin") || null;
+      await signInWithMagicLink(email, next);
       setStatus("success");
       setCooldown(COOLDOWN_SECONDS);
     } catch (err) {

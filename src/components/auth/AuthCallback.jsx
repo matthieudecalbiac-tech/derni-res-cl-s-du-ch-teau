@@ -25,15 +25,36 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import "../../styles/connexion.css";
 
 const TIMEOUT_MS = 10000;
 
+/**
+ * Sprint S2-α.2 Mini-Phase 6 — Whitelist anti open-redirect.
+ *
+ * `next` doit être un chemin INTERNE de l'app (commence par "/" unique,
+ * pas "//", pas "/\\", pas URL scheme déguisé). Un attaquant pourrait
+ * sinon forger un magic link pointant vers /auth/callback?next=https://evil.com
+ * et nous faire rediriger l'utilisateur après auth.
+ *
+ * @param {unknown} path
+ * @returns {boolean}
+ */
+function isPathInterneValide(path) {
+  if (typeof path !== "string") return false;
+  if (!path.startsWith("/")) return false;
+  if (path.startsWith("//")) return false;     // protocol-relative URL
+  if (path.startsWith("/\\")) return false;    // backslash escape
+  if (/^\/?[a-z]+:/i.test(path)) return false; // URL scheme déguisé
+  return true;
+}
+
 export default function AuthCallback() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [error, setError] = useState(null);
 
   // Safety timeout — si Supabase ne parse pas le hash dans les 10s,
@@ -46,13 +67,18 @@ export default function AuthCallback() {
     return () => clearTimeout(t);
   }, [user, loading]);
 
-  // Quand user est défini → restore l'URL d'origine + clear sessionStorage
+  // Quand user est défini → restore l'URL d'origine via ?next= + cleanup
   useEffect(() => {
     if (!user) return;
-    const origin = sessionStorage.getItem("auth_redirect_origin") || "/";
+    // Mini-Phase 6 : lit `?next=` (survit au nouveau tab Gmail, contrairement
+    // à sessionStorage). Whitelist : pas d'open redirect sur URLs externes.
+    // Fallback "/" si absent ou invalide.
+    const next = searchParams.get("next");
+    const origin = isPathInterneValide(next) ? next : "/";
+    // Cleanup sessionStorage (devenu stale après auth réussie — hygiène)
     sessionStorage.removeItem("auth_redirect_origin");
     navigate(origin, { replace: true });
-  }, [user, navigate]);
+  }, [user, navigate, searchParams]);
 
   if (error) {
     return (
