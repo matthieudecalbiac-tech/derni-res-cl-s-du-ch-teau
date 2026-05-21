@@ -101,6 +101,23 @@
   border-bottom: 1px solid var(--vc4-or-faint);
 }
 
+/* ═══ Contenu d'onglet Niveau 1 — règles communes ═══════════════════════════
+   Audit Fondation J2 — P0-1.
+   min-height : absorbe le reflow vertical au changement d'onglet (les 3
+   contenus Permanent / Dernières Clés / Club ont des hauteurs différentes).
+   animation : fondu court au montage du contenu, pour un swap moins sec. */
+.vc4-contenu-permanent,
+.vc4-contenu-dc,
+.vc4-contenu-club {
+  min-height: 640px;
+  animation: vc4-onglet-fade 0.2s ease;
+}
+
+@keyframes vc4-onglet-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* ═══ Contenu Permanent ═════════════════════════════════════════════════════ */
 
 .vc4-contenu-permanent {

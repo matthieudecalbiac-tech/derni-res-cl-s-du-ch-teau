@@ -71,6 +71,10 @@ export default function ClubMembres({ user, onClose }) {
   const [calAnnee, setCalAnnee] = useState(today.getFullYear());
 
   const { chateaux, loading, error } = useChateaux();
+  // Audit Fondation J2 — P0-2 : ne lister que les châteaux avec une offre
+  // Module C réelle (modules.club). Évite qu'un clic sur un mock redirige vers
+  // la home via /chateau/<slug>?onglet=club (VitrineChateauRoute).
+  const chateauxClub = chateaux.filter((c) => c.modules?.club === true);
   const numeroMembre = user?.id || Math.floor(Math.random() * 9000 + 1000);
 
   const handleDate = (d) => {
@@ -181,7 +185,7 @@ export default function ClubMembres({ user, onClose }) {
 
       {/* Liste châteaux — 1 par ligne */}
       <div className="cm-liste">
-        {chateaux.map(c => {
+        {chateauxClub.map(c => {
           const prixFinal = c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100)) : derivePrix(c);
           const packages = PACKAGES_CHATEAU[c.id] || ["Séjour prestige avec petit-déjeuner", "Visite privée du domaine", "Accès aux jardins"];
           return (

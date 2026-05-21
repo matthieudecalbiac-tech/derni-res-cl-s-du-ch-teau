@@ -58,8 +58,17 @@ export default function DernieresCles({ onClose }) {
   const mapInstanceRef = useRef(null);
   const markersRef = useRef({});
   const { chateaux, loading, error } = useChateaux();
+  // Audit Fondation J2 — P0-2 : ne lister que les châteaux ayant réellement une
+  // offre Module B (modules.dernieresCles). Sans ce filtre, un clic sur un
+  // château mock (id 1-6, !estLaUne) navigue vers /chateau/<slug> qui redirige
+  // aussitôt vers la home (VitrineChateauRoute). Aujourd'hui : Briottières,
+  // Blanc Buisson, Chantilly.
   const chateauxFiltres = useMemo(
-    () => chateauxDisponibles(chateaux, dateArrivee),
+    () =>
+      chateauxDisponibles(
+        chateaux.filter((c) => c.modules?.dernieresCles === true),
+        dateArrivee,
+      ),
     [chateaux, dateArrivee]
   );
 
