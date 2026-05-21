@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import "./styles/global.css";
 import "./i18n";
 import App from "./App.jsx";
+import { AuthProvider } from "./contexts/AuthContext.jsx";
 
 // Filet de validation runtime — uniquement en dev (zero overhead prod).
 // Le bloc et ses imports dynamiques sont entièrement éliminés en prod
@@ -18,7 +19,9 @@ if (import.meta.env.DEV) {
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </BrowserRouter>
   </StrictMode>
 );
