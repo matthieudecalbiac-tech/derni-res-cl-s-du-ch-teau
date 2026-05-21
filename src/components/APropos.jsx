@@ -51,10 +51,12 @@ const VALEURS = [
   },
 ];
 
+// Audit Fondation J2 (P1-1) : chiffres LCC non vérifiables retirés (⚜) ;
+// « 4 Fondateurs » et « <3h » conservés (factuels).
 const CHIFFRES = [
-  { nombre: "81", label: "Domaines sélectionnés" },
+  { nombre: "⚜", label: "Châteaux d'exception" },
   { nombre: "4", label: "Fondateurs" },
-  { nombre: "7", label: "Régions couvertes" },
+  { nombre: "⚜", label: "Régions de France" },
   { nombre: "<3h", label: "De Paris" },
 ];
 
@@ -262,7 +264,7 @@ export default function APropos({ onClose }) {
               <p className="ap-paragraphe ap-paragraphe--clair">
                 Dès le lancement, Les Clés du Château s'est engagé à reverser une partie de nos recettes issues de chaque réservation à la Fondation du Patrimoine, organisme
                 reconnu d'utilité publique dont la mission est de sauvegarder,
-                restaurer et valoriser le patrimoine bati français.
+                restaurer et valoriser le patrimoine bâti français.
               </p>
               <p className="ap-paragraphe ap-paragraphe--clair">
                 Pour nous, ce n'est pas un geste de communication. C'est une

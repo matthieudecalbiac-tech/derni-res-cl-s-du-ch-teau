@@ -82,7 +82,7 @@ export default function Connexion() {
             Se déconnecter
           </button>
           <p className="cnx-footer">
-            ⚜ Une partie de chaque réservation est reversée à la Fondation du Patrimoine.
+            ⚜ Une partie de nos recettes est reversée à la Fondation du Patrimoine.
           </p>
         </div>
       </div>
@@ -181,7 +181,7 @@ export default function Connexion() {
         </div>
 
         <p className="cnx-footer">
-          ⚜ Une partie de chaque réservation est reversée à la Fondation du Patrimoine.
+          ⚜ Une partie de nos recettes est reversée à la Fondation du Patrimoine.
         </p>
       </div>
     </div>

@@ -80,10 +80,10 @@ function Hero() {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Stats — Audit Fondation J2 (P1-1) : chiffre retiré, pas de remplacement chiffré */}
       <div className="hero-stats">
-        <span className="hero-stats-nombre">81</span>
-        <span className="hero-stats-label">Domaines sélectionnés</span>
+        <span className="hero-stats-nombre">⚜</span>
+        <span className="hero-stats-label">Châteaux d'exception sélectionnés</span>
       </div>
 
     </section>

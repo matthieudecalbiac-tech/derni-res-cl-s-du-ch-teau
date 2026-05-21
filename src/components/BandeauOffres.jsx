@@ -18,7 +18,7 @@ export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines, onO
       icone: "⚜",
       titre: "Les Vitrines Permanentes",
       desc: "Les demeures à réserver toute l'année, en direct avec les familles.",
-      lien: "31 demeures →",
+      lien: "Découvrir les demeures →", // Audit Fondation J2 (P1-1) : « 31 demeures » retiré
       action: "vitrines",
     },
     {
