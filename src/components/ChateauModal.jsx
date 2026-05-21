@@ -334,7 +334,7 @@ export default function ChateauModal({ chateau, onClose }) {
               </div>
 
               <p className="cp-localisation-info">
-                📍 {chateau.departement} · {chateau.distanceParis} depuis Paris
+                ◆ {chateau.departement} · {chateau.distanceParis} depuis Paris
               </p>
 
               <div className="cp-alentours">
@@ -358,7 +358,6 @@ export default function ChateauModal({ chateau, onClose }) {
             <div className="cp-resa-titre">Réserver ce séjour</div>
 
             <div className="cp-resa-urgence">
-              <span>⏳</span>
               <span>
                 Plus que {chateau.chambresRestantes} chambre
                 {chateau.chambresRestantes > 1 ? "s" : ""} · {chateau.urgence}
@@ -446,7 +445,7 @@ export default function ChateauModal({ chateau, onClose }) {
               </>
             ) : (
               <div className="cp-succes">
-                <span className="cp-succes-icon">🗝</span>
+                <span className="cp-succes-icon">⚜</span>
                 <p className="cp-succes-titre">Demande envoyée !</p>
                 <p className="cp-succes-texte">
                   Le château vous contacte sous 2 heures. Préparez vos valises.

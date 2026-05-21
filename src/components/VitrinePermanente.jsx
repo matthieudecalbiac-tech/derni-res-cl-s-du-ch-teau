@@ -53,10 +53,11 @@ export default function VitrinePermanente({ onClose }) {
             histoire du lieu, famille propriétaire, territoire. Un univers, pas une fiche produit.
             Le château valide chaque ligne avant mise en ligne. C’est sa voix.
           </p>
+          {/* Audit Fondation J2 (P1-1) : chiffres retirés (⚜) ; « <3h » conservé (factuel) */}
           <div className="vit-stats">
-            <div className="vit-stat"><span className="vit-stat-nb">81</span><span className="vit-stat-lbl">Domaines sélectionnés</span></div>
+            <div className="vit-stat"><span className="vit-stat-nb">⚜</span><span className="vit-stat-lbl">Châteaux d'exception</span></div>
             <div className="vit-stat-sep" />
-            <div className="vit-stat"><span className="vit-stat-nb">7</span><span className="vit-stat-lbl">Régions</span></div>
+            <div className="vit-stat"><span className="vit-stat-nb">⚜</span><span className="vit-stat-lbl">Régions de France</span></div>
             <div className="vit-stat-sep" />
             <div className="vit-stat"><span className="vit-stat-nb">&lt;3h</span><span className="vit-stat-lbl">De Paris</span></div>
           </div>

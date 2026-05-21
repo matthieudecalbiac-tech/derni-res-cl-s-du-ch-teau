@@ -178,14 +178,14 @@ export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres })
         </div>
       </div>
 
-      {/* Bloc C — CTA final typographique */}
+      {/* Bloc C — CTA final typographique. Audit Fondation J2 (P1-1) : chiffre retiré du CTA */}
       <div className="journal-demeures-cta-wrap">
         <button
           type="button"
           className="journal-demeures-cta"
           onClick={() => onOuvrirDernieres?.()}
         >
-          — VOIR LES TRENTE-ET-UNE DEMEURES —
+          — DÉCOUVRIR TOUTES LES DEMEURES —
         </button>
       </div>
     </section>

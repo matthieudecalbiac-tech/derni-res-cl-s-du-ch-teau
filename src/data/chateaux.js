@@ -1084,8 +1084,8 @@ export const chateaux = [
     chambresRestantes: 3,
     prixBarre: 480,
     reduction: 18,
-    histoire: "Nées au coeur de l'Anjou à la fin du Moyen Âge, les Briottières ont traversé les siècles entre nobles alliances et bâtisseurs passionnés. La chapelle Saint-Bonaventure, édifiée en 1528, en témoigne. Acquis au XIXe siècle par Alfred de Mieulle, aïeul de l'actuel propriétaire, le Château devient une élégante demeure estivale entourée d'un parc à l'anglaise de 50 hectares. Madame de Staël l'a aimée. George Sand et Chopin y ont séjourné. Depuis sept générations, chaque famille y a cultivé un art de vivre singulier.",
-    description: "Au coeur de l'Anjou, dans un parc à l'anglaise de 50 hectares dessiné par le paysagiste Châtelain, le Château des Briottières est dans la même famille depuis sept générations. Arnaud et Madeleine de Valbray y accueillent les voyageurs du monde entier comme à la maison — promenades dans le parc arboré, sieste au bord de la piscine, dîner aux chandelles. Ici, le luxe se mesure en silence, en espace et en beauté.",
+    histoire: "Nées au cœur de l'Anjou à la fin du Moyen Âge, les Briottières ont traversé les siècles entre nobles alliances et bâtisseurs passionnés. La chapelle Saint-Bonaventure, édifiée en 1528, en témoigne. Acquis au XIXe siècle par Alfred de Mieulle, aïeul de l'actuel propriétaire, le Château devient une élégante demeure estivale entourée d'un parc à l'anglaise de 50 hectares. Madame de Staël l'a aimée. George Sand et Chopin y ont séjourné. Depuis sept générations, chaque famille y a cultivé un art de vivre singulier.",
+    description: "Au cœur de l'Anjou, dans un parc à l'anglaise de 50 hectares dessiné par le paysagiste Châtelain, le Château des Briottières est dans la même famille depuis sept générations. Arnaud et Madeleine de Valbray y accueillent les voyageurs du monde entier comme à la maison — promenades dans le parc arboré, sieste au bord de la piscine, dîner aux chandelles. Ici, le luxe se mesure en silence, en espace et en beauté.",
     images: [
         "/bri-1.avif",
         "/bri-2.avif",
@@ -1121,7 +1121,7 @@ export const chateaux = [
       },
       {
         nom: "Chambre Verte",
-        description: "L’une des chambres les plus demandées du château — papiers peints d’époque, lumière du matin sur le parc, silence absolu. L’Anjou à portee de fenêtre.",
+        description: "L’une des chambres les plus demandées du château — papiers peints d’époque, lumière du matin sur le parc, silence absolu. L’Anjou à portée de fenêtre.",
         superficie: "30 m²",
         capacite: 2,
         prix: 290,
@@ -1173,7 +1173,7 @@ export const chateaux = [
     regionNarrative: "L'Anjou est l'une des provinces les plus douces de France — ni la brutalité de l'Atlantique, ni la rigueur continentale. Un bocage généreux, des châteaux discrets, des vignes qui donnent le Savennières et le Layon. Les Briottières s'inscrivent dans ce paysage comme une évidence : une demeure qui n'a jamais cherché à impressionner, seulement à accueillir.",
     regionHistoire: "Le Maine-et-Loire fut longtemps le cœur du royaume des Plantagenets. Angers, capitale de l’Anjou, vit naître Henri II d’Angleterre et le roi René, dernier duc d’Anjou, ce prince lettré qui fit de sa cour l’une des plus brillantes d’Europe. La Loire, classée au patrimoine mondial de l’Unesco, borde le département au sud. L’Anjou bleu au nord — où se trouvent les Briottières — est un pays de bocage, de forêts et d’étangs, plus discret que la Loire mais tout aussi envoutant.",
     alentours: [
-      { nom: "Château du Plessis-Bourré", distance: "20 min", type: "patrimoine", icone: "⚜", description: "L’un des joyaux méconnus de la Loire — intact depuis 1480, ponts-levis, douves et grand appartement Louis XI. L’antééthèse du château-musée : ici, on entre dans l’histoire." },
+      { nom: "Château du Plessis-Bourré", distance: "20 min", type: "patrimoine", icone: "⚜", description: "L’un des joyaux méconnus de la Loire — intact depuis 1480, ponts-levis, douves et grand appartement Louis XI. L’antithèse du château-musée : ici, on entre dans l’histoire." },
       { nom: "Angers — la tapisserie de l’Apocalypse", distance: "30 min", type: "patrimoine", icone: "◆", description: "Chef-d’œuvre du XIVe siècle, la plus grande tapisserie médiévale du monde (104 mètres) conservée dans le château des rois d’Anjou. Incontournable." },
       { nom: "Abbaye de Solesmes", distance: "30 min", type: "spirituel", icone: "★", description: "Haut lieu du chant grégorien. Les moines bénédictins perpétuent une tradition musicale millénaire. Assister à un office reste une expérience hors du commun." },
       { nom: "Vignobles de Savenières & Coulée de Serrant", distance: "45 min", type: "gastronomie", icone: "✦", description: "L’un des grands blancs secs du monde, issu de chenin blanc. La Coulée de Serrant est l’une des rares AOC mono-propriétaire de France — six hectares, une famille." },
@@ -1213,7 +1213,7 @@ export const chateaux = [
     chambresRestantes: 2,
     prixBarre: 380,
     reduction: 21,
-    histoire: "En 1290, sous le règne de Philippe le Bel, Colinet Lecomte fait édifier le Blanc Buisson pour protéger les paysans du Pays d’Ouche contre les brigands. Sept siècles ont passé. Le château n’a appartenu qu’à trois familles, transmis presque toujours par mariage ou héritage. Au XIVe siècle, les troupes du roi Jean II assiègent la demeure et détruisent son premier étage. Il faudra attendre le XVe siècle pour que Marie Colinet Le Conte et Jean II du Merle le reconstruisent, mélant douves, tourelles, pont-levis et échauguéttes dans un style à la charnière du Góthique et de la Renaissance. En 1801, vendu pour la première et unique fois, il entre dans la famille Pillons de Saint-Philbert, ancêtres des propriétaires actuels. Aujourd’hui, Maïté et Éric de la Fresnaye l’habitent, le restaurent et l’animent avec une passion intègre. Le château n’est pas un musée : c’est une maison vivante, où chaque pièce semble habitée, comme si le temps s’y était arrêté.",
+    histoire: "En 1290, sous le règne de Philippe le Bel, Colinet Lecomte fait édifier le Blanc Buisson pour protéger les paysans du Pays d’Ouche contre les brigands. Sept siècles ont passé. Le château n’a appartenu qu’à trois familles, transmis presque toujours par mariage ou héritage. Au XIVe siècle, les troupes du roi Jean II assiègent la demeure et détruisent son premier étage. Il faudra attendre le XVe siècle pour que Marie Colinet Le Conte et Jean II du Merle le reconstruisent, mêlant douves, tourelles, pont-levis et échauguettes dans un style à la charnière du gothique et de la Renaissance. En 1801, vendu pour la première et unique fois, il entre dans la famille Pillons de Saint-Philbert, ancêtres des propriétaires actuels. Aujourd’hui, Maïté et Éric de la Fresnaye l’habitent, le restaurent et l’animent avec une passion intègre. Le château n’est pas un musée : c’est une maison vivante, où chaque pièce semble habitée, comme si le temps s’y était arrêté.",
     description: "Au cœur du Pays d’Ouche normand, niché dans un parc de 8 hectares classé pour ses essences rares, le Château du Blanc Buisson est un chef-d'œuvre de l’architecture féodale tardive. Douves intégrales, pont-levis, donjon carré, tourelles de garde — tout est intact depuis 1290. Maïté et Éric de la Fresnaye y accueillent leurs hôtes dans la Suite du Donjon et dans La Réserve, avec la chaleur d’une maison de famille.",
     images: [
       "/bb-p1.avif",
@@ -1241,7 +1241,7 @@ export const chateaux = [
     chambres: [
       {
         nom: "Suite du Donjon",
-        description: "Dormir dans un donjon du XIIIe siècle — murs de pierre épaisse, fenêtres à méneaux, vue sur les douves. L’expérience la plus médiévale que la Normandie puisse offrir. Réserver tôt — il n’y a qu’une seule suite.",
+        description: "Dormir dans un donjon du XIIIe siècle — murs de pierre épaisse, fenêtres à meneaux, vue sur les douves. L’expérience la plus médiévale que la Normandie puisse offrir. Réserver tôt — il n’y a qu’une seule suite.",
         superficie: "40 m²",
         capacite: 2,
         prix: 280,
@@ -1298,7 +1298,7 @@ export const chateaux = [
       { nom: "Giverny — jardins de Monet", distance: "35 min", type: "patrimoine", icone: "◆", description: "Le jardin où Claude Monet peignit ses Nénufars. Un lieu de pèlerinage pour les amateurs d’impressionnisme, à voir au printemps quand les iris et les roses sont en fleur." },
       { nom: "Les Andelys — Château Gaillard", distance: "30 min", type: "patrimoine", icone: "✦", description: "La forteresse de Richard Cœur de Lion, construite en un an en 1196 pour défendre la Normandie contre Philippe Auguste. Un panorama exceptionnel sur les méandres de la Seine." },
       { nom: "Évreux — cathédrale Notre-Dame", distance: "30 min", type: "patrimoine", icone: "⚜", description: "Une des plus belles cathédrales gothiques de Normandie, avec ses vitraux du XIIIe au XVIIe siècle. La ville d’Évreux possède un centre médiéval remarquablement préservé." },
-      { nom: "Vernón — vieille ville", distance: "30 min", type: "nature", icone: "◆", description: "Une halte bucolique sur les bords de Seine, avec son vieux moulin sur pilotis et ses colombages. Point de départ idéal pour rejoindre Giverny à vélo le long de la rivière." },
+      { nom: "Vernon — vieille ville", distance: "30 min", type: "nature", icone: "◆", description: "Une halte bucolique sur les bords de Seine, avec son vieux moulin sur pilotis et ses colombages. Point de départ idéal pour rejoindre Giverny à vélo le long de la rivière." },
       { nom: "Forêt de Breteuil", distance: "15 min", type: "nature", icone: "★", description: "5 000 hectares de hêtres et de chênes au cœur du Pays d’Ouche. Sentiers de randonnée, étangs de pêche, silence absolu. La Normandie intérieure à son meilleur." },
     ],
         videoBackground: "JQ9m51Bl900",

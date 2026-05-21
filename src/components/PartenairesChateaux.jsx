@@ -118,10 +118,11 @@ export default function PartenairesChateaux({ onClose }) {
 
       <div className="part-separateur"><div className="part-sep-ligne" /><span className="part-sep-lys">⚜</span><div className="part-sep-ligne" /></div>
 
+      {/* Audit Fondation J2 (P1-1) : « 81 » et « 7 » retirés (⚜) */}
       <div className="part-chiffres">
-        <div className="part-chiffre"><span className="part-chiffre-nombre">81</span><span className="part-chiffre-label">Domaines sélectionnés</span></div>
+        <div className="part-chiffre"><span className="part-chiffre-nombre">⚜</span><span className="part-chiffre-label">Châteaux d'exception</span></div>
         <div className="part-chiffre-sep" />
-        <div className="part-chiffre"><span className="part-chiffre-nombre">7</span><span className="part-chiffre-label">Régions couvertes</span></div>
+        <div className="part-chiffre"><span className="part-chiffre-nombre">⚜</span><span className="part-chiffre-label">Régions de France</span></div>
         <div className="part-chiffre-sep" />
         <div className="part-chiffre"><span className="part-chiffre-nombre">&lt;3h</span><span className="part-chiffre-label">De Paris · Bassin prioritaire</span></div>
         <div className="part-chiffre-sep" />
