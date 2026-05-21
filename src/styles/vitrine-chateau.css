@@ -19,6 +19,7 @@
   --or20:rgba(192,152,64,0.2);
   --or30:rgba(192,152,64,0.3);
   --or40:rgba(192,152,64,0.4);
+  --or50:rgba(192,152,64,0.5);
   --or55:rgba(192,152,64,0.55);
   --or65:rgba(192,152,64,0.65);
 }
@@ -228,10 +229,137 @@
 
 /* ══ FINAL ══ */
 .vc3-final{padding:80px;text-align:center;border-top:1px solid var(--or10)}
-.vc3-fondation{display:inline-flex;align-items:flex-start;gap:14px;max-width:520px;padding:18px 24px;border:1px solid var(--or15);background:var(--or05);margin-bottom:52px;text-align:left}
-.vc3-fondation-lys{color:var(--or40);font-size:0.9rem;flex-shrink:0;margin-top:2px}
-.vc3-fondation-txt{font-size:0.85rem;font-style:italic;color:var(--b40);line-height:1.7;font-family:'Crimson Pro',serif}
-.vc3-fondation-txt strong{color:var(--or55);font-weight:400}
+/* ══ FONDATION DU PATRIMOINE — mockup partenaire Briottières (J2) ══════════
+   Visuel hybride A+C : logo en couleurs officielles dans une cartouche claire
+   minimaliste, le reste intégré au ton sombre de la vitrine. Briottières seul. */
+
+/* ══ NIVEAU 1 — Bandeau ══ */
+.vc3-fondation {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  max-width: 660px;
+  margin: 32px auto 48px;
+  padding: 22px 28px;
+  background: rgba(245,240,232,0.04);
+  border: 1px solid var(--or20);
+}
+.vc3-fondation-logo-wrap {
+  flex-shrink: 0;
+  background: var(--blanc);
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vc3-fondation-logo {
+  height: 40px;
+  width: auto;
+  display: block;
+}
+.vc3-fondation-texte {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.vc3-fondation-mention {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  color: var(--b85);
+  line-height: 1.5;
+}
+.vc3-fondation-tagline {
+  margin: 0;
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 0.82rem;
+  color: var(--or65);
+  line-height: 1.5;
+}
+@media(max-width:600px){
+  .vc3-fondation{flex-direction:column;text-align:center;gap:18px}
+}
+
+/* ══ NIVEAU 2 — Section engagement bas ══ */
+.vc3-engagement {
+  background: rgba(245,240,232,0.025);
+  border-top: 1px solid var(--or20);
+  border-bottom: 1px solid var(--or20);
+  padding: 64px 32px 72px;
+}
+.vc3-engagement-eyebrow {
+  text-align: center;
+  font-size: 0.65rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--or50);
+  margin: 0 0 16px;
+  font-family: 'Crimson Pro', serif;
+}
+.vc3-engagement-titre {
+  text-align: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.9rem;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--b85);
+  margin: 0 0 40px;
+}
+.vc3-engagement-logo-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 40px;
+}
+.vc3-engagement-logo-cartouche {
+  background: var(--blanc);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vc3-engagement-logo {
+  height: 56px;
+  width: auto;
+  display: block;
+}
+.vc3-engagement-contenu {
+  max-width: 560px;
+  margin: 0 auto;
+  text-align: center;
+}
+.vc3-engagement-contenu p {
+  margin: 0 0 20px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--b55);
+  line-height: 1.85;
+}
+.vc3-engagement-tagline {
+  color: var(--or) !important;
+  font-size: 1.1rem !important;
+  margin-bottom: 36px !important;
+}
+.vc3-engagement-bouton {
+  display: inline-block;
+  margin: 0 auto;
+  padding: 14px 36px;
+  background: transparent;
+  border: 1px solid var(--or40);
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--or-c);
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.vc3-engagement-bouton:hover {
+  background: var(--or);
+  color: var(--nuit);
+  border-color: var(--or);
+}
 .vc3-cta-titre{font-family:'Playfair Display',serif;font-size:1.9rem;font-style:italic;color:var(--blanc);margin-bottom:10px;font-weight:400}
 .vc3-cta-sub{font-size:0.85rem;font-style:italic;color:var(--b30);margin-bottom:30px;font-family:'Crimson Pro',serif}
 .vc3-cta-btn{padding:15px 50px;background:var(--or);border:none;font-family:'Crimson Pro',serif;font-size:0.88rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--nuit);cursor:none;transition:all 0.3s;font-weight:500}

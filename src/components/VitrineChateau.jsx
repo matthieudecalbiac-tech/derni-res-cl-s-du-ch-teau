@@ -7,6 +7,7 @@ import ContenuDernieresCles from "./vitrine/ContenuDernieresCles";
 import ContenuClub from "./vitrine/ContenuClub";
 import IntroTroncCommun from "./vitrine/IntroTroncCommun";
 import ContenuTheme from "./vitrine/ContenuTheme";
+import APropos from "./APropos";
 import { useClubMember } from "../hooks/useClubMember";
 import "../styles/vitrine-chateau.css";
 import "../styles/vitrine-onglets.css";
@@ -22,6 +23,9 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const [cursorPos, setCursorPos] = useState({ x: -200, y: -200 });
   const [heroLoaded, setHeroLoaded] = useState(false);
   const [clubLockOpen, setClubLockOpen] = useState(false);
+  // Mockup partenariat Fondation (Briottières) : overlay À propos rendu en
+  // local — fonctionne aussi en mode route, où l'overlay de App.jsx n'existe pas.
+  const [aProposOuvert, setAProposOuvert] = useState(false);
   const corpsRef = useRef(null);
 
   const fermerClubLock = () => setClubLockOpen(false);
@@ -231,8 +235,69 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
 
         {/* ══ Intro tronc commun + Niveau 2 — Découverte éditoriale ══ */}
         <IntroTroncCommun chateau={chateau} />
+
+        {/* NIVEAU 1 — bandeau Fondation (mockup partenaire, Briottières seul) */}
+        {chateau.slug === "les-briottieres" && (
+          <div className="vc3-fondation">
+            <div className="vc3-fondation-logo-wrap">
+              <img
+                src="/fondation-patrimoine-logo.png"
+                alt="Fondation du Patrimoine"
+                className="vc3-fondation-logo"
+              />
+            </div>
+            <div className="vc3-fondation-texte">
+              <p className="vc3-fondation-mention">
+                Une partie de nos recettes est reversée à la Fondation du Patrimoine.
+              </p>
+              <p className="vc3-fondation-tagline">
+                Aidez-nous à contribuer à la préservation du patrimoine français.
+              </p>
+            </div>
+          </div>
+        )}
+
         <OngletsNiveau2 actif={themeActif} onChange={setTheme} />
         <ContenuTheme chateau={chateau} theme={themeActif} />
+
+        {/* NIVEAU 2 — section « Notre engagement » (mockup partenaire, Briottières seul) */}
+        {chateau.slug === "les-briottieres" && (
+          <section className="vc3-engagement">
+            <p className="vc3-engagement-eyebrow">⚜ &nbsp; Engagement patrimonial</p>
+            <h2 className="vc3-engagement-titre">Notre engagement</h2>
+            <div className="vc3-engagement-logo-wrap">
+              <div className="vc3-engagement-logo-cartouche">
+                <img
+                  src="/fondation-patrimoine-logo.png"
+                  alt="Fondation du Patrimoine"
+                  className="vc3-engagement-logo"
+                />
+              </div>
+            </div>
+            <div className="vc3-engagement-contenu">
+              <p>
+                Les Clés du Château œuvre aux côtés de la Fondation du
+                Patrimoine pour soutenir la préservation des demeures
+                historiques privées.
+              </p>
+              <p>
+                À chaque séjour réservé sur la plateforme, une partie de nos
+                recettes est reversée à la Fondation pour contribuer à ses
+                missions de sauvegarde du patrimoine bâti français.
+              </p>
+              <p className="vc3-engagement-tagline">
+                Aidez-nous à contribuer à la préservation du patrimoine français.
+              </p>
+              <button
+                type="button"
+                className="vc3-engagement-bouton"
+                onClick={() => setAProposOuvert(true)}
+              >
+                En savoir plus sur notre engagement →
+              </button>
+            </div>
+          </section>
+        )}
 
       </div>
 
@@ -330,6 +395,11 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             </button>
           </div>
         </div>
+      )}
+
+      {/* OVERLAY À PROPOS — rendu local (mockup partenariat Fondation) */}
+      {aProposOuvert && (
+        <APropos onClose={() => setAProposOuvert(false)} />
       )}
     </div>
   );
