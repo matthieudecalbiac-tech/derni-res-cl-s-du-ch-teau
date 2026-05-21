@@ -5,7 +5,16 @@
 
 import { mockOffres } from "../data/mockOffres";
 
-const LATENCE_MOCK_MS = 200;
+// Latence mock passée de 200 à 0 (audit Fondation J2, P0-1) : la latence
+// artificielle faisait clignoter « Chargement des offres… » à chaque bascule
+// d'onglet de la vitrine premium. Conservée comme constante (à 0) pour
+// pouvoir réactiver des tests de loading state si besoin.
+const LATENCE_MOCK_MS = 0;
+
+// Cache module-level (clé "slug|module" → Array d'offres). Évite de re-filtrer
+// — et de relancer un cycle async — à chaque retour sur un onglet déjà visité.
+// Invalidé au reload de page (mock en mémoire).
+const _cacheOffres = new Map();
 
 function attendre(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -17,8 +26,14 @@ function attendre(ms) {
  * @returns {Promise<Array>}
  */
 export async function getOffresPourChateau(chateauSlug, module) {
+  const cle = `${chateauSlug}|${module}`;
+  if (_cacheOffres.has(cle)) return _cacheOffres.get(cle);
   await attendre(LATENCE_MOCK_MS);
-  return mockOffres.filter((o) => o.chateauSlug === chateauSlug && o.module === module);
+  const resultat = mockOffres.filter(
+    (o) => o.chateauSlug === chateauSlug && o.module === module,
+  );
+  _cacheOffres.set(cle, resultat);
+  return resultat;
 }
 
 /**
