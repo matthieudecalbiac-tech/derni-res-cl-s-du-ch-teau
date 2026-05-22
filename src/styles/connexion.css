@@ -226,6 +226,128 @@
   line-height: 1.5;
 }
 
+/* ═══ Mot de passe — toggle visibilité ═══ */
+
+.cnx-password-wrapper {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.cnx-password-wrapper .cnx-input {
+  width: 100%;
+  padding-right: 46px;
+}
+
+.cnx-show-password-toggle {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 6px 8px;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+}
+
+.cnx-show-password-toggle:hover {
+  opacity: 1;
+}
+
+.cnx-show-password-toggle:focus-visible {
+  outline: 1px solid var(--cnx-or);
+  outline-offset: 2px;
+}
+
+/* ═══ Lien « mot de passe oublié » ═══ */
+
+.cnx-forgot {
+  display: block;
+  text-align: right;
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--cnx-creme-soft);
+  text-decoration: none;
+  margin-top: 2px;
+  transition: color 0.2s ease;
+}
+
+.cnx-forgot:hover {
+  color: var(--cnx-or);
+}
+
+/* ═══ « Pas encore de compte ? » ═══ */
+
+.cnx-no-account {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--cnx-creme-soft);
+  margin: 20px 0 0;
+}
+
+.cnx-no-account a {
+  color: var(--cnx-or);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.cnx-no-account a:hover {
+  color: var(--cnx-creme);
+}
+
+/* ═══ Séparateur « ou » ═══ */
+
+.cnx-separator {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  margin: 22px 0 16px;
+}
+
+.cnx-separator::before,
+.cnx-separator::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--cnx-or-faint);
+}
+
+.cnx-separator span {
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--cnx-creme-faint);
+}
+
+/* ═══ Méthode alternative (bascule magic link / retour) ═══ */
+
+.cnx-alt-method {
+  background: transparent;
+  border: 1px solid var(--cnx-or-faint);
+  border-radius: 2px;
+  padding: 12px 20px;
+  width: 100%;
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--cnx-creme-soft);
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.cnx-alt-method:hover {
+  border-color: var(--cnx-or-soft);
+  color: var(--cnx-or);
+}
+
 /* ═══ Responsive ═══ */
 
 @media (max-width: 560px) {

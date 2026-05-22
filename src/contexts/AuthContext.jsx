@@ -8,7 +8,11 @@
 //   - user    : session.user (auth.users) | null
 //   - profile : ligne public.users (id, email, role, full_name, telephone) | null
 //   - loading : true tant que getSession() initial n'a pas retourné
-//   - signInWithMagicLink(email) : envoie un magic link à l'email donné
+//   - signInWithPassword(email, password) : connexion email + mot de passe
+//   - signUp(email, password) : inscription (envoie un email de confirmation)
+//   - resetPasswordForEmail(email) : envoie un email de réinitialisation
+//   - updatePassword(newPassword) : applique un nouveau mot de passe (session recovery)
+//   - signInWithMagicLink(email) : envoie un magic link à l'email (méthode hybride conservée)
 //   - signOut() : déconnexion
 //
 // FLOW
@@ -109,6 +113,63 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   };
 
+  // ──────────────────────────────────────────────────────────────────────
+  // Auth email + mot de passe (Sprint alpha.2.5 Phase B)
+  // Pattern : retour { error } (natif Supabase). Les messages d'erreur sont
+  // mappes en francais ICI — source unique de verite des libelles.
+  // ──────────────────────────────────────────────────────────────────────
+  const signUp = async (email, password) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?type=signup`,
+      },
+    });
+    if (error) {
+      let message = error.message;
+      if (/user already registered/i.test(error.message))
+        message = "Un compte existe déjà avec cet email.";
+      else if (/password.*characters|at least.*characters/i.test(error.message))
+        message = "Le mot de passe doit contenir au moins 8 caractères.";
+      else if (/unable to validate email|invalid email/i.test(error.message))
+        message = "Format d'email invalide.";
+      return { user: null, error: { ...error, message } };
+    }
+    return { user: data.user, error: null };
+  };
+
+  const signInWithPassword = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) {
+      let message = error.message;
+      if (/invalid login credentials/i.test(error.message))
+        message = "Email ou mot de passe incorrect.";
+      else if (/email not confirmed/i.test(error.message))
+        message =
+          "Vous devez d'abord confirmer votre email (lien envoyé à l'inscription).";
+      return { user: null, session: null, error: { ...error, message } };
+    }
+    return { user: data.user, session: data.session, error: null };
+  };
+
+  const resetPasswordForEmail = async (email) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reinitialiser-mot-de-passe`,
+    });
+    return { error };
+  };
+
+  const updatePassword = async (newPassword) => {
+    const { data, error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+    return { user: data?.user ?? null, error };
+  };
+
   const signOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
@@ -121,6 +182,10 @@ export function AuthProvider({ children }) {
         user: session?.user ?? null,
         profile,
         loading,
+        signInWithPassword,
+        signUp,
+        resetPasswordForEmail,
+        updatePassword,
         signInWithMagicLink,
         signOut,
       }}

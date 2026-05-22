@@ -1,25 +1,29 @@
 // ═══════════════════════════════════════════════════════════════════════════
-// LCC — Page /connexion (Sprint S2-α.2 Phase 3)
+// LCC — Page /connexion (Sprint alpha.2.5 Phase B2)
 // ═══════════════════════════════════════════════════════════════════════════
-// Page d'entrée auth — formulaire email magic link.
+// Page d'entrée auth — formulaire hybride email + mot de passe.
 //
-// FLOW
-//   1. User saisit email → submit
-//   2. signInWithMagicLink(email) → Supabase envoie email via SMTP
-//   3. Success → message "Email envoyé, vérifiez votre boîte" + cooldown 60s
-//      pour Renvoyer le lien
-//   4. Error → message + retry possible
+// DEUX MODES (état `mode`)
+//   "password"   (défaut)  : email + mot de passe → signInWithPassword
+//   "magic-link" (fallback): email seul → signInWithMagicLink (lien par email)
 //
-// Si l'utilisateur est déjà connecté (back button après auth), redirect home.
+// FLOW password
+//   1. Saisie email + mot de passe → submit
+//   2. signInWithPassword → si erreur, message FR (mappé dans AuthContext)
+//   3. Succès → redirige vers lcc_auth_next mémorisé, sinon "/"
 //
-// A11y :
-//   - autoFocus sur input au mount
-//   - aria-live="polite" sur le wrapper message success/error
-//   - aria-busy sur le bouton submit pendant loading
+// FLOW magic link (conservé en fallback hybride)
+//   1. Saisie email → submit → signInWithMagicLink
+//   2. Succès → message "lien envoyé" + cooldown 60s avant renvoi
+//
+// Si l'utilisateur est déjà connecté (back button), écran d'état dédié.
+//
+// A11y : autoFocus 1er champ, role="alert"/"status" sur messages,
+//        aria-busy sur submit, labels associés, toggle mot de passe étiqueté.
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import "../../styles/connexion.css";
 
@@ -27,14 +31,26 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const COOLDOWN_SECONDS = 60;
 
 export default function Connexion() {
-  const { user, profile, loading, signInWithMagicLink, signOut } = useAuth();
+  const {
+    user,
+    profile,
+    loading,
+    signInWithPassword,
+    signInWithMagicLink,
+    signOut,
+  } = useAuth();
   const navigate = useNavigate();
+
+  const [mode, setMode] = useState("password"); // "password" | "magic-link"
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState("idle"); // idle | loading | success | error
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const [successMessage, setSuccessMessage] = useState(null);
   const [cooldown, setCooldown] = useState(0);
 
-  // Cooldown countdown (1s tick)
+  // Cooldown countdown (magic link uniquement, 1 s tick)
   useEffect(() => {
     if (cooldown <= 0) return;
     const t = setTimeout(() => setCooldown((s) => s - 1), 1000);
@@ -43,10 +59,7 @@ export default function Connexion() {
 
   if (loading) return null;
 
-  // Sprint S2-α.2 Phase 4.1 : si l'utilisateur est déjà connecté (ex. il a
-  // cliqué "Se connecter" dans la modale Club alors qu'il est role='client'),
-  // afficher un écran d'état au lieu de redirect immédiat — sinon le bouton
-  // "Se connecter" devient inerte côté UX (redirect home sans feedback).
+  // ── Déjà connecté → écran d'état (inchangé Phase B2) ──
   if (user && profile) {
     return (
       <div className="cnx-page">
@@ -62,7 +75,6 @@ export default function Connexion() {
             type="button"
             className="cnx-btn"
             onClick={() => {
-              // Mini-Phase 6.1 : localStorage (clé lcc_auth_next)
               const origin = localStorage.getItem("lcc_auth_next") || "/";
               localStorage.removeItem("lcc_auth_next");
               navigate(origin);
@@ -74,8 +86,6 @@ export default function Connexion() {
             type="button"
             className="cnx-btn-secondary"
             onClick={async () => {
-              // signOut → onAuthStateChange trigger → user=null → ce composant
-              // re-render et affiche le formulaire magic link (état idle)
               await signOut();
             }}
           >
@@ -89,96 +99,213 @@ export default function Connexion() {
     );
   }
 
-  const envoyerMagicLink = async () => {
-    if (!EMAIL_REGEX.test(email)) {
-      setStatus("error");
-      setErrorMessage("Format d'email invalide.");
-      return;
-    }
-    setStatus("loading");
-    setErrorMessage(null);
-    try {
-      // Sprint S2-α.2 Mini-Phase 6.1 : lit localStorage (clé lcc_auth_next,
-      // écrite par RequireAuth ou le bouton "Se connecter" modale Club).
-      // localStorage est cross-tab same-origin → robuste au nouveau tab Gmail.
-      // Le param est aussi passé à signInWithMagicLink qui l'encode en ?next=
-      // dans emailRedirectTo (fallback défensif au cas où Supabase préserve
-      // un jour les query params — actuellement v2 les strip).
-      const next = localStorage.getItem("lcc_auth_next") || null;
-      await signInWithMagicLink(email, next);
-      setStatus("success");
-      setCooldown(COOLDOWN_SECONDS);
-    } catch (err) {
-      setStatus("error");
-      setErrorMessage(err?.message || "Erreur lors de l'envoi du lien.");
-    }
+  // Bascule de mode — reset des messages
+  const basculerMode = (nouveauMode) => {
+    setMode(nouveauMode);
+    setError(null);
+    setSuccessMessage(null);
   };
 
-  const handleSubmit = (e) => {
+  // ── Soumission connexion mot de passe ──
+  const handleSubmitPassword = async (e) => {
     e.preventDefault();
-    envoyerMagicLink();
+    if (!EMAIL_REGEX.test(email)) {
+      setError("Format d'email invalide.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    const { error: err } = await signInWithPassword(email, password);
+    setSubmitting(false);
+    if (err) {
+      setError(err.message);
+      return;
+    }
+    // Succès → restaure l'origine mémorisée (RequireAuth / modale Club), sinon home
+    const origin = localStorage.getItem("lcc_auth_next") || "/";
+    localStorage.removeItem("lcc_auth_next");
+    navigate(origin, { replace: true });
+  };
+
+  // ── Soumission magic link (fallback hybride) ──
+  const handleSubmitMagicLink = async (e) => {
+    e.preventDefault();
+    if (!EMAIL_REGEX.test(email)) {
+      setError("Format d'email invalide.");
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    try {
+      const next = localStorage.getItem("lcc_auth_next") || null;
+      await signInWithMagicLink(email, next);
+      setSuccessMessage(
+        "Lien de connexion envoyé. Vérifiez votre boîte mail (et vos spams).",
+      );
+      setCooldown(COOLDOWN_SECONDS);
+    } catch (err) {
+      setError(err?.message || "Erreur lors de l'envoi du lien.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="cnx-page">
       <div className="cnx-container">
         <span className="cnx-lys">⚜</span>
-        <h1 className="cnx-titre">Entrer dans votre espace</h1>
+        <h1 className="cnx-titre">Espace membre du Club</h1>
         <p className="cnx-sous-titre">
-          Recevez un lien magique par email pour accéder à vos séjours et offres exclusives.
+          {mode === "password"
+            ? "Connectez-vous pour accéder à vos séjours et aux offres du Club."
+            : "Recevez un lien de connexion par email, sans mot de passe."}
         </p>
 
-        <div aria-live="polite" className="cnx-message-wrap">
-          {status === "success" ? (
-            <div className="cnx-success">
-              <p className="cnx-success-msg">
-                Un email vient d'être envoyé à <strong>{email}</strong>.<br />
-                Cliquez sur le lien pour vous connecter (vérifiez vos spams).
-              </p>
-              <button
-                type="button"
-                className="cnx-btn-secondary"
-                disabled={cooldown > 0}
-                onClick={envoyerMagicLink}
-              >
-                {cooldown > 0
-                  ? `Renvoyer le lien (${cooldown}s)`
-                  : "Renvoyer le lien"}
-              </button>
-            </div>
-          ) : (
-            <form className="cnx-form" onSubmit={handleSubmit}>
-              <label htmlFor="cnx-email" className="cnx-label">
-                Votre adresse email
+        {/* ── MODE MOT DE PASSE ── */}
+        {mode === "password" && (
+          <>
+            <form className="cnx-form" onSubmit={handleSubmitPassword}>
+              <label className="cnx-label" htmlFor="cnx-email">
+                Adresse email
               </label>
               <input
                 id="cnx-email"
                 type="email"
                 required
                 autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={status === "loading"}
+                autoComplete="email"
                 className="cnx-input"
                 placeholder="vous@exemple.fr"
-                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={submitting}
               />
+
+              <label className="cnx-label" htmlFor="cnx-password">
+                Mot de passe
+              </label>
+              <div className="cnx-password-wrapper">
+                <input
+                  id="cnx-password"
+                  type={showPassword ? "text" : "password"}
+                  required
+                  minLength={8}
+                  autoComplete="current-password"
+                  className="cnx-input"
+                  placeholder="••••••••"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={submitting}
+                />
+                <button
+                  type="button"
+                  className="cnx-show-password-toggle"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={
+                    showPassword
+                      ? "Masquer le mot de passe"
+                      : "Afficher le mot de passe"
+                  }
+                >
+                  {showPassword ? "🙈" : "👁"}
+                </button>
+              </div>
+
               <button
                 type="submit"
-                disabled={status === "loading" || !email}
-                aria-busy={status === "loading"}
                 className="cnx-btn"
+                disabled={submitting || !email || !password}
+                aria-busy={submitting}
               >
-                {status === "loading"
-                  ? "Envoi en cours…"
-                  : "Recevoir le lien magique →"}
+                {submitting ? "Connexion…" : "Se connecter"}
               </button>
-              {status === "error" && (
-                <p className="cnx-error">{errorMessage}</p>
+
+              {error && (
+                <p className="cnx-error" role="alert">
+                  {error}
+                </p>
               )}
+
+              <Link to="/mot-de-passe-oublie" className="cnx-forgot">
+                Mot de passe oublié ?
+              </Link>
             </form>
-          )}
-        </div>
+
+            <p className="cnx-no-account">
+              Pas encore de compte ?{" "}
+              <Link to="/inscription">Rejoindre le Club</Link>
+            </p>
+
+            <div className="cnx-separator">
+              <span>ou</span>
+            </div>
+
+            <button
+              type="button"
+              className="cnx-alt-method"
+              onClick={() => basculerMode("magic-link")}
+            >
+              Recevoir un lien de connexion par email
+            </button>
+          </>
+        )}
+
+        {/* ── MODE MAGIC LINK (fallback hybride) ── */}
+        {mode === "magic-link" && (
+          <form className="cnx-form" onSubmit={handleSubmitMagicLink}>
+            <label className="cnx-label" htmlFor="cnx-email-ml">
+              Adresse email
+            </label>
+            <input
+              id="cnx-email-ml"
+              type="email"
+              required
+              autoFocus
+              autoComplete="email"
+              className="cnx-input"
+              placeholder="vous@exemple.fr"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={submitting}
+            />
+
+            <button
+              type="submit"
+              className="cnx-btn"
+              disabled={submitting || cooldown > 0 || !email}
+              aria-busy={submitting}
+            >
+              {submitting
+                ? "Envoi…"
+                : cooldown > 0
+                  ? `Renvoyer le lien (${cooldown}s)`
+                  : "Recevoir le lien"}
+            </button>
+
+            {error && (
+              <p className="cnx-error" role="alert">
+                {error}
+              </p>
+            )}
+            {successMessage && (
+              <div className="cnx-success" role="status">
+                <p className="cnx-success-msg">{successMessage}</p>
+              </div>
+            )}
+
+            <button
+              type="button"
+              className="cnx-alt-method"
+              onClick={() => basculerMode("password")}
+            >
+              ← Retour à la connexion par mot de passe
+            </button>
+          </form>
+        )}
 
         <p className="cnx-footer">
           ⚜ Une partie de nos recettes est reversée à la Fondation du Patrimoine.
