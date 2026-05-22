@@ -1,51 +1,20 @@
 import { useEffect, useState } from "react";
 import "../styles/a-propos.css";
 
-const FONDATEURS = [
-  {
-    prenom: "Dimitri",
-    role: "Stratégie & Développement",
-    specialite: "Stratégie",
-    initiales: "D",
-  },
-  {
-    prenom: "Julien",
-    role: "SEO & Go-to-market",
-    specialite: "Stratégie",
-    initiales: "J",
-  },
-  {
-    prenom: "Matthieu",
-    role: "Développement & CRM",
-    specialite: "Tech",
-    initiales: "M",
-  },
-  {
-    prenom: "Tanguy",
-    role: "Direction artistique",
-    specialite: "Design",
-    initiales: "T",
-  },
-];
-
 const VALEURS = [
   {
-    icone: "⚜",
     titre: "Patrimoine",
     desc: "Chaque lieu référencé porte une histoire, une architecture, une mémoire. Nous ne sélectionnons que des propriétés d'exception, choisies pour leur authenticité autant que pour leur beauté.",
   },
   {
-    icone: "◆",
     titre: "Respect",
     desc: "Nous travaillons avec les propriétaires comme partenaires, jamais comme fournisseurs. L'âme des lieux est inviolable — elle guide chaque décision éditoriale.",
   },
   {
-    icone: "✦",
     titre: "Transmission",
     desc: "Faire vivre un château, c'est contribuer à sa survie. Chaque séjour, chaque événement organisé dans ces murs participe à leur préservation pour les générations futures.",
   },
   {
-    icone: "⚜",
     titre: "Territoire",
     desc: "Un château ne se visite pas seul. Il est inséparable de sa région, de ses paysages, de sa gastronomie et de ses savoir-faire. Nous mettons autant en lumière les lieux que les territoires.",
   },
@@ -58,29 +27,6 @@ const CHIFFRES = [
   { nombre: "4", label: "Fondateurs" },
   { nombre: "⚜", label: "Régions de France" },
   { nombre: "<3h", label: "De Paris" },
-];
-
-const GARANTIES = [
-  {
-    icone: "⚖",
-    titre: "Un cadre rigoureux",
-    desc: "Chaque partenariat est formalisé avec soin. Les conditions sont claires, équilibrées et pensées pour protéger autant les propriétaires que les clients.",
-  },
-  {
-    icone: "◆",
-    titre: "Votre image protégée",
-    desc: "Nous ne publions rien sans votre accord. Chaque fiche est validée avec vous avant mise en ligne. Vous gardez le contrôle total sur votre présence sur la plateforme.",
-  },
-  {
-    icone: "✦",
-    titre: "Plateforme déjà opérationnelle",
-    desc: "Le site est construit, testé et prêt. Vous n'attendez pas un projet en cours de développement — vous rejoignez une plateforme qui fonctionne aujourd'hui.",
-  },
-  {
-    icone: "⚜",
-    titre: "Sélection exigeante",
-    desc: "Nous visitons chaque lieu avant de le référencer. Votre domaine ne sera jamais mis en concurrence avec un hébergement quelconque — uniquement avec des lieux de même niveau d'excellence.",
-  },
 ];
 
 export default function APropos({ onClose }) {
@@ -109,6 +55,15 @@ export default function APropos({ onClose }) {
         </div>
         <button className="page-header-fermer" onClick={onClose}>Fermer</button>
       </header>
+
+      {/* ── LOGO LCC — ouverture ── */}
+      <section className="ap-logo-ouverture">
+        <img
+          src="/LogoLCC.png"
+          alt="Les Clés du Château"
+          className="ap-logo-ouverture-img"
+        />
+      </section>
 
       {/* ── HERO ── */}
       <div className="ap-hero">
@@ -143,11 +98,6 @@ export default function APropos({ onClose }) {
             patrimoine français est l'une des plus grandes richesses de notre
             pays.
           </p>
-          <div className="ap-hero-ornement">
-            <div className="ap-hero-ornement-ligne" />
-            <span>⚜</span>
-            <div className="ap-hero-ornement-ligne" />
-          </div>
         </div>
 
         {/* Chiffres */}
@@ -166,7 +116,7 @@ export default function APropos({ onClose }) {
         <div className="ap-section-inner ap-manifeste">
           <div className="ap-manifeste-label">
             <div className="ap-manifeste-label-ligne" />
-            <span>⚜ Notre manifeste</span>
+            <span>Notre manifeste</span>
             <div className="ap-manifeste-label-ligne" />
           </div>
 
@@ -234,14 +184,14 @@ export default function APropos({ onClose }) {
       {/* ── NOS VALEURS ── */}
       <section className="ap-section ap-section--bleu">
         <div className="ap-section-inner">
-          <div className="ap-section-label">⚜ Ce qui nous guide</div>
+          <div className="ap-section-label">Ce qui nous guide</div>
           <h2 className="ap-section-titre ap-section-titre--clair">
             Nos valeurs
           </h2>
           <div className="ap-valeurs-grille">
             {VALEURS.map((v, i) => (
               <div key={i} className="ap-valeur">
-                <span className="ap-valeur-icone">{v.icone}</span>
+                <div className="ap-valeur-trait" />
                 <h3 className="ap-valeur-titre">{v.titre}</h3>
                 <p className="ap-valeur-desc">{v.desc}</p>
               </div>
@@ -254,7 +204,7 @@ export default function APropos({ onClose }) {
       {/* ── FONDATION DU PATRIMOINE ── */}
       <section className="ap-section ap-section--bleu-fonce">
         <div className="ap-section-inner">
-          <div className="ap-section-label">⚜ Notre engagement</div>
+          <div className="ap-section-label">Notre engagement</div>
           <h2 className="ap-section-titre ap-section-titre--clair">
             Notre engagement envers la<br />
             <em>Fondation du Patrimoine</em>
@@ -293,7 +243,13 @@ export default function APropos({ onClose }) {
             </div>
             <div className="ap-fondation-stats">
               <div className="ap-fondation-stat">
-                <span className="ap-fondation-stat-nb">⚜</span>
+                <div className="ap-fondation-logo-wrap">
+                  <img
+                    src="/fondation-patrimoine-logo.png"
+                    alt="Fondation du Patrimoine"
+                    className="ap-fondation-logo"
+                  />
+                </div>
                 <span className="ap-fondation-stat-label">Partenaire Fondation du Patrimoine</span>
               </div>
               <div className="ap-fondation-divider" />
@@ -317,41 +273,34 @@ export default function APropos({ onClose }) {
 
       {/* ── LES FONDATEURS ── */}
       <section className="ap-section ap-section--creme">
-        <div className="ap-section-inner">
-          <div className="ap-section-label ap-section-label--sombre">
-            ⚜ L'équipe fondatrice
-          </div>
-          <h2 className="ap-section-titre ap-section-titre--sombre">
+        <div className="ap-section-inner ap-fondateurs">
+          <p className="ap-fondateurs-eyebrow">L'équipe fondatrice</p>
+          <h2 className="ap-fondateurs-titre">
             Quatre fondateurs,
             <br />
             une conviction
           </h2>
-          <p className="ap-section-intro">
+          <p className="ap-fondateurs-intro">
             Nous sommes quatre amis réunis autour d'un projet commun : offrir un
             accès exceptionnel au patrimoine de France, avec la conviction que
             ces lieux ont besoin d'être vécus pour continuer à exister.
           </p>
-          <div className="ap-fondateurs">
-            {FONDATEURS.map((f, i) => (
-              <div key={i} className="ap-fondateur">
-                <div className="ap-fondateur-avatar">
-                  <span>{f.initiales}</span>
-                  <div className="ap-fondateur-avatar-bordure" />
-                </div>
-                <h3 className="ap-fondateur-prenom">{f.prenom}</h3>
-                <span className="ap-fondateur-role">{f.role}</span>
-                <span className="ap-fondateur-specialite">{f.specialite}</span>
-              </div>
-            ))}
+          <div className="ap-fondateurs-noms">
+            <span>Dimitri</span>
+            <span className="ap-fond-sep">·</span>
+            <span>Julien</span>
+            <span className="ap-fond-sep">·</span>
+            <span>Matthieu</span>
+            <span className="ap-fond-sep">·</span>
+            <span>Tanguy</span>
           </div>
-
         </div>
       </section>
 
       {/* ── PATRIMOINE EN CHIFFRES ── */}
       <section className="ap-section ap-section--noir">
         <div className="ap-section-inner">
-          <div className="ap-section-label">⚜ Le patrimoine en chiffres</div>
+          <div className="ap-section-label">Le patrimoine en chiffres</div>
           <h2 className="ap-section-titre ap-section-titre--clair">
             La France,
             <br />
@@ -390,25 +339,6 @@ export default function APropos({ onClose }) {
         </div>
       </section>
 
-      {/* ── POURQUOI NOUS FAIRE CONFIANCE ── */}
-      <section className="ap-section ap-section--creme">
-        <div className="ap-section-inner">
-          <div className="ap-section-label ap-section-label--sombre">⚜ Pour les propriétaires</div>
-          <h2 className="ap-section-titre ap-section-titre--sombre">
-            Pourquoi nous<br />faire confiance
-          </h2>
-          <div className="ap-valeurs-grille">
-            {GARANTIES.map((g, i) => (
-              <div key={i} className="ap-valeur ap-valeur--sombre">
-                <span className="ap-valeur-icone ap-valeur-icone--or">{g.icone}</span>
-                <h3 className="ap-valeur-titre ap-valeur-titre--sombre">{g.titre}</h3>
-                <p className="ap-valeur-desc ap-valeur-desc--sombre">{g.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── CTA FINAL ── */}
       <section className="ap-section ap-section--or-fonce">
         <div className="ap-section-inner ap-cta-final">
@@ -425,7 +355,7 @@ export default function APropos({ onClose }) {
             du patrimoine français via notre partenariat avec la Fondation du Patrimoine.
           </p>
           <button className="ap-btn-or" onClick={onClose}>
-            Découvrir la plateforme ⚜
+            Découvrir la plateforme
           </button>
         </div>
       </section>
