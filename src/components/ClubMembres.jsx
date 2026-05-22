@@ -2,8 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { derivePrix } from "../utils/derivePrix";
-import TransitionPorte from "./TransitionPorte";
-import VitrineClub from "./VitrineClub";
 import "../styles/club-membres.css";
 
 function getDatesPossibles() {
@@ -52,13 +50,11 @@ const PACKAGES_CHATEAU = {
 
 export default function ClubMembres({ user, onClose }) {
   const navigate = useNavigate();
-  const [transitionChateau, setTransitionChateau] = useState(null);
-  const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [dateArrivee, setDateArrivee] = useState(null);
 
   // Sprint S2-α.1.5 FIX D : ouvrir la nouvelle vitrine Module C via la route
   // canonique avec ?onglet=club. onClose() en amont pour éviter l'overlay
-  // fantôme au retour /. VitrineClub.jsx devient orphelin (dette nettoyage S5).
+  // fantôme au retour /.
   const ouvrirChateauModuleC = (c) => {
     onClose?.();
     navigate(`/chateau/${c.slug}?onglet=club`);
@@ -225,15 +221,6 @@ export default function ClubMembres({ user, onClose }) {
           );
         })}
       </div>
-
-      {transitionChateau && (
-        <TransitionPorte chateau={transitionChateau}
-          onTermine={() => { setChateauSelectionne(transitionChateau); setTransitionChateau(null); }} />
-      )}
-      {(transitionChateau || chateauSelectionne) && (
-        <VitrineClub chateau={transitionChateau || chateauSelectionne} user={user}
-          onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
-      )}
     </div>
   );
 }

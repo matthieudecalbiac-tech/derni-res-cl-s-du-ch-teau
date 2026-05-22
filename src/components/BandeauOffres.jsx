@@ -1,8 +1,10 @@
 import { useCompteurs } from "../hooks/useCompteurs";
+import { useNavigate } from "react-router-dom";
 import "../styles/bandeau-offres.css";
 
-export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines, onOuvrirClub }) {
+export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
   const { compteurs, loading, error } = useCompteurs();
+  const navigate = useNavigate();
 
   const OFFRES = [
     {
@@ -34,7 +36,7 @@ export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines, onO
   const gererClic = (action) => {
     if (action === "dernieres") onOuvrirDernieres?.();
     else if (action === "vitrines") onOuvrirVitrines?.();
-    else if (action === "club") onOuvrirClub?.();
+    else if (action === "club") navigate("/connexion");
   };
 
   return (

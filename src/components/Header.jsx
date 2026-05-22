@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "../styles/header.css";
 
 const MENU_ITEMS = [
@@ -17,14 +18,6 @@ const MENU_ITEMS = [
     description: "Séjours à court terme dans les plus beaux domaines à moins de 3h de Paris.",
     action: "dernieres",
     couleur: "default",
-  },
-  {
-    id: "club",
-    icone: "⚜",
-    titre: "Club des Châtelains",
-    description: "Offres et packages exclusifs réservés aux membres — tarifs confidentiels, avant-premières.",
-    action: "club",
-    couleur: "or",
   },
   {
     id: "conciergerie",
@@ -61,15 +54,14 @@ const MENU_ITEMS = [
 ];
 
 export default function Header({
-  onOuvrirClub,
   onOuvrirAPropos,
   onOuvrirVitrines,
   onOuvrirDernieresClefs,
-  onConnexion,
   onOuvrirProprietaires,
   onOuvrirEvenementiel,
   onOuvrirConciergerie,
 }) {
+  const navigate = useNavigate();
   const [menuOuvert, setMenuOuvert] = useState(false);
   const [solide, setSolide] = useState(false);
   const [itemSurvole, setItemSurvole] = useState(null);
@@ -92,7 +84,6 @@ export default function Header({
     setTimeout(() => {
       if (action === "vitrines") onOuvrirVitrines?.();
       else if (action === "dernieres") onOuvrirDernieresClefs?.();
-      else if (action === "club") onOuvrirClub?.();
       else if (action === "apropos") onOuvrirAPropos?.();
       else if (action === "conciergerie") onOuvrirConciergerie?.();
       else if (action === "evenementiel") onOuvrirEvenementiel?.();
@@ -117,10 +108,10 @@ export default function Header({
           </button>
 
           <div className="header-actions">
-            <button className="header-connexion" onClick={() => { fermer(); onConnexion?.(); }}>
+            <button className="header-connexion" onClick={() => { fermer(); navigate("/connexion"); }}>
               Connexion
             </button>
-            <button className="header-cta" onClick={() => { fermer(); onOuvrirClub?.(); }}>
+            <button className="header-cta" onClick={() => { fermer(); navigate("/connexion"); }}>
               Rejoindre le Club
             </button>
             <button
