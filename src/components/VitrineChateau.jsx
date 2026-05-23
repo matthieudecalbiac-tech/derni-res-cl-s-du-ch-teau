@@ -305,7 +305,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
                   "lcc_auth_next",
                   window.location.pathname + window.location.search,
                 );
-                navigate("/connexion");
+                navigate("/inscription");
               }}
             >
               Se connecter →

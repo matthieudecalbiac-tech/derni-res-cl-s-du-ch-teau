@@ -44,6 +44,14 @@ const MENU_ITEMS = [
     couleur: "subtil",
   },
   {
+    id: "club",
+    icone: "⚜",
+    titre: "Club Châtelains",
+    description: "Offres confidentielles et séjours patrimoniaux pour les Châtelains.",
+    action: "club",
+    couleur: "or",
+  },
+  {
     id: "proprietaires",
     icone: "⚜",
     titre: "Propriétaires",
@@ -88,6 +96,7 @@ export default function Header({
       else if (action === "conciergerie") onOuvrirConciergerie?.();
       else if (action === "evenementiel") onOuvrirEvenementiel?.();
       else if (action === "proprietaires") onOuvrirProprietaires?.();
+      else if (action === "club") navigate("/inscription");
     }, 300);
   };
 
@@ -111,7 +120,7 @@ export default function Header({
             <button className="header-connexion" onClick={() => { fermer(); navigate("/connexion"); }}>
               Connexion
             </button>
-            <button className="header-cta" onClick={() => { fermer(); navigate("/connexion"); }}>
+            <button className="header-cta" onClick={() => { fermer(); navigate("/inscription"); }}>
               Rejoindre le Club
             </button>
             <button

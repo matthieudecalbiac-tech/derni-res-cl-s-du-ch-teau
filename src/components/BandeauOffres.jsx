@@ -36,7 +36,7 @@ export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
   const gererClic = (action) => {
     if (action === "dernieres") onOuvrirDernieres?.();
     else if (action === "vitrines") onOuvrirVitrines?.();
-    else if (action === "club") navigate("/connexion");
+    else if (action === "club") navigate("/inscription");
   };
 
   return (
