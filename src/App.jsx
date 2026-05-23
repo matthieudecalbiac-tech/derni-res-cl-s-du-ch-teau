@@ -33,6 +33,9 @@ import VitrineChateauRoute from "./components/VitrineChateauRoute";
 // Sprint S2-α.2 — pages auth magic link (remplace AuthCallbackPlaceholder)
 import Connexion from "./components/auth/Connexion";
 import Inscription from "./components/auth/Inscription";
+import MotDePasseOublie from "./components/auth/MotDePasseOublie";
+import ReinitialiserMotDePasse from "./components/auth/ReinitialiserMotDePasse";
+import CompleterProfil from "./components/auth/CompleterProfil";
 import AuthCallback from "./components/auth/AuthCallback";
 
 
@@ -157,6 +160,9 @@ function App() {
       />
       <Route path="/connexion" element={<Connexion />} />
       <Route path="/inscription" element={<Inscription />} />
+      <Route path="/mot-de-passe-oublie" element={<MotDePasseOublie />} />
+      <Route path="/reinitialiser-mot-de-passe" element={<ReinitialiserMotDePasse />} />
+      <Route path="/completer-profil" element={<CompleterProfil />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/chateau/:slug" element={<VitrineChateauRoute />} />
       <Route path="*" element={homeEtOverlays} />

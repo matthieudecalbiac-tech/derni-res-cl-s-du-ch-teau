@@ -52,24 +52,39 @@ function isPathInterneValide(path) {
 }
 
 export default function AuthCallback() {
-  const { user, loading } = useAuth();
+  const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [error, setError] = useState(null);
 
-  // Safety timeout — si Supabase ne parse pas le hash dans les 10s,
-  // probable lien expiré ou invalide
+  // Safety timeout — si Supabase ne parse pas le hash (ou le profile fetch
+  // n'aboutit pas) dans les 10s, probable lien expiré ou erreur backend.
+  // Sprint α.2.5 Phase B4.5 (fix B) : attendre aussi profile pour ne pas
+  // afficher l'erreur si user est set mais profile fetch toujours en cours.
   useEffect(() => {
-    if (user || loading) return;
+    if ((user && profile) || loading) return;
     const t = setTimeout(() => {
       setError("Lien expiré ou invalide. Veuillez réessayer.");
     }, TIMEOUT_MS);
     return () => clearTimeout(t);
-  }, [user, loading]);
+  }, [user, profile, loading]);
 
-  // Quand user est défini → restore l'URL d'origine + cleanup
+  // Quand user ET profile sont définis → routing selon complétion du profil.
+  // Sprint α.2.5 Phase B4.5 (fix B) : on attend profile (pas juste user)
+  // pour distinguer "fetch en cours" (profile === null) de "profil incomplet"
+  // (profile.first_name === null) après signup avec confirmation email.
   useEffect(() => {
-    if (!user) return;
+    if (!user || !profile) return;
+
+    // Profil incomplet (signup tout juste confirmé) → page de complétion.
+    // On NE clear PAS lcc_auth_next ici — CompleterProfil le récupèrera à
+    // son succès pour ramener l'user à l'origine mémorisée (modale Club…).
+    if (!profile.first_name || !profile.last_name) {
+      navigate("/completer-profil", { replace: true });
+      return;
+    }
+
+    // Profil complet (magic link login normal) → restore l'origine mémorisée.
     // Sprint S2-α.2 Mini-Phase 6.1 : lecture ordonnée des sources.
     //   PRIMARY  : localStorage["lcc_auth_next"] (cross-tab same-origin,
     //              survit au nouveau tab Gmail — cas nominal 99%)
@@ -92,7 +107,7 @@ export default function AuthCallback() {
     localStorage.removeItem("lcc_auth_next");
     sessionStorage.removeItem("auth_redirect_origin");
     navigate(origin, { replace: true });
-  }, [user, navigate, searchParams]);
+  }, [user, profile, navigate, searchParams]);
 
   if (error) {
     return (

@@ -1,0 +1,195 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   Sprint alpha.2.5 Phase B4.1 — Page /mot-de-passe-oublie
+   Préfixe .mdpo-* (Mot De Passe Oublié).
+   Tokens : navy #07101E, or #C09840, crème #F5F0E8.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --mdpo-nuit: #07101E;
+  --mdpo-or: #C09840;
+  --mdpo-or-soft: rgba(192, 152, 64, 0.6);
+  --mdpo-or-faint: rgba(192, 152, 64, 0.25);
+  --mdpo-creme: #F5F0E8;
+  --mdpo-creme-soft: rgba(245, 240, 232, 0.75);
+  --mdpo-creme-faint: rgba(245, 240, 232, 0.4);
+  --mdpo-rouge: #d97a6c;
+}
+
+.mdpo-page {
+  min-height: 100vh;
+  background: var(--mdpo-nuit);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  color: var(--mdpo-creme);
+}
+
+.mdpo-container {
+  width: 100%;
+  max-width: 460px;
+  background: rgba(8, 14, 26, 0.55);
+  border: 1px solid var(--mdpo-or-faint);
+  padding: 48px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.mdpo-lys {
+  font-size: 28px;
+  color: var(--mdpo-or);
+  margin-bottom: 12px;
+}
+
+.mdpo-titre {
+  font-family: "Playfair Display", serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 28px;
+  color: var(--mdpo-creme);
+  margin: 0 0 12px;
+  letter-spacing: 0.01em;
+}
+
+.mdpo-sous-titre {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--mdpo-creme-soft);
+  margin: 0 0 28px;
+  max-width: 380px;
+}
+
+.mdpo-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 10px;
+}
+
+.mdpo-label {
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--mdpo-or);
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.mdpo-input {
+  background: transparent;
+  border: 1px solid var(--mdpo-or-soft);
+  border-radius: 2px;
+  padding: 12px 14px;
+  font-family: "Crimson Pro", serif;
+  font-size: 14px;
+  color: var(--mdpo-creme);
+  outline: none;
+  transition: border-color 0.25s ease;
+}
+
+.mdpo-input::placeholder {
+  color: var(--mdpo-creme-faint);
+  font-style: italic;
+}
+
+.mdpo-input:focus {
+  border-color: var(--mdpo-or);
+}
+
+.mdpo-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mdpo-btn {
+  background: var(--mdpo-or);
+  border: 1px solid var(--mdpo-or);
+  border-radius: 2px;
+  padding: 14px 24px;
+  margin-top: 8px;
+  font-family: "Playfair Display", serif;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--mdpo-nuit);
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.mdpo-btn:hover:not(:disabled) {
+  background: transparent;
+  color: var(--mdpo-or);
+}
+
+.mdpo-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mdpo-error {
+  font-family: "Crimson Pro", serif;
+  font-size: 13px;
+  color: var(--mdpo-rouge);
+  text-align: center;
+  margin: 8px 0 0;
+}
+
+.mdpo-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  border: 1px solid var(--mdpo-or-faint);
+  padding: 32px 28px;
+  width: 100%;
+}
+
+.mdpo-success-lys {
+  font-size: 24px;
+  color: var(--mdpo-or);
+}
+
+.mdpo-success-msg {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--mdpo-creme-soft);
+  margin: 0;
+}
+
+.mdpo-back-link {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 14px;
+  color: var(--mdpo-or);
+  text-decoration: none;
+  margin-top: 24px;
+  transition: color 0.2s ease;
+}
+
+.mdpo-back-link:hover {
+  color: var(--mdpo-creme);
+}
+
+.mdpo-footer {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--mdpo-creme-faint);
+  margin: 28px 0 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  .mdpo-container {
+    padding: 36px 24px;
+  }
+  .mdpo-titre {
+    font-size: 24px;
+  }
+}

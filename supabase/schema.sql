@@ -103,6 +103,9 @@ CREATE TABLE IF NOT EXISTS public.users (
   email               text        NOT NULL,
   role                user_role   NOT NULL DEFAULT 'client',
   full_name           text,
+  first_name          text,
+  last_name           text,
+  civilite            text,
   telephone           text,
   marketing_consent   boolean     NOT NULL DEFAULT false,
   referral_code       text        UNIQUE,
@@ -118,6 +121,12 @@ COMMENT ON COLUMN public.users.marketing_consent IS
   '[Plugeable] Opt-in marketing RGPD. Inutilisé en MVP, prévue pour Brevo (newsletter, séquences).';
 COMMENT ON COLUMN public.users.referral_code IS
   '[Plugeable] Code parrainage unique. Inutilisé en MVP, prévue pour programme ambassadeur.';
+COMMENT ON COLUMN public.users.first_name IS
+  'Prénom — collecté en post-confirmation email via /completer-profil (Sprint alpha.2.5 Phase B4.5).';
+COMMENT ON COLUMN public.users.last_name IS
+  'Nom — collecté en post-confirmation email via /completer-profil.';
+COMMENT ON COLUMN public.users.civilite IS
+  'Civilité (M / Mme / Mx) — optionnelle, collectée /completer-profil. full_name conservé pour transition.';
 
 
 -- ═══════════════════════════════════════════════════════════════════════════

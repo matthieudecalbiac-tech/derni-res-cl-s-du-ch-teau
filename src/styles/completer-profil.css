@@ -1,0 +1,211 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   Sprint alpha.2.5 Phase B4.5 — Page /completer-profil
+   Préfixe .cpr-* (CompleterProfil).
+   Tokens : navy #07101E, or #C09840, crème #F5F0E8.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --cpr-nuit: #07101E;
+  --cpr-or: #C09840;
+  --cpr-or-soft: rgba(192, 152, 64, 0.6);
+  --cpr-or-faint: rgba(192, 152, 64, 0.25);
+  --cpr-creme: #F5F0E8;
+  --cpr-creme-soft: rgba(245, 240, 232, 0.75);
+  --cpr-creme-faint: rgba(245, 240, 232, 0.4);
+  --cpr-rouge: #d97a6c;
+}
+
+.cpr-page {
+  min-height: 100vh;
+  background: var(--cpr-nuit);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 24px;
+  color: var(--cpr-creme);
+}
+
+.cpr-container {
+  width: 100%;
+  max-width: 500px;
+  background: rgba(8, 14, 26, 0.55);
+  border: 1px solid var(--cpr-or-faint);
+  padding: 48px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.cpr-lys {
+  font-size: 30px;
+  color: var(--cpr-or);
+  margin-bottom: 14px;
+}
+
+.cpr-titre {
+  font-family: "Playfair Display", serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 30px;
+  color: var(--cpr-creme);
+  margin: 0 0 12px;
+  letter-spacing: 0.01em;
+}
+
+.cpr-sous-titre {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--cpr-creme-soft);
+  margin: 0 0 32px;
+  max-width: 400px;
+}
+
+.cpr-form {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 6px;
+}
+
+.cpr-label {
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--cpr-or);
+  text-transform: uppercase;
+  text-align: left;
+  margin-top: 12px;
+}
+
+.cpr-label-required {
+  color: var(--cpr-or);
+  margin-left: 2px;
+}
+
+.cpr-label-hint {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  color: var(--cpr-creme-faint);
+  font-style: italic;
+  margin-left: 4px;
+}
+
+.cpr-input,
+.cpr-select {
+  background: transparent;
+  border: 1px solid var(--cpr-or-faint);
+  border-radius: 2px;
+  padding: 12px 14px;
+  font-family: "Crimson Pro", serif;
+  font-size: 14px;
+  color: var(--cpr-creme);
+  outline: none;
+  transition: border-color 0.25s ease;
+  width: 100%;
+}
+
+.cpr-input::placeholder {
+  color: var(--cpr-creme-faint);
+  font-style: italic;
+}
+
+.cpr-input:focus,
+.cpr-select:focus {
+  border-color: var(--cpr-or);
+}
+
+.cpr-input:disabled,
+.cpr-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cpr-select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--cpr-or-soft) 50%),
+    linear-gradient(135deg, var(--cpr-or-soft) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-size: 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 32px;
+}
+
+/* Checkbox marketing consent (RGPD) */
+.cpr-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 18px;
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--cpr-creme-soft);
+  text-align: left;
+  cursor: pointer;
+}
+
+.cpr-checkbox {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  margin-top: 2px;
+  accent-color: var(--cpr-or);
+  cursor: pointer;
+}
+
+.cpr-btn {
+  background: var(--cpr-or);
+  border: 1px solid var(--cpr-or);
+  border-radius: 2px;
+  padding: 14px 24px;
+  margin-top: 20px;
+  font-family: "Playfair Display", serif;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  color: var(--cpr-nuit);
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.cpr-btn:hover:not(:disabled) {
+  background: transparent;
+  color: var(--cpr-or);
+}
+
+.cpr-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cpr-error {
+  font-family: "Crimson Pro", serif;
+  font-size: 13px;
+  color: var(--cpr-rouge);
+  text-align: center;
+  margin: 8px 0 0;
+}
+
+.cpr-footer {
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  font-size: 12px;
+  color: var(--cpr-creme-faint);
+  margin: 32px 0 0;
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  .cpr-container {
+    padding: 36px 24px;
+  }
+  .cpr-titre {
+    font-size: 26px;
+  }
+}

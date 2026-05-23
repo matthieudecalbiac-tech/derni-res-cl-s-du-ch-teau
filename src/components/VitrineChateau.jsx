@@ -301,9 +301,16 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
                 // localStorage. sessionStorage est session-scoped à un tab,
                 // ne survit pas au nouveau tab Gmail. localStorage est
                 // cross-tab same-origin → robuste au flow magic link.
+                //
+                // Sprint α.2.5 Phase B4.5 (bug fix) : on stocke la route
+                // canonique /chateau/<slug> plutôt que window.location.pathname.
+                // En mode "modal" (overlay depuis home), pathname = "/" → le
+                // user perdait le contexte château post-auth. La route
+                // canonique (servie par VitrineChateauRoute) ramène à la
+                // vitrine identique. Fallback "/" défensif si slug absent.
                 localStorage.setItem(
                   "lcc_auth_next",
-                  window.location.pathname + window.location.search,
+                  chateau.slug ? `/chateau/${chateau.slug}` : "/",
                 );
                 navigate("/inscription");
               }}

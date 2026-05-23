@@ -24,6 +24,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../contexts/AuthContext";
 import "../../styles/connexion.css";
 
@@ -119,13 +120,33 @@ export default function Connexion() {
     }
     setSubmitting(true);
     setError(null);
-    const { error: err } = await signInWithPassword(email, password);
-    setSubmitting(false);
+    const { user: signedUser, error: err } = await signInWithPassword(
+      email,
+      password,
+    );
     if (err) {
+      setSubmitting(false);
       setError(err.message);
       return;
     }
-    // Succès → restaure l'origine mémorisée (RequireAuth / modale Club), sinon home
+
+    // Sprint α.2.5 Phase B4.5 (fix E) — vérifier la complétion du profil.
+    // AuthContext refetch profile en async via onAuthStateChange ; pour ne
+    // pas attendre un cycle de re-render, on lit directement public.users.
+    // Couvre l'edge case : user a confirmé email mais n'a jamais soumis
+    // /completer-profil → ramené ici à chaque login.
+    const { data: signedProfile } = await supabase
+      .from("users")
+      .select("first_name, last_name")
+      .eq("id", signedUser.id)
+      .single();
+    setSubmitting(false);
+    if (!signedProfile?.first_name || !signedProfile?.last_name) {
+      navigate("/completer-profil", { replace: true });
+      return;
+    }
+
+    // Profil complet → restaure l'origine mémorisée (RequireAuth / modale Club), sinon home
     const origin = localStorage.getItem("lcc_auth_next") || "/";
     localStorage.removeItem("lcc_auth_next");
     navigate(origin, { replace: true });
@@ -231,7 +252,7 @@ export default function Connexion() {
               )}
 
               <Link to="/mot-de-passe-oublie" className="cnx-forgot">
-                Mot de passe oublié ?
+                Vous avez perdu vos clés ?
               </Link>
             </form>
 
