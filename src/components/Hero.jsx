@@ -56,9 +56,9 @@ function Hero() {
       {/* Contenu central */}
       <div className="hero-contenu">
         <span className="hero-sur-titre">
-          Châteaux de France · Séjours d'exception
+          Séjours d'exception
         </span>
-        <span className="hero-titre-ligne1">La vie de château</span>
+        <span className="hero-titre-ligne1">La vie de <em>château</em></span>
         <span className="hero-titre-ligne2">vous attend</span>
         <div className="hero-ornement">
           <div className="hero-ornement-ligne" />
@@ -69,21 +69,16 @@ function Hero() {
           Demeures et châteaux de France
         </p>
         <p className="hero-accroche">
-          Dormir dans les demeures <em className="hero-signature-accent">qui ont fait la France.</em>
+          Dormir et vivre l'expérience dans les demeures <em className="hero-signature-accent">qui ont fait la France.</em>
         </p>
-        <div className="hero-fondation">
-          <span className="hero-fondation-ico">⚜</span>
-          <span className="hero-fondation-texte">
-            Aidez-nous à préserver le patrimoine —{" "}
-            <strong>une partie de nos recettes est reversée à la Fondation du Patrimoine</strong>
-          </span>
+        <div className="lcc-hero-fondation">
+          <p className="lcc-hero-fondation-l1">
+            Aidez-nous à préserver le patrimoine français
+          </p>
+          <p className="lcc-hero-fondation-l2">
+            une partie de nos recettes est reversée à la Fondation du Patrimoine
+          </p>
         </div>
-      </div>
-
-      {/* Stats — Audit Fondation J2 (P1-1) : chiffre retiré, pas de remplacement chiffré */}
-      <div className="hero-stats">
-        <span className="hero-stats-nombre">⚜</span>
-        <span className="hero-stats-label">Châteaux d'exception sélectionnés</span>
       </div>
 
     </section>

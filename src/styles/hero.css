@@ -135,6 +135,14 @@
   line-height: 1;
 }
 
+.hero-titre-ligne1 em {
+  font-family: "Playfair Display", serif;
+  font-style: italic;
+  font-weight: 400;
+  text-transform: lowercase;
+  letter-spacing: 0.01em;
+}
+
 .hero-titre-ligne2 {
   font-family: var(--font-editorial);
   font-size: clamp(1.4rem, 3.5vw, 2.8rem);
@@ -225,34 +233,6 @@
     opacity: 1;
     transform: scaleY(1.2);
   }
-}
-
-/* ── STATS ────────────────────────────────────────────────── */
-.hero-stats {
-  position: absolute;
-  bottom: calc(220px + 3rem);
-  right: 3rem;
-  z-index: 3;
-  text-align: right;
-}
-
-.hero-stats-nombre {
-  font-family: var(--font-titre);
-  font-size: 2.5rem;
-  font-weight: 600;
-  color: var(--blanc-casse);
-  display: block;
-  line-height: 1;
-  letter-spacing: 0.05em;
-}
-
-.hero-stats-label {
-  font-family: var(--font-ui);
-  font-size: 0.55rem;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--or);
-  opacity: 0.7;
 }
 
 /* ── RÉGIONS ──────────────────────────────────────────────── */
@@ -413,7 +393,6 @@
 
 /* ── RESPONSIVE ───────────────────────────────────────────── */
 @media (max-width: 900px) {
-  .hero-stats,
   .hero-regions {
     display: none;
   }
@@ -532,44 +511,29 @@
   font-style: italic;
 }
 
-/* ── Fondation du Patrimoine badge ── */
-.hero-fondation {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 28px;
-  padding: 12px 24px;
-  border: 1px solid rgba(192, 152, 64, 0.5);
-  border-top: 2px solid #C09840;
-  background: rgba(192, 152, 64, 0.08);
-  backdrop-filter: blur(8px);
-  transition: all 0.3s ease;
+/* ── Fondation du Patrimoine — mention épurée ── */
+.lcc-hero-fondation {
+  text-align: center;
+  padding: 12px 32px;
+  margin-top: 24px;
 }
-.hero-fondation:hover {
-  background: rgba(192, 152, 64, 0.14);
-  border-color: rgba(192, 152, 64, 0.8);
-  border-top-color: #EDD880;
-}
-.hero-fondation-ico {
-  color: #C09840;
-  font-size: 1.2rem;
-  flex-shrink: 0;
-  text-shadow: 0 0 12px rgba(192,152,64,0.6);
-}
-.hero-fondation-texte {
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.92rem;
-  font-weight: 300;
+.lcc-hero-fondation-l1 {
+  margin: 0 0 4px;
+  font-family: 'Crimson Pro', 'Cormorant Garamond', serif;
   font-style: italic;
-  letter-spacing: 0.06em;
-  color: rgba(245, 240, 232, 0.8);
-  line-height: 1.4;
+  font-size: clamp(13px, 1.4vw, 15px);
+  color: rgba(245, 240, 232, 0.55);
+  line-height: 1.5;
+  font-weight: 300;
 }
-.hero-fondation-texte strong {
-  color: #C09840;
-  font-weight: 500;
-  font-style: normal;
-  letter-spacing: 0.04em;
+.lcc-hero-fondation-l2 {
+  margin: 0;
+  font-family: 'Crimson Pro', 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: clamp(12px, 1.3vw, 14px);
+  color: rgba(192, 152, 64, 0.6);
+  line-height: 1.5;
+  font-weight: 300;
 }
 
 /* ── Phrase signature ── */
