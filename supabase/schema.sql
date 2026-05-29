@@ -51,7 +51,7 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 -- ne supporte pas IF NOT EXISTS.
 
 DO $$ BEGIN
-  CREATE TYPE user_role AS ENUM ('client', 'chatelain', 'admin');
+  CREATE TYPE user_role AS ENUM ('client', 'membre_club', 'chatelain', 'admin');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
 DO $$ BEGIN
