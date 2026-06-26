@@ -35,6 +35,20 @@ function chateauxDisponibles(liste, dateArrivee) {
   });
 }
 
+function genererGrilleMois(premierJourMois) {
+  const annee = premierJourMois.getFullYear();
+  const mois = premierJourMois.getMonth();
+  const premier = new Date(annee, mois, 1);
+  // getDay() : 0=dim..6=sam ; on veut Lundi=0 => (getDay()+6)%7
+  const decalage = (premier.getDay() + 6) % 7;
+  const nbJours = new Date(annee, mois + 1, 0).getDate();
+  const cases = [];
+  for (let i = 0; i < decalage; i++) cases.push({ date: null, horsMois: true });
+  for (let j = 1; j <= nbJours; j++) cases.push({ date: new Date(annee, mois, j), horsMois: false });
+  while (cases.length < 42) cases.push({ date: null, horsMois: true });
+  return cases;
+}
+
 export default function DernieresCles({ onClose }) {
   const navigate = useNavigate();
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
@@ -53,6 +67,10 @@ export default function DernieresCles({ onClose }) {
   const [dateArrivee, setDateArrivee] = useState(null);
   const [dateDepart, setDateDepart] = useState(null);
   const [etape, setEtape] = useState("arrivee");
+  const [moisAffiche, setMoisAffiche] = useState(() => {
+    const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1);
+  });
+  // 1er jour du mois actuellement affiché dans le calendrier mensuel
   const [chateauSurvol, setChateauSurvol] = useState(null);
   const { chateaux, loading, error } = useChateaux();
   // Audit Fondation J2 — P0-2 : ne lister que les châteaux ayant réellement une
@@ -89,6 +107,10 @@ export default function DernieresCles({ onClose }) {
   };
 
   const reset = () => { setDateArrivee(null); setDateDepart(null); setEtape("arrivee"); };
+  const moisPrecedent = () =>
+    setMoisAffiche(m => new Date(m.getFullYear(), m.getMonth() - 1, 1));
+  const moisSuivant = () =>
+    setMoisAffiche(m => new Date(m.getFullYear(), m.getMonth() + 1, 1));
   const isArrivee = (d) => dateArrivee && d.toDateString() === dateArrivee.toDateString();
   const isDepart = (d) => dateDepart && d.toDateString() === dateDepart.toDateString();
   const isBetween = (d) => dateArrivee && dateDepart && d > dateArrivee && d < dateDepart;
@@ -97,33 +119,36 @@ export default function DernieresCles({ onClose }) {
     setChateauSurvol(id);
   };
 
+  const estSelectionnable = (d) => {
+    if (!d) return false;
+    const j = joursAvant(d);
+    return j >= 1 && j <= 30;
+  };
+  // garde la même fenêtre J+1..J+30 que la bande actuelle, pour cohérence du filtrage
+
+  const labelMois = moisAffiche.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+
   return (
     <div className={"dk-overlay " + (visible ? "dk-overlay--visible" : "")}>
-      <header className="dk-header">
-        <div className="dk-header-gauche">
-          <span className="dk-header-lys">&#x269C;</span>
-          <span className="dk-header-titre">Les Clés du Château</span>
-          <span className="dk-header-sep">·</span>
-          <span className="dk-header-club">Les Dernières Clés</span>
-        </div>
-        <div className="dk-header-droite">
-          <button className="dk-btn-retour" onClick={onClose}>Fermer</button>
-        </div>
+      <header className="dk-topbar">
+        <button className="dk-topbar-logo" onClick={onClose} aria-label="Accueil">
+          <img src="/L1.png" alt="" aria-hidden="true" className="dk-topbar-embleme" />
+          <img src="/L2.png" alt="Les Clés du Château" className="dk-topbar-wordmark" />
+        </button>
+        <span className="dk-topbar-titre">Dernières clés</span>
       </header>
 
-      <div className="dk-layout">
+      <div className="dk-page">
 
-        {/* ── PANNEAU GAUCHE ── */}
-        <div className="dk-panneau">
+        {/* SECTION 1 : HERO éditorial */}
+        <section className="dk-section dk-section-hero">
+          <div className="dk-orn"><div className="dk-orn-ligne" /><span className="dk-orn-lys">&#x269C;</span><div className="dk-orn-ligne" /></div>
+          <h2 className="dk-panneau-titre">Les Dernières Clés</h2>
+          <p className="dk-panneau-accroche">Des séjours rares, à saisir. Choisissez vos dates.</p>
+        </section>
 
-          {/* En-tête éditorial */}
-          <div className="dk-panneau-hero">
-            <div className="dk-orn"><div className="dk-orn-ligne" /><span className="dk-orn-lys">&#x269C;</span><div className="dk-orn-ligne" /></div>
-            <h2 className="dk-panneau-titre">Les Dernières Clés</h2>
-            <p className="dk-panneau-accroche">Des créneaux rares sur leurs dates difficiles. Choisissez vos dates.</p>
-          </div>
-
-          {/* Sélecteur dates */}
+        {/* SECTION 2 : DATES */}
+        <section className="dk-section dk-section-dates">
           <div className="dk-dates-bloc">
             <div className="dk-dates-etapes">
               <div className={"dk-dates-etape " + (etape === "arrivee" ? "actif" : dateArrivee ? "done" : "")} onClick={() => setEtape("arrivee")}>
@@ -144,23 +169,48 @@ export default function DernieresCles({ onClose }) {
               {dateArrivee && <button className="dk-dates-reset" onClick={reset}>✕</button>}
             </div>
 
-            <div className="dk-calendrier">
-              {dates.map((d, i) => {
-                const j = joursAvant(d);
-                const urg = j <= 7 ? "j7" : j <= 10 ? "j10" : "j15";
-                return (
-                  <button key={i} className={"dk-cal-jour dk-cal-" + urg + (isArrivee(d) ? " dk-cal-arrivee" : "") + (isDepart(d) ? " dk-cal-depart" : "") + (isBetween(d) ? " dk-cal-between" : "")} onClick={() => handleSelectDate(d)}>
-                    <span className="dk-cal-jour-nom">{d.toLocaleDateString("fr-FR", { weekday: "short" })}</span>
-                    <span className="dk-cal-jour-num">{d.toLocaleDateString("fr-FR", { day: "numeric" })}</span>
-                    <span className="dk-cal-jour-mois">{d.toLocaleDateString("fr-FR", { month: "short" })}</span>
-                    {j <= 15 && <span className={"dk-cal-urgence dk-cal-urgence-" + urg}>J-{j}</span>}
-                  </button>
-                );
-              })}
+            <div className="dk-cal-mois">
+              <div className="dk-cal-nav">
+                <button className="dk-cal-nav-btn" onClick={moisPrecedent} aria-label="Mois précédent">‹</button>
+                <span className="dk-cal-nav-label">{labelMois}</span>
+                <button className="dk-cal-nav-btn" onClick={moisSuivant} aria-label="Mois suivant">›</button>
+              </div>
+              <div className="dk-cal-grille">
+                {["Lu","Ma","Me","Je","Ve","Sa","Di"].map((j) => (
+                  <span key={j} className="dk-cal-jour-entete">{j}</span>
+                ))}
+                {genererGrilleMois(moisAffiche).map((caseJour, i) => {
+                  if (!caseJour.date) return <span key={i} className="dk-cal-case dk-cal-case-vide" />;
+                  const d = caseJour.date;
+                  const selectionnable = estSelectionnable(d);
+                  const classes =
+                    "dk-cal-case" +
+                    (selectionnable ? " dk-cal-case-dispo" : " dk-cal-case-off") +
+                    (isArrivee(d) ? " dk-cal-arrivee" : "") +
+                    (isDepart(d) ? " dk-cal-depart" : "") +
+                    (isBetween(d) ? " dk-cal-between" : "");
+                  return (
+                    <button
+                      key={i}
+                      className={classes}
+                      disabled={!selectionnable}
+                      onClick={() => selectionnable && handleSelectDate(d)}
+                    >
+                      {d.getDate()}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
+        </section>
 
-          {/* Liste châteaux */}
+        {/* SECTION 3 : FILTRES (réservé, rempli en étape D) */}
+        <section className="dk-section dk-section-filtres">
+        </section>
+
+        {/* SECTION 4 : GRILLE */}
+        <section className="dk-section dk-section-grille">
           <div className="dk-liste">
             <div className="dk-liste-header">
               <span className="dk-liste-nb">{chateauxFiltres.length}</span>
@@ -199,7 +249,7 @@ export default function DernieresCles({ onClose }) {
               )}
             </div>
           </div>
-        </div>
+        </section>
 
       </div>
 
