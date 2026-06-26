@@ -318,20 +318,21 @@ export default function DernieresCles({ onClose }) {
                 return (
                   <div
                     key={c.id}
-                    className={"dk-liste-item " + (chateauSurvol === c.id ? "survol" : "")}
+                    className={"dk-carte-offre " + (chateauSurvol === c.id ? "survol" : "")}
                     onClick={() => ouvrirChateauModuleB(c)}
                     onMouseEnter={() => survolChateau(c.id)}
                     onMouseLeave={() => setChateauSurvol(null)}
                   >
-                    <div className="dk-liste-item-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
-                      {c.urgence && <span className={"dk-badge dk-badge-sm " + classBadge}>{c.urgence}</span>}
+                    <div className="dk-carte-offre-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
+                      {/* badge fixe — à brancher sur chambresRestantes/dispo au sprint Supabase */}
+                      <span className="dk-carte-offre-badge">DISPONIBLE</span>
                     </div>
-                    <div className="dk-liste-item-info">
-                      <div className="dk-liste-item-region">{c.region} · {c.distanceParis}</div>
-                      <div className="dk-liste-item-nom">{c.nom}</div>
-                      <div className="dk-liste-item-prix">
-                        {c.prixBarre && <span className="dk-liste-prix-barre">{c.prixBarre} €</span>}
-                        {prixFinal && <span className="dk-liste-prix-final">{prixFinal} € <span className="dk-liste-prix-nuit">/ nuit</span></span>}
+                    <div className="dk-carte-offre-corps">
+                      <div className="dk-carte-offre-region">{c.region} · {c.distanceParis}</div>
+                      <div className="dk-carte-offre-nom">{c.nom}</div>
+                      <div className="dk-carte-offre-prix">
+                        {c.prixBarre && <span className="dk-carte-offre-prix-barre">{c.prixBarre} €</span>}
+                        {prixFinal && <span className="dk-carte-offre-prix-final">{prixFinal} € <span className="dk-carte-offre-prix-nuit">/ nuit</span></span>}
                       </div>
                     </div>
                   </div>

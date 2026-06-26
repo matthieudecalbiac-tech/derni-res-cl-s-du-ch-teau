@@ -254,3 +254,55 @@
 }
 .dk-filtre-select:focus { border-color: #C09840; }
 .dk-filtre-select option { background: #07101E; color: #F5F0E8; }
+
+/* ── Grille de cartes offres (E) ── */
+.dk-liste-items {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  overflow: visible;
+}
+@media (max-width: 980px) { .dk-liste-items { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .dk-liste-items { grid-template-columns: 1fr; } }
+
+.dk-carte-offre {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(192,152,64,0.18);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  display: flex; flex-direction: column;
+}
+.dk-carte-offre:hover, .dk-carte-offre.survol {
+  transform: translateY(-4px);
+  border-color: #C09840;
+  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+}
+.dk-carte-offre-img {
+  position: relative; height: 200px;
+  background-size: cover; background-position: center;
+  background-color: #0d1a2e;
+}
+.dk-carte-offre-badge {
+  position: absolute; top: 12px; left: 12px;
+  background: rgba(192,152,64,0.92); color: #07101E;
+  font-family: 'Crimson Pro', serif; font-weight: 700; font-size: 0.6rem;
+  letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 10px;
+}
+.dk-carte-offre-corps { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
+.dk-carte-offre-region {
+  font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(192,152,64,0.65);
+}
+.dk-carte-offre-nom {
+  font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #F5F0E8; line-height: 1.25;
+}
+.dk-carte-offre-prix { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; }
+.dk-carte-offre-prix-barre {
+  font-family: 'Crimson Pro', serif; font-size: 0.8rem;
+  color: rgba(245,240,232,0.3); text-decoration: line-through;
+}
+.dk-carte-offre-prix-final {
+  font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #C09840;
+}
+.dk-carte-offre-prix-nuit { font-family: 'Crimson Pro', serif; font-size: 0.7rem; color: rgba(245,240,232,0.4); }
