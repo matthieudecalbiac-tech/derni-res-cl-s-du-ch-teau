@@ -1,14 +1,20 @@
+:root {
+  --lcc-header-h: 105px;
+}
+
 .header {
   position: fixed; top: 0; left: 0; right: 0; z-index: 5000;
   transition: all 0.3s ease;
 }
 .header-inner {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 1.6rem 3rem; transition: all 0.3s ease;
+  padding: 12px 3rem; transition: all 0.3s ease;
+  background: rgba(7, 16, 30, 0.97); backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(192, 152, 64, 0.18);
 }
 .header--solide .header-inner {
   background: rgba(7, 16, 30, 0.97); backdrop-filter: blur(14px);
-  padding: 1rem 3rem; border-bottom: 1px solid rgba(192, 152, 64, 0.18);
+  padding: 12px 3rem; border-bottom: 1px solid rgba(192, 152, 64, 0.18);
 }
 .header--menu-ouvert .header-inner {
   background: transparent !important; border-bottom: none !important; backdrop-filter: none !important;
@@ -26,9 +32,15 @@
 }
 
 .header-logo {
-  display: flex; align-items: center; gap: 0.8rem; cursor: pointer;
+  display: flex; align-items: center; gap: 1rem; cursor: pointer;
   flex-shrink: 0; background: none; border: none; padding: 0;
   z-index: 5100; position: relative;
+}
+.header-logo-embleme {
+  height: 64px; width: auto; display: block; background: transparent;
+}
+.header-logo-wordmark {
+  height: 52px; width: auto; display: block; background: transparent;
 }
 .logo-texte { display: flex; flex-direction: column; gap: 2px; }
 .logo-principal {
@@ -176,6 +188,8 @@
   .hm-item { grid-template-columns: 36px 1fr 24px; gap: 14px; padding: 15px 0; }
   .hm-item-titre { font-size: 1.05rem; }
   .hm-item-desc { font-size: 0.82rem; }
+  .header-logo-embleme { height: 48px; }
+  .header-logo-wordmark { height: 38px; }
 }
 @media (max-width: 480px) {
   .header-inner { padding: 1rem; }
@@ -185,4 +199,5 @@
   .hm-item { grid-template-columns: 28px 1fr 20px; gap: 10px; padding: 13px 0; }
   .hm-item-titre { font-size: 0.95rem; }
   .hm-item-desc { font-size: 0.78rem; }
+  .header-logo-wordmark { height: 30px; }
 }

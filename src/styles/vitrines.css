@@ -1,109 +1,114 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap');
 
+/* ── Overlay crème (priorité sur espace-membre.css via double classe) ── */
+.em-overlay.vit-page { background: var(--lcc-creme, #F1E3C9); color: #1A2D5A; }
+
+/* ── Topbar (look identique au header de la home) ── */
+.vit-topbar {
+  position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
+  justify-content: space-between; padding: 12px 3rem; flex-shrink: 0;
+  background: rgba(7,16,30,0.97); backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(192,152,64,0.18);
+}
+.vit-topbar-logo {
+  display: flex; align-items: center; gap: 1rem; background: none;
+  border: none; padding: 0; cursor: pointer;
+}
+.vit-topbar-embleme { height: 64px; width: auto; display: block; background: transparent; }
+.vit-topbar-wordmark { height: 52px; width: auto; display: block; background: transparent; }
+.vit-topbar-titre {
+  font-family: 'Playfair Display', serif; font-size: 1.3rem;
+  font-weight: 400; font-style: italic; color: #C09840; letter-spacing: 0.05em;
+}
+
+/* ── Hero crème, aligné à gauche, 2 colonnes + gravure ── */
 .vit-hero {
-  position: relative;
-  min-height: 52vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 80px 24px 60px;
-  overflow: hidden;
+  position: relative; min-height: auto; display: block; text-align: left;
+  padding: 64px 56px 48px; overflow: hidden;
+  border-bottom: 1px solid rgba(192,152,64,0.22);
 }
 .vit-hero-bg {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(192,152,64,0.12) 0%, transparent 65%);
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(192,152,64,0.06) 0%, transparent 60%);
 }
-.vit-hero-contenu {
-  position: relative;
-  z-index: 1;
-  max-width: 760px;
+.vit-hero-grille {
+  position: relative; z-index: 1; max-width: 1480px; margin: 0 auto;
+  display: grid; grid-template-columns: 1.1fr 1fr auto; gap: 48px; align-items: start;
 }
-.vit-surtitre {
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.75rem;
-  font-weight: 300;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: #C09840;
-  margin: 16px 0 20px;
+.vit-fil {
+  font-family: 'Crimson Pro', serif; font-size: 0.72rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: #A8884E; margin: 0 0 24px;
 }
+.vit-fil span { color: #C09840; margin: 0 4px; }
 .vit-titre {
-  font-family: 'Playfair Display', serif;
-  font-size: clamp(2.2rem, 5vw, 3.4rem);
-  font-weight: 400;
-  color: #F5F0E8;
-  line-height: 1.15;
-  margin: 0 0 24px;
+  font-family: 'Playfair Display', serif; font-weight: 400;
+  font-size: clamp(2.6rem, 6vw, 4.4rem); line-height: 1.04; color: #1A2D5A; margin: 0;
   letter-spacing: -0.01em;
 }
+.vit-surtitre {
+  font-family: 'Crimson Pro', serif; font-size: 0.75rem; font-weight: 300;
+  letter-spacing: 0.28em; text-transform: uppercase; color: #C09840; margin: 0 0 18px;
+}
 .vit-accroche {
-  font-family: 'Crimson Pro', serif;
-  font-size: 1.08rem;
-  font-weight: 300;
-  color: rgba(245,240,232,0.65);
-  line-height: 1.8;
-  font-style: italic;
-  margin: 0 0 40px;
+  font-family: 'Crimson Pro', serif; font-size: 1.05rem; font-weight: 300;
+  color: #3A4456; line-height: 1.85; margin: 0;
 }
-.vit-stats {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  border-top: 1px solid rgba(192,152,64,0.2);
-  border-bottom: 1px solid rgba(192,152,64,0.2);
-  padding: 24px 0;
+.vit-accroche strong { color: #1A2D5A; font-weight: 600; }
+.vit-lettrine {
+  float: left; width: 52px; height: 52px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid rgba(192,152,64,0.5);
+  font-family: 'Playfair Display', serif; font-size: 2.3rem; line-height: 1;
+  color: #C09840; margin: 4px 16px 6px 0;
 }
-.vit-stat { flex: 1; text-align: center; padding: 0 24px; }
-.vit-stat-sep { width: 1px; height: 36px; background: rgba(192,152,64,0.2); flex-shrink: 0; }
-.vit-stat-nb {
-  display: block;
-  font-family: 'Playfair Display', serif;
-  font-size: 2rem;
-  font-weight: 400;
-  color: #C09840;
-  line-height: 1;
-  margin-bottom: 6px;
+.vit-citation {
+  font-family: 'Crimson Pro', serif; font-style: italic; font-size: 1.05rem;
+  color: #3A4456; line-height: 1.6; margin: 22px 0 0; padding-left: 14px;
+  border-left: 2px solid rgba(192,152,64,0.45);
 }
-.vit-stat-lbl {
-  display: block;
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.72rem;
-  font-weight: 300;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: rgba(245,240,232,0.4);
+.vit-hero-gravure {
+  width: 260px; min-height: 200px;
+  background: url('/vitrines-gravure.png') center/contain no-repeat;
+}
+@media (max-width: 1000px) {
+  .vit-hero-grille { grid-template-columns: 1fr; gap: 28px; }
+  .vit-hero-gravure { display: none; }
 }
 
+/* ── Corps ── */
 .vit-corps {
-  max-width: 1280px;
+  max-width: 1720px;
   margin: 0 auto;
-  padding: 60px 32px 100px;
+  padding: 56px 40px 100px;
 }
 
+/* ── Filtres en onglets soulignés crème ── */
 .vit-filtres {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 48px;
-  justify-content: center;
+  display: flex; flex-wrap: wrap; gap: 0 24px; justify-content: flex-start;
+  border-bottom: 1px solid rgba(192,152,64,0.25); margin-bottom: 40px;
 }
 .vit-filtre {
-  background: transparent;
-  border: 1px solid rgba(192,152,64,0.25);
-  color: rgba(245,240,232,0.5);
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.82rem;
-  letter-spacing: 0.08em;
-  padding: 8px 20px;
-  cursor: pointer;
+  position: relative; background: transparent; border: none;
+  border-bottom: 2px solid transparent;
+  font-family: 'Crimson Pro', serif; font-size: 0.82rem; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #9B9282; padding: 12px 0; cursor: pointer;
   transition: all 0.2s ease;
 }
-.vit-filtre:hover { border-color: rgba(192,152,64,0.5); color: rgba(245,240,232,0.85); }
-.vit-filtre.actif { border-color: #C09840; color: #F5F0E8; background: rgba(192,152,64,0.08); }
+.vit-filtre:not(:last-child)::after {
+  content: ''; position: absolute; right: -12px; top: 50%;
+  transform: translateY(-50%); width: 1px; height: 11px;
+  background: rgba(192,152,64,0.3);
+}
+.vit-filtre:hover { color: #1A2D5A; }
+.vit-filtre.actif {
+  color: #1A2D5A; border-bottom-color: #C09840; background: transparent;
+}
+.vit-filtre.actif::before {
+  content: '\25C6'; position: absolute; left: 50%; bottom: -7px;
+  transform: translateX(-50%); font-size: 0.42rem; color: #C09840; line-height: 1;
+}
 
+/* ── Grille ── */
 .vit-grille {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -112,22 +117,20 @@
 @media (max-width: 1100px) { .vit-grille { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 680px) { .vit-grille { grid-template-columns: 1fr; } }
 
+/* ── Cartes crème ── */
 .vit-carte {
-  background: #0D1C30;
-  border: 1px solid rgba(192,152,64,0.15);
-  cursor: pointer;
+  background: #FBF8F1; border: 1px solid rgba(192,152,64,0.38); cursor: pointer;
   transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   overflow: hidden;
 }
 .vit-carte:hover {
-  transform: translateY(-4px);
-  border-color: rgba(192,152,64,0.45);
-  box-shadow: 0 16px 48px rgba(0,0,0,0.35);
+  transform: translateY(-4px); border-color: #C09840;
+  box-shadow: 0 18px 44px rgba(26,45,90,0.14);
 }
 
 .vit-carte-img {
   position: relative;
-  height: 220px;
+  height: 190px;
   background-size: cover;
   background-position: center;
   background-color: #152440;
@@ -138,36 +141,27 @@
   background: linear-gradient(to bottom, transparent 40%, rgba(7,16,30,0.85) 100%);
 }
 .vit-carte-region {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.68rem;
-  font-weight: 300;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #C09840;
-  border: 1px solid rgba(192,152,64,0.5);
-  padding: 4px 10px;
-  background: rgba(7,16,30,0.6);
+  position: absolute; bottom: 14px; left: 14px; top: auto;
+  font-family: 'Crimson Pro', serif; font-size: 0.62rem; font-weight: 400;
+  letter-spacing: 0.22em; text-transform: uppercase; color: #F4EBD9;
+  border: 1px solid rgba(192,152,64,0.45); padding: 5px 12px;
+  background: rgba(7,16,30,0.42);
 }
 
-.vit-carte-corps {
-  padding: 24px 22px 20px;
-}
+.vit-carte-corps { padding: 26px 24px 22px; }
 .vit-carte-nom {
   font-family: 'Playfair Display', serif;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   font-weight: 400;
-  color: #F5F0E8;
-  margin: 0 0 10px;
+  color: #1A2D5A;
+  margin: 0 0 12px;
   line-height: 1.3;
 }
 .vit-carte-accroche {
   font-family: 'Crimson Pro', serif;
   font-size: 0.9rem;
   font-weight: 300;
-  color: rgba(245,240,232,0.55);
+  color: #4A4640;
   line-height: 1.6;
   margin: 0 0 12px;
   display: -webkit-box;
@@ -175,54 +169,53 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.vit-carte-citation {
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.82rem;
-  font-weight: 300;
-  color: rgba(192,152,64,0.7);
-  font-style: italic;
-  line-height: 1.55;
-  margin: 0 0 16px;
-  border-left: 2px solid rgba(192,152,64,0.3);
-  padding-left: 12px;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
 .vit-carte-pied {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 14px;
-  border-top: 1px solid rgba(192,152,64,0.12);
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 16px; border-top: 1px solid rgba(192,152,64,0.3);
 }
 .vit-carte-prix {
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.82rem;
-  font-weight: 300;
-  color: rgba(245,240,232,0.45);
+  font-family: 'Crimson Pro', serif; font-size: 0.68rem; font-weight: 400;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #A8884E;
 }
 .vit-carte-lien {
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.82rem;
-  font-weight: 400;
-  color: #C09840;
-  letter-spacing: 0.04em;
+  font-family: 'Crimson Pro', serif; font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase; color: #C09840;
   transition: letter-spacing 0.2s ease;
 }
-.vit-carte:hover .vit-carte-lien { letter-spacing: 0.08em; }
+.vit-carte:hover .vit-carte-lien { letter-spacing: 0.2em; }
 
 @media (max-width: 768px) {
-  .vit-hero { min-height: auto; padding: 60px 16px 40px; }
-  .vit-titre { font-size: 2rem; }
+  .vit-topbar { padding: 12px 1.5rem; }
+  .vit-hero { padding: 48px 20px 36px; }
   .vit-corps { padding: 40px 16px 60px; }
-  .vit-stats { gap: 0; }
-  .vit-stat { padding: 0 12px; }
-  .vit-stat-nb { font-size: 1.5rem; }
 }
 
-/* ── Page header universel ── */
+/* ── Temps 2 : carte a gauche (sticky) + grille 2 colonnes a droite ── */
+.vit-corps-bas {
+  display: grid;
+  grid-template-columns: 620px 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.vit-carte-france { position: sticky; top: 88px; }
+.vit-corps-bas .vit-grille { grid-template-columns: repeat(2, 1fr); }
+
+@media (max-width: 1100px) {
+  .vit-corps-bas { grid-template-columns: 1fr; gap: 32px; }
+  .vit-carte-france { position: static; max-width: 420px; margin: 0 auto; }
+  .vit-corps-bas .vit-grille { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 680px) {
+  .vit-corps-bas .vit-grille { grid-template-columns: 1fr; }
+}
+
+/* surlignage de la carte quand son point est survole (lien carte <-> point) */
+.vit-carte.actif {
+  border-color: #C09840;
+  box-shadow: 0 18px 44px rgba(26,45,90,0.14);
+}
+
+/* ── Page header universel (conservé — consommé par APropos / Services) ── */
 .page-header {
   position: sticky; top: 0; z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
@@ -248,7 +241,7 @@
 }
 .page-header-fermer:hover { border-color: #C09840; color: #F5F0E8; }
 
-/* ── Bloc propriétaires discret ── */
+/* ── Bloc propriétaires discret (conservé) ── */
 .prop-discret {
   background: #07101E;
   border-top: 1px solid rgba(192,152,64,0.12);

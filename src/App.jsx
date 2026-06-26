@@ -3,11 +3,9 @@ import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import BandeauOffres from "./components/BandeauOffres";
-import CitationPont from "./components/CitationPont";
 import UneDeLaSemaine from "./components/UneDeLaSemaine";
 import HeureAuxDemeures from "./components/HeureAuxDemeures";
 import PiedPatrimoine from "./components/PiedPatrimoine";
-import { useHorloge } from "./utils/heure";
 import Conciergerie from "./components/Services";
 import ChateauModal from "./components/ChateauModal";
 import VitrineChateau from "./components/VitrineChateau";
@@ -17,6 +15,7 @@ import VitrinePermanente from "./components/VitrinePermanente";
 import DernieresCles from "./components/DernieresCles";
 import TransitionPorte from "./components/TransitionPorte";
 import PartenairesChateaux from "./components/PartenairesChateaux";
+import LiaisonReseau from "./components/LiaisonReseau";
 
 // Sprint S2-α.1 — routing react-router pour les nouveaux écrans transactionnels
 // (pattern strangler fig : les overlays historiques restent inchangés).
@@ -49,7 +48,6 @@ function App() {
   const [proprietairesOuvert, setProprietairesOuvert] = useState(false);
   const [dernieresOuvert, setDernieresOuvert] = useState(false);
   const [transitionChateau, setTransitionChateau] = useState(null);
-  const horloge = useHorloge();
 
   const ouvrirChateau = (chateau) => {
     setTransitionChateau(chateau);
@@ -75,17 +73,9 @@ function App() {
           onOuvrirDernieres={() => setDernieresOuvert(true)}
           onOuvrirVitrines={() => setVitrinesOuvert(true)}
         />
-        <CitationPont
-          chapitre="I"
-          citation="Chaque lundi, une demeure entrouvre sa porte. Cette semaine, elles sont deux."
-          livraison="LA UNE DE LA SEMAINE · LIVRAISON N°47 · PRINTEMPS 2026"
-        />
+        <LiaisonReseau />
         <UneDeLaSemaine onOuvrirChateau={ouvrirChateau} />
-        <CitationPont
-          chapitre="II"
-          citation={`Ailleurs en France, il est ${horloge.hh} heures ${horloge.mm}. Voici l'heure qu'il est dans nos autres demeures.`}
-          livraison={`LE JOURNAL DES DEMEURES · ${horloge.jour} ${horloge.jj} ${horloge.mois} · ${horloge.hh} : ${horloge.mm}`}
-        />
+        <LiaisonReseau />
         <HeureAuxDemeures
           onOuvrirChateau={ouvrirChateau}
           onOuvrirDernieres={() => setDernieresOuvert(true)}

@@ -1,0 +1,45 @@
+.carte-fr { position: relative; width: 100%; }
+.carte-fr-svg { width: 100%; height: auto; display: block; }
+
+/* mer parchemin + double hachure gravee */
+.cf-mer-bg { fill: #E5D7B6; }
+.cf-mer-l { stroke: rgba(92,67,38,0.18); stroke-width: 1; }
+.cf-mer-l2 { stroke: rgba(92,67,38,0.10); stroke-width: 1; }
+
+/* graticule (sous la terre -> visible seulement en mer) */
+.cf-grat line { stroke: rgba(92,67,38,0.10); stroke-width: 0.6; }
+
+/* ombrage cotier + terre */
+.cf-cote { fill: #8A6A3E; opacity: 0.5; }
+.cf-halo { fill: none; stroke: #6E5235; stroke-width: 3; opacity: 0.25; }
+.cf-terre { fill: #F4EBD9; stroke: #5C4326; stroke-width: 1; stroke-linejoin: round; }
+
+/* cartouche triple filet */
+.cf-cadre { fill: none; }
+.cf-cadre--ext { stroke: #5C4326; stroke-width: 1.6; }
+.cf-cadre--mid { stroke: rgba(192,152,64,0.7); stroke-width: 0.8; }
+.cf-cadre--int { stroke: rgba(92,67,38,0.45); stroke-width: 0.6; }
+.cf-coin { fill: #C09840; font-size: 12px; }
+.cf-titre {
+  fill: #5C4326; font-family: 'Playfair Display', serif; font-style: italic;
+  font-size: 16px; letter-spacing: 0.06em;
+}
+
+/* rose des vents */
+.cf-rose-cz { fill: none; stroke: rgba(92,67,38,0.45); stroke-width: 0.8; }
+.cf-rose-b { fill: #C09840; }
+.cf-rose-b2 { fill: #7A5A32; }
+.cf-rose-d { fill: rgba(92,67,38,0.5); }
+.cf-rose-n { fill: #5C4326; font-family: 'Crimson Pro', serif; font-weight: 600; font-size: 11px; }
+
+/* points chateaux */
+.carte-fr-pt { cursor: pointer; }
+.carte-fr-dot { fill: #C09840; stroke: #5C4326; stroke-width: 1; transition: fill 0.2s; }
+.carte-fr-pt:hover .carte-fr-dot,
+.carte-fr-pt.actif .carte-fr-dot { fill: #EDD880; }
+.carte-fr-halo-pt { fill: rgba(192,152,64,0.32); animation: cfHalo 1.4s ease-out infinite; }
+@keyframes cfHalo { 0% { r: 6; opacity: 0.7; } 100% { r: 22; opacity: 0; } }
+.carte-fr-label {
+  fill: #1A2D5A; font-family: 'Playfair Display', serif; font-style: italic;
+  font-weight: 600; font-size: 15px; paint-order: stroke; stroke: #F1E3C9; stroke-width: 3.5px;
+}

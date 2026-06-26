@@ -109,11 +109,8 @@ export default function Header({
             onClick={() => { fermer(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             aria-label="Accueil"
           >
-            <span className="header-lys">&#x269C;</span>
-            <div className="logo-texte">
-              <span className="logo-principal">Les Clés du Château</span>
-              <span className="logo-secondaire">Patrimoine · Art de vivre français</span>
-            </div>
+            <img src="/L1.png" alt="" aria-hidden="true" className="header-logo-embleme" />
+            <img src="/L2.png" alt="Les Clés du Château" className="header-logo-wordmark" />
           </button>
 
           <div className="header-actions">
