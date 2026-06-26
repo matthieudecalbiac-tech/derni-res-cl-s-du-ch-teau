@@ -223,3 +223,34 @@
 .dk-cal-case-off { color: rgba(245,240,232,0.2); cursor: not-allowed; background: transparent; border-color: transparent; }
 .dk-cal-arrivee, .dk-cal-depart { background: rgba(192,152,64,0.18) !important; border-color: #C09840 !important; color: #F5F0E8 !important; }
 .dk-cal-between { background: rgba(192,152,64,0.07) !important; border-color: rgba(192,152,64,0.2) !important; }
+
+/* ── Sélecteurs nuits / voyageurs (D1) ── */
+.dk-selecteurs { display: flex; gap: 32px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+.dk-selecteur { display: flex; flex-direction: column; gap: 8px; }
+.dk-selecteur-label {
+  font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(192,152,64,0.6); text-align: center;
+}
+.dk-selecteur-options { display: flex; gap: 4px; }
+.dk-selecteur-opt {
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(192,152,64,0.18);
+  color: rgba(245,240,232,0.75); font-family: 'Crimson Pro', serif; font-size: 0.8rem;
+  padding: 7px 13px; cursor: pointer; transition: all 0.18s; white-space: nowrap;
+}
+.dk-selecteur-opt:hover { border-color: rgba(192,152,64,0.5); }
+.dk-selecteur-opt.actif { background: rgba(192,152,64,0.16); border-color: #C09840; color: #F5F0E8; }
+
+/* ── Barre de filtres (D2) ── */
+.dk-filtres-barre { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; padding: 4px 0; }
+.dk-filtre { display: flex; flex-direction: column; gap: 6px; }
+.dk-filtre-label {
+  font-family: 'Crimson Pro', serif; font-size: 0.6rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(192,152,64,0.55);
+}
+.dk-filtre-select {
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(192,152,64,0.2);
+  color: #F5F0E8; font-family: 'Crimson Pro', serif; font-size: 0.82rem;
+  padding: 8px 12px; cursor: pointer; outline: none; transition: border-color 0.2s;
+}
+.dk-filtre-select:focus { border-color: #C09840; }
+.dk-filtre-select option { background: #07101E; color: #F5F0E8; }

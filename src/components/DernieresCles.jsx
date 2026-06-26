@@ -71,6 +71,13 @@ export default function DernieresCles({ onClose }) {
     const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1);
   });
   // 1er jour du mois actuellement affiché dans le calendrier mensuel
+  const [voyageurs, setVoyageurs] = useState(2);
+  // DECORATIF — aucune capacité dans les données château. Ne filtre rien.
+  // À brancher au sprint dispo/capacité Supabase (cf brique disponibilités transverse).
+  const [nbNuits, setNbNuits] = useState(null);
+  // nb de nuits choisi via le sélecteur ; pilote la date de départ si arrivée fixée.
+  const [filtreRegion, setFiltreRegion] = useState("toutes");
+  const [filtreTri, setFiltreTri] = useState("pertinence");
   const [chateauSurvol, setChateauSurvol] = useState(null);
   const { chateaux, loading, error } = useChateaux();
   // Audit Fondation J2 — P0-2 : ne lister que les châteaux ayant réellement une
@@ -78,14 +85,26 @@ export default function DernieresCles({ onClose }) {
   // château mock (id 1-6, !estLaUne) navigue vers /chateau/<slug> qui redirige
   // aussitôt vers la home (VitrineChateauRoute). Aujourd'hui : Briottières,
   // Blanc Buisson, Chantilly.
-  const chateauxFiltres = useMemo(
-    () =>
-      chateauxDisponibles(
-        chateaux.filter((c) => c.modules?.dernieresCles === true),
-        dateArrivee,
-      ),
-    [chateaux, dateArrivee]
-  );
+  const chateauxFiltres = useMemo(() => {
+    let base = chateaux.filter((c) => c.modules?.dernieresCles === true);
+    if (filtreRegion !== "toutes") base = base.filter((c) => c.region === filtreRegion);
+    return chateauxDisponibles(base, dateArrivee);
+  }, [chateaux, dateArrivee, filtreRegion]);
+
+  const prixDe = (c) =>
+    c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100))
+                : (c.chambres?.[0]?.prix ?? Infinity);
+  const chateauxAffiches = useMemo(() => {
+    const arr = [...chateauxFiltres];
+    if (filtreTri === "prix-asc") arr.sort((a, b) => prixDe(a) - prixDe(b));
+    else if (filtreTri === "prix-desc") arr.sort((a, b) => prixDe(b) - prixDe(a));
+    return arr; // "pertinence" = ordre naturel (pas de tri)
+  }, [chateauxFiltres, filtreTri]);
+
+  const regionsDispo = useMemo(() => {
+    const base = chateaux.filter((c) => c.modules?.dernieresCles === true);
+    return ["toutes", ...Array.from(new Set(base.map((c) => c.region))).sort()];
+  }, [chateaux]);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -99,14 +118,33 @@ export default function DernieresCles({ onClose }) {
 
   const handleSelectDate = (d) => {
     if (etape === "arrivee") {
-      setDateArrivee(d); setDateDepart(null); setEtape("depart");
+      setDateArrivee(d);
+      if (nbNuits) {
+        const dep = new Date(d);
+        dep.setDate(dep.getDate() + nbNuits);
+        setDateDepart(dep);
+        setEtape("done");
+      } else {
+        setDateDepart(null);
+        setEtape("depart");
+      }
     } else {
       if (d > dateArrivee) { setDateDepart(d); setEtape("done"); }
       else { setDateArrivee(d); setDateDepart(null); setEtape("depart"); }
     }
   };
 
-  const reset = () => { setDateArrivee(null); setDateDepart(null); setEtape("arrivee"); };
+  const choisirNuits = (n) => {
+    setNbNuits(n);
+    if (dateArrivee) {
+      const dep = new Date(dateArrivee);
+      dep.setDate(dep.getDate() + n);
+      setDateDepart(dep);
+      setEtape("done");
+    }
+  };
+
+  const reset = () => { setDateArrivee(null); setDateDepart(null); setEtape("arrivee"); setNbNuits(null); };
   const moisPrecedent = () =>
     setMoisAffiche(m => new Date(m.getFullYear(), m.getMonth() - 1, 1));
   const moisSuivant = () =>
@@ -127,6 +165,10 @@ export default function DernieresCles({ onClose }) {
   // garde la même fenêtre J+1..J+30 que la bande actuelle, pour cohérence du filtrage
 
   const labelMois = moisAffiche.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+
+  const nuitsEffectives = (dateArrivee && dateDepart)
+    ? Math.round((dateDepart - dateArrivee) / 86400000)
+    : nbNuits;
 
   return (
     <div className={"dk-overlay " + (visible ? "dk-overlay--visible" : "")}>
@@ -202,26 +244,75 @@ export default function DernieresCles({ onClose }) {
                 })}
               </div>
             </div>
+
+            <div className="dk-selecteurs">
+              <div className="dk-selecteur">
+                <span className="dk-selecteur-label">Nombre de nuits</span>
+                <div className="dk-selecteur-options">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                      key={n}
+                      className={"dk-selecteur-opt " + (nuitsEffectives === n ? "actif" : "")}
+                      onClick={() => choisirNuits(n)}
+                    >
+                      {n} {n > 1 ? "nuits" : "nuit"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="dk-selecteur">
+                <span className="dk-selecteur-label">Voyageurs</span>
+                <div className="dk-selecteur-options">
+                  {[1, 2, 3, 4].map((v) => (
+                    <button
+                      key={v}
+                      className={"dk-selecteur-opt " + (voyageurs === v ? "actif" : "")}
+                      onClick={() => setVoyageurs(v)}
+                    >
+                      {v}{v === 4 ? "+" : ""}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* SECTION 3 : FILTRES (réservé, rempli en étape D) */}
         <section className="dk-section dk-section-filtres">
+          <div className="dk-filtres-barre">
+            <div className="dk-filtre">
+              <label className="dk-filtre-label">Région</label>
+              <select className="dk-filtre-select" value={filtreRegion} onChange={(e) => setFiltreRegion(e.target.value)}>
+                {regionsDispo.map((r) => (
+                  <option key={r} value={r}>{r === "toutes" ? "Toutes les régions" : r}</option>
+                ))}
+              </select>
+            </div>
+            <div className="dk-filtre">
+              <label className="dk-filtre-label">Trier par</label>
+              <select className="dk-filtre-select" value={filtreTri} onChange={(e) => setFiltreTri(e.target.value)}>
+                <option value="pertinence">Pertinence</option>
+                <option value="prix-asc">Prix croissant</option>
+                <option value="prix-desc">Prix décroissant</option>
+              </select>
+            </div>
+          </div>
         </section>
 
         {/* SECTION 4 : GRILLE */}
         <section className="dk-section dk-section-grille">
           <div className="dk-liste">
             <div className="dk-liste-header">
-              <span className="dk-liste-nb">{chateauxFiltres.length}</span>
-              {" "}domaine{chateauxFiltres.length > 1 ? "s" : ""} disponible{chateauxFiltres.length > 1 ? "s" : ""}
+              <span className="dk-liste-nb">{chateauxAffiches.length}</span>
+              {" "}domaine{chateauxAffiches.length > 1 ? "s" : ""} disponible{chateauxAffiches.length > 1 ? "s" : ""}
               {dateArrivee && dateDepart && <span className="dk-liste-dates"> · {formatDate(dateArrivee)} → {formatDate(dateDepart)}</span>}
             </div>
             <div className="dk-liste-items">
               {loading ? (
                 <SkeletonChateau count={6} />
               ) : (
-                chateauxFiltres.map(c => {
+                chateauxAffiches.map(c => {
                 const classBadge = { "J-7": "dk-badge-j7", "J-10": "dk-badge-j10", "J-15": "dk-badge-j15" }[c.urgence] || "dk-badge-j15";
                 const prixFinal = c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100)) : c.chambres?.[0]?.prix;
                 return (
