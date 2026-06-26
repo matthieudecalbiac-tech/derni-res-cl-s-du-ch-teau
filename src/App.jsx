@@ -15,7 +15,6 @@ import VitrinePermanente from "./components/VitrinePermanente";
 import DernieresCles from "./components/DernieresCles";
 import TransitionPorte from "./components/TransitionPorte";
 import PartenairesChateaux from "./components/PartenairesChateaux";
-import LiaisonReseau from "./components/LiaisonReseau";
 
 // Sprint S2-α.1 — routing react-router pour les nouveaux écrans transactionnels
 // (pattern strangler fig : les overlays historiques restent inchangés).
@@ -73,9 +72,7 @@ function App() {
           onOuvrirDernieres={() => setDernieresOuvert(true)}
           onOuvrirVitrines={() => setVitrinesOuvert(true)}
         />
-        <LiaisonReseau />
         <UneDeLaSemaine onOuvrirChateau={ouvrirChateau} />
-        <LiaisonReseau />
         <HeureAuxDemeures
           onOuvrirChateau={ouvrirChateau}
           onOuvrirDernieres={() => setDernieresOuvert(true)}
