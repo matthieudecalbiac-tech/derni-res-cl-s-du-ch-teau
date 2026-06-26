@@ -184,18 +184,9 @@
 .dk-liste-prix-final { font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #C09840; font-weight: 600; }
 .dk-liste-prix-nuit { font-size: 0.68rem; color: rgba(245,240,232,0.35); font-weight: 400; }
 
-/* Carte droite */
-.dk-carte-zone {
-  flex: 1;
-  min-width: 0;
-  position: relative;
-  z-index: 1;
-}
-
 @media (max-width: 900px) {
   .dk-layout { flex-direction: column; }
   .dk-panneau { width: 100%; max-height: 50vh; }
-  .dk-carte-zone { height: 300px; flex: none; }
 }
 
 /* ── Header ── */

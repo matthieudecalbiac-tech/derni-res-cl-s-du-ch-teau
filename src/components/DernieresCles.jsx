@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import VitrineDernieresCle from "./VitrineDernieresCle";
@@ -54,9 +54,6 @@ export default function DernieresCles({ onClose }) {
   const [dateDepart, setDateDepart] = useState(null);
   const [etape, setEtape] = useState("arrivee");
   const [chateauSurvol, setChateauSurvol] = useState(null);
-  const mapRef = useRef(null);
-  const mapInstanceRef = useRef(null);
-  const markersRef = useRef({});
   const { chateaux, loading, error } = useChateaux();
   // Audit Fondation J2 — P0-2 : ne lister que les châteaux ayant réellement une
   // offre Module B (modules.dernieresCles). Sans ce filtre, un clic sur un
@@ -80,40 +77,6 @@ export default function DernieresCles({ onClose }) {
     return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
   }, [onClose, chateauSelectionne]);
 
-  useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current || !visible) return;
-    const L = window.L;
-    if (!L) return;
-    const map = L.map(mapRef.current, { zoomControl: true, scrollWheelZoom: true });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "\u00a9 OpenStreetMap"
-    }).addTo(map);
-    map.setView([46.8, 2.5], 6);
-    mapInstanceRef.current = map;
-  }, [visible]);
-
-  useEffect(() => {
-    const L = window.L;
-    const map = mapInstanceRef.current;
-    if (!L || !map) return;
-    Object.values(markersRef.current).forEach(m => m.remove());
-    markersRef.current = {};
-    chateauxFiltres.filter(c => c.coordonnees).forEach(c => {
-      const isHover = chateauSurvol === c.id;
-      const icon = L.divIcon({
-        className: "",
-        html: `<div style="width:${isHover?18:12}px;height:${isHover?18:12}px;border-radius:50%;background:${isHover?"#EDD880":"#C09840"};border:2px solid ${isHover?"#FFF":"#EDD880"};box-shadow:0 0 ${isHover?16:8}px rgba(192,152,64,${isHover?0.9:0.6});transition:all 0.2s;cursor:pointer"></div>`,
-        iconSize: [isHover?18:12, isHover?18:12],
-        iconAnchor: [isHover?9:6, isHover?9:6],
-      });
-      const marker = L.marker([c.coordonnees.lat, c.coordonnees.lng], { icon })
-        .addTo(map)
-        .bindPopup(`<div style="font-family:Georgia,serif;min-width:180px;padding:4px"><strong style="font-size:0.95rem">${c.nom}</strong><br/><span style="color:#888;font-size:0.82em">${c.region} · ${c.distanceParis}</span><br/><span style="color:#C09840;font-weight:bold;font-size:0.85em">${c.urgence}</span></div>`)
-        .on("click", () => ouvrirChateauModuleB(c));
-      markersRef.current[c.id] = marker;
-    });
-  }, [chateauxFiltres, chateauSurvol, mapInstanceRef.current]);
-
   const dates = getDatesPossibles();
 
   const handleSelectDate = (d) => {
@@ -132,9 +95,6 @@ export default function DernieresCles({ onClose }) {
 
   const survolChateau = (id) => {
     setChateauSurvol(id);
-    const map = mapInstanceRef.current;
-    const marker = markersRef.current[id];
-    if (map && marker) { marker.openPopup(); }
   };
 
   return (
@@ -229,8 +189,8 @@ export default function DernieresCles({ onClose }) {
                       <div className="dk-liste-item-region">{c.region} · {c.distanceParis}</div>
                       <div className="dk-liste-item-nom">{c.nom}</div>
                       <div className="dk-liste-item-prix">
-                        {c.prixBarre && <span className="dk-liste-prix-barre">{c.prixBarre} €</span>}
-                        {prixFinal && <span className="dk-liste-prix-final">{prixFinal} € <span className="dk-liste-prix-nuit">/ nuit</span></span>}
+                        {c.prixBarre && <span className="dk-liste-prix-barre">{c.prixBarre} €</span>}
+                        {prixFinal && <span className="dk-liste-prix-final">{prixFinal} € <span className="dk-liste-prix-nuit">/ nuit</span></span>}
                       </div>
                     </div>
                   </div>
@@ -241,8 +201,6 @@ export default function DernieresCles({ onClose }) {
           </div>
         </div>
 
-        {/* ── CARTE DROITE ── */}
-        <div ref={mapRef} className="dk-carte-zone" />
       </div>
 
       {transitionChateau && (
