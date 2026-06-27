@@ -62,6 +62,7 @@ export default function CarteChateaux({ chateaux = [], survolId = null, onSurvol
           );
         })()}
       </svg>
+      <img src="/rose-des-vents.png" alt="" aria-hidden="true" className="carte-fr-rose" />
     </div>
   );
 }

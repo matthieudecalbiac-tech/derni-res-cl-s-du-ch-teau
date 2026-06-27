@@ -1,5 +1,15 @@
 .carte-fr { position: relative; width: 100%; }
 .carte-fr-svg { width: 100%; height: auto; display: block; }
+.carte-fr-rose {
+  position: absolute;
+  bottom: 1%;
+  left: -1%;
+  width: 30%;
+  height: auto;
+  background: transparent !important;
+  pointer-events: none;
+  opacity: 1;
+}
 
 /* ombrage cotier + terre */
 .cf-cote { fill: #C9B896; opacity: 0.45; }
