@@ -75,7 +75,15 @@ export default function VitrinePermanente({ onClose }) {
 
         <div className="vit-corps-bas">
           <aside className="vit-carte-france">
-            <CarteChateaux chateaux={chateaux} survolId={survol} onSurvol={setSurvol} />
+            <CarteChateaux
+              chateaux={chateaux}
+              survolId={survol}
+              onSurvol={setSurvol}
+              onOuvrir={(id) => {
+                const c = chateaux.find((ch) => ch.id === id);
+                if (c) setTransitionChateau(c);
+              }}
+            />
           </aside>
 
           <div className="vit-grille">

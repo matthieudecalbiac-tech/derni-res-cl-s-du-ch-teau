@@ -9,7 +9,7 @@ function projeter(lat, lng) {
   return { x: OFFX + (gx - XMIN) * SCALE, y: OFFY + (YMAX - lat) * SCALE };
 }
 
-export default function CarteChateaux({ chateaux = [], survolId = null, onSurvol }) {
+export default function CarteChateaux({ chateaux = [], survolId = null, onSurvol, onOuvrir }) {
   const points = chateaux
     .filter((c) => c.coordonnees && typeof c.coordonnees.lat === "number")
     .map((c) => ({ id: c.id, nom: c.nom, ...projeter(c.coordonnees.lat, c.coordonnees.lng) }));
@@ -85,14 +85,28 @@ export default function CarteChateaux({ chateaux = [], survolId = null, onSurvol
           return (
             <g key={p.id}
                className={"carte-fr-pt" + (actif ? " actif" : "")}
+               onClick={() => onOuvrir && onOuvrir(p.id)}
                onMouseEnter={() => onSurvol && onSurvol(p.id)}
                onMouseLeave={() => onSurvol && onSurvol(null)}>
-              {actif && <circle cx={p.x} cy={p.y} r="9" className="carte-fr-halo-pt" />}
               <circle cx={p.x} cy={p.y} r="5" className="carte-fr-dot" />
-              {actif && <text x={p.x} y={p.y - 15} className="carte-fr-label" textAnchor="middle">{p.nom}</text>}
             </g>
           );
         })}
+        {/* point actif re-rendu EN DERNIER pour passer au-dessus de tous les autres */}
+        {(() => {
+          const pa = points.find((p) => p.id === survolId);
+          if (!pa) return null;
+          return (
+            <g className="carte-fr-pt actif"
+               onClick={() => onOuvrir && onOuvrir(pa.id)}
+               onMouseEnter={() => onSurvol && onSurvol(pa.id)}
+               onMouseLeave={() => onSurvol && onSurvol(null)}>
+              <circle cx={pa.x} cy={pa.y} r="9" className="carte-fr-halo-pt" />
+              <circle cx={pa.x} cy={pa.y} r="5" className="carte-fr-dot" />
+              <text x={pa.x} y={pa.y - 15} className="carte-fr-label" textAnchor="middle">{pa.nom}</text>
+            </g>
+          );
+        })()}
       </svg>
     </div>
   );
