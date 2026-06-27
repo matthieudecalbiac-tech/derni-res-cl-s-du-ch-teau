@@ -182,35 +182,31 @@ export default function DernieresCles({ onClose }) {
 
       <div className="dk-page">
 
+        <div className="dk-tete">
+
         {/* SECTION 1 : HERO éditorial */}
         <section className="dk-section dk-section-hero">
           <div className="dk-orn"><div className="dk-orn-ligne" /><span className="dk-orn-lys">&#x269C;</span><div className="dk-orn-ligne" /></div>
           <h2 className="dk-panneau-titre">Les Dernières Clés</h2>
           <p className="dk-panneau-accroche">Des séjours rares, à saisir. Choisissez vos dates.</p>
+          <div className="dk-hero-deco" aria-hidden="true">
+            <svg viewBox="0 0 280 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 78 C 70 78, 120 60, 150 30 C 165 14, 190 8, 220 10" stroke="#C09840" strokeWidth="1.1" strokeLinecap="round"/>
+              <path d="M150 30 C 140 18, 128 12, 112 14 C 124 20, 134 28, 150 30 Z" stroke="#C09840" strokeWidth="0.9" fill="#C09840" fillOpacity="0.12"/>
+              <path d="M150 30 C 162 16, 176 10, 192 12 C 178 20, 166 26, 150 30 Z" stroke="#C09840" strokeWidth="0.9" fill="#C09840" fillOpacity="0.12"/>
+              <path d="M96 50 C 86 40, 76 36, 62 38 C 74 44, 84 50, 96 50 Z" stroke="#C09840" strokeWidth="0.9" fill="#C09840" fillOpacity="0.12"/>
+              <path d="M96 50 C 106 38, 118 32, 132 34 C 120 42, 108 48, 96 50 Z" stroke="#C09840" strokeWidth="0.9" fill="#C09840" fillOpacity="0.12"/>
+              <circle cx="220" cy="10" r="4" stroke="#C09840" strokeWidth="1" fill="#C09840" fillOpacity="0.2"/>
+              <circle cx="221" cy="10" r="1.4" fill="#C09840"/>
+              <path d="M40 70 C 34 62, 28 58, 18 60 C 28 65, 34 70, 40 70 Z" stroke="#C09840" strokeWidth="0.9" fill="#C09840" fillOpacity="0.1"/>
+            </svg>
+          </div>
         </section>
 
         {/* SECTION 2 : DATES */}
         <section className="dk-section dk-section-dates">
           <div className="dk-dates-bloc">
-            <div className="dk-dates-etapes">
-              <div className={"dk-dates-etape " + (etape === "arrivee" ? "actif" : dateArrivee ? "done" : "")} onClick={() => setEtape("arrivee")}>
-                <span className="dk-dates-etape-num">1</span>
-                <div>
-                  <span className="dk-dates-etape-label">Arrivée</span>
-                  <span className="dk-dates-etape-val">{dateArrivee ? formatDate(dateArrivee) : "Choisir"}</span>
-                </div>
-              </div>
-              <span className="dk-dates-fleche">→</span>
-              <div className={"dk-dates-etape " + (etape === "depart" ? "actif" : dateDepart ? "done" : "")} onClick={() => dateArrivee && setEtape("depart")}>
-                <span className="dk-dates-etape-num">2</span>
-                <div>
-                  <span className="dk-dates-etape-label">Départ</span>
-                  <span className="dk-dates-etape-val">{dateDepart ? formatDate(dateDepart) : "Choisir"}</span>
-                </div>
-              </div>
-              {dateArrivee && <button className="dk-dates-reset" onClick={reset}>✕</button>}
-            </div>
-
+            <div className="dk-bloc-cal">
             <div className="dk-cal-mois">
               <div className="dk-cal-nav">
                 <button className="dk-cal-nav-btn" onClick={moisPrecedent} aria-label="Mois précédent">‹</button>
@@ -244,6 +240,28 @@ export default function DernieresCles({ onClose }) {
                 })}
               </div>
             </div>
+            </div>
+
+            <div className="dk-bloc-selection">
+              <span className="dk-bloc-selection-titre">Sélection actuelle</span>
+            <div className="dk-dates-etapes">
+              <div className={"dk-dates-etape " + (etape === "arrivee" ? "actif" : dateArrivee ? "done" : "")} onClick={() => setEtape("arrivee")}>
+                <span className="dk-dates-etape-num">1</span>
+                <div>
+                  <span className="dk-dates-etape-label">Arrivée</span>
+                  <span className="dk-dates-etape-val">{dateArrivee ? formatDate(dateArrivee) : "Choisir"}</span>
+                </div>
+              </div>
+              <span className="dk-dates-fleche">→</span>
+              <div className={"dk-dates-etape " + (etape === "depart" ? "actif" : dateDepart ? "done" : "")} onClick={() => dateArrivee && setEtape("depart")}>
+                <span className="dk-dates-etape-num">2</span>
+                <div>
+                  <span className="dk-dates-etape-label">Départ</span>
+                  <span className="dk-dates-etape-val">{dateDepart ? formatDate(dateDepart) : "Choisir"}</span>
+                </div>
+              </div>
+              {dateArrivee && <button className="dk-dates-reset" onClick={reset}>✕</button>}
+            </div>
 
             <div className="dk-selecteurs">
               <div className="dk-selecteur">
@@ -275,8 +293,11 @@ export default function DernieresCles({ onClose }) {
                 </div>
               </div>
             </div>
+            </div>
           </div>
         </section>
+
+        </div>
 
         {/* SECTION 3 : FILTRES (réservé, rempli en étape D) */}
         <section className="dk-section dk-section-filtres">
@@ -313,7 +334,6 @@ export default function DernieresCles({ onClose }) {
                 <SkeletonChateau count={6} />
               ) : (
                 chateauxAffiches.map(c => {
-                const classBadge = { "J-7": "dk-badge-j7", "J-10": "dk-badge-j10", "J-15": "dk-badge-j15" }[c.urgence] || "dk-badge-j15";
                 const prixFinal = c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100)) : c.chambres?.[0]?.prix;
                 return (
                   <div

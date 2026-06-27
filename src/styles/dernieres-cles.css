@@ -3,7 +3,7 @@
   position: fixed;
   inset: 0;
   z-index: 7000;
-  background: #07101E;
+  background: #FAF6EE;
   display: flex;
   flex-direction: column;
   opacity: 0;
@@ -19,13 +19,6 @@
 ═══════════════════════════════════════════ */
 
 /* Layout global */
-.dk-full {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
-}
-
 .dk-page {
   width: 100%; max-width: 1100px; margin: 0 auto;
   padding: 32px 24px 80px;
@@ -33,24 +26,17 @@
 }
 .dk-section { width: 100%; }
 .dk-section-hero { text-align: center; }
-
-.dk-panneau-hero {
-  padding: 20px 20px 14px;
-  border-bottom: 1px solid rgba(192,152,64,0.1);
-  text-align: center;
-  flex-shrink: 0;
-}
 .dk-panneau-titre {
   font-family: 'Playfair Display', serif;
   font-size: 1.2rem;
   font-weight: 400;
-  color: #F5F0E8;
+  color: #1A2D5A;
   margin: 8px 0 5px;
 }
 .dk-panneau-accroche {
   font-family: 'Crimson Pro', serif;
   font-size: 0.85rem;
-  color: rgba(245,240,232,0.45);
+  color: #3A4456;
   font-style: italic;
   margin: 0;
 }
@@ -72,62 +58,37 @@
   align-items: center;
   gap: 7px;
   padding: 7px 10px;
-  border: 1px solid rgba(192,152,64,0.12);
-  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(192,152,64,0.3);
+  background: #FEFCF8;
   cursor: pointer;
   flex: 1;
   transition: all 0.2s;
 }
-.dk-dates-etape.actif { border-color: #C09840; background: rgba(192,152,64,0.06); }
+.dk-dates-etape.actif { border-color: #C09840; background: rgba(192,152,64,0.12); }
 .dk-dates-etape.done { border-color: rgba(192,152,64,0.3); }
 .dk-dates-etape-num {
   width: 18px; height: 18px; border-radius: 50%;
-  background: rgba(192,152,64,0.12); color: rgba(192,152,64,0.8);
+  background: rgba(192,152,64,0.18); color: rgba(192,152,64,0.8);
   font-family: 'Crimson Pro', serif; font-size: 0.7rem;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.dk-dates-etape.actif .dk-dates-etape-num { background: #C09840; color: #07101E; }
+.dk-dates-etape.actif .dk-dates-etape-num { background: #C09840; color: #FBF8F1; }
 .dk-dates-etape-label {
   display: block; font-family: 'Crimson Pro', serif;
   font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
-  color: rgba(192,152,64,0.5);
+  color: #A8884E;
 }
 .dk-dates-etape-val {
   display: block; font-family: 'Playfair Display', serif;
-  font-size: 0.8rem; color: #F5F0E8;
+  font-size: 0.8rem; color: #1A2D5A;
 }
 .dk-dates-fleche { color: rgba(192,152,64,0.3); font-size: 0.85rem; flex-shrink: 0; }
 .dk-dates-reset {
   background: transparent; border: 1px solid rgba(192,152,64,0.2);
-  color: rgba(245,240,232,0.4); width: 26px; height: 26px;
+  color: #A8884E; width: 26px; height: 26px;
   cursor: pointer; font-size: 0.7rem; flex-shrink: 0; transition: all 0.2s;
 }
 .dk-dates-reset:hover { border-color: #C09840; color: #C09840; }
-
-/* Calendrier */
-.dk-calendrier {
-  display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px;
-  scrollbar-width: thin; scrollbar-color: rgba(192,152,64,0.15) transparent;
-}
-.dk-cal-jour {
-  flex-shrink: 0; width: 48px; padding: 6px 3px;
-  display: flex; flex-direction: column; align-items: center; gap: 1px;
-  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
-  cursor: pointer; transition: all 0.15s;
-}
-.dk-cal-jour:hover { border-color: rgba(192,152,64,0.4); background: rgba(192,152,64,0.05); }
-.dk-cal-arrivee, .dk-cal-depart { background: rgba(192,152,64,0.14) !important; border-color: #C09840 !important; }
-.dk-cal-between { background: rgba(192,152,64,0.05) !important; border-color: rgba(192,152,64,0.18) !important; }
-.dk-cal-j7 { border-top: 2px solid rgba(192,57,43,0.6); }
-.dk-cal-j10 { border-top: 2px solid rgba(211,84,0,0.6); }
-.dk-cal-j15 { border-top: 2px solid rgba(192,152,64,0.4); }
-.dk-cal-jour-nom { font-family: 'Crimson Pro', serif; font-size: 0.58rem; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(245,240,232,0.3); }
-.dk-cal-jour-num { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #F5F0E8; line-height: 1; }
-.dk-cal-jour-mois { font-family: 'Crimson Pro', serif; font-size: 0.58rem; color: rgba(245,240,232,0.35); }
-.dk-cal-urgence { font-family: 'Crimson Pro', serif; font-size: 0.52rem; font-weight: 600; padding: 1px 3px; margin-top: 1px; }
-.dk-cal-urgence-j7 { color: rgba(192,57,43,0.9); background: rgba(192,57,43,0.1); }
-.dk-cal-urgence-j10 { color: rgba(211,84,0,0.9); background: rgba(211,84,0,0.1); }
-.dk-cal-urgence-j15 { color: rgba(192,152,64,0.85); background: rgba(192,152,64,0.08); }
 
 /* Liste châteaux */
 .dk-liste {
@@ -138,37 +99,14 @@
   padding: 10px 16px;
   border-bottom: 1px solid rgba(192,152,64,0.1);
   font-family: 'Crimson Pro', serif; font-size: 0.8rem;
-  color: rgba(245,240,232,0.4); font-style: italic; flex-shrink: 0;
+  color: #4A4640; font-style: italic; flex-shrink: 0;
 }
 .dk-liste-nb { font-family: 'Playfair Display', serif; font-size: 1rem; color: #C09840; font-style: normal; }
-.dk-liste-dates { color: rgba(192,152,64,0.55); }
+.dk-liste-dates { color: #A8884E; }
 .dk-liste-items {
   overflow-y: auto; flex: 1;
   scrollbar-width: thin; scrollbar-color: rgba(192,152,64,0.15) transparent;
 }
-.dk-liste-item {
-  display: flex; border-bottom: 1px solid rgba(192,152,64,0.07);
-  cursor: pointer; transition: background 0.15s;
-}
-.dk-liste-item:hover, .dk-liste-item.survol { background: rgba(192,152,64,0.05); }
-.dk-liste-item-img {
-  width: 90px; min-width: 90px; height: 72px;
-  background-size: cover; background-position: center;
-  position: relative; flex-shrink: 0;
-}
-.dk-badge { position: absolute; top: 6px; left: 6px; font-family: 'Crimson Pro', serif; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.08em; padding: 2px 7px; }
-.dk-badge-sm { font-size: 0.58rem; padding: 2px 5px; }
-.dk-badge-j7 { background: rgba(192,57,43,0.9); color: #fff; }
-.dk-badge-j10 { background: rgba(211,84,0,0.9); color: #fff; }
-.dk-badge-j15 { background: rgba(192,152,64,0.9); color: #07101E; }
-.dk-badge-reduction { position: absolute; top: 6px; right: 6px; background: rgba(7,16,30,0.85); color: #C09840; font-family: 'Crimson Pro', serif; font-size: 0.72rem; font-weight: 600; padding: 2px 7px; }
-.dk-liste-item-info { padding: 8px 12px; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
-.dk-liste-item-region { font-family: 'Crimson Pro', serif; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(192,152,64,0.6); }
-.dk-liste-item-nom { font-family: 'Playfair Display', serif; font-size: 0.85rem; color: #F5F0E8; line-height: 1.2; }
-.dk-liste-item-prix { display: flex; align-items: baseline; gap: 5px; }
-.dk-liste-prix-barre { font-family: 'Crimson Pro', serif; font-size: 0.72rem; color: rgba(245,240,232,0.25); text-decoration: line-through; }
-.dk-liste-prix-final { font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #C09840; font-weight: 600; }
-.dk-liste-prix-nuit { font-size: 0.68rem; color: rgba(245,240,232,0.35); font-weight: 400; }
 
 /* ── Topbar (calqué sur .vit-topbar des Vitrines) ── */
 .dk-topbar {
@@ -194,7 +132,7 @@
 .dk-orn-lys { color: #C09840; font-size: 0.9rem; }
 
 /* ── Calendrier mensuel (C2) ── */
-.dk-cal-mois { max-width: 360px; margin: 0 auto; }
+.dk-cal-mois { max-width: 100%; margin: 0 auto; }
 .dk-cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 .dk-cal-nav-btn {
   background: transparent; border: 1px solid rgba(192,152,64,0.3); color: #C09840;
@@ -203,57 +141,60 @@
 }
 .dk-cal-nav-btn:hover { border-color: #C09840; background: rgba(192,152,64,0.08); }
 .dk-cal-nav-label {
-  font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #F5F0E8;
+  font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #1A2D5A;
   text-transform: capitalize; letter-spacing: 0.04em;
 }
-.dk-cal-grille { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.dk-cal-grille { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
 .dk-cal-jour-entete {
-  text-align: center; font-family: 'Crimson Pro', serif; font-size: 0.6rem;
-  letter-spacing: 0.1em; text-transform: uppercase; color: rgba(192,152,64,0.55);
+  text-align: center; font-family: 'Crimson Pro', serif; font-size: 0.58rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: #A8884E;
   padding-bottom: 6px;
 }
 .dk-cal-case {
-  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
-  font-family: 'Playfair Display', serif; font-size: 0.9rem; color: #F5F0E8;
-  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+  aspect-ratio: 1.25;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 0.82rem; color: #1A2D5A;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
   cursor: pointer; transition: all 0.15s;
 }
 .dk-cal-case-vide { background: transparent; border: none; cursor: default; }
-.dk-cal-case-dispo:hover { border-color: rgba(192,152,64,0.5); background: rgba(192,152,64,0.06); }
-.dk-cal-case-off { color: rgba(245,240,232,0.2); cursor: not-allowed; background: transparent; border-color: transparent; }
-.dk-cal-arrivee, .dk-cal-depart { background: rgba(192,152,64,0.18) !important; border-color: #C09840 !important; color: #F5F0E8 !important; }
-.dk-cal-between { background: rgba(192,152,64,0.07) !important; border-color: rgba(192,152,64,0.2) !important; }
+.dk-cal-case-dispo:hover { background: rgba(192,152,64,0.12); border-color: rgba(192,152,64,0.35); }
+.dk-cal-case-off { color: rgba(26,45,90,0.25); cursor: not-allowed; background: transparent; border-color: transparent; }
+.dk-cal-arrivee, .dk-cal-depart { background: #C09840 !important; border-color: #C09840 !important; color: #FBF8F1 !important; }
+.dk-cal-between { background: rgba(192,152,64,0.18) !important; border-color: rgba(192,152,64,0.35) !important; }
 
 /* ── Sélecteurs nuits / voyageurs (D1) ── */
 .dk-selecteurs { display: flex; gap: 32px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
 .dk-selecteur { display: flex; flex-direction: column; gap: 8px; }
 .dk-selecteur-label {
   font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.14em;
-  text-transform: uppercase; color: rgba(192,152,64,0.6); text-align: center;
+  text-transform: uppercase; color: #A8884E; text-align: center;
 }
 .dk-selecteur-options { display: flex; gap: 4px; }
 .dk-selecteur-opt {
-  background: rgba(255,255,255,0.02); border: 1px solid rgba(192,152,64,0.18);
-  color: rgba(245,240,232,0.75); font-family: 'Crimson Pro', serif; font-size: 0.8rem;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.3);
+  color: #1A2D5A; font-family: 'Crimson Pro', serif; font-size: 0.8rem;
   padding: 7px 13px; cursor: pointer; transition: all 0.18s; white-space: nowrap;
 }
 .dk-selecteur-opt:hover { border-color: rgba(192,152,64,0.5); }
-.dk-selecteur-opt.actif { background: rgba(192,152,64,0.16); border-color: #C09840; color: #F5F0E8; }
+.dk-selecteur-opt.actif { background: #C09840; border-color: #C09840; color: #FBF8F1; }
 
 /* ── Barre de filtres (D2) ── */
-.dk-filtres-barre { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; padding: 4px 0; }
+.dk-filtres-barre { display: flex; gap: 20px; justify-content: flex-start; flex-wrap: wrap; padding: 24px 0 4px; border-top: 1px solid rgba(192,152,64,0.2); margin-top: 8px; }
 .dk-filtre { display: flex; flex-direction: column; gap: 6px; }
 .dk-filtre-label {
   font-family: 'Crimson Pro', serif; font-size: 0.6rem; letter-spacing: 0.14em;
-  text-transform: uppercase; color: rgba(192,152,64,0.55);
+  text-transform: uppercase; color: #A8884E;
 }
 .dk-filtre-select {
-  background: rgba(255,255,255,0.02); border: 1px solid rgba(192,152,64,0.2);
-  color: #F5F0E8; font-family: 'Crimson Pro', serif; font-size: 0.82rem;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.3);
+  color: #1A2D5A; font-family: 'Crimson Pro', serif; font-size: 0.82rem;
   padding: 8px 12px; cursor: pointer; outline: none; transition: border-color 0.2s;
 }
 .dk-filtre-select:focus { border-color: #C09840; }
-.dk-filtre-select option { background: #07101E; color: #F5F0E8; }
+.dk-filtre-select option { background: #FEFCF8; color: #1A2D5A; }
 
 /* ── Grille de cartes offres (E) ── */
 .dk-liste-items {
@@ -266,8 +207,8 @@
 @media (max-width: 640px) { .dk-liste-items { grid-template-columns: 1fr; } }
 
 .dk-carte-offre {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(192,152,64,0.18);
+  background: #FEFCF8;
+  border: 1px solid rgba(192,152,64,0.3);
   cursor: pointer;
   overflow: hidden;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
@@ -276,12 +217,12 @@
 .dk-carte-offre:hover, .dk-carte-offre.survol {
   transform: translateY(-4px);
   border-color: #C09840;
-  box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+  box-shadow: 0 16px 40px rgba(26,45,90,0.14);
 }
 .dk-carte-offre-img {
   position: relative; height: 200px;
   background-size: cover; background-position: center;
-  background-color: #0d1a2e;
+  background-color: #E3D4B5;
 }
 .dk-carte-offre-badge {
   position: absolute; top: 12px; left: 12px;
@@ -292,17 +233,90 @@
 .dk-carte-offre-corps { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
 .dk-carte-offre-region {
   font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.14em;
-  text-transform: uppercase; color: rgba(192,152,64,0.65);
+  text-transform: uppercase; color: #A8884E;
 }
 .dk-carte-offre-nom {
-  font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #F5F0E8; line-height: 1.25;
+  font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #1A2D5A; line-height: 1.25;
 }
 .dk-carte-offre-prix { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; }
 .dk-carte-offre-prix-barre {
   font-family: 'Crimson Pro', serif; font-size: 0.8rem;
-  color: rgba(245,240,232,0.3); text-decoration: line-through;
+  color: rgba(26,45,90,0.4); text-decoration: line-through;
 }
 .dk-carte-offre-prix-final {
   font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #C09840;
 }
-.dk-carte-offre-prix-nuit { font-family: 'Crimson Pro', serif; font-size: 0.7rem; color: rgba(245,240,232,0.4); }
+.dk-carte-offre-prix-nuit { font-family: 'Crimson Pro', serif; font-size: 0.7rem; color: #4A4640; }
+
+/* ── Layout deux colonnes (G1) ── */
+.dk-tete {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 48px;
+  align-items: start;
+  margin-bottom: 8px;
+}
+@media (max-width: 920px) { .dk-tete { grid-template-columns: 1fr; gap: 28px; } }
+
+/* hero a gauche, aligne a gauche */
+.dk-tete .dk-section-hero { text-align: left; padding-top: 8px; }
+.dk-tete .dk-orn { justify-content: flex-start; margin-bottom: 24px; }
+.dk-tete .dk-panneau-titre {
+  font-size: clamp(2.8rem, 5vw, 4.5rem);
+  line-height: 1.02;
+  color: #1A2D5A;
+  margin: 0 0 20px;
+  font-weight: 400;
+}
+.dk-tete .dk-panneau-accroche {
+  font-size: 1.05rem;
+  color: #3A4456;
+  line-height: 1.7;
+  max-width: 420px;
+  margin: 0;
+}
+
+/* bloc dates encadre a droite */
+.dk-section-dates { width: 100%; }
+.dk-dates-bloc {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 28px;
+  background: #FEFCF8;
+  border: 1px solid rgba(192,152,64,0.3);
+  border-radius: 4px;
+  padding: 28px 30px;
+}
+@media (max-width: 920px) { .dk-dates-bloc { grid-template-columns: 1fr; gap: 22px; } }
+
+.dk-bloc-cal { min-width: 0; }
+.dk-bloc-selection { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.dk-bloc-selection-titre {
+  font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: #A8884E;
+}
+
+/* le bloc selection empile etapes puis selecteurs verticalement */
+.dk-bloc-selection .dk-dates-etapes { flex-direction: column; align-items: stretch; gap: 10px; }
+.dk-bloc-selection .dk-selecteurs { flex-direction: column; gap: 16px; }
+
+/* zone basse pleine largeur, alignee a gauche (G2a) */
+.dk-section-filtres { width: 100%; }
+.dk-section-grille { width: 100%; }
+.dk-liste-header { text-align: left; }
+
+/* ── Fleche verticale + branche decorative (G2b) ── */
+.dk-bloc-selection .dk-dates-fleche {
+  align-self: center;
+  transform: rotate(90deg);
+  margin: 2px 0;
+  color: rgba(192,152,64,0.5);
+}
+.dk-hero-deco {
+  margin-top: 40px;
+  max-width: 280px;
+  opacity: 0.55;
+  pointer-events: none;
+}
+.dk-hero-deco svg { width: 100%; height: auto; display: block; }
+@media (max-width: 920px) { .dk-hero-deco { display: none; } }
