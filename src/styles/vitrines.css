@@ -25,7 +25,7 @@
 .vit-hero {
   position: relative; min-height: auto; display: block; text-align: left;
   padding: 64px 56px 48px; overflow: hidden;
-  border-bottom: 1px solid rgba(192,152,64,0.22);
+  border-bottom: 2px solid rgba(192,152,64,0.45);
 }
 .vit-hero-bg {
   position: absolute; inset: 0;
@@ -79,7 +79,7 @@
 .vit-corps {
   max-width: 1720px;
   margin: 0 auto;
-  padding: 56px 40px 100px;
+  padding: 72px 40px 100px;
 }
 
 /* ── Filtres en onglets soulignés crème ── */
