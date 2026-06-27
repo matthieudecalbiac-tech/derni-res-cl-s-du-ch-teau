@@ -20,9 +20,9 @@
 
 /* Layout global */
 .dk-page {
-  width: 100%; max-width: 1100px; margin: 0 auto;
-  padding: 32px 24px 80px;
-  display: flex; flex-direction: column; gap: 40px;
+  width: 100%; max-width: 1320px; margin: 0 auto;
+  padding: 28px 32px 60px;
+  display: flex; flex-direction: column; gap: 20px;
 }
 .dk-section { width: 100%; }
 .dk-section-hero { text-align: center; }
@@ -151,19 +151,21 @@
   padding-bottom: 6px;
 }
 .dk-cal-case {
-  aspect-ratio: 1.25;
+  aspect-ratio: 1;
   display: flex; align-items: center; justify-content: center;
-  font-family: 'Playfair Display', serif; font-size: 0.82rem; color: #1A2D5A;
+  font-family: 'Playfair Display', serif; font-size: 0.85rem; color: #1A2D5A;
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 6px;
+  border: none;
+  border-radius: 50%;
   cursor: pointer; transition: all 0.15s;
+  width: 80%; margin: 0 auto;
 }
 .dk-cal-case-vide { background: transparent; border: none; cursor: default; }
-.dk-cal-case-dispo:hover { background: rgba(192,152,64,0.12); border-color: rgba(192,152,64,0.35); }
-.dk-cal-case-off { color: rgba(26,45,90,0.25); cursor: not-allowed; background: transparent; border-color: transparent; }
-.dk-cal-arrivee, .dk-cal-depart { background: #C09840 !important; border-color: #C09840 !important; color: #FBF8F1 !important; }
-.dk-cal-between { background: rgba(192,152,64,0.18) !important; border-color: rgba(192,152,64,0.35) !important; }
+.dk-cal-case-horsmois { color: rgba(26,45,90,0.18); cursor: default; pointer-events: none; }
+.dk-cal-case-dispo:hover { background: rgba(192,152,64,0.15); color: #1A2D5A; }
+.dk-cal-case-off { color: rgba(26,45,90,0.22); cursor: not-allowed; background: transparent; }
+.dk-cal-arrivee, .dk-cal-depart { background: #C09840 !important; color: #FBF8F1 !important; }
+.dk-cal-between { background: rgba(192,152,64,0.18) !important; border-radius: 50% !important; }
 
 /* ── Sélecteurs nuits / voyageurs (D1) ── */
 .dk-selecteurs { display: flex; gap: 32px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
@@ -182,7 +184,21 @@
 .dk-selecteur-opt.actif { background: #C09840; border-color: #C09840; color: #FBF8F1; }
 
 /* ── Barre de filtres (D2) ── */
-.dk-filtres-barre { display: flex; gap: 20px; justify-content: flex-start; flex-wrap: wrap; padding: 24px 0 4px; border-top: 1px solid rgba(192,152,64,0.2); margin-top: 8px; }
+.dk-filtres-barre {
+  display: flex; align-items: center; gap: 28px; flex-wrap: wrap;
+  background: #FEFCF8;
+  border: 1px solid rgba(192,152,64,0.3);
+  border-radius: 4px;
+  padding: 16px 24px;
+  margin-top: 0;
+}
+.dk-filtres-titre { display: flex; align-items: center; gap: 10px; padding-right: 20px; border-right: 1px solid rgba(192,152,64,0.25); }
+.dk-filtres-ico { width: 20px; height: 20px; flex-shrink: 0; }
+.dk-filtres-titre-txt {
+  font-family: 'Crimson Pro', serif; font-size: 0.72rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #1A2D5A; white-space: nowrap;
+}
+.dk-filtres-barre .dk-filtre { flex-direction: column; gap: 6px; }
 .dk-filtre { display: flex; flex-direction: column; gap: 6px; }
 .dk-filtre-label {
   font-family: 'Crimson Pro', serif; font-size: 0.6rem; letter-spacing: 0.14em;
@@ -290,7 +306,7 @@
 @media (max-width: 920px) { .dk-dates-bloc { grid-template-columns: 1fr; gap: 22px; } }
 
 .dk-bloc-cal { min-width: 0; }
-.dk-bloc-selection { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.dk-bloc-selection { display: flex; flex-direction: column; justify-content: space-between; gap: 18px; min-width: 0; height: 100%; }
 .dk-bloc-selection-titre {
   font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.16em;
   text-transform: uppercase; color: #A8884E;
@@ -298,7 +314,13 @@
 
 /* le bloc selection empile etapes puis selecteurs verticalement */
 .dk-bloc-selection .dk-dates-etapes { flex-direction: column; align-items: stretch; gap: 10px; }
-.dk-bloc-selection .dk-selecteurs { flex-direction: column; gap: 16px; }
+.dk-bloc-selection .dk-selecteurs { flex-direction: column; gap: 16px; margin-top: 0; }
+/* boutons "Nombre de nuits" (1er selecteur) sur 2 lignes : 3 + 2 */
+.dk-bloc-selection .dk-selecteurs .dk-selecteur:first-child .dk-selecteur-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
 
 /* zone basse pleine largeur, alignee a gauche (G2a) */
 .dk-section-filtres { width: 100%; }
@@ -312,11 +334,20 @@
   margin: 2px 0;
   color: rgba(192,152,64,0.5);
 }
-.dk-hero-deco {
-  margin-top: 40px;
-  max-width: 280px;
-  opacity: 0.55;
-  pointer-events: none;
+
+/* ── Hiérarchie typo hero (H2) ── */
+.dk-tete .dk-hero-soustitre {
+  font-family: 'Cormorant Garamond', 'Playfair Display', serif;
+  font-size: 1.4rem; font-style: italic; color: #C09840;
+  margin: 0 0 18px; letter-spacing: 0.01em;
 }
-.dk-hero-deco svg { width: 100%; height: auto; display: block; }
-@media (max-width: 920px) { .dk-hero-deco { display: none; } }
+.dk-hero-sep { display: flex; align-items: center; gap: 12px; margin: 0 0 22px; max-width: 200px; }
+.dk-hero-sep-l { flex: 1; height: 1px; background: linear-gradient(to right, transparent, rgba(192,152,64,0.5)); }
+.dk-hero-sep-l:last-child { background: linear-gradient(to left, transparent, rgba(192,152,64,0.5)); }
+.dk-hero-sep-pt { color: #C09840; font-size: 0.7rem; }
+.dk-tete .dk-panneau-accroche { margin-bottom: 14px; }
+.dk-tete .dk-panneau-accroche strong { font-weight: 500; color: #1A2D5A; }
+.dk-tete .dk-hero-para {
+  font-family: 'Crimson Pro', serif; font-size: 0.95rem; font-style: italic;
+  color: #3A4456; line-height: 1.7; max-width: 420px; margin: 0;
+}

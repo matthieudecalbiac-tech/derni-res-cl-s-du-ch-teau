@@ -39,13 +39,22 @@ function genererGrilleMois(premierJourMois) {
   const annee = premierJourMois.getFullYear();
   const mois = premierJourMois.getMonth();
   const premier = new Date(annee, mois, 1);
-  // getDay() : 0=dim..6=sam ; on veut Lundi=0 => (getDay()+6)%7
   const decalage = (premier.getDay() + 6) % 7;
   const nbJours = new Date(annee, mois + 1, 0).getDate();
   const cases = [];
-  for (let i = 0; i < decalage; i++) cases.push({ date: null, horsMois: true });
-  for (let j = 1; j <= nbJours; j++) cases.push({ date: new Date(annee, mois, j), horsMois: false });
-  while (cases.length < 42) cases.push({ date: null, horsMois: true });
+  // jours du mois PRECEDENT pour combler le debut de la 1re semaine
+  for (let i = decalage; i > 0; i--) {
+    cases.push({ date: new Date(annee, mois, 1 - i), horsMois: true });
+  }
+  // jours du mois COURANT
+  for (let j = 1; j <= nbJours; j++) {
+    cases.push({ date: new Date(annee, mois, j), horsMois: false });
+  }
+  // jours du mois SUIVANT pour completer jusqu'a 42 cases (6 semaines)
+  let suiv = 1;
+  while (cases.length < 42) {
+    cases.push({ date: new Date(annee, mois + 1, suiv++), horsMois: true });
+  }
   return cases;
 }
 
@@ -187,20 +196,11 @@ export default function DernieresCles({ onClose }) {
         {/* SECTION 1 : HERO éditorial */}
         <section className="dk-section dk-section-hero">
           <div className="dk-orn"><div className="dk-orn-ligne" /><span className="dk-orn-lys">&#x269C;</span><div className="dk-orn-ligne" /></div>
-          <h2 className="dk-panneau-titre">Les Dernières Clés</h2>
-          <p className="dk-panneau-accroche">Des séjours rares, à saisir. Choisissez vos dates.</p>
-          <div className="dk-hero-deco" aria-hidden="true">
-            <svg viewBox="0 0 280 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M6 78 C 70 78, 120 60, 150 30 C 165 14, 190 8, 220 10" stroke="#C09840" strokeWidth="1.1" strokeLinecap="round"/>
-              <path d="M150 30 C 140 18, 128 12, 112 14 C 124 20, 134 28, 150 30 Z" stroke="#C09840" strokeWidth="0.9" fill="#C09840" fillOpacity="0.12"/>
-              <path d="M150 30 C 162 16, 176 10, 192 12 C 178 20, 166 26, 150 30 Z" stroke="#C09840" strokeWidth="0.9" fill="#C09840" fillOpacity="0.12"/>
-              <path d="M96 50 C 86 40, 76 36, 62 38 C 74 44, 84 50, 96 50 Z" stroke="#C09840" strokeWidth="0.9" fill="#C09840" fillOpacity="0.12"/>
-              <path d="M96 50 C 106 38, 118 32, 132 34 C 120 42, 108 48, 96 50 Z" stroke="#C09840" strokeWidth="0.9" fill="#C09840" fillOpacity="0.12"/>
-              <circle cx="220" cy="10" r="4" stroke="#C09840" strokeWidth="1" fill="#C09840" fillOpacity="0.2"/>
-              <circle cx="221" cy="10" r="1.4" fill="#C09840"/>
-              <path d="M40 70 C 34 62, 28 58, 18 60 C 28 65, 34 70, 40 70 Z" stroke="#C09840" strokeWidth="0.9" fill="#C09840" fillOpacity="0.1"/>
-            </svg>
-          </div>
+          <h2 className="dk-panneau-titre">Dernières clés</h2>
+          <p className="dk-hero-soustitre">Les offres de dernière minute</p>
+          <div className="dk-hero-sep"><span className="dk-hero-sep-l" /><span className="dk-hero-sep-pt">&#x2756;</span><span className="dk-hero-sep-l" /></div>
+          <p className="dk-panneau-accroche"><strong>Des séjours rares, à saisir sur leurs créneaux d’exception. Choisissez vos dates.</strong></p>
+          <p className="dk-hero-para">Accédez à une sélection confidentielle de demeures disponibles, pour des escapades aussi brèves que mémorables.</p>
         </section>
 
         {/* SECTION 2 : DATES */}
@@ -218,8 +218,10 @@ export default function DernieresCles({ onClose }) {
                   <span key={j} className="dk-cal-jour-entete">{j}</span>
                 ))}
                 {genererGrilleMois(moisAffiche).map((caseJour, i) => {
-                  if (!caseJour.date) return <span key={i} className="dk-cal-case dk-cal-case-vide" />;
                   const d = caseJour.date;
+                  if (caseJour.horsMois) {
+                    return <span key={i} className="dk-cal-case dk-cal-case-horsmois">{d.getDate()}</span>;
+                  }
                   const selectionnable = estSelectionnable(d);
                   const classes =
                     "dk-cal-case" +
@@ -302,6 +304,17 @@ export default function DernieresCles({ onClose }) {
         {/* SECTION 3 : FILTRES (réservé, rempli en étape D) */}
         <section className="dk-section dk-section-filtres">
           <div className="dk-filtres-barre">
+            <div className="dk-filtres-titre">
+              <svg className="dk-filtres-ico" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <line x1="3" y1="6" x2="17" y2="6" stroke="#C09840" strokeWidth="1.3" strokeLinecap="round"/>
+                <line x1="3" y1="10" x2="17" y2="10" stroke="#C09840" strokeWidth="1.3" strokeLinecap="round"/>
+                <line x1="3" y1="14" x2="17" y2="14" stroke="#C09840" strokeWidth="1.3" strokeLinecap="round"/>
+                <circle cx="7" cy="6" r="2" fill="#FEFCF8" stroke="#C09840" strokeWidth="1.3"/>
+                <circle cx="13" cy="10" r="2" fill="#FEFCF8" stroke="#C09840" strokeWidth="1.3"/>
+                <circle cx="9" cy="14" r="2" fill="#FEFCF8" stroke="#C09840" strokeWidth="1.3"/>
+              </svg>
+              <span className="dk-filtres-titre-txt">Filtrer les offres</span>
+            </div>
             <div className="dk-filtre">
               <label className="dk-filtre-label">Région</label>
               <select className="dk-filtre-select" value={filtreRegion} onChange={(e) => setFiltreRegion(e.target.value)}>
