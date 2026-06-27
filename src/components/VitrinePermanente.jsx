@@ -75,6 +75,7 @@ export default function VitrinePermanente({ onClose }) {
 
         <div className="vit-corps-bas">
           <aside className="vit-carte-france">
+            <h3 className="vit-carte-titre">Où trouver nos châteaux</h3>
             <CarteChateaux
               chateaux={chateaux}
               survolId={survol}

@@ -18,38 +18,13 @@ export default function CarteChateaux({ chateaux = [], survolId = null, onSurvol
     <div className="carte-fr">
       <svg viewBox="0 0 520 520" className="carte-fr-svg" role="img" aria-label="Carte des chateaux de France">
         <defs>
-          <pattern id="cfMer" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-            <line x1="0" y1="0" x2="0" y2="8" className="cf-mer-l" />
-          </pattern>
-          <pattern id="cfMer2" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
-            <line x1="0" y1="0" x2="0" y2="8" className="cf-mer-l2" />
-          </pattern>
-          <radialGradient id="cfMerLavis" cx="50%" cy="46%" r="60%">
-            <stop offset="55%" stopColor="#E5D7B6" stopOpacity="0" />
-            <stop offset="100%" stopColor="#C9B488" stopOpacity="0.55" />
-          </radialGradient>
           <filter id="cfInk" x="-12%" y="-12%" width="124%" height="124%">
             <feGaussianBlur stdDeviation="1.6" />
           </filter>
           <filter id="cfCote" x="-15%" y="-15%" width="130%" height="130%">
             <feGaussianBlur stdDeviation="4" />
           </filter>
-          <radialGradient id="cfVign" cx="50%" cy="48%" r="64%">
-            <stop offset="52%" stopColor="#000000" stopOpacity="0" />
-            <stop offset="100%" stopColor="#2e1f0d" stopOpacity="0.34" />
-          </radialGradient>
         </defs>
-
-        {/* mer : base + double hachure + lavis */}
-        <rect x="0" y="0" width="520" height="520" className="cf-mer-bg" />
-        <rect x="0" y="0" width="520" height="520" fill="url(#cfMer)" />
-        <rect x="0" y="0" width="520" height="520" fill="url(#cfMer2)" />
-        <rect x="0" y="0" width="520" height="520" fill="url(#cfMerLavis)" />
-
-        <g className="cf-grat">
-          {[80, 160, 240, 320, 400, 480].map((x) => <line key={"v" + x} x1={x} y1="0" x2={x} y2="520" />)}
-          {[80, 160, 240, 320, 400, 480].map((y) => <line key={"h" + y} x1="0" y1={y} x2="520" y2={y} />)}
-        </g>
 
         {/* ombrage cotier + halo encre + terre */}
         <path d={FRANCE_MAIN} className="cf-cote" filter="url(#cfCote)" />
@@ -58,27 +33,6 @@ export default function CarteChateaux({ chateaux = [], survolId = null, onSurvol
         <path d={FRANCE_CORSE} className="cf-cote" filter="url(#cfCote)" />
         <path d={FRANCE_CORSE} className="cf-halo" filter="url(#cfInk)" />
         <path d={FRANCE_CORSE} className="cf-terre" />
-
-        <rect x="0" y="0" width="520" height="520" fill="url(#cfVign)" />
-
-        <rect x="6" y="6" width="508" height="508" className="cf-cadre cf-cadre--ext" />
-        <rect x="11" y="11" width="498" height="498" className="cf-cadre cf-cadre--mid" />
-        <rect x="14" y="14" width="492" height="492" className="cf-cadre cf-cadre--int" />
-        <text x="16" y="26" className="cf-coin">&#x269C;</text>
-        <text x="504" y="26" className="cf-coin" textAnchor="end">&#x269C;</text>
-        <text x="16" y="514" className="cf-coin">&#x269C;</text>
-        <text x="504" y="514" className="cf-coin" textAnchor="end">&#x269C;</text>
-
-        <text x="260" y="40" className="cf-titre" textAnchor="middle">Carte des ch&acirc;teaux de France</text>
-
-        <g className="cf-rose" transform="translate(74,452)">
-          <circle r="24" className="cf-rose-cz" />
-          <circle r="16" className="cf-rose-cz" />
-          <path d="M0,-28 L5,0 L0,28 L-5,0 Z" className="cf-rose-b" />
-          <path d="M-28,0 L0,5 L28,0 L0,-5 Z" className="cf-rose-b2" />
-          <path d="M10,-10 L4,-4 L0,0 Z M-10,10 L-4,4 L0,0 Z M10,10 L4,4 L0,0 Z M-10,-10 L-4,-4 L0,0 Z" className="cf-rose-d" />
-          <text y="-32" className="cf-rose-n" textAnchor="middle">N</text>
-        </g>
 
         {points.map((p) => {
           const actif = survolId === p.id;
