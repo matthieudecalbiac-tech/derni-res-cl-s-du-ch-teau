@@ -28,6 +28,7 @@ import OwnerDashboardPlaceholder from "./components/placeholders/OwnerDashboardP
 import AdminDashboardPlaceholder from "./components/placeholders/AdminDashboardPlaceholder";
 // Sprint S2-α.1.5 — route vitrine SEO /chateau/:slug?onglet=&theme=&offre=
 import VitrineChateauRoute from "./components/VitrineChateauRoute";
+import PageResultats from "./components/PageResultats";
 
 // Sprint S2-α.2 — pages auth magic link (remplace AuthCallbackPlaceholder)
 import Connexion from "./components/auth/Connexion";
@@ -154,6 +155,7 @@ function App() {
       <Route path="/completer-profil" element={<CompleterProfil />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/chateau/:slug" element={<VitrineChateauRoute />} />
+      <Route path="/resultats" element={<PageResultats />} />
       <Route path="*" element={homeEtOverlays} />
     </Routes>
   );
