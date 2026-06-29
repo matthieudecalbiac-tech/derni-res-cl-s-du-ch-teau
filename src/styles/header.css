@@ -153,16 +153,36 @@
   text-transform: uppercase; letter-spacing: 0.14em; color: rgba(74,70,64,0.55); line-height: 1.7; margin: 0;
 }
 
+/* Animation d'entree de la colonne gauche (orchestree a l'ouverture) */
+.hm-sommaire-titre,
+.hm-col-gauche .hm-ornement,
+.hm-sommaire-intro,
+.hm-sommaire-bas {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.hm-overlay--ouvert .hm-sommaire-titre,
+.hm-overlay--ouvert .hm-col-gauche .hm-ornement,
+.hm-overlay--ouvert .hm-sommaire-intro,
+.hm-overlay--ouvert .hm-sommaire-bas {
+  animation: hmGauche 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+.hm-overlay--ouvert .hm-sommaire-titre        { animation-delay: 0.05s; }
+.hm-overlay--ouvert .hm-col-gauche .hm-ornement { animation-delay: 0.15s; }
+.hm-overlay--ouvert .hm-sommaire-intro        { animation-delay: 0.25s; }
+.hm-overlay--ouvert .hm-sommaire-bas          { animation-delay: 0.35s; }
+@keyframes hmGauche { to { opacity: 1; transform: translateY(0); } }
+
 .hm-nav { display: flex; flex-direction: column; }
 .hm-item {
   display: grid; grid-template-columns: 52px 1px 1fr; align-items: center; gap: 28px;
   width: 100%; padding: 22px 0; background: none; border: none;
   border-bottom: 1px solid rgba(192,152,64,0.18);
   cursor: pointer; text-align: left; transition: all 0.25s ease;
-  opacity: 0; transform: translateX(-20px);
+  opacity: 0; transform: translateX(40px);
 }
 .hm-item:first-child { border-top: 1px solid rgba(192,152,64,0.18); }
-.hm-overlay--ouvert .hm-item { animation: hmEntre 0.5s ease forwards; }
+.hm-overlay--ouvert .hm-item { animation: hmEntre 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards; }
 @keyframes hmEntre { to { opacity: 1; transform: translateX(0); } }
 .hm-item-num {
   font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #C09840;
@@ -208,4 +228,16 @@
   .hm-item-titre { font-size: 0.95rem; }
   .hm-item-desc { font-size: 0.78rem; }
   .header-logo-wordmark { height: 30px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-item,
+  .hm-sommaire-titre,
+  .hm-col-gauche .hm-ornement,
+  .hm-sommaire-intro,
+  .hm-sommaire-bas {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
 }

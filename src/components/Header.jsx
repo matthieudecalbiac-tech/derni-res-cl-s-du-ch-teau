@@ -159,7 +159,7 @@ export default function Header({
                 onClick={() => handleAction(item.action)}
                 onMouseEnter={() => setItemSurvole(item.id)}
                 onMouseLeave={() => setItemSurvole(null)}
-                style={{ animationDelay: menuOuvert ? `${i * 80}ms` : "0ms" }}
+                style={{ animationDelay: menuOuvert ? `${0.35 + i * 0.11}s` : "0s" }}
               >
                 <span className="hm-item-num">0{i + 1}</span>
                 <span className="hm-item-barre" />
