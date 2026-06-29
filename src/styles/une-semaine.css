@@ -7,12 +7,11 @@
 }
 
 .une-semaine-intro { position: relative; display: flex; flex-direction: column; align-items: flex-start; padding-bottom: 40px; }
-.une-semaine-embleme { width: 92px; height: auto; margin-bottom: 30px; position: relative; z-index: 1; }
+.une-semaine-embleme { width: 92px; height: auto; margin-bottom: 30px; position: relative; z-index: 1; background: transparent !important; }
 .une-semaine-eyebrow { font-family: 'Crimson Pro', Georgia, serif; font-size: 11px; letter-spacing: 0.34em; text-transform: uppercase; color: #A8884E; margin-bottom: 22px; position: relative; z-index: 1; }
 .une-semaine-titre { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2.6rem, 4vw, 3.7rem); font-weight: 400; line-height: 1.02; color: #1A2D5A; margin: 0 0 26px; position: relative; z-index: 1; }
 .une-semaine-intro-sep { width: 54px; height: 1px; background: rgba(192,152,64,0.6); margin-bottom: 26px; position: relative; z-index: 1; }
 .une-semaine-intro-txt { font-family: 'Crimson Pro', Georgia, serif; font-size: 15px; line-height: 1.75; color: #3A4456; max-width: 300px; margin: 0 0 18px; position: relative; z-index: 1; }
-.une-semaine-fleur--intro { position: absolute; left: -18px; bottom: -8px; width: 200px; height: auto; opacity: 0.6; pointer-events: none; user-select: none; z-index: 0; }
 
 .une-semaine-liste { display: flex; flex-direction: column; gap: 30px; }
 .une-semaine-carte { position: relative; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid rgba(26,45,90,0.16); border-radius: 6px; overflow: hidden; background: rgba(251,247,243,0.5); }
@@ -30,14 +29,12 @@
 .une-semaine-prix-nuit { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 13px; font-style: italic; color: #9B9282; }
 .une-semaine-cta { font-family: 'Crimson Pro', Georgia, serif; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #A8884E; background: transparent; border: none; padding: 0; cursor: pointer; white-space: nowrap; transition: letter-spacing 0.25s ease, color 0.25s ease; }
 .une-semaine-cta:hover { letter-spacing: 0.36em; color: #C09840; }
-.une-semaine-fleur--carte { position: absolute; top: -14px; right: -14px; width: 120px; height: auto; opacity: 0.5; pointer-events: none; user-select: none; z-index: 0; }
 
 @media (max-width: 980px) {
   .une-semaine-wrap { grid-template-columns: 1fr; gap: 48px; padding: 44px 28px 48px; }
   .une-semaine-intro { align-items: center; text-align: center; }
   .une-semaine-intro-sep { align-self: center; }
   .une-semaine-intro-txt { max-width: 460px; }
-  .une-semaine-fleur--intro { display: none; }
 }
 @media (max-width: 760px) {
   .une-semaine-carte { grid-template-columns: 1fr; }

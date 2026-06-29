@@ -3,10 +3,6 @@
 
 .da-wrap { position: relative; max-width: 1320px; margin: 0 auto; padding: 58px 56px 62px; }
 
-.da-fleur { position: absolute; top: 50%; transform: translateY(-50%); width: 220px; height: auto; opacity: 0.55; pointer-events: none; user-select: none; z-index: 0; }
-.da-fleur--g { left: -26px; }
-.da-fleur--d { right: -26px; }
-
 .da-tete { text-align: center; margin-bottom: 34px; position: relative; z-index: 1; }
 .da-titre { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2.4rem, 4.5vw, 4rem); font-weight: 400; color: #1A2D5A; margin: 0 0 18px; letter-spacing: 0.01em; }
 .da-intro { font-family: 'Crimson Pro', Georgia, serif; font-size: 15px; line-height: 1.7; color: #3A4456; max-width: 420px; margin: 0 auto; }
@@ -14,7 +10,7 @@
 .da-grille { display: grid; grid-template-columns: 1fr auto 1fr; gap: 48px; align-items: center; position: relative; z-index: 1; }
 .da-col { display: flex; flex-direction: column; gap: 44px; }
 .da-centre { display: flex; align-items: center; justify-content: center; }
-.da-embleme { width: clamp(150px, 16vw, 230px); height: auto; }
+.da-embleme { width: clamp(150px, 16vw, 230px); height: auto; background: transparent !important; }
 
 .da-medaillon { display: flex; align-items: center; gap: 20px; cursor: pointer; background: transparent; border: none; text-align: left; transition: transform 0.25s ease; }
 .da-medaillon:hover { transform: translateY(-3px); }
@@ -41,7 +37,6 @@
   .da-centre { order: -1; }
   .da-col--d .da-medaillon { flex-direction: row; text-align: left; }
   .da-col--d .da-desc { margin-left: 0; }
-  .da-fleur { display: none; }
 }
 @media (max-width: 560px) {
   .da-wrap { padding: 38px 22px 42px; }

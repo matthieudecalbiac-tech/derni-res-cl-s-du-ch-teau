@@ -17,7 +17,6 @@ export default function UneDeLaSemaine({ onOuvrirChateau }) {
           <div className="une-semaine-intro-sep" />
           <p className="une-semaine-intro-txt">Des demeures d'exception, chacune porteuse d'une histoire, d'un art de vivre et d'émotions à partager.</p>
           <p className="une-semaine-intro-txt">Des lieux où le temps suspend son cours, pour des séjours et des expériences inoubliables.</p>
-          <img className="une-semaine-fleur une-semaine-fleur--intro" src="/fleur-gauche.png" alt="" aria-hidden="true" />
         </aside>
 
         <div className="une-semaine-liste">
@@ -29,7 +28,6 @@ export default function UneDeLaSemaine({ onOuvrirChateau }) {
                   <img src={chateau.images?.[0]} alt={chateau.nom} loading="lazy" />
                 </div>
                 <div className="une-semaine-infos">
-                  <img className="une-semaine-fleur une-semaine-fleur--carte" src="/fleur-droite.png" alt="" aria-hidden="true" />
                   <span className="une-semaine-meta">
                     {chateau.region} · {chateau.departement} · {chateau.siecle}
                   </span>

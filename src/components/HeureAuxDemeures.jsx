@@ -44,8 +44,6 @@ export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres })
   return (
     <section className="journal-demeures">
       <div className="da-wrap">
-        <img className="da-fleur da-fleur--g" src="/fleur-gauche.png" alt="" aria-hidden="true" />
-        <img className="da-fleur da-fleur--d" src="/fleur-droite.png" alt="" aria-hidden="true" />
 
         <header className="da-tete">
           <h2 className="da-titre">Découvrez aussi</h2>
