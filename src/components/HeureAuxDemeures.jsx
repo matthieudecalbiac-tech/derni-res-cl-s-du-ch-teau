@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useChateaux } from "../hooks/useChateaux";
+import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import "../styles/heure-aux-demeures.css";
 
 const SLUGS = [
@@ -14,6 +15,7 @@ const SLUGS = [
 
 export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres }) {
   const { chateaux } = useChateaux();
+  const [ref, visible] = useScrollAnimation(0.15);
   const demeures = useMemo(
     () => SLUGS.map((s) => chateaux.find((c) => c.slug === s)).filter(Boolean),
     [chateaux]
@@ -26,10 +28,10 @@ export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres })
       className="da-medaillon"
       onClick={() => onOuvrirChateau?.(c)}
     >
-      <div className="da-photo">
+      <div className="da-photo" style={{ transitionDelay: `${0.2 + (n - 1) * 0.08}s` }}>
         <img src={c.images?.[0]} alt={c.nom} loading="lazy" />
       </div>
-      <div className="da-texte">
+      <div className="da-texte" style={{ transitionDelay: `${0.2 + (n - 1) * 0.08}s` }}>
         <span className="da-num">{String(n).padStart(2, "0")}</span>
         <h3 className="da-nom">{c.nom}</h3>
         <p className="da-desc">{c.accroche}</p>
@@ -42,7 +44,7 @@ export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres })
   const bas = demeures[6];
 
   return (
-    <section className="journal-demeures">
+    <section className={"journal-demeures" + (visible ? " journal-demeures--visible" : "")} ref={ref}>
       <div className="da-wrap">
 
         <header className="da-tete">

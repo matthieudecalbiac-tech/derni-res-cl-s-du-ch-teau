@@ -81,3 +81,33 @@
   .bandeau-offres-cellule:last-child { border-bottom: none; }
   .bandeau-offres-orne-texte { font-size: 10px; letter-spacing: 0.25em; }
 }
+
+/* ── Animation au scroll : entree depuis la gauche (one-shot) ── */
+.bandeau-offres-orne,
+.bandeau-offres-titre-section,
+.bandeau-offres-cellule {
+  opacity: 0;
+  transform: translateX(-48px);
+  transition: opacity 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.bandeau-offres-orne          { transition-delay: 0s; }
+.bandeau-offres-titre-section { transition-delay: 0.12s; }
+/* les 3 cellules : delai gere en inline via index (style transitionDelay) */
+
+.bandeau-offres--visible .bandeau-offres-orne,
+.bandeau-offres--visible .bandeau-offres-titre-section,
+.bandeau-offres--visible .bandeau-offres-cellule {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bandeau-offres-orne,
+  .bandeau-offres-titre-section,
+  .bandeau-offres-cellule {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

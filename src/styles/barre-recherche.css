@@ -71,3 +71,17 @@
   color: #1A2D5A; transition: background 0.18s;
 }
 .br-dest-chateau:hover { background: rgba(192,152,64,0.10); }
+
+/* ── Animation d'entree (en dernier dans la sequence hero) ── */
+@keyframes barreFadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.barre-recherche {
+  opacity: 0;
+  animation: barreFadeUp 1.1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation-delay: 1.45s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .barre-recherche { opacity: 1; animation: none; }
+}

@@ -1,10 +1,12 @@
 import { useCompteurs } from "../hooks/useCompteurs";
+import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { useNavigate } from "react-router-dom";
 import "../styles/bandeau-offres.css";
 
 export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
   const { compteurs, loading, error } = useCompteurs();
   const navigate = useNavigate();
+  const [ref, visible] = useScrollAnimation(0.2);
 
   const OFFRES = [
     {
@@ -43,7 +45,7 @@ export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
   };
 
   return (
-    <section className="bandeau-offres">
+    <section className={"bandeau-offres" + (visible ? " bandeau-offres--visible" : "")} ref={ref}>
       <div className="bandeau-offres-orne">
         <span className="bandeau-offres-orne-ligne bandeau-offres-orne-ligne--g" />
         <span className="bandeau-offres-orne-texte">Trois façons de</span>
@@ -58,6 +60,7 @@ export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
             type="button"
             className={`bandeau-offres-cellule ${i === 1 ? "bandeau-offres-cellule--centre" : ""}`}
             onClick={() => gererClic(o.action)}
+            style={{ transitionDelay: `${0.25 + i * 0.15}s` }}
           >
             <span className="bandeau-offres-num">{o.num}</span>
             <img className="bandeau-offres-illu" src={o.illustration} alt="" aria-hidden="true" />

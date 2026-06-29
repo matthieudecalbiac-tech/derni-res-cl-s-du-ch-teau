@@ -43,3 +43,62 @@
   .da-medaillon, .da-col--d .da-medaillon { flex-direction: column; text-align: center; }
   .da-desc { max-width: none; }
 }
+
+/* ── Animation au scroll : tete/cadran fade, colonnes G<-gauche / D<-droite, hover-safe ── */
+.da-tete,
+.da-embleme,
+.da-bas,
+.da-cta-wrap {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.da-tete      { transition-delay: 0s; }
+.da-embleme   { transition-delay: 0.25s; }
+.da-bas       { transition-delay: 0.7s; }
+.da-cta-wrap  { transition-delay: 0.8s; }
+
+/* Medaillons : on anime les ENFANTS (.da-photo/.da-texte), pas .da-medaillon
+   (qui garde son transform de hover translateY intact). */
+.da-col--g .da-photo,
+.da-col--g .da-texte {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.da-col--d .da-photo,
+.da-col--d .da-texte {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.journal-demeures--visible .da-tete,
+.journal-demeures--visible .da-embleme,
+.journal-demeures--visible .da-bas,
+.journal-demeures--visible .da-cta-wrap,
+.journal-demeures--visible .da-col--g .da-photo,
+.journal-demeures--visible .da-col--g .da-texte,
+.journal-demeures--visible .da-col--d .da-photo,
+.journal-demeures--visible .da-col--d .da-texte {
+  opacity: 1;
+  transform: translateX(0) translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .da-tete,
+  .da-embleme,
+  .da-bas,
+  .da-cta-wrap,
+  .da-col--g .da-photo,
+  .da-col--g .da-texte,
+  .da-col--d .da-photo,
+  .da-col--d .da-texte {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

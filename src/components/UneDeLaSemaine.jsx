@@ -1,14 +1,16 @@
 import { useChateaux } from "../hooks/useChateaux";
+import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { derivePrix } from "../utils/derivePrix";
 import "../styles/une-semaine.css";
 
 export default function UneDeLaSemaine({ onOuvrirChateau }) {
   const { chateaux, loading, error } = useChateaux();
+  const [ref, visible] = useScrollAnimation(0.2);
   const selection = chateaux.filter((c) => c.estLaUne === true).slice(0, 4);
   if (selection.length === 0) return null;
 
   return (
-    <section className="une-semaine">
+    <section className={"une-semaine" + (visible ? " une-semaine--visible" : "")} ref={ref}>
       <div className="une-semaine-wrap">
         <aside className="une-semaine-intro">
           <img className="une-semaine-embleme" src="/embleme-horloge.png" alt="" aria-hidden="true" />
@@ -20,10 +22,10 @@ export default function UneDeLaSemaine({ onOuvrirChateau }) {
         </aside>
 
         <div className="une-semaine-liste">
-          {selection.map((chateau) => {
+          {selection.map((chateau, i) => {
             const prix = derivePrix(chateau);
             return (
-              <article key={chateau.id} className="une-semaine-carte">
+              <article key={chateau.id} className="une-semaine-carte" style={{ transitionDelay: `${0.35 + i * 0.12}s` }}>
                 <div className="une-semaine-photo">
                   <img src={chateau.images?.[0]} alt={chateau.nom} loading="lazy" />
                 </div>

@@ -680,3 +680,46 @@
   .hero-illus { justify-content: center; }
   .hero-illus-img { max-height: none; max-width: 560px; margin: 0 auto; }
 }
+
+/* ── Animation d'entree orchestree (au montage) ── */
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes heroFadeRight {
+  from { opacity: 0; transform: translateX(60px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes heroFadeUpBar {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-orn,
+.hero-titre,
+.hero-sep,
+.hero-accroche {
+  opacity: 0;
+  animation: heroFadeUp 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+.hero-orn      { animation-delay: 0.10s; }
+.hero-titre    { animation-delay: 0.30s; }
+.hero-sep      { animation-delay: 0.60s; }
+.hero-accroche { animation-delay: 0.75s; }
+
+.hero-illus-img {
+  opacity: 0;
+  animation: heroFadeRight 1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation-delay: 0.50s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-orn,
+  .hero-titre,
+  .hero-sep,
+  .hero-accroche,
+  .hero-illus-img {
+    opacity: 1;
+    animation: none;
+  }
+}

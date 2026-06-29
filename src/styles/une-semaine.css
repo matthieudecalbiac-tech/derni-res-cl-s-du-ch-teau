@@ -43,3 +43,50 @@
   .une-semaine-pied { flex-direction: column; align-items: flex-start; gap: 16px; }
   .une-semaine-nom, .une-semaine-accroche { max-width: none; }
 }
+
+/* ── Animation au scroll : intro depuis la gauche, cartes depuis la droite (one-shot) ── */
+.une-semaine-embleme,
+.une-semaine-eyebrow,
+.une-semaine-titre,
+.une-semaine-intro-sep,
+.une-semaine-intro-txt {
+  opacity: 0;
+  transform: translateX(-44px);
+  transition: opacity 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.une-semaine-embleme    { transition-delay: 0s; }
+.une-semaine-eyebrow    { transition-delay: 0.10s; }
+.une-semaine-titre      { transition-delay: 0.20s; }
+.une-semaine-intro-sep  { transition-delay: 0.30s; }
+.une-semaine-intro-txt  { transition-delay: 0.38s; }
+
+.une-semaine-carte {
+  opacity: 0;
+  transform: translateX(44px);
+  transition: opacity 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.une-semaine--visible .une-semaine-embleme,
+.une-semaine--visible .une-semaine-eyebrow,
+.une-semaine--visible .une-semaine-titre,
+.une-semaine--visible .une-semaine-intro-sep,
+.une-semaine--visible .une-semaine-intro-txt,
+.une-semaine--visible .une-semaine-carte {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .une-semaine-embleme,
+  .une-semaine-eyebrow,
+  .une-semaine-titre,
+  .une-semaine-intro-sep,
+  .une-semaine-intro-txt,
+  .une-semaine-carte {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
