@@ -19,7 +19,7 @@ function Hero() {
           <p className="hero-accroche">Des échappées élégantes dans les châteaux de France, un réseau d'exception, vivez l'expérience du patrimoine.</p>
         </div>
         <div className="hero-illus">
-          <img src="/homedessin8.png" alt="Carte des châteaux depuis Paris" className="hero-illus-img" />
+          <img src="/homedessin14-detouree.png" alt="Carte des châteaux depuis Paris" className="hero-illus-img" />
         </div>
       </div>
     </section>
