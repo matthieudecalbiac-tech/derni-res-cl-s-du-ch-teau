@@ -62,7 +62,6 @@ function App() {
 
       <Header
         onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
-        onOuvrirConciergerie={() => setConciergerieOuvert(true)}
         onOuvrirAPropos={() => setAProposOuvert(true)}
         onOuvrirVitrines={() => setVitrinesOuvert(true)}
         onOuvrirProprietaires={() => setProprietairesOuvert(true)}
