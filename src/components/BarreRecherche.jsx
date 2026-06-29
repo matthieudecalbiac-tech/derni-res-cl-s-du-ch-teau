@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { getRegionsAvecChateaux } from "../utils/regions";
 import "../styles/barre-recherche.css";
 
 export default function BarreRecherche() {
   const { chateaux } = useChateaux();
+  const navigate = useNavigate();
   const [destOuvert, setDestOuvert] = useState(false);
   const [selection, setSelection] = useState(null); // { type: "region"|"chateau", region, chateau? }
   const destRef = useRef(null);
@@ -34,6 +36,17 @@ export default function BarreRecherche() {
   const choisirChateau = (region, chateau) => {
     setSelection({ type: "chateau", region, chateau });
     setDestOuvert(false);
+  };
+
+  const lancerRecherche = () => {
+    const p = new URLSearchParams();
+    if (selection?.type === "chateau" && selection.chateau?.slug) {
+      p.set("chateau", selection.chateau.slug);
+    } else if (selection?.type === "region") {
+      p.set("region", selection.region);
+    }
+    p.set("invites", "2"); // champ Invites statique pour l'instant
+    navigate(`/resultats?${p.toString()}`);
   };
 
   return (
@@ -131,7 +144,7 @@ export default function BarreRecherche() {
             </svg>
           </div>
 
-          <button className="br-cta">Trouver votre château <span className="br-cta-fl">→</span></button>
+          <button className="br-cta" onClick={lancerRecherche}>Trouver votre château <span className="br-cta-fl">→</span></button>
         </div>
       </div>
     </div>

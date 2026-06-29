@@ -23,13 +23,18 @@ export default function PageResultats() {
     return total >= nbInvites;
   };
 
-  // Filtrage : par chateau precis si fourni, sinon par region, sinon tout.
+  // Decision (B): la page resultats ne montre que les chateaux reels (estLaUne).
+  // Les mocks (id 1-6) peuplent la home pour la demo mais n'ont pas de vitrine
+  // routable, donc on les exclut du tunnel de recherche pour eviter tout cul-de-sac.
+  const reels = chateaux.filter((c) => c.estLaUne === true);
+
+  // Filtrage : par chateau precis si fourni, sinon par region, sinon tous les reels.
   // Puis on applique TOUJOURS le filtre invites (capacite).
-  let resultats = chateaux;
+  let resultats = reels;
   if (chateauSlug) {
-    resultats = chateaux.filter((c) => c.slug === chateauSlug);
+    resultats = reels.filter((c) => c.slug === chateauSlug);
   } else if (region) {
-    resultats = chateaux.filter((c) => c.region === region);
+    resultats = reels.filter((c) => c.region === region);
   }
   resultats = resultats.filter(capaciteSuffisante);
 
@@ -82,7 +87,14 @@ export default function PageResultats() {
         {!loading && resultats.length > 0 && (
           <div className="pr-grille">
             {resultats.map((c) => (
-              <article className="pr-carte" key={c.id}>
+              <article
+                className="pr-carte pr-carte--cliquable"
+                key={c.id}
+                onClick={() => navigate(`/chateau/${c.slug}`)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => { if (e.key === "Enter") navigate(`/chateau/${c.slug}`); }}
+              >
                 <div className="pr-carte-photo">
                   <img src={c.image || c.images?.[0]} alt={c.nom} />
                 </div>
