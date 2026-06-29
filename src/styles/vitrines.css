@@ -11,11 +11,11 @@
   border-bottom: 1px solid rgba(192,152,64,0.18);
 }
 .vit-topbar-logo {
-  display: flex; align-items: center; gap: 1rem; background: none;
+  display: flex; align-items: center; gap: 1.15rem; background: none;
   border: none; padding: 0; cursor: pointer;
 }
 .vit-topbar-embleme { height: 64px; width: auto; display: block; background: transparent; }
-.vit-topbar-wordmark { height: 52px; width: auto; display: block; background: transparent; }
+.vit-topbar-wordmark { height: 44px; width: auto; display: block; background: transparent; }
 .vit-topbar-titre {
   font-family: 'Playfair Display', serif; font-size: 1.3rem;
   font-weight: 400; font-style: italic; color: #C09840; letter-spacing: 0.05em;

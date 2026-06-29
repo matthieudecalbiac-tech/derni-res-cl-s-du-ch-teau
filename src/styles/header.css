@@ -32,7 +32,7 @@
 }
 
 .header-logo {
-  display: flex; align-items: center; gap: 1rem; cursor: pointer;
+  display: flex; align-items: center; gap: 1.15rem; cursor: pointer;
   flex-shrink: 0; background: none; border: none; padding: 0;
   z-index: 5100; position: relative;
 }
@@ -40,7 +40,7 @@
   height: 64px; width: auto; display: block; background: transparent;
 }
 .header-logo-wordmark {
-  height: 52px; width: auto; display: block; background: transparent;
+  height: 44px; width: auto; display: block; background: transparent;
 }
 .logo-texte { display: flex; flex-direction: column; gap: 2px; }
 .logo-principal {
