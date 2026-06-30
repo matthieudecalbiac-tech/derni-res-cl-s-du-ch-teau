@@ -5,14 +5,17 @@
    ════════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --vc4-navy: #07101E;
-  --vc4-navy-2: rgba(8, 14, 26, 0.96);
+  --vc4-bg: #FAF6EE;
+  --vc4-surface: #F3ECDC;
+  --vc4-surface-accent: #EDE3CE;
+  --vc4-placeholder: #E8E0D0;
+  --vc4-ink: #1A2D5A;
+  --vc4-ink-soft: rgba(26,45,90,0.68);
+  --vc4-ink-faint: rgba(26,45,90,0.50);
+  --vc4-on-or: #07101E;
   --vc4-or: #C09840;
-  --vc4-or-soft: rgba(192, 152, 64, 0.6);
-  --vc4-or-faint: rgba(192, 152, 64, 0.15);
-  --vc4-creme: #F7F2E8;
-  --vc4-creme-soft: rgba(247, 242, 232, 0.7);
-  --vc4-creme-faint: rgba(247, 242, 232, 0.45);
+  --vc4-or-soft: rgba(192,152,64,0.6);
+  --vc4-or-faint: rgba(192,152,64,0.15);
 }
 
 /* ═══ NIVEAU 1 — Modules commerciaux (sticky) ════════════════════════════════ */
@@ -24,7 +27,7 @@
              contre le top de la zone visible de .vc3-corps, qui se trouve juste
              sous le header dans le flex parent .vc3-overlay. */
   z-index: 50;
-  background: var(--vc4-navy-2);
+  background: var(--vc4-surface);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--vc4-or-faint);
@@ -60,18 +63,18 @@
 .vc4-onglet-n1:hover {
   background: var(--vc4-or-faint);
   border-color: var(--vc4-or);
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
 }
 
 .vc4-onglet-n1--actif {
   background: var(--vc4-or);
   border-color: var(--vc4-or);
-  color: var(--vc4-navy);
+  color: var(--vc4-on-or);
 }
 
 .vc4-onglet-n1--actif:hover {
   background: var(--vc4-or);
-  color: var(--vc4-navy);
+  color: var(--vc4-on-or);
 }
 
 .vc4-onglet-n1-lib {
@@ -94,7 +97,7 @@
   font-family: "Cormorant Garamond", serif;
   font-style: italic;
   font-size: 13px;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
   text-align: center;
   padding: 12px 24px;
   margin: 0;
@@ -131,7 +134,7 @@
   font-style: italic;
   font-size: 19px;
   line-height: 1.65;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
   text-align: center;
   max-width: 700px;
   margin: 0 auto 60px;
@@ -155,7 +158,7 @@
   font-family: "Playfair Display", serif;
   font-size: 26px;
   font-weight: 400;
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
   margin: 0;
   letter-spacing: 0.02em;
   text-align: center;
@@ -168,7 +171,7 @@
 }
 
 .vc4-permanent-chambre {
-  background: rgba(8, 14, 26, 0.55);
+  background: var(--vc4-surface);
   border: 1px solid var(--vc4-or-faint);
   border-radius: 4px;
   overflow: hidden;
@@ -182,7 +185,7 @@
   aspect-ratio: 4 / 3;
   background-size: cover;
   background-position: center;
-  background-color: #1a1a1a;
+  background-color: var(--vc4-placeholder);
 }
 
 .vc4-permanent-chambre-photo-vign {
@@ -195,7 +198,7 @@
   position: absolute;
   bottom: 14px;
   right: 14px;
-  background: var(--vc4-navy-2);
+  background: var(--vc4-surface);
   border: 1px solid var(--vc4-or-soft);
   padding: 6px 12px;
   font-family: "Playfair Display", serif;
@@ -207,7 +210,7 @@
 .vc4-permanent-chambre-prix-suf {
   font-family: "Crimson Pro", serif;
   font-size: 11px;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
   margin-left: 4px;
 }
 
@@ -222,7 +225,7 @@
   font-family: "Playfair Display", serif;
   font-size: 19px;
   font-weight: 400;
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
   margin: 0 0 4px;
 }
 
@@ -238,7 +241,7 @@
   font-family: "Crimson Pro", serif;
   font-size: 13px;
   font-style: italic;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
   line-height: 1.5;
   margin: 0 0 14px;
   flex: 1;
@@ -260,7 +263,7 @@
   padding: 3px 9px;
   border: 1px solid var(--vc4-or-faint);
   border-radius: 12px;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
 }
 
 .vc4-permanent-chambre-cta {
@@ -278,7 +281,7 @@
 
 .vc4-permanent-chambre-cta:hover {
   background: var(--vc4-or-faint);
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
 }
 
 /* ═══ Contenu Dernières Clés ════════════════════════════════════════════════ */
@@ -307,7 +310,7 @@
   font-family: "Playfair Display", serif;
   font-size: 26px;
   font-weight: 400;
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
   margin: 0;
   text-align: center;
 }
@@ -316,7 +319,7 @@
   text-align: center;
   font-family: "Cormorant Garamond", serif;
   font-style: italic;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
 }
 
 .vc4-loading {
@@ -337,7 +340,7 @@
   display: grid;
   grid-template-columns: 220px 1fr 200px;
   gap: 24px;
-  background: rgba(8, 14, 26, 0.55);
+  background: var(--vc4-surface);
   border: 1px solid var(--vc4-or-faint);
   border-radius: 4px;
   padding: 0;
@@ -352,7 +355,7 @@
 }
 
 .vc4-dc-card-photo {
-  background: linear-gradient(135deg, #1a1410, #2c2218);
+  background: linear-gradient(135deg, var(--vc4-surface), var(--vc4-placeholder));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -378,7 +381,7 @@
   font-family: "Playfair Display", serif;
   font-size: 20px;
   font-weight: 400;
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
   margin: 0 0 4px;
 }
 
@@ -394,7 +397,7 @@
   font-family: "Crimson Pro", serif;
   font-style: italic;
   font-size: 13px;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
   line-height: 1.5;
   margin: 8px 0 12px;
 }
@@ -415,7 +418,7 @@
   padding: 2px 7px;
   border: 1px solid var(--vc4-or-faint);
   border-radius: 8px;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
 }
 
 .vc4-dc-card-urgence {
@@ -426,7 +429,7 @@
 }
 
 .vc4-dc-card-prix-col {
-  background: rgba(7, 16, 30, 0.5);
+  background: var(--vc4-surface-accent);
   border-left: 1px solid var(--vc4-or-faint);
   padding: 22px 18px;
   display: flex;
@@ -439,7 +442,7 @@
 .vc4-dc-card-prix-barre {
   font-family: "Crimson Pro", serif;
   font-size: 14px;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
   text-decoration: line-through;
 }
 
@@ -453,7 +456,7 @@
   font-family: "Crimson Pro", serif;
   font-size: 10px;
   letter-spacing: 0.05em;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
   text-transform: uppercase;
 }
 
@@ -472,7 +475,7 @@
 
 .vc4-dc-card-cta:hover {
   background: var(--vc4-or);
-  color: var(--vc4-navy);
+  color: var(--vc4-on-or);
 }
 
 /* ═══ Contenu Club (variante un peu plus sourde) ════════════════════════════ */
@@ -500,14 +503,14 @@
   font-family: "Playfair Display", serif;
   font-size: 24px;
   font-weight: 400;
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
   margin: 8px 0 6px;
 }
 
 .vc4-club-banniere-sous {
   font-family: "Cormorant Garamond", serif;
   font-style: italic;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
   margin: 0;
 }
 
@@ -522,7 +525,7 @@
   display: grid;
   grid-template-columns: 220px 1fr 200px;
   gap: 24px;
-  background: rgba(8, 14, 26, 0.4);
+  background: var(--vc4-surface);
   border: 1px solid rgba(192, 152, 64, 0.08);
   border-radius: 4px;
   overflow: hidden;
@@ -551,7 +554,7 @@
 }
 
 .vc4-club-card-photo {
-  background: linear-gradient(135deg, #14101a, #221a2c);
+  background: linear-gradient(135deg, var(--vc4-surface), var(--vc4-placeholder));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -577,7 +580,7 @@
   font-family: "Playfair Display", serif;
   font-size: 20px;
   font-weight: 400;
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
   margin: 0 0 4px;
 }
 
@@ -593,7 +596,7 @@
   font-family: "Crimson Pro", serif;
   font-style: italic;
   font-size: 13px;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
   line-height: 1.5;
   margin: 8px 0 12px;
 }
@@ -614,7 +617,7 @@
   padding: 2px 7px;
   border: 1px solid var(--vc4-or-faint);
   border-radius: 8px;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
 }
 
 .vc4-club-card-urgence {
@@ -625,7 +628,7 @@
 }
 
 .vc4-club-card-prix-col {
-  background: rgba(7, 16, 30, 0.4);
+  background: var(--vc4-surface-accent);
   border-left: 1px solid var(--vc4-or-faint);
   padding: 22px 18px;
   display: flex;
@@ -645,7 +648,7 @@
   font-family: "Crimson Pro", serif;
   font-size: 10px;
   letter-spacing: 0.05em;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
   text-transform: uppercase;
 }
 
@@ -670,7 +673,7 @@
 /* ═══ Intro Tronc Commun ════════════════════════════════════════════════════ */
 
 .vc4-intro-tronc {
-  background: rgba(4, 8, 16, 0.65);
+  background: var(--vc4-surface);
   padding: 70px 32px 60px;
   border-top: 1px solid var(--vc4-or-faint);
   border-bottom: 1px solid var(--vc4-or-faint);
@@ -691,7 +694,7 @@
   aspect-ratio: 4 / 3;
   background-size: cover;
   background-position: center;
-  background-color: #1a1a1a;
+  background-color: var(--vc4-placeholder);
 }
 
 .vc4-intro-tronc-photo-vign {
@@ -714,7 +717,7 @@
   font-style: italic;
   font-size: 16px;
   line-height: 1.7;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
   margin: 0;
 }
 
@@ -743,7 +746,7 @@
   font-family: "Crimson Pro", serif;
   font-size: 11px;
   letter-spacing: 0.12em;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
   text-transform: uppercase;
 }
 
@@ -777,14 +780,14 @@
   font-family: "Crimson Pro", serif;
   font-size: 10px;
   letter-spacing: 0.12em;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.25s ease;
 }
 
 .vc4-onglet-n2:hover {
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
   border-color: var(--vc4-or-faint);
 }
 
@@ -815,7 +818,7 @@
   font-family: "Playfair Display", serif;
   font-size: 26px;
   font-weight: 400;
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
   margin: 0 0 16px;
 }
 
@@ -824,14 +827,14 @@
   font-style: italic;
   font-size: 16px;
   line-height: 1.7;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
   margin: 0;
 }
 
 .vc4-theme-vide {
   font-family: "Cormorant Garamond", serif;
   font-style: italic;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
   text-align: center;
   padding: 40px 0;
 }
@@ -854,7 +857,7 @@
   aspect-ratio: 4 / 3;
   background-size: cover;
   background-position: center;
-  background-color: #1a1a1a;
+  background-color: var(--vc4-placeholder);
   cursor: pointer;
 }
 
@@ -902,7 +905,7 @@
   font-family: "Crimson Pro", serif;
   font-style: italic;
   font-size: 12px;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
   line-height: 1.55;
   margin: 0;
 }
@@ -919,7 +922,7 @@
   aspect-ratio: 1;
   background-size: cover;
   background-position: center;
-  background-color: #1a1a1a;
+  background-color: var(--vc4-placeholder);
 }
 
 .vc4-theme-famille-citation {
@@ -943,7 +946,7 @@
   font-style: italic;
   font-size: 15px;
   line-height: 1.65;
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
   margin: 0;
 }
 
@@ -958,7 +961,7 @@
   font-family: "Crimson Pro", serif;
   font-size: 11px;
   letter-spacing: 0.06em;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
   text-transform: uppercase;
   margin: 0 0 16px;
 }
@@ -967,7 +970,7 @@
   font-family: "Crimson Pro", serif;
   font-size: 13px;
   font-style: italic;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
   line-height: 1.55;
   margin: 0;
 }
@@ -1007,7 +1010,7 @@
 .vc4-theme-alentour-nom {
   font-family: "Playfair Display", serif;
   font-size: 13px;
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
   flex: 1;
 }
 
@@ -1021,7 +1024,7 @@
   font-family: "Crimson Pro", serif;
   font-style: italic;
   font-size: 11px;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
   line-height: 1.5;
   margin: 0;
 }
@@ -1050,7 +1053,7 @@
 .vc4-theme-service-nom {
   font-family: "Crimson Pro", serif;
   font-size: 12px;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
 }
 
 /* Chambres (vue détaillée niveau 2) */
@@ -1066,7 +1069,7 @@
   gap: 20px;
   align-items: center;
   border: 1px solid var(--vc4-or-faint);
-  background: rgba(8, 14, 26, 0.4);
+  background: var(--vc4-surface);
   border-radius: 2px;
   overflow: hidden;
 }
@@ -1076,7 +1079,7 @@
   height: 140px;
   background-size: cover;
   background-position: center;
-  background-color: #1a1a1a;
+  background-color: var(--vc4-placeholder);
 }
 
 .vc4-theme-chambre-corps {
@@ -1087,7 +1090,7 @@
   font-family: "Playfair Display", serif;
   font-size: 16px;
   font-weight: 400;
-  color: var(--vc4-creme);
+  color: var(--vc4-ink);
   margin: 0 0 4px;
 }
 
@@ -1103,7 +1106,7 @@
   font-family: "Crimson Pro", serif;
   font-style: italic;
   font-size: 12px;
-  color: var(--vc4-creme-soft);
+  color: var(--vc4-ink-soft);
   line-height: 1.5;
   margin: 0;
 }
@@ -1134,7 +1137,7 @@
   font-family: "Crimson Pro", serif;
   font-size: 10px;
   letter-spacing: 0.06em;
-  color: var(--vc4-creme-faint);
+  color: var(--vc4-ink-faint);
   text-transform: uppercase;
 }
 

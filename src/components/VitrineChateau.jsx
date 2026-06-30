@@ -19,7 +19,6 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const [chambreIdx, setChambreIdx] = useState(0);
   const [scrollPct, setScrollPct] = useState(0);
   const [heure, setHeure] = useState({ h: "09", m: "42", isNight: false });
-  const [cursorPos, setCursorPos] = useState({ x: -200, y: -200 });
   const [heroLoaded, setHeroLoaded] = useState(false);
   const [clubLockOpen, setClubLockOpen] = useState(false);
   const corpsRef = useRef(null);
@@ -62,13 +61,9 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
       isNight: h >= 20 || h < 7,
     });
 
-    const onMove = (e) => setCursorPos({ x: e.clientX, y: e.clientY });
-    window.addEventListener("mousemove", onMove);
-
     return () => {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", onKey);
-      window.removeEventListener("mousemove", onMove);
     };
   }, [onClose]);
 
@@ -110,9 +105,6 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
 
   return (
     <div className={"vc3-overlay " + (visible ? "vc3-visible" : "vc3-hidden")}>
-
-      {/* CURSEUR */}
-      <div className="vc3-cursor" style={{ left: cursorPos.x, top: cursorPos.y }}>⚜</div>
 
       {/* PROGRESS BAR */}
       <div className="vc3-progress" style={{ width: scrollPct + "%" }} />
