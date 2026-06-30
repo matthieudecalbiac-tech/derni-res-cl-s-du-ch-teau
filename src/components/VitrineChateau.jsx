@@ -5,7 +5,6 @@ import OngletsNiveau2 from "./vitrine/OngletsNiveau2";
 import ContenuPermanent from "./vitrine/ContenuPermanent";
 import ContenuDernieresCles from "./vitrine/ContenuDernieresCles";
 import ContenuClub from "./vitrine/ContenuClub";
-import IntroTroncCommun from "./vitrine/IntroTroncCommun";
 import ContenuTheme from "./vitrine/ContenuTheme";
 import { useClubMember } from "../hooks/useClubMember";
 import "../styles/vitrine-chateau.css";
@@ -26,6 +25,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const [heure, setHeure] = useState({ h: "09", m: "42", isNight: false });
   const [heroLoaded, setHeroLoaded] = useState(false);
   const [clubLockOpen, setClubLockOpen] = useState(false);
+  const [moduleOuvert, setModuleOuvert] = useState(false);
   const corpsRef = useRef(null);
   const ongletsN1Ref = useRef(null);
 
@@ -60,8 +60,6 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
     setTimeout(() => { setVisible(true); setHeroLoaded(true); }, 40);
-    const onKey = (e) => { if (e.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKey);
 
     const now = new Date();
     const h = now.getHours();
@@ -73,9 +71,19 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
 
     return () => {
       document.body.style.overflow = "";
-      window.removeEventListener("keydown", onKey);
     };
   }, [onClose]);
+
+  // Escape : ferme d'abord l'overlay module s'il est ouvert, sinon ferme la vitrine.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key !== "Escape") return;
+      if (moduleOuvert) { setModuleOuvert(false); return; }
+      onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [moduleOuvert, onClose]);
 
   // Reinitialise la verification de dispo si les criteres changent (libelle jamais perime)
   useEffect(() => {
@@ -222,7 +230,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             chateau={chateau}
             actif={moduleEffectif}
             isClubMember={isClubMember}
-            onChange={setModule}
+            onChange={(m) => { setModule(m); setModuleOuvert(true); }}
             onClubLock={() => setClubLockOpen(true)}
             dispoVerifiee={dispoVerifiee}
             dateArrivee={dateArrivee}
@@ -232,26 +240,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
           />
         </div>
 
-        {moduleEffectif === "permanent" && (
-          <ContenuPermanent chateau={chateau} onReserver={handleReserver} />
-        )}
-        {moduleEffectif === "dernieresCles" && (
-          <ContenuDernieresCles
-            chateau={chateau}
-            offreCible={offreCible}
-            onReserver={handleReserver}
-          />
-        )}
-        {moduleEffectif === "club" && isClubMember && (
-          <ContenuClub
-            chateau={chateau}
-            offreCible={offreCible}
-            onReserver={handleReserver}
-          />
-        )}
-
-        {/* ══ Intro tronc commun + Niveau 2 — Découverte éditoriale ══ */}
-        <IntroTroncCommun chateau={chateau} />
+        {/* ══ Niveau 2 — Découverte éditoriale ══ */}
         <OngletsNiveau2 actif={themeActif} onChange={setTheme} />
         <ContenuTheme chateau={chateau} theme={themeActif} />
 
@@ -288,6 +277,24 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             </div>
             <button className="vc3-reserve-btn">Confirmer la réservation →</button>
             <p className="vc3-reserve-fond">⚜ Une partie sera reversée à la Fondation du Patrimoine</p>
+          </div>
+        </div>
+      )}
+
+      {/* OVERLAY MODULE — contenu Permanent/Dernieres/Club en superposition (clic carte) */}
+      {moduleOuvert && (
+        <div className="vc3-module-overlay" onClick={() => setModuleOuvert(false)}>
+          <div className="vc3-module-panel" onClick={(e) => e.stopPropagation()}>
+            <button className="vc3-module-close" onClick={() => setModuleOuvert(false)}>✕</button>
+            {moduleEffectif === "permanent" && (
+              <ContenuPermanent chateau={chateau} onReserver={handleReserver} />
+            )}
+            {moduleEffectif === "dernieresCles" && (
+              <ContenuDernieresCles chateau={chateau} offreCible={offreCible} onReserver={handleReserver} />
+            )}
+            {moduleEffectif === "club" && isClubMember && (
+              <ContenuClub chateau={chateau} offreCible={offreCible} onReserver={handleReserver} />
+            )}
           </div>
         </div>
       )}

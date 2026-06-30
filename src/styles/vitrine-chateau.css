@@ -30,16 +30,16 @@
   --vc3-scrim: rgba(7,16,30,0.55);
   --vc3-ink: #1A2D5A;
   --vc3-ink-on-photo: #F5F0E8;
-  --vc3-ink-85: rgba(26,45,90,0.92);
-  --vc3-ink-75: rgba(26,45,90,0.82);
-  --vc3-ink-70: rgba(26,45,90,0.78);
-  --vc3-ink-55: rgba(26,45,90,0.68);
-  --vc3-ink-40: rgba(26,45,90,0.55);
-  --vc3-ink-35: rgba(26,45,90,0.50);
-  --vc3-ink-30: rgba(26,45,90,0.45);
-  --vc3-ink-25: rgba(26,45,90,0.42);
-  --vc3-ink-20: rgba(26,45,90,0.38);
-  --vc3-ink-15: rgba(26,45,90,0.32);
+  --vc3-ink-85: rgba(26,45,90,0.95);
+  --vc3-ink-75: rgba(26,45,90,0.90);
+  --vc3-ink-70: rgba(26,45,90,0.88);
+  --vc3-ink-55: rgba(26,45,90,0.80);
+  --vc3-ink-40: rgba(26,45,90,0.70);
+  --vc3-ink-35: rgba(26,45,90,0.66);
+  --vc3-ink-30: rgba(26,45,90,0.62);
+  --vc3-ink-25: rgba(26,45,90,0.58);
+  --vc3-ink-20: rgba(26,45,90,0.54);
+  --vc3-ink-15: rgba(26,45,90,0.48);
   --vc3-ink-04: rgba(26,45,90,0.10);
   --vc3-on-or: #07101E;
 }
@@ -297,6 +297,13 @@
 .vc3-cta-btn:hover{background:var(--or-c);transform:translateY(-3px)}
 
 /* ══ MODALE ══ */
+/* ══ OVERLAY MODULE (contenu Permanent/Dernieres/Club en superposition) ══ */
+.vc3-module-overlay{position:fixed;inset:0;z-index:9050;background:var(--vc3-scrim);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding:48px 24px;overflow-y:auto}
+.vc3-module-panel{position:relative;background:var(--vc3-bg);border:1px solid var(--or20);border-radius:8px;max-width:1080px;width:100%;margin:auto;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(7,16,30,0.45)}
+.vc3-module-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--or),transparent);z-index:2}
+.vc3-module-close{position:absolute;top:18px;right:18px;z-index:5;width:36px;height:36px;border-radius:50%;background:var(--vc3-bg);border:1px solid var(--or20);color:var(--vc3-ink-55);font-size:1rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
+.vc3-module-close:hover{border-color:var(--or);color:var(--vc3-ink);background:var(--or05)}
+
 .vc3-reserve-overlay{position:fixed;inset:0;z-index:9100;background:var(--vc3-scrim);display:flex;align-items:center;justify-content:center;padding:24px}
 .vc3-reserve-modal{background:var(--vc3-surface-modal);border:1px solid var(--or20);padding:40px;max-width:460px;width:100%;position:relative;max-height:90vh;overflow-y:auto}
 .vc3-reserve-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--or),transparent)}
