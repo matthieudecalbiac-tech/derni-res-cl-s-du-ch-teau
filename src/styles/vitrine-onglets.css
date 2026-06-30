@@ -27,82 +27,25 @@
              contre le top de la zone visible de .vc3-corps, qui se trouve juste
              sous le header dans le flex parent .vc3-overlay. */
   z-index: 50;
-  background: var(--vc4-surface);
+  background: var(--vc4-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--vc4-or-faint);
-  padding: 20px 0 0;
+  padding: 20px 24px 22px;
 }
 
-.vc4-onglets-n1 {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  padding: 0 24px 16px;
-  flex-wrap: wrap;
-}
-
-.vc4-onglet-n1 {
-  position: relative;
-  background: transparent;
-  border: 1px solid var(--vc4-or-soft);
-  border-radius: 2px;
-  padding: 12px 24px;
-  font-family: "Playfair Display", serif;
-  font-size: 14px;
-  letter-spacing: 0.06em;
-  color: var(--vc4-or);
-  cursor: pointer;
-  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
-  white-space: nowrap;
-}
-
-.vc4-onglet-n1:hover {
-  background: var(--vc4-or-faint);
-  border-color: var(--vc4-or);
-  color: var(--vc4-ink);
-}
-
-.vc4-onglet-n1--actif {
-  background: var(--vc4-or);
-  border-color: var(--vc4-or);
-  color: var(--vc4-on-or);
-}
-
-.vc4-onglet-n1--actif:hover {
-  background: var(--vc4-or);
-  color: var(--vc4-on-or);
-}
-
-.vc4-onglet-n1-lib {
-  font-weight: 400;
-}
-
-.vc4-onglet-n1-compteur {
-  font-family: "Crimson Pro", serif;
-  font-size: 12px;
-  font-style: italic;
-  letter-spacing: 0.02em;
-  opacity: 0.85;
-}
-
-.vc4-onglet-n1--actif .vc4-onglet-n1-compteur {
-  opacity: 1;
-}
-
-.vc4-bandeau-explicatif {
-  font-family: "Cormorant Garamond", serif;
-  font-style: italic;
-  font-size: 13px;
-  color: var(--vc4-ink-faint);
-  text-align: center;
-  padding: 12px 24px;
-  margin: 0;
-  border-bottom: 1px solid var(--vc4-or-faint);
-}
+.vc4-onglets-n1{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1100px;margin:0 auto;padding:0}
+@media(max-width:860px){.vc4-onglets-n1{grid-template-columns:1fr}}
+.vc4-offre-card{display:flex;align-items:center;gap:16px;padding:18px 20px;background:var(--vc4-surface);border:1px solid var(--vc4-or-faint);border-radius:6px;cursor:pointer;transition:all 0.25s;text-align:left;font-family:inherit}
+.vc4-offre-card:hover{border-color:var(--vc4-or-soft);transform:translateY(-2px);box-shadow:0 8px 24px rgba(7,16,30,0.08)}
+.vc4-offre-card--actif{border-color:var(--vc4-or);background:var(--vc4-bg);box-shadow:0 4px 16px rgba(192,152,64,0.12)}
+.vc4-offre-icone{width:46px;height:46px;flex-shrink:0;object-fit:contain;border-radius:50%;border:1px solid var(--vc4-or-faint);padding:8px;background:var(--vc4-bg)}
+.vc4-offre-corps{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.vc4-offre-titre{font-family:'Playfair Display',serif;font-size:1.02rem;color:var(--vc4-ink);font-weight:400;letter-spacing:0.01em}
+.vc4-offre-sous{font-family:'Crimson Pro',serif;font-size:0.76rem;font-style:italic;color:var(--vc4-ink-soft);line-height:1.35}
+.vc4-offre-accroche{font-family:'Crimson Pro',serif;font-size:0.82rem;color:#9A7223;margin-top:2px;letter-spacing:0.02em}
+.vc4-offre-fleche{flex-shrink:0;color:var(--vc4-or);font-size:1.1rem;transition:transform 0.25s}
+.vc4-offre-card:hover .vc4-offre-fleche{transform:translateX(4px)}
 
 /* ═══ Contenu d'onglet Niveau 1 — règles communes ═══════════════════════════
    Audit Fondation J2 — P0-1.
@@ -1145,7 +1088,6 @@
 
 @media (max-width: 720px) {
   .vc4-onglets-n1-wrap { top: 0; }
-  .vc4-onglet-n1 { padding: 12px 14px; font-size: 12px; }
   .vc4-permanent-grille { grid-template-columns: 1fr; }
   .vc4-dc-card,
   .vc4-club-card {

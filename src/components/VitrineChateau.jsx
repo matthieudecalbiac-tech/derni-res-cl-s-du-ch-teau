@@ -228,6 +228,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             dateArrivee={dateArrivee}
             dateDepart={dateDepart}
             voyageurs={voyageurs}
+            prixAPartir={prixAPartir}
           />
         </div>
 

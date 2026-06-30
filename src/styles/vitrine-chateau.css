@@ -141,7 +141,7 @@
 .vc3-sejour-compteur button{width:40px;height:40px;background:rgba(250,246,238,0.25);border:none;color:var(--or);font-size:1.2rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center}
 .vc3-sejour-compteur button:hover{background:var(--or10)}
 .vc3-sejour-compteur span{min-width:48px;text-align:center;font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--vc3-ink)}
-.vc3-sejour-dispo{font-size:0.8rem;font-style:italic;color:var(--or);font-family:'Crimson Pro',serif;margin:0 0 14px;padding:8px 12px;background:var(--or05);border-left:2px solid var(--or);border-radius:2px}
+.vc3-sejour-dispo{font-size:0.8rem;font-style:italic;color:#9A7223;font-family:'Crimson Pro',serif;margin:0 0 14px;padding:8px 12px;background:rgba(154,114,35,0.12);border-left:2px solid #9A7223;border-radius:2px}
 .vc3-sejour-btn{width:100%;padding:14px;background:var(--or);border:none;border-radius:3px;font-family:'Crimson Pro',serif;font-size:0.82rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--vc3-on-or);cursor:pointer;transition:all 0.25s;font-weight:500;margin-bottom:10px}
 .vc3-sejour-btn:hover{background:var(--or-c);transform:translateY(-2px)}
 

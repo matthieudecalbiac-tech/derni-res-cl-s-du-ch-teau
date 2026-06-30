@@ -1,7 +1,7 @@
 const THEMES = [
   { code: "apercu", label: "Aperçu" },
   { code: "histoire", label: "Histoire" },
-  { code: "famille", label: "Famille" },
+  { code: "famille", label: "Famille & propriétaires" },
   { code: "lieu", label: "Lieu & région" },
   { code: "services", label: "Services" },
   { code: "chambres", label: "Chambres" },
