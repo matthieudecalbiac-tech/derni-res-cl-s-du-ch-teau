@@ -13,29 +13,32 @@ const LIBELLES = {
   club: "Club Châtelains",
 };
 
-export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange, onClubLock, dispoVerifiee }) {
+export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange, onClubLock, dispoVerifiee, dateArrivee, dateDepart, voyageurs }) {
   const [compteursB, setCompteursB] = useState(null);
   const [compteursC, setCompteursC] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
+    // Filtre dispo : actif uniquement apres "Verifier" ; sinon comptage de base.
+    const filtre = dispoVerifiee ? { dateArrivee, dateDepart, voyageurs } : null;
     if (chateau.modules?.dernieresCles) {
-      compterOffresPourChateau(chateau.slug, "dernieresCles").then((n) => {
+      compterOffresPourChateau(chateau.slug, "dernieresCles", filtre).then((n) => {
         if (!cancelled) setCompteursB(n);
       });
     }
     // Module C : on charge le compteur même pour les non-membres — l'onglet
     // est désormais toujours visible (gate via modale au click, pas par masquage).
     if (chateau.modules?.club) {
-      compterOffresPourChateau(chateau.slug, "club").then((n) => {
+      compterOffresPourChateau(chateau.slug, "club", filtre).then((n) => {
         if (!cancelled) setCompteursC(n);
       });
     }
     return () => {
       cancelled = true;
     };
-  }, [chateau.slug, chateau.modules]);
+  }, [chateau.slug, chateau.modules, dispoVerifiee, dateArrivee, dateDepart, voyageurs]);
 
+  // DETTE C5+ : filtrage chambres Permanent par capacite/dates a brancher avec Supabase (logique distincte d'offresService)
   const nbChambres = chateau.chambres?.length || 0;
 
   // Défense en profondeur : un compteur == 0 cache son suffixe "· N offres"
