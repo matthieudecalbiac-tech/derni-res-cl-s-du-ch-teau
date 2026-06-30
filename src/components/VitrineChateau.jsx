@@ -242,7 +242,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
 
         {/* ══ Niveau 2 — Découverte éditoriale ══ */}
         <OngletsNiveau2 actif={themeActif} onChange={setTheme} />
-        <ContenuTheme chateau={chateau} theme={themeActif} />
+        <ContenuTheme chateau={chateau} theme={themeActif} onChange={setTheme} />
 
       </div>
 

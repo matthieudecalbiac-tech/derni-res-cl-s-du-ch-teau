@@ -783,26 +783,26 @@
 }
 
 /* Aperçu */
-.vc4-theme-apercu-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  align-items: start;
-}
+.vc4-theme-apercu{position:relative;overflow:hidden;padding:20px 0}
+.vc4-theme-apercu::before{content:"";position:absolute;left:-4%;top:50%;transform:translateY(-50%);width:46vh;height:46vh;max-width:520px;max-height:520px;background:url('/embleme-horloge.png') center / contain no-repeat;opacity:0.05;pointer-events:none;z-index:0}
+.vc4-theme-apercu-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center}
+@media(max-width:900px){.vc4-theme-apercu-grid{grid-template-columns:1fr;gap:32px}}
 
-.vc4-theme-apercu-photos {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
+.vc4-theme-titre--xl{font-size:clamp(2.4rem,4vw,3.4rem);line-height:1.05;margin-bottom:0}
+.vc4-theme-orn{display:flex;align-items:center;gap:14px;margin:20px 0 24px}
+.vc4-theme-orn-l{flex:0 0 60px;height:1px;background:linear-gradient(to right,var(--vc4-or),transparent)}
+.vc4-theme-orn-lys{color:var(--vc4-or);font-size:0.9rem}
+.vc4-theme-btn{margin-top:28px;display:inline-flex;align-items:center;gap:12px;padding:14px 32px;background:transparent;border:1px solid var(--vc4-or);color:var(--vc4-or);font-family:'Crimson Pro',serif;font-size:0.82rem;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;transition:all 0.3s}
+.vc4-theme-btn:hover{background:var(--vc4-or);color:var(--vc4-on-or)}
+.vc4-theme-btn-fleche{transition:transform 0.3s}
+.vc4-theme-btn:hover .vc4-theme-btn-fleche{transform:translateX(5px)}
 
-.vc4-theme-apercu-photo {
-  aspect-ratio: 4 / 3;
-  background-size: cover;
-  background-position: center;
-  background-color: var(--vc4-placeholder);
-  cursor: pointer;
-}
+.vc4-theme-apercu-photos{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px;height:520px}
+.vc4-theme-apercu-photo{background-size:cover;background-position:center;background-color:var(--vc4-placeholder)}
+.vc4-theme-apercu-photo--0{grid-row:1 / span 2;border-radius:80px 8px 8px 8px}
+.vc4-theme-apercu-photo--1{border-radius:8px 80px 8px 8px}
+.vc4-theme-apercu-photo--2{border-radius:8px 8px 80px 8px}
+@media(max-width:900px){.vc4-theme-apercu-photos{height:auto;grid-template-rows:200px 200px}.vc4-theme-apercu-photo--0{grid-row:1 / span 2}}
 
 /* Histoire */
 .vc4-theme-histoire-intro {

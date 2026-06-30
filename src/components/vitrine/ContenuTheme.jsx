@@ -4,23 +4,23 @@ function tronquer(texte, max) {
   return texte.slice(0, max).trim() + "…";
 }
 
-function ThemeApercu({ chateau }) {
-  const photos = (chateau.images || []).slice(0, 4);
+function ThemeApercu({ chateau, onChange }) {
   return (
     <div className="vc4-theme-apercu">
       <div className="vc4-theme-apercu-grid">
         <div className="vc4-theme-apercu-texte">
           <p className="vc4-theme-eyebrow">L'essentiel</p>
-          <h3 className="vc4-theme-titre">{chateau.nom}</h3>
+          <h3 className="vc4-theme-titre vc4-theme-titre--xl">{chateau.nom}</h3>
+          <div className="vc4-theme-orn"><span className="vc4-theme-orn-l"></span><span className="vc4-theme-orn-lys">⚜</span><span className="vc4-theme-orn-l"></span></div>
           <p className="vc4-theme-paragraphe">{chateau.accroche || chateau.description}</p>
+          <button className="vc4-theme-btn" onClick={() => onChange?.("histoire")}>
+            Découvrir le château <span className="vc4-theme-btn-fleche">→</span>
+          </button>
         </div>
         <div className="vc4-theme-apercu-photos">
-          {photos.map((p, i) => (
-            <div
-              key={i}
-              className="vc4-theme-apercu-photo"
-              style={{ backgroundImage: `url('${p}')` }}
-            />
+          {(chateau.images || []).slice(0, 3).map((img, i) => (
+            <div key={i} className={"vc4-theme-apercu-photo vc4-theme-apercu-photo--" + i}
+              style={{ backgroundImage: `url('${img}')` }} />
           ))}
         </div>
       </div>
@@ -195,10 +195,10 @@ function ThemeChambres({ chateau }) {
   );
 }
 
-export default function ContenuTheme({ chateau, theme }) {
+export default function ContenuTheme({ chateau, theme, onChange }) {
   return (
     <section className="vc4-contenu-theme" data-theme-contenu={theme}>
-      {theme === "apercu" && <ThemeApercu chateau={chateau} />}
+      {theme === "apercu" && <ThemeApercu chateau={chateau} onChange={onChange} />}
       {theme === "histoire" && <ThemeHistoire chateau={chateau} />}
       {theme === "famille" && <ThemeFamille chateau={chateau} />}
       {theme === "lieu" && <ThemeLieu chateau={chateau} />}
