@@ -104,6 +104,47 @@
 .vc3-hero-ambiance-badge{position:absolute;bottom:32px;left:48px;display:flex;align-items:center;gap:10px;font-size:0.7rem;letter-spacing:0.1em;color:var(--or40);font-family:'Crimson Pro',serif}
 .vc3-hero-heure{font-family:'Playfair Display',serif;font-size:0.9rem;color:var(--or60)}
 
+/* ══ HERO 2 — COMPACT + CARTE SEJOUR ══ */
+.vc3-hero2{position:relative;min-height:600px;display:flex;align-items:center;overflow:hidden;flex-shrink:0}
+.vc3-hero2-media{position:absolute;inset:0;background-size:cover;background-position:center}
+.vc3-hero2-iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:177.78vh;min-width:100%;height:56.25vw;min-height:100%;border:none;pointer-events:none}
+.vc3-hero2-vign{position:absolute;inset:0;background:linear-gradient(105deg,rgba(7,16,30,0.78) 0%,rgba(7,16,30,0.45) 42%,rgba(7,16,30,0.12) 70%,rgba(7,16,30,0.05) 100%)}
+.vc3-hero2-inner{position:relative;z-index:2;width:100%;max-width:1280px;margin:0 auto;padding:60px 48px;display:grid;grid-template-columns:1fr 380px;gap:48px;align-items:center}
+@media(max-width:900px){.vc3-hero2-inner{grid-template-columns:1fr;gap:32px}}
+
+/* Colonne gauche : identite (texte clair sur photo) */
+.vc3-hero2-identite{color:var(--blanc)}
+.vc3-hero2-eyebrow{font-size:0.62rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--or-c);margin-bottom:18px;opacity:0.92}
+.vc3-hero2-titre{font-family:'Playfair Display',serif;font-size:clamp(2.6rem,5.5vw,4.6rem);font-weight:400;line-height:0.96;color:var(--blanc);margin-bottom:8px;text-shadow:0 2px 30px rgba(7,16,30,0.5)}
+.vc3-hero2-titre-init{color:var(--or);display:inline-block}
+.vc3-hero2-orn{display:flex;align-items:center;gap:14px;margin:16px 0}
+.vc3-hero2-orn-l{flex:0 0 48px;height:1px;background:linear-gradient(to right,var(--or),transparent)}
+.vc3-hero2-orn-l:last-child{background:linear-gradient(to left,var(--or),transparent)}
+.vc3-hero2-orn-lys{color:var(--or);font-size:0.88rem}
+.vc3-hero2-accroche{font-family:'Cormorant Garamond',serif;font-size:clamp(1.05rem,1.8vw,1.3rem);font-style:italic;color:rgba(245,240,232,0.92);line-height:1.6;max-width:460px;text-shadow:0 1px 16px rgba(7,16,30,0.4)}
+
+/* Colonne droite : carte Votre sejour (creme, posee sur la photo) */
+.vc3-sejour{background:rgba(250,246,238,0.32);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--or20);border-radius:6px;padding:26px 24px;box-shadow:0 24px 60px rgba(7,16,30,0.35)}
+.vc3-sejour-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px}
+.vc3-sejour-titre{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--vc3-ink);letter-spacing:0.02em}
+.vc3-sejour-prix{font-family:'Playfair Display',serif;font-size:1.5rem;color:#9A7223}
+.vc3-sejour-prix-u{font-size:0.7rem;font-family:'Crimson Pro',serif;color:var(--vc3-ink-40);margin-left:2px}
+.vc3-sejour-prix-pre{font-size:0.6rem;font-family:'Crimson Pro',serif;font-style:italic;color:var(--vc3-ink-55);letter-spacing:0.04em;text-transform:lowercase;margin-right:2px}
+.vc3-sejour-sep{height:1px;background:var(--or15);margin-bottom:18px}
+.vc3-sejour-dates{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.vc3-sejour-field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.vc3-sejour-field label{font-size:0.6rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--vc3-ink-55);font-family:'Crimson Pro',serif}
+.vc3-sejour-field input,.vc3-sejour-field select{background:rgba(250,246,238,0.25);border:1px solid var(--or20);border-radius:3px;padding:10px 12px;color:var(--vc3-ink);font-family:'Crimson Pro',serif;font-size:0.9rem;outline:none;transition:border-color 0.2s;width:100%}
+.vc3-sejour-field input:focus,.vc3-sejour-field select:focus{border-color:var(--or)}
+.vc3-sejour-dates .vc3-sejour-field{margin-bottom:0}
+.vc3-sejour-compteur{display:flex;align-items:center;gap:0;border:1px solid var(--or20);border-radius:3px;width:fit-content;overflow:hidden}
+.vc3-sejour-compteur button{width:40px;height:40px;background:rgba(250,246,238,0.25);border:none;color:var(--or);font-size:1.2rem;cursor:pointer;transition:background 0.2s;display:flex;align-items:center;justify-content:center}
+.vc3-sejour-compteur button:hover{background:var(--or10)}
+.vc3-sejour-compteur span{min-width:48px;text-align:center;font-family:'Playfair Display',serif;font-size:1.05rem;color:var(--vc3-ink)}
+.vc3-sejour-dispo{font-size:0.8rem;font-style:italic;color:var(--or);font-family:'Crimson Pro',serif;margin:0 0 14px;padding:8px 12px;background:var(--or05);border-left:2px solid var(--or);border-radius:2px}
+.vc3-sejour-btn{width:100%;padding:14px;background:var(--or);border:none;border-radius:3px;font-family:'Crimson Pro',serif;font-size:0.82rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--vc3-on-or);cursor:pointer;transition:all 0.25s;font-weight:500;margin-bottom:10px}
+.vc3-sejour-btn:hover{background:var(--or-c);transform:translateY(-2px)}
+
 /* ══ CHIFFRES CLÉS ══ */
 .vc3-chiffres{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--or10);border-bottom:1px solid var(--or10)}
 .vc3-chiffre{padding:40px 28px;border-right:1px solid var(--or10);text-align:center;transition:background 0.3s}

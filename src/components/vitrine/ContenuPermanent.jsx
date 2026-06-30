@@ -1,13 +1,16 @@
 function construirePhraseIntro(chateau) {
+  if (chateau.introPermanent) return chateau.introPermanent;
   if (chateau.description && chateau.description.length < 250) {
     return chateau.description;
   }
   const morceaux = [];
   if (chateau.region) morceaux.push(`Au cœur du ${chateau.region}`);
   if (chateau.proprietaires?.nom) {
-    morceaux.push(
-      `la ${chateau.proprietaires.nom.replace(/^Famille /, "famille ")} vous accueille`,
-    );
+    const nom = chateau.proprietaires.nom;
+    const phrase = /^Famille /.test(nom)
+      ? `la ${nom.replace(/^Famille /, "famille ")} vous accueille`
+      : `${nom} vous accueillent`;
+    morceaux.push(phrase);
   } else {
     morceaux.push("la famille propriétaire vous accueille");
   }

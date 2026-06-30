@@ -13,7 +13,7 @@ const LIBELLES = {
   club: "Club Châtelains",
 };
 
-export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange, onClubLock }) {
+export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange, onClubLock, dispoVerifiee }) {
   const [compteursB, setCompteursB] = useState(null);
   const [compteursC, setCompteursC] = useState(null);
 
@@ -41,17 +41,26 @@ export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange,
   // Défense en profondeur : un compteur == 0 cache son suffixe "· N offres"
   // (bouton reste rendu, juste sans le suffix). Évite l'affichage "0 offres".
   const formaterCompteur = (m) => {
+    // C4 : suffixe "X disponibles à vos dates" si dispoVerifiee, sinon libelle de base.
+    // N reste le compteur actuel — le vrai filtrage par dates viendra en C5.
+    const suffixe = (n, mot) =>
+      dispoVerifiee
+        ? `${n} ${mot}${n === 1 ? "" : "s"} disponible${n === 1 ? "" : "s"} à vos dates`
+        : n === 1
+          ? `1 ${mot}`
+          : `${n} ${mot}s`;
+
     if (m === "permanent") {
       if (nbChambres === 0) return null;
-      return nbChambres === 1 ? "1 chambre" : `${nbChambres} chambres`;
+      return suffixe(nbChambres, "chambre");
     }
     if (m === "dernieresCles" && compteursB !== null) {
       if (compteursB === 0) return null;
-      return compteursB === 1 ? "1 offre" : `${compteursB} offres`;
+      return suffixe(compteursB, "offre");
     }
     if (m === "club" && compteursC !== null) {
       if (compteursC === 0) return null;
-      return compteursC === 1 ? "1 offre" : `${compteursC} offres`;
+      return suffixe(compteursC, "offre");
     }
     return null;
   };

@@ -17,11 +17,17 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const [visible, setVisible] = useState(false);
   const [reserve, setReserve] = useState(false);
   const [chambreIdx, setChambreIdx] = useState(0);
+  const [dateArrivee, setDateArrivee] = useState("");
+  const [dateDepart, setDateDepart] = useState("");
+  const [voyageurs, setVoyageurs] = useState(2);
+  const [messageDispo, setMessageDispo] = useState(null);
+  const [dispoVerifiee, setDispoVerifiee] = useState(false);
   const [scrollPct, setScrollPct] = useState(0);
   const [heure, setHeure] = useState({ h: "09", m: "42", isNight: false });
   const [heroLoaded, setHeroLoaded] = useState(false);
   const [clubLockOpen, setClubLockOpen] = useState(false);
   const corpsRef = useRef(null);
+  const ongletsN1Ref = useRef(null);
 
   const fermerClubLock = () => setClubLockOpen(false);
 
@@ -46,6 +52,10 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const prixFinal = chateau.prixBarre
     ? Math.round(chateau.prixBarre * (1 - (chateau.reduction || 0) / 100))
     : chambre?.prix || chateau.chambres?.[0]?.prix;
+  // Prix d'entree : le plus bas des chambres (independant de la chambre choisie).
+  const prixAPartir = chateau.chambres?.length
+    ? Math.min(...chateau.chambres.map((c) => c.prix))
+    : prixFinal;
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -66,6 +76,12 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
       window.removeEventListener("keydown", onKey);
     };
   }, [onClose]);
+
+  // Reinitialise la verification de dispo si les criteres changent (libelle jamais perime)
+  useEffect(() => {
+    setDispoVerifiee(false);
+    setMessageDispo(null);
+  }, [dateArrivee, dateDepart, voyageurs]);
 
   const onCorpsScroll = (e) => {
     const el = e.currentTarget;
@@ -103,6 +119,14 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
     setReserve(true);
   };
 
+  // POINT UNIQUE PLUG-READY dispo — a brancher sur Supabase le jour J (ne touche QUE le corps)
+  const verifierDispo = () => {
+    setDispoVerifiee(true);
+    setMessageDispo("Voir les disponibilites ci-dessous");
+    // scroll vers les onglets Niveau 1
+    ongletsN1Ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <div className={"vc3-overlay " + (visible ? "vc3-visible" : "vc3-hidden")}>
 
@@ -124,84 +148,88 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
 
       <div className="vc3-corps" ref={corpsRef} onScroll={onCorpsScroll}>
 
-        {/* ══ HERO PARALLAXE NOCTURNE — INCHANGÉ ══ */}
-        <section className={"vc3-hero " + (heure.isNight ? "vc3-hero--nuit" : "vc3-hero--jour")}>
-          {chateau.videoBackground ? (
-            <div className="vc3-hero-video-wrap">
+        <section className="vc3-hero2">
+          {/* FOND PHOTO (conserve) */}
+          {chateau.videoBackground && !heure.isNight ? (
+            <div className="vc3-hero2-media">
               <iframe
                 src={`https://www.youtube.com/embed/${chateau.videoBackground}?autoplay=1&mute=1&loop=1&controls=0&playlist=${chateau.videoBackground}`}
-                className="vc3-hero-iframe"
+                className="vc3-hero2-iframe"
                 allow="autoplay; encrypted-media"
-                title="château"
+                title="chateau"
               />
             </div>
           ) : (
-            <div className="vc3-hero-bg" style={{ backgroundImage: `url('${chateau.images?.[0]}')` }} />
+            <div className="vc3-hero2-media" style={{ backgroundImage: `url('${chateau.images?.[0]}')` }} />
           )}
-          <div className="vc3-hero-vign" />
-          {heure.isNight && (
-            <div className="vc3-hero-nuit-overlay">
-              <div className="vc3-hero-moon" />
-              {chateau.heroNightStars === true && (
-                <div className="vc3-hero-stars">
-                  {[...Array(20)].map((_, i) => (
-                    <div key={i} className="vc3-hero-star" style={{
-                      width: Math.random() > 0.7 ? "3px" : "2px",
-                      height: Math.random() > 0.7 ? "3px" : "2px",
-                      top: Math.random() * 50 + "%",
-                      left: Math.random() * 100 + "%",
-                      opacity: 0.4 + Math.random() * 0.6,
-                    }} />
-                  ))}
+          <div className="vc3-hero2-vign" />
+
+          <div className="vc3-hero2-inner">
+            {/* COLONNE GAUCHE : identite */}
+            <div className="vc3-hero2-identite">
+              <p className="vc3-hero2-eyebrow">{chateau.region} · {chateau.departement} · {chateau.siecle}</p>
+              <h1 className="vc3-hero2-titre">
+                <span className="vc3-hero2-titre-init">{chateau.nom[0]}</span>{chateau.nom.slice(1)}
+              </h1>
+              <div className="vc3-hero2-orn">
+                <div className="vc3-hero2-orn-l" />
+                <span className="vc3-hero2-orn-lys">⚜</span>
+                <div className="vc3-hero2-orn-l" />
+              </div>
+              <p className="vc3-hero2-accroche">{chateau.accroche}</p>
+            </div>
+
+            {/* COLONNE DROITE : carte Votre sejour */}
+            <div className="vc3-sejour">
+              <div className="vc3-sejour-head">
+                <span className="vc3-sejour-titre">Votre sejour</span>
+                <span className="vc3-sejour-prix"><span className="vc3-sejour-prix-pre">des </span>{prixAPartir} €<span className="vc3-sejour-prix-u">/nuit</span></span>
+              </div>
+              <div className="vc3-sejour-sep" />
+
+              <div className="vc3-sejour-dates">
+                <div className="vc3-sejour-field">
+                  <label>Arrivee</label>
+                  <input type="date" value={dateArrivee} onChange={(e) => setDateArrivee(e.target.value)} />
                 </div>
-              )}
-            </div>
-          )}
-          <div className={"vc3-hero-content " + (heroLoaded ? "vc3-hero-content--in" : "")}>
-            <p className="vc3-hero-eyebrow">{chateau.region} · {chateau.departement} · {chateau.siecle}</p>
-            <h1 className="vc3-hero-titre">
-              <span className="vc3-hero-titre-init">{chateau.nom[0]}</span>{chateau.nom.slice(1)}
-            </h1>
-            <div className="vc3-hero-orn">
-              <div className="vc3-hero-orn-l" />
-              <span className="vc3-hero-orn-lys">⚜</span>
-              <div className="vc3-hero-orn-l" />
-            </div>
-            <p className="vc3-hero-accroche">{chateau.accroche}</p>
-            <div className="vc3-hero-meta">
-              <div className="vc3-hero-meta-item">
-                <span className="vc3-hero-meta-val">{prixFinal} €</span>
-                <span className="vc3-hero-meta-lab">/ nuit</span>
+                <div className="vc3-sejour-field">
+                  <label>Depart</label>
+                  <input type="date" value={dateDepart} onChange={(e) => setDateDepart(e.target.value)} />
+                </div>
               </div>
-              <span className="vc3-hero-meta-sep">·</span>
-              <div className="vc3-hero-meta-item">
-                <span className="vc3-hero-meta-val">{chateau.distanceParis}</span>
-                <span className="vc3-hero-meta-lab">de Paris</span>
+
+              <div className="vc3-sejour-field">
+                <label>Voyageurs</label>
+                <div className="vc3-sejour-compteur">
+                  <button type="button" onClick={() => setVoyageurs((v) => Math.max(1, v - 1))}>−</button>
+                  <span>{voyageurs}</span>
+                  <button type="button" onClick={() => setVoyageurs((v) => Math.min(8, v + 1))}>+</button>
+                </div>
               </div>
-              {chateau.urgence && <span className="vc3-hero-urgence">{chateau.urgence}</span>}
+
+              {messageDispo && <p className="vc3-sejour-dispo">⚜ {messageDispo}</p>}
+
+              <button className="vc3-sejour-btn" onClick={verifierDispo}>
+                Verifier les disponibilites
+              </button>
             </div>
-            <button className="vc3-hero-btn" onClick={() => setReserve(true)}>
-              Réserver ce séjour
-            </button>
-          </div>
-          <div className="vc3-hero-scroll">
-            <div className="vc3-hero-scroll-l" />
-            <span className="vc3-hero-scroll-txt">Défiler</span>
-          </div>
-          <div className="vc3-hero-ambiance-badge">
-            {heure.isNight ? "⚜ Nuit au château" : "⚜ Le château vous attend"}
-            <span className="vc3-hero-heure">{heure.h}:{heure.m}</span>
           </div>
         </section>
 
         {/* ══ NIVEAU 1 — Modules commerciaux (sticky) ══ */}
-        <OngletsNiveau1
-          chateau={chateau}
-          actif={moduleEffectif}
-          isClubMember={isClubMember}
-          onChange={setModule}
-          onClubLock={() => setClubLockOpen(true)}
-        />
+        <div ref={ongletsN1Ref}>
+          <OngletsNiveau1
+            chateau={chateau}
+            actif={moduleEffectif}
+            isClubMember={isClubMember}
+            onChange={setModule}
+            onClubLock={() => setClubLockOpen(true)}
+            dispoVerifiee={dispoVerifiee}
+            dateArrivee={dateArrivee}
+            dateDepart={dateDepart}
+            voyageurs={voyageurs}
+          />
+        </div>
 
         {moduleEffectif === "permanent" && (
           <ContenuPermanent chateau={chateau} onReserver={handleReserver} />
