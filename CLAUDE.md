@@ -588,6 +588,8 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - **[Phase 4.5] `offres.css` à creuser** : épargné en Chantier 1.2 par prudence (importé par `BandeauOffres` vivant). À vérifier si `BandeauOffres` utilise réellement les classes de `offres.css` ou si l'import est lui-même mort. Si mort : suppression possible (~593 lignes).
 
+- **[Phase 6.x] Sticky barre N1 (`.vc4-onglets-n1-wrap`) décolle au scroll** : le wrapper `ongletsN1Ref` (`VitrineChateau.jsx`, commit `79d6a36`, cible `scrollIntoView` du parcours dispo) est trop court pour le `position:sticky` — la barre d'onglets N1 se décolle dès qu'on scrolle au-delà. Fix = relocaliser le ref (forwardRef sur `OngletsNiveau1`) sans casser le scroll dispo. Test 11 de `s2-alpha-1-5-onglets-vitrine.spec.cjs` skippé en attendant (corps conservé pour réactivation). Pass polish Phase 6.x.
+
 - **[Phase 6.x] Pass éditorial vitrine premium (avec Tanguy)** : bugs visuels préexistants détectés pendant test visuel Chantier 2.1 Phase A3 :
   - Coquille « Brouillaird » → « Brouillard » dans `VitrineChateau` diptyque (~ligne 322)
   - Image fond diptyque jour : URL Unsplash temple asiatique (Wat Pho/Wat Arun) à remplacer par image patrimoine français
