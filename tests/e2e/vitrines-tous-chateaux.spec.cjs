@@ -45,23 +45,23 @@ for (const chateau of enVitrine) {
     test('La vitrine s\'ouvre et affiche le nom du château', async ({ page }) => {
       await ouvrirVitrine(page, chateau);
       await expect(page.locator('.vc3-header-nom')).toContainText(chateau.nom);
-      await expect(page.locator('.vc3-hero-titre')).toBeVisible();
+      await expect(page.locator('.vc3-hero2-titre')).toBeVisible();
     });
 
-    test('Hero : prix avec € et meta distance Paris', async ({ page }) => {
+    test('Hero : prix (carte séjour) et distance Paris (header)', async ({ page }) => {
       await ouvrirVitrine(page, chateau);
 
       if (chateau.accroche) {
-        await expect(page.locator('.vc3-hero-accroche')).toBeVisible();
+        await expect(page.locator('.vc3-hero2-accroche')).toBeVisible();
       }
 
-      const metaVals = page.locator('.vc3-hero-meta-val');
-      await expect(metaVals.first()).toContainText('€');
+      // Bloc meta hero supprimé en α.1.5 : prix migré dans la carte séjour, distance dans le header.
+      await expect(page.locator('.vc3-sejour-prix')).toContainText('€');
 
       if (chateau.distanceParis) {
         const token = String(chateau.distanceParis).match(/\d+h\d*|\d+\s*km|\d+\s*min|Paris/i);
         if (token) {
-          await expect(metaVals.nth(1)).toContainText(token[0].trim());
+          await expect(page.locator('.vc3-header-region')).toContainText(token[0].trim());
         }
       }
     });
@@ -86,7 +86,10 @@ for (const chateau of enVitrine) {
     test('Modale réservation : ouvre, liste les chambres, sélection, ferme', async ({ page }) => {
       await ouvrirVitrine(page, chateau);
 
-      await page.locator('.vc3-header-cta').click();
+      // Nouveau path α.1.5 : carte module Permanent → panneau → bouton chambre → modale.
+      await page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i }).click();
+      await expect(page.locator('.vc3-module-panel')).toBeVisible();
+      await page.locator('.vc4-permanent-chambre-cta').first().click();
       await expect(page.locator('.vc3-reserve-modal')).toBeVisible();
 
       const chambresModal = page.locator('.vc3-reserve-ch');
