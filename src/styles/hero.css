@@ -640,7 +640,22 @@
   max-width: 1480px; margin: 0 auto; width: 100%;
   display: grid; grid-template-columns: 1fr 1.05fr; gap: 44px; align-items: center;
 }
-.hero-texte { display: flex; flex-direction: column; }
+.hero-texte { display: flex; flex-direction: column; position: relative; }
+.hero-texte > * { position: relative; z-index: 1; }
+/* Filigrane embleme-horloge derriere le titre (meme esprit que l'Apercu vitrine),
+   integre a l'animation de chargement : fade coordonne avec .hero-titre. */
+.hero-texte::before {
+  content: "";
+  position: absolute;
+  left: -6%; top: 42%; transform: translateY(-50%);
+  width: 46vh; height: 46vh; max-width: 520px; max-height: 520px;
+  background: url('/embleme-horloge.png') center / contain no-repeat;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+  animation: heroFiligrane 0.8s cubic-bezier(0.22,0.61,0.36,1) forwards;
+  animation-delay: 0.30s;
+}
 .hero-orn { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
 .hero-orn-l { width: 40px; height: 1px; background: rgba(192,152,64,0.5); }
 .hero-orn-lys { color: #C09840; font-size: 0.9rem; }
@@ -694,6 +709,7 @@
   from { opacity: 0; transform: translateY(32px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+@keyframes heroFiligrane { from { opacity: 0; } to { opacity: 0.05; } }
 
 .hero-orn,
 .hero-titre,
@@ -722,4 +738,5 @@
     opacity: 1;
     animation: none;
   }
+  .hero-texte::before { opacity: 0.05; animation: none; }
 }
