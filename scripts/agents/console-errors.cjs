@@ -185,8 +185,13 @@ async function parcoursVitrine(page, chateau, compteurs) {
   await scrollVitrine(page);
   compteurs.actions += 1;
 
-  await page.locator('.vc3-header-cta').click();
+  // Nouveau parcours α.1.5 : le CTA header ne fait plus que scroll+focus.
+  // La modale réserve s'ouvre via carte module Permanent → panneau → bouton chambre.
+  await page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i }).click();
+  await page.locator('.vc3-module-panel').waitFor({ state: 'visible', timeout: 5000 });
+  await page.locator('.vc4-permanent-chambre-cta').first().click();
   await page.locator('.vc3-reserve-modal').waitFor({ state: 'visible', timeout: 5000 });
+  compteurs.actions += 1;
   const chambres = page.locator('.vc3-reserve-ch');
   const nbCh = await chambres.count();
   if (nbCh > 1) {
