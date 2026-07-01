@@ -24,7 +24,7 @@ function regexNom(nom) {
 
 /**
  * Ouvre la vitrine riche (.vc3-*) d'un château depuis la home.
- * Parcours : home → UneDeLaSemaine (.une-semaine-demeure) → CTA → TransitionPorte → vc3.
+ * Parcours : home → UneDeLaSemaine (.une-semaine-carte) → CTA → TransitionPorte → vc3.
  * Prérequis : le château doit être rendu par UneDeLaSemaine (estLaUne:true aujourd'hui).
  */
 async function ouvrirVitrine(page, chateau) {
@@ -32,7 +32,7 @@ async function ouvrirVitrine(page, chateau) {
   await page.waitForLoadState('domcontentloaded');
 
   const article = page
-    .locator('.une-semaine-demeure')
+    .locator('.une-semaine-carte')
     .filter({ hasText: regexNom(chateau.nom) });
   await expect(
     article,

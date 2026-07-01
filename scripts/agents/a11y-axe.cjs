@@ -115,7 +115,7 @@ function regexNom(nom) {
 async function ouvrirVitrineSurHome(page, chateau) {
   await page.goto(BASE_URL);
   await page.waitForLoadState('domcontentloaded');
-  const article = page.locator('.une-semaine-demeure').filter({ hasText: regexNom(chateau.nom) });
+  const article = page.locator('.une-semaine-carte').filter({ hasText: regexNom(chateau.nom) });
   const cta = article.locator('.une-semaine-cta');
   await cta.scrollIntoViewIfNeeded();
 
