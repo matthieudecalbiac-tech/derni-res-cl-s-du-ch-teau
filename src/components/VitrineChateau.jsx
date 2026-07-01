@@ -273,11 +273,15 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             <div className="vc3-reserve-form">
               <div className="vc3-reserve-field">
                 <label htmlFor="vc3-reserve-arrivee">Arrivée</label>
-                <input id="vc3-reserve-arrivee" type="date" />
+                <input id="vc3-reserve-arrivee" type="date" value={dateArrivee} onChange={(e) => setDateArrivee(e.target.value)} />
               </div>
               <div className="vc3-reserve-field">
                 <label htmlFor="vc3-reserve-depart">Départ</label>
-                <input id="vc3-reserve-depart" type="date" />
+                <input id="vc3-reserve-depart" type="date" value={dateDepart} onChange={(e) => setDateDepart(e.target.value)} />
+              </div>
+              <div className="vc3-reserve-field vc3-reserve-field--full">
+                <label htmlFor="vc3-reserve-voyageurs">Voyageurs</label>
+                <input id="vc3-reserve-voyageurs" type="text" value={`${voyageurs} personne${voyageurs > 1 ? "s" : ""}`} readOnly />
               </div>
             </div>
             <button className="vc3-reserve-btn">Confirmer la réservation →</button>
