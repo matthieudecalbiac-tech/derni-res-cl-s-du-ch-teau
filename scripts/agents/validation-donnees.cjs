@@ -295,10 +295,10 @@ async function valider() {
         emettre('erreur', { message: 'proprietaires.description manquant', champ: 'proprietaires.description' });
     }
 
-    // Images ≥ 3
-    if (!Array.isArray(c.images) || c.images.length < 3) {
+    // Images ≥ 2
+    if (!Array.isArray(c.images) || c.images.length < 2) {
       emettre('erreur', {
-        message: `images < 3 (trouvé : ${Array.isArray(c.images) ? c.images.length : 0})`,
+        message: `images < 2 (trouvé : ${Array.isArray(c.images) ? c.images.length : 0})`,
         champ: 'images',
         valeurTrouvee: Array.isArray(c.images) ? c.images.length : 0,
       });
