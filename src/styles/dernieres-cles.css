@@ -112,18 +112,25 @@
 .dk-topbar {
   position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
   justify-content: space-between; padding: 12px 3rem; flex-shrink: 0;
-  background: rgba(7,16,30,0.97); backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(192,152,64,0.18);
+  background: #FAF6EE; backdrop-filter: none;
+  border-bottom: 1px solid rgba(192,152,64,0.2);
 }
 .dk-topbar-logo {
   display: flex; align-items: center; gap: 1.15rem; background: none;
   border: none; padding: 0; cursor: pointer;
 }
 .dk-topbar-embleme { height: 64px; width: auto; display: block; background: transparent; }
-.dk-topbar-wordmark { height: 44px; width: auto; display: block; background: transparent; }
+/* Etat creme permanent (repris du Sommaire) : wordmark image creme cache,
+   remplace par un texte navy injecte via ::after. */
+.dk-topbar-wordmark { display: none; }
+.dk-topbar-logo::after {
+  content: "Les Clés du Château";
+  font-family: 'Playfair Display', serif; font-weight: 400; font-size: 1.5rem;
+  color: #1A2D5A; letter-spacing: 0.01em; white-space: nowrap;
+}
 .dk-topbar-titre {
   font-family: 'Playfair Display', serif; font-size: 1.3rem;
-  font-weight: 400; font-style: italic; color: #C09840; letter-spacing: 0.05em;
+  font-weight: 400; font-style: italic; color: #9A7223; letter-spacing: 0.05em;
 }
 
 /* ── Ornement ── */

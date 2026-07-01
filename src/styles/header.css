@@ -9,12 +9,12 @@
 .header-inner {
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 3rem; transition: all 0.3s ease;
-  background: rgba(7, 16, 30, 0.97); backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(192, 152, 64, 0.18);
+  background: #FAF6EE; backdrop-filter: none;
+  border-bottom: 1px solid rgba(192, 152, 64, 0.2);
 }
 .header--solide .header-inner {
-  background: rgba(7, 16, 30, 0.97); backdrop-filter: blur(14px);
-  padding: 12px 3rem; border-bottom: 1px solid rgba(192, 152, 64, 0.18);
+  background: #FAF6EE; backdrop-filter: none;
+  padding: 12px 3rem; border-bottom: 1px solid rgba(192, 152, 64, 0.2);
 }
 .header--menu-ouvert .header-inner {
   background: var(--lcc-creme, #FAF6EE) !important; border-bottom: 1px solid rgba(192,152,64,0.2) !important; backdrop-filter: none !important;
@@ -50,7 +50,13 @@
   height: 64px; width: auto; display: block; background: transparent;
 }
 .header-logo-wordmark {
-  height: 44px; width: auto; display: block; background: transparent;
+  height: 44px; width: auto; display: none; background: transparent;
+}
+/* Etat creme permanent : wordmark image creme cache, remplace par texte navy. */
+.header-logo::after {
+  content: "Les Clés du Château";
+  font-family: 'Playfair Display', serif; font-weight: 400; font-size: 1.5rem;
+  color: #1A2D5A; letter-spacing: 0.01em; white-space: nowrap;
 }
 .logo-texte { display: flex; flex-direction: column; gap: 2px; }
 .logo-principal {
@@ -75,7 +81,7 @@
 .header-cta:hover { background: linear-gradient(135deg, #EDD880 0%, #C09840 100%); transform: translateY(-1px); }
 .header-connexion {
   font-family: 'Crimson Pro', serif; font-size: 0.72rem; font-weight: 300;
-  letter-spacing: 0.18em; text-transform: uppercase; color: rgba(245, 240, 232, 0.65);
+  letter-spacing: 0.18em; text-transform: uppercase; color: #1A2D5A;
   cursor: pointer; background: none; border: none; transition: color 0.2s;
 }
 .header-connexion:hover { color: #C09840; }
@@ -84,7 +90,7 @@
   padding: 6px; background: none; border: none; z-index: 5100; position: relative;
 }
 .header-burger span {
-  display: block; height: 1px; background: #C09840;
+  display: block; height: 1px; background: #1A2D5A;
   transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1); transform-origin: center;
 }
 .header-burger span:nth-child(1) { width: 28px; }
