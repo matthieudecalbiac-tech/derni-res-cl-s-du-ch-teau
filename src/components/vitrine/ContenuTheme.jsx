@@ -4,6 +4,16 @@ function tronquer(texte, max) {
   return texte.slice(0, max).trim() + "…";
 }
 
+function ThemeHeader({ eyebrow, titre }) {
+  return (
+    <div className="vc4-theme-header">
+      <p className="vc4-theme-eyebrow">{eyebrow}</p>
+      <h3 className="vc4-theme-titre vc4-theme-titre--xl">{titre}</h3>
+      <div className="vc4-theme-orn"><span className="vc4-theme-orn-l"></span><span className="vc4-theme-orn-lys">⚜</span><span className="vc4-theme-orn-l"></span></div>
+    </div>
+  );
+}
+
 function ThemeApercu({ chateau, onChange }) {
   return (
     <div className="vc4-theme-apercu">
@@ -30,6 +40,8 @@ function ThemeApercu({ chateau, onChange }) {
 
 function ThemeHistoire({ chateau }) {
   return (
+    <>
+    <ThemeHeader eyebrow="Histoire" titre="Sept siècles" />
     <div className="vc4-theme-histoire">
       {chateau.histoire && (
         <p className="vc4-theme-paragraphe vc4-theme-histoire-intro">
@@ -48,6 +60,7 @@ function ThemeHistoire({ chateau }) {
         </div>
       )}
     </div>
+    </>
   );
 }
 
@@ -57,6 +70,8 @@ function ThemeFamille({ chateau }) {
     return <p className="vc4-theme-vide">Famille propriétaire à présenter prochainement.</p>;
   }
   return (
+    <>
+    <ThemeHeader eyebrow="Les propriétaires" titre={p.nom || "La famille"} />
     <div className="vc4-theme-famille">
       <div className="vc4-theme-famille-grid">
         {p.portrait && (
@@ -78,15 +93,17 @@ function ThemeFamille({ chateau }) {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
 function ThemeLieu({ chateau }) {
   return (
+    <>
+    <ThemeHeader eyebrow="Le territoire" titre={chateau.region} />
     <div className="vc4-theme-lieu">
       <div className="vc4-theme-lieu-grid">
         <div className="vc4-theme-lieu-narrative">
-          <p className="vc4-theme-eyebrow">{chateau.region}</p>
           {chateau.regionNarrative && (
             <p className="vc4-theme-paragraphe">{chateau.regionNarrative}</p>
           )}
@@ -117,6 +134,7 @@ function ThemeLieu({ chateau }) {
         )}
       </div>
     </div>
+    </>
   );
 }
 
@@ -147,6 +165,8 @@ function ThemeServices({ chateau }) {
   }
 
   return (
+    <>
+    <ThemeHeader eyebrow="L'art de recevoir" titre="Services & expériences" />
     <div className="vc4-theme-services">
       {uniques.map((s, i) => (
         <div key={i} className="vc4-theme-service">
@@ -155,6 +175,7 @@ function ThemeServices({ chateau }) {
         </div>
       ))}
     </div>
+    </>
   );
 }
 
@@ -164,6 +185,8 @@ function ThemeChambres({ chateau }) {
     return <p className="vc4-theme-vide">Chambres à présenter prochainement.</p>;
   }
   return (
+    <>
+    <ThemeHeader eyebrow="Séjourner" titre="Les chambres" />
     <div className="vc4-theme-chambres">
       {chambres.map((ch, i) => (
         <article key={i} className="vc4-theme-chambre">
@@ -192,6 +215,7 @@ function ThemeChambres({ chateau }) {
         </article>
       ))}
     </div>
+    </>
   );
 }
 
