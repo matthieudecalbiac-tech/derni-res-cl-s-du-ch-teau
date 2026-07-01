@@ -80,12 +80,12 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== "Escape") return;
-      if (moduleOuvert) { setModuleOuvert(false); return; }
+      if (mode === "modal" && moduleOuvert) { setModuleOuvert(false); return; }
       onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [moduleOuvert, onClose]);
+  }, [mode, moduleOuvert, onClose]);
 
   // Reinitialise la verification de dispo si les criteres changent (libelle jamais perime)
   useEffect(() => {
@@ -136,6 +136,23 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
     // scroll vers les onglets Niveau 1
     ongletsN1Ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+
+  // Contenu module (Permanent / Dernieres Cles / Club) — source unique.
+  // Rendu inline dans le flux en mode route (deep-link SEO), en overlay au clic
+  // en mode modal (overlay home). Un mount est route XOR modal → jamais dupliqué.
+  const contenuModule = (
+    <>
+      {moduleEffectif === "permanent" && (
+        <ContenuPermanent chateau={chateau} onReserver={handleReserver} />
+      )}
+      {moduleEffectif === "dernieresCles" && (
+        <ContenuDernieresCles chateau={chateau} offreCible={offreCible} onReserver={handleReserver} />
+      )}
+      {moduleEffectif === "club" && isClubMember && (
+        <ContenuClub chateau={chateau} offreCible={offreCible} onReserver={handleReserver} />
+      )}
+    </>
+  );
 
   return (
     <div className={"vc3-overlay " + (visible ? "vc3-visible" : "vc3-hidden")}>
@@ -245,6 +262,11 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
           />
         </div>
 
+        {/* Mode route : contenu module inline dans le flux (deep-link SEO, pas de scrim). */}
+        {mode === "route" && (
+          <div className="vc3-module-inline">{contenuModule}</div>
+        )}
+
         {/* ══ Niveau 2 — Découverte éditoriale ══ */}
         <OngletsNiveau2 actif={themeActif} onChange={setTheme} />
         <ContenuTheme chateau={chateau} theme={themeActif} onChange={setTheme} />
@@ -290,20 +312,12 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
         </div>
       )}
 
-      {/* OVERLAY MODULE — contenu Permanent/Dernieres/Club en superposition (clic carte) */}
-      {moduleOuvert && (
+      {/* OVERLAY MODULE — mode modal (overlay home) : contenu en superposition au clic carte */}
+      {mode === "modal" && moduleOuvert && (
         <div className="vc3-module-overlay" onClick={() => setModuleOuvert(false)}>
           <div className="vc3-module-panel" onClick={(e) => e.stopPropagation()}>
             <button className="vc3-module-close" onClick={() => setModuleOuvert(false)}>✕</button>
-            {moduleEffectif === "permanent" && (
-              <ContenuPermanent chateau={chateau} onReserver={handleReserver} />
-            )}
-            {moduleEffectif === "dernieresCles" && (
-              <ContenuDernieresCles chateau={chateau} offreCible={offreCible} onReserver={handleReserver} />
-            )}
-            {moduleEffectif === "club" && isClubMember && (
-              <ContenuClub chateau={chateau} offreCible={offreCible} onReserver={handleReserver} />
-            )}
+            {contenuModule}
           </div>
         </div>
       )}

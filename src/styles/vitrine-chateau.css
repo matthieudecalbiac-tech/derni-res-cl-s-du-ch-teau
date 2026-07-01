@@ -91,6 +91,10 @@
 .vc3-module-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--or),transparent);z-index:2}
 .vc3-module-close{position:absolute;top:18px;right:18px;z-index:5;width:36px;height:36px;border-radius:50%;background:var(--vc3-bg);border:1px solid var(--or20);color:var(--vc3-ink-55);font-size:1rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
 .vc3-module-close:hover{border-color:var(--or);color:var(--vc3-ink);background:var(--or05)}
+/* Contenu module INLINE — mode route (/chateau/:slug), dans le flux, pas d'overlay.
+   Les composants ContenuX gerent deja max-width + centrage + padding interne ;
+   ce wrapper ne fait que separer visuellement le contenu des cartes N1. */
+.vc3-module-inline{border-top:1px solid var(--or20);margin-top:8px}
 
 .vc3-reserve-overlay{position:fixed;inset:0;z-index:9100;background:var(--vc3-scrim);display:flex;align-items:center;justify-content:center;padding:24px}
 .vc3-reserve-modal{background:var(--vc3-surface-modal);border:1px solid var(--or20);padding:40px;max-width:460px;width:100%;position:relative;max-height:90vh;overflow-y:auto}
