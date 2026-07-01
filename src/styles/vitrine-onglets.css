@@ -1057,3 +1057,23 @@
   .vc4-theme-chambre-photo { width: 100%; height: 180px; }
   .vc4-theme-chambre-prix { border-left: none; border-top: 1px solid var(--vc4-or-faint); padding: 12px; }
 }
+
+/* ══ GALERIE PHOTOS (onglet Photos) ══ */
+.vc4-galerie-section{margin-bottom:48px}
+.vc4-galerie-section:last-child{margin-bottom:0}
+.vc4-galerie-section-titre{font-family:'Playfair Display',serif;font-size:1.15rem;color:var(--vc4-ink);margin-bottom:20px;font-weight:400}
+.vc4-galerie-grille{display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:200px;gap:14px}
+.vc4-galerie-item{position:relative;background-size:cover;background-position:center;background-color:var(--vc4-placeholder);border-radius:4px;overflow:hidden;cursor:pointer;transition:transform 0.4s ease}
+.vc4-galerie-item:hover{transform:scale(1.02)}
+.vc4-galerie-item:nth-child(6n+1){grid-column:span 2;grid-row:span 2}
+.vc4-galerie-item:nth-child(6n+4){grid-row:span 2}
+.vc4-galerie-legende{position:absolute;bottom:0;left:0;right:0;padding:20px 14px 12px;background:linear-gradient(to top,rgba(7,16,30,0.65),transparent);color:#F5F0E8;font-family:'Crimson Pro',serif;font-size:0.8rem;font-style:italic;opacity:0;transition:opacity 0.3s}
+.vc4-galerie-item:hover .vc4-galerie-legende{opacity:1}
+@media(max-width:860px){.vc4-galerie-grille{grid-template-columns:1fr 1fr;grid-auto-rows:150px}.vc4-galerie-item:nth-child(6n+1){grid-column:span 2}}
+
+/* ══ LIGHTBOX (galerie photos) ══ */
+.vc4-lightbox{position:fixed;inset:0;z-index:9200;background:rgba(7,16,30,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;cursor:zoom-out}
+.vc4-lightbox-img{max-width:92vw;max-height:85vh;object-fit:contain;border-radius:4px;box-shadow:0 20px 60px rgba(0,0,0,0.5);cursor:default}
+.vc4-lightbox-close{position:absolute;top:24px;right:28px;width:44px;height:44px;border-radius:50%;background:rgba(245,240,232,0.1);border:1px solid rgba(245,240,232,0.3);color:#F5F0E8;font-size:1.1rem;cursor:pointer;transition:all 0.2s}
+.vc4-lightbox-close:hover{background:rgba(245,240,232,0.2);border-color:#F5F0E8}
+.vc4-lightbox-legende{margin-top:20px;color:#F5F0E8;font-family:'Crimson Pro',serif;font-style:italic;font-size:0.95rem}

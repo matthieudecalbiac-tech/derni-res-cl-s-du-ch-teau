@@ -1,3 +1,6 @@
+import { useState, useEffect } from "react";
+import { construireGalerie } from "../../services/galerieService";
+
 function tronquer(texte, max) {
   if (!texte) return "";
   if (texte.length <= max) return texte;
@@ -15,6 +18,12 @@ function ThemeHeader({ eyebrow, titre }) {
 }
 
 function ThemeApercu({ chateau, onChange }) {
+  // Apercu : 3 tuiles. Si moins de 3 photos "domaine" (chateau.images), on
+  // complete avec les photos de chambres — sans toucher chateau.images (la
+  // galerie "Le domaine" reste sur les seules images domaine). Dedup via Set.
+  const imgs = chateau.images || [];
+  const complement = (chateau.chambres || []).map((c) => c.image).filter(Boolean);
+  const tuiles = [...new Set([...imgs, ...complement].filter(Boolean))].slice(0, 3);
   return (
     <div className="vc4-theme-apercu">
       <div className="vc4-theme-apercu-grid">
@@ -28,7 +37,7 @@ function ThemeApercu({ chateau, onChange }) {
           </button>
         </div>
         <div className="vc4-theme-apercu-photos">
-          {(chateau.images || []).slice(0, 3).map((img, i) => (
+          {tuiles.map((img, i) => (
             <div key={i} className={"vc4-theme-apercu-photo vc4-theme-apercu-photo--" + i}
               style={{ backgroundImage: `url('${img}')` }} />
           ))}
@@ -219,6 +228,52 @@ function ThemeChambres({ chateau }) {
   );
 }
 
+function ThemeGalerie({ chateau }) {
+  const sections = construireGalerie(chateau);
+  // Hooks appeles inconditionnellement AVANT tout early-return (regles des hooks).
+  const [lightbox, setLightbox] = useState(null); // { url, legende } ou null
+  // Escape ferme la lightbox. Deps [lightbox] : listener actif seulement quand
+  // ouverte ; setLightbox(null) ne lit pas lightbox -> pas de stale closure.
+  useEffect(() => {
+    if (!lightbox) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setLightbox(null);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightbox]);
+
+  if (!sections.length) {
+    return <p className="vc4-theme-vide">Galerie a venir.</p>;
+  }
+  return (
+    <>
+    <ThemeHeader eyebrow="Galerie" titre="Photographies" />
+    {sections.map((sec, si) => (
+      <div key={si} className="vc4-galerie-section">
+        <p className="vc4-galerie-section-titre">{sec.titre}</p>
+        <div className="vc4-galerie-grille">
+          {sec.photos.map((photo, pi) => (
+            <div key={pi} className="vc4-galerie-item"
+              onClick={() => setLightbox(photo)}
+              style={{ backgroundImage: `url('${photo.url}')` }}>
+              {photo.legende && <span className="vc4-galerie-legende">{photo.legende}</span>}
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+    {lightbox && (
+      <div className="vc4-lightbox" onClick={() => setLightbox(null)}>
+        <button className="vc4-lightbox-close" onClick={() => setLightbox(null)}>✕</button>
+        <img className="vc4-lightbox-img" src={lightbox.url} alt={lightbox.legende || ""} onClick={(e) => e.stopPropagation()} />
+        {lightbox.legende && <p className="vc4-lightbox-legende">{lightbox.legende}</p>}
+      </div>
+    )}
+    </>
+  );
+}
+
 export default function ContenuTheme({ chateau, theme, onChange }) {
   return (
     <section className="vc4-contenu-theme" data-theme-contenu={theme}>
@@ -228,6 +283,7 @@ export default function ContenuTheme({ chateau, theme, onChange }) {
       {theme === "lieu" && <ThemeLieu chateau={chateau} />}
       {theme === "services" && <ThemeServices chateau={chateau} />}
       {theme === "chambres" && <ThemeChambres chateau={chateau} />}
+      {theme === "photos" && <ThemeGalerie chateau={chateau} />}
     </section>
   );
 }

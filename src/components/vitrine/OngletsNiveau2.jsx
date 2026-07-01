@@ -5,6 +5,7 @@ const THEMES = [
   { code: "lieu", label: "Lieu & région" },
   { code: "services", label: "Services" },
   { code: "chambres", label: "Chambres" },
+  { code: "photos", label: "Photos" },
 ];
 
 export default function OngletsNiveau2({ actif, onChange }) {
