@@ -63,18 +63,18 @@ async function ouvrirVitrine(page, chateau) {
 
 /**
  * Ouvre la modale standard (.cp-*) d'un château non-estLaUne depuis la home.
- * Parcours : home → HeureAuxDemeures (.journal-carte ou .journal-index-entree)
+ * Parcours : home → HeureAuxDemeures (.da-medaillon)
  *          → onClick → App.ouvrirChateau → TransitionPorte → ChateauModal.
  * Aiguillage App.jsx:114-116 : estLaUne ? VitrineChateau : ChateauModal.
  * Prérequis : le château doit être référencé dans HeureAuxDemeures
- *   (idsCartes [6,5,1] ou idsIndex [7,8,2,3]).
+ *   (tableau SLUGS — les 7 demeures rendues en médaillons).
  */
 async function ouvrirChateauModal(page, chateau) {
   await page.goto('/');
   await page.waitForLoadState('domcontentloaded');
 
   // Path UI nominal pour les châteaux non-estLaUne : HeureAuxDemeures
-  // (cartes éditoriales .journal-carte + index grille .journal-index-entree).
+  // (médaillons éditoriaux .da-medaillon, nom dans .da-nom).
   // onClick déclenche onOuvrirChateau → App.ouvrirChateau → ChateauModal
   // (aiguillage estLaUne ? VitrineChateau : ChateauModal dans App.jsx:114-116).
 
@@ -82,11 +82,11 @@ async function ouvrirChateauModal(page, chateau) {
   // Sans ce wait, mobile-safari peut atteindre le filter avant que React n'ait rendu les cartes
   // (domcontentloaded ne couvre pas l'état post-fetch des SPA)
   await expect(
-    page.locator('.journal-carte, .journal-index-entree').first(),
+    page.locator('.da-medaillon').first(),
     'HeureAuxDemeures: aucun château rendu (data Supabase pas hydratée ?)'
   ).toBeVisible({ timeout: 10000 });
 
-  const article = page.locator('.journal-carte, .journal-index-entree')
+  const article = page.locator('.da-medaillon')
     .filter({ hasText: regexNom(chateau.nom) });
 
   await expect(
