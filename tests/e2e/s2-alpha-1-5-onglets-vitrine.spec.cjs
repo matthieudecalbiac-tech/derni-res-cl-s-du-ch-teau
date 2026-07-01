@@ -139,14 +139,14 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     // L'URL doit être / (redirect Navigate replace)
     await expect(page).toHaveURL(/\/$/, { timeout: 5000 });
     // La home doit afficher la section "Une de la semaine"
-    await expect(page.locator('.une-semaine-demeure').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.une-semaine-carte').first()).toBeVisible({ timeout: 5000 });
   });
 
   test('Test 9 · Régression home /', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     await expect(page.locator('.s2-placeholder')).toHaveCount(0);
-    await expect(page.locator('.une-semaine-demeure').first()).toBeVisible();
+    await expect(page.locator('.une-semaine-carte').first()).toBeVisible();
   });
 
   test('Test 10 · Dette 2 : VitrinePermanente → VitrineChateau si estLaUne', async ({ page, browserName, isMobile }) => {
