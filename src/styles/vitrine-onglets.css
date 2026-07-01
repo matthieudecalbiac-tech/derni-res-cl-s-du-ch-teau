@@ -614,86 +614,6 @@
   color: var(--vc4-or);
 }
 
-/* ═══ Intro Tronc Commun ════════════════════════════════════════════════════ */
-
-.vc4-intro-tronc {
-  background: var(--vc4-surface);
-  padding: 70px 32px 60px;
-  border-top: 1px solid var(--vc4-or-faint);
-  border-bottom: 1px solid var(--vc4-or-faint);
-}
-
-.vc4-intro-tronc-grid {
-  max-width: 1100px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: 1fr 1.1fr;
-  gap: 40px;
-  align-items: center;
-}
-
-.vc4-intro-tronc-photo {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  background-size: cover;
-  background-position: center;
-  background-color: var(--vc4-placeholder);
-}
-
-.vc4-intro-tronc-photo-vign {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(7, 16, 30, 0.2), rgba(7, 16, 30, 0.5));
-}
-
-.vc4-intro-tronc-eyebrow {
-  font-family: "Crimson Pro", serif;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  color: var(--vc4-or);
-  text-transform: uppercase;
-  margin: 0 0 14px;
-}
-
-.vc4-intro-tronc-paragraphe {
-  font-family: "Cormorant Garamond", serif;
-  font-style: italic;
-  font-size: 16px;
-  line-height: 1.7;
-  color: var(--vc4-ink-soft);
-  margin: 0;
-}
-
-.vc4-intro-tronc-chiffres {
-  max-width: 900px;
-  margin: 50px auto 0;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 32px;
-  text-align: center;
-}
-
-.vc4-intro-tronc-chiffre {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.vc4-intro-tronc-chiffre-val {
-  font-family: "Playfair Display", serif;
-  font-size: 32px;
-  color: var(--vc4-or);
-}
-
-.vc4-intro-tronc-chiffre-lab {
-  font-family: "Crimson Pro", serif;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  color: var(--vc4-ink-faint);
-  text-transform: uppercase;
-}
-
 /* ═══ NIVEAU 2 — Découverte éditoriale (non-sticky) ══════════════════════════ */
 
 .vc4-onglets-n2-wrap {
@@ -1125,13 +1045,11 @@
     border-left: none;
     border-top: 1px solid var(--vc4-or-faint);
   }
-  .vc4-intro-tronc-grid,
   .vc4-theme-apercu-grid,
   .vc4-theme-famille-grid,
   .vc4-theme-lieu-grid {
     grid-template-columns: 1fr;
   }
-  .vc4-intro-tronc-chiffres { grid-template-columns: repeat(2, 1fr); }
   .vc4-theme-services { grid-template-columns: 1fr 1fr; }
   .vc4-theme-chambre {
     grid-template-columns: 1fr;
