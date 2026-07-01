@@ -135,7 +135,7 @@
 .vc4-permanent-chambre-photo-vign {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, transparent 40%, rgba(7, 16, 30, 0.7));
+  background: linear-gradient(to bottom, transparent 40%, rgba(7, 16, 30, 0.45));
 }
 
 .vc4-permanent-chambre-prix {

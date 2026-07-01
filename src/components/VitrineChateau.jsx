@@ -28,6 +28,8 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const [moduleOuvert, setModuleOuvert] = useState(false);
   const corpsRef = useRef(null);
   const ongletsN1Ref = useRef(null);
+  const sejourRef = useRef(null);
+  const arriveeRef = useRef(null);
 
   const fermerClubLock = () => setClubLockOpen(false);
 
@@ -149,8 +151,11 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
           <span className="vc3-header-nom">{chateau.nom}</span>
           <span className="vc3-header-region">{chateau.region} · {chateau.distanceParis}</span>
         </div>
-        <button className="vc3-header-cta" onClick={() => setReserve(true)}>
-          Réserver · {prixFinal} €/nuit
+        <button className="vc3-header-cta" onClick={() => {
+          sejourRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+          setTimeout(() => arriveeRef.current?.focus(), 400);
+        }}>
+          Réserver
         </button>
       </header>
 
@@ -188,7 +193,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             </div>
 
             {/* COLONNE DROITE : carte Votre sejour */}
-            <div className="vc3-sejour">
+            <div className="vc3-sejour" ref={sejourRef}>
               <div className="vc3-sejour-head">
                 <span className="vc3-sejour-titre">Votre sejour</span>
                 <span className="vc3-sejour-prix"><span className="vc3-sejour-prix-pre">des </span>{prixAPartir} €<span className="vc3-sejour-prix-u">/nuit</span></span>
@@ -198,7 +203,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
               <div className="vc3-sejour-dates">
                 <div className="vc3-sejour-field">
                   <label>Arrivee</label>
-                  <input type="date" value={dateArrivee} onChange={(e) => setDateArrivee(e.target.value)} />
+                  <input ref={arriveeRef} type="date" value={dateArrivee} onChange={(e) => setDateArrivee(e.target.value)} />
                 </div>
                 <div className="vc3-sejour-field">
                   <label>Depart</label>
