@@ -34,18 +34,19 @@
   padding: 20px 24px 22px;
 }
 
-.vc4-onglets-n1{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:1100px;margin:0 auto;padding:0}
+.vc4-onglets-n1{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1100px;margin:0 auto;padding:0}
 @media(max-width:860px){.vc4-onglets-n1{grid-template-columns:1fr}}
-.vc4-offre-card{display:flex;align-items:center;gap:16px;padding:18px 20px;background:var(--vc4-surface);border:1px solid var(--vc4-or-faint);border-radius:6px;cursor:pointer;transition:all 0.25s;text-align:left;font-family:inherit}
-.vc4-offre-card:hover{border-color:var(--vc4-or-soft);transform:translateY(-2px);box-shadow:0 8px 24px rgba(7,16,30,0.08)}
-.vc4-offre-card--actif{border-color:var(--vc4-or);background:var(--vc4-bg);box-shadow:0 4px 16px rgba(192,152,64,0.12)}
-.vc4-offre-icone{width:46px;height:46px;flex-shrink:0;object-fit:contain;border-radius:50%;border:1px solid var(--vc4-or-faint);padding:8px;background:var(--vc4-bg)}
-.vc4-offre-corps{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
-.vc4-offre-titre{font-family:'Playfair Display',serif;font-size:1.02rem;color:var(--vc4-ink);font-weight:400;letter-spacing:0.01em}
-.vc4-offre-sous{font-family:'Crimson Pro',serif;font-size:0.76rem;font-style:italic;color:var(--vc4-ink-soft);line-height:1.35}
-.vc4-offre-accroche{font-family:'Crimson Pro',serif;font-size:0.82rem;color:#9A7223;margin-top:2px;letter-spacing:0.02em}
-.vc4-offre-fleche{flex-shrink:0;color:var(--vc4-or);font-size:1.1rem;transition:transform 0.25s}
-.vc4-offre-card:hover .vc4-offre-fleche{transform:translateX(4px)}
+.vc4-offre-card{display:flex;align-items:center;gap:20px;padding:24px 26px;background:var(--vc4-surface);border:1px solid var(--vc4-or-faint);border-radius:4px;cursor:pointer;transition:border-color 0.3s ease,box-shadow 0.3s ease,transform 0.3s ease;text-align:left;font-family:inherit;position:relative}
+.vc4-offre-card:hover{border-color:var(--vc4-or-soft);transform:translateY(-3px);box-shadow:0 14px 34px rgba(7,16,30,0.10)}
+.vc4-offre-card--actif{border-color:var(--vc4-or);background:var(--vc4-bg);box-shadow:0 6px 22px rgba(192,152,64,0.14)}
+.vc4-offre-card--actif::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--vc4-or),transparent)}
+.vc4-offre-icone{width:52px;height:52px;flex-shrink:0;object-fit:contain;border-radius:50%;border:1px solid var(--vc4-or-soft);padding:11px;background:var(--vc4-bg)}
+.vc4-offre-corps{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0;padding-left:20px;border-left:1px solid var(--vc4-or-faint)}
+.vc4-offre-titre{font-family:'Playfair Display',serif;font-size:1.12rem;color:var(--vc4-ink);font-weight:400;letter-spacing:0.015em}
+.vc4-offre-sous{font-family:'Crimson Pro',serif;font-size:0.78rem;font-style:italic;color:var(--vc4-ink-soft);line-height:1.4}
+.vc4-offre-accroche{font-family:'Playfair Display',serif;font-size:0.95rem;color:#9A7223;margin-top:4px;letter-spacing:0.01em}
+.vc4-offre-fleche{flex-shrink:0;color:var(--vc4-or);font-size:1.15rem;transition:transform 0.3s,opacity 0.3s;opacity:0.65;align-self:center}
+.vc4-offre-card:hover .vc4-offre-fleche{transform:translateX(5px);opacity:1}
 
 /* ═══ Contenu d'onglet Niveau 1 — règles communes ═══════════════════════════
    Audit Fondation J2 — P0-1.
@@ -933,13 +934,19 @@
 .vc4-theme-lieu-alentours {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: 20px;
 }
 
 .vc4-theme-alentour {
-  padding: 14px;
+  padding: 18px 20px;
   border: 1px solid var(--vc4-or-faint);
-  border-radius: 2px;
+  border-radius: 4px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.vc4-theme-alentour:hover {
+  border-color: var(--vc4-or-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(7, 16, 30, 0.08);
 }
 
 .vc4-theme-alentour-head {
@@ -956,21 +963,21 @@
 
 .vc4-theme-alentour-nom {
   font-family: "Playfair Display", serif;
-  font-size: 13px;
+  font-size: 15px;
   color: var(--vc4-ink);
   flex: 1;
 }
 
 .vc4-theme-alentour-dist {
   font-family: "Crimson Pro", serif;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--vc4-or-soft);
 }
 
 .vc4-theme-alentour-desc {
   font-family: "Crimson Pro", serif;
   font-style: italic;
-  font-size: 11px;
+  font-size: 12.5px;
   color: var(--vc4-ink-faint);
   line-height: 1.5;
   margin: 0;
@@ -980,26 +987,32 @@
 .vc4-theme-services {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 20px;
 }
 
 .vc4-theme-service {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
+  gap: 14px;
+  padding: 18px 20px;
   border: 1px solid var(--vc4-or-faint);
-  border-radius: 2px;
+  border-radius: 4px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.vc4-theme-service:hover {
+  border-color: var(--vc4-or-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(7, 16, 30, 0.08);
 }
 
 .vc4-theme-service-ico {
   color: var(--vc4-or);
-  font-size: 14px;
+  font-size: 18px;
 }
 
 .vc4-theme-service-nom {
   font-family: "Crimson Pro", serif;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--vc4-ink-soft);
 }
 
@@ -1012,30 +1025,36 @@
 
 .vc4-theme-chambre {
   display: grid;
-  grid-template-columns: 200px 1fr 140px;
+  grid-template-columns: 240px 1fr 150px;
   gap: 20px;
   align-items: center;
   border: 1px solid var(--vc4-or-faint);
   background: var(--vc4-surface);
-  border-radius: 2px;
+  border-radius: 4px;
   overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.vc4-theme-chambre:hover {
+  border-color: var(--vc4-or-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(7, 16, 30, 0.08);
 }
 
 .vc4-theme-chambre-photo {
-  width: 200px;
-  height: 140px;
+  width: 240px;
+  height: 190px;
   background-size: cover;
   background-position: center;
   background-color: var(--vc4-placeholder);
 }
 
 .vc4-theme-chambre-corps {
-  padding: 8px 4px;
+  padding: 20px 8px;
 }
 
 .vc4-theme-chambre-nom {
   font-family: "Playfair Display", serif;
-  font-size: 16px;
+  font-size: 19px;
   font-weight: 400;
   color: var(--vc4-ink);
   margin: 0 0 4px;
@@ -1052,7 +1071,7 @@
 .vc4-theme-chambre-desc {
   font-family: "Crimson Pro", serif;
   font-style: italic;
-  font-size: 12px;
+  font-size: 13.5px;
   color: var(--vc4-ink-soft);
   line-height: 1.5;
   margin: 0;
