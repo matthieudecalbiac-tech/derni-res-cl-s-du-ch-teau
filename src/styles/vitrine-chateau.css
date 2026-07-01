@@ -1,45 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap');
 
 :root{
-  --nuit:#07101E;
-  --nuit2:#0d1a2e;
   --or:#C09840;
   --or-c:#EDD880;
   --blanc:#F5F0E8;
-  --b05:rgba(245,240,232,0.05);
-  --b10:rgba(245,240,232,0.1);
-  --b20:rgba(245,240,232,0.2);
-  --b40:rgba(245,240,232,0.4);
-  --b55:rgba(245,240,232,0.55);
-  --b70:rgba(245,240,232,0.7);
-  --b85:rgba(245,240,232,0.85);
   --or05:rgba(192,152,64,0.05);
   --or10:rgba(192,152,64,0.1);
   --or15:rgba(192,152,64,0.15);
   --or20:rgba(192,152,64,0.2);
-  --or30:rgba(192,152,64,0.3);
-  --or40:rgba(192,152,64,0.4);
   --or55:rgba(192,152,64,0.55);
-  --or65:rgba(192,152,64,0.65);
 
   /* Tokens semantiques - PALETTE CLAIRE (Phase 2a) */
   --vc3-bg: #FAF6EE;
-  --vc3-surface: #F3ECDC;
-  --vc3-surface-3: rgba(243,236,220,0.7);
   --vc3-surface-modal: #FFFDF8;
   --vc3-scrim: rgba(7,16,30,0.55);
   --vc3-ink: #1A2D5A;
-  --vc3-ink-on-photo: #F5F0E8;
-  --vc3-ink-85: rgba(26,45,90,0.95);
-  --vc3-ink-75: rgba(26,45,90,0.90);
-  --vc3-ink-70: rgba(26,45,90,0.88);
   --vc3-ink-55: rgba(26,45,90,0.80);
   --vc3-ink-40: rgba(26,45,90,0.70);
   --vc3-ink-35: rgba(26,45,90,0.66);
   --vc3-ink-30: rgba(26,45,90,0.62);
-  --vc3-ink-25: rgba(26,45,90,0.58);
-  --vc3-ink-20: rgba(26,45,90,0.54);
-  --vc3-ink-15: rgba(26,45,90,0.48);
   --vc3-ink-04: rgba(26,45,90,0.10);
   --vc3-on-or: #07101E;
 }
@@ -123,7 +102,7 @@
 .vc3-reserve-sub{font-size:0.8rem;font-style:italic;color:var(--or55);text-align:center;margin-bottom:18px;font-family:'Crimson Pro',serif}
 .vc3-reserve-sep{height:1px;background:var(--or15);margin-bottom:18px}
 .vc3-reserve-chs{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
-.vc3-reserve-ch{display:flex;justify-content:space-between;padding:11px 14px;background:var(--or05);border:1px solid var(--or12);font-family:'Crimson Pro',serif;font-size:0.9rem;color:var(--vc3-ink-55);cursor:pointer;transition:all 0.2s}
+.vc3-reserve-ch{display:flex;justify-content:space-between;padding:11px 14px;background:var(--or05);border:1px solid var(--or10);font-family:'Crimson Pro',serif;font-size:0.9rem;color:var(--vc3-ink-55);cursor:pointer;transition:all 0.2s}
 .vc3-reserve-ch:hover,.vc3-reserve-ch.actif{border-color:var(--or);color:var(--vc3-ink);background:var(--or10)}
 .vc3-reserve-ch-prix{color:var(--or)}
 .vc3-reserve-form{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
@@ -133,4 +112,4 @@
 .vc3-reserve-field input:focus{border-color:var(--or)}
 .vc3-reserve-btn{width:100%;padding:13px;background:var(--or);border:none;font-family:'Crimson Pro',serif;font-size:0.85rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--vc3-on-or);cursor:pointer;transition:all 0.25s;font-weight:500;margin-bottom:12px}
 .vc3-reserve-btn:hover{background:var(--or-c)}
-.vc3-reserve-fond{font-size:0.72rem;font-style:italic;color:var(--or35);text-align:center;font-family:'Crimson Pro',serif}
+.vc3-reserve-fond{font-size:0.72rem;font-style:italic;color:var(--or55);text-align:center;font-family:'Crimson Pro',serif}
