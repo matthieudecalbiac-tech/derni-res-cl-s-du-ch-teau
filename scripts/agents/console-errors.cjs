@@ -426,8 +426,11 @@ async function main() {
   reseauxEchecs += totalCancelsFiltres;
 
   const details = [];
-  let erreursUniques = 0;
-  let avertissementsUniques = 0;
+  // Comptage stats (Option X) : (type x message normalise) UNIQUES, navigateur IGNORE.
+  // Le compteur reflete le nombre de defauts distincts, independant du nombre de
+  // navigateurs (qa-fast 1 nav == qa-full 3 nav). details[] garde navigateur (debug).
+  const uniqErr = new Set();
+  const uniqWarn = new Set();
   for (const v of dedup.values()) {
     const entry = {
       type: v.type,
@@ -439,16 +442,17 @@ async function main() {
     if (v.occurrences > 1) entry.occurrences = v.occurrences;
     if (v.urlEchouee) entry.urlEchouee = v.urlEchouee;
     details.push(entry);
-    if (v.type === 'erreur') erreursUniques++;
-    if (v.type === 'avertissement') avertissementsUniques++;
+    const cleUnique = `${v.type}::${normaliserPourDedup(v.message)}`;
+    if (v.type === 'erreur') uniqErr.add(cleUnique);
+    else if (v.type === 'avertissement') uniqWarn.add(cleUnique);
   }
 
   const stats = {
     navigateursTestes: navigateursActifs.length,
     pagesVisitees: pagesParNav,
     actionsExecutees: totalActions,
-    erreurs: erreursUniques,
-    avertissements: avertissementsUniques,
+    erreurs: uniqErr.size,
+    avertissements: uniqWarn.size,
     occurrencesTotales,
     reseauxEchecs,
     cancelsFiltres: totalCancelsFiltres,

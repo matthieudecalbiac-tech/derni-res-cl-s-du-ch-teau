@@ -5,6 +5,14 @@
     "commentaire": "Baseline initiale après audit QA d'avril 2026. Les seuils reflètent la dette identifiée et documentée dans les commits feat(qa):* et fix(a11y):* de la branche feature/dashboard-generique. À réviser quand un chantier de résolution démarre : pass éditorial Tanguy (images + typographie), refonte tokens couleurs Tanguy, ou retrait du videoBackground Blanc Buisson.",
     "revisions": [
       {
+        "date": "2026-07-02",
+        "agent": "a11y-axe + console-errors",
+        "metrique": "violationsCritical.max, violationsSerious.max, actuels recalibres",
+        "ancien": "a11y critical max=10 actuel=5, serious max=30 actuel=30 ; console erreurs actuel=1",
+        "nouveau": "a11y critical max=3 actuel=2, serious max=8 actuel=6 ; console erreurs actuel=0",
+        "raison": "Option X (refactor dedup) : les agents a11y-axe et console-errors comptaient les violations par (regle x checkpoint x NAVIGATEUR), donc sommees sur les 3 navigateurs en qa-full mais sur 1 seul en qa-fast (PR). Meme seuil applique aux deux -> gate PR desensibilisee : le bug label (fix a11y du 01/07, PR #30) faisait 12 critical en qa-full (4 x 3 nav) mais seulement ~6 en qa-fast, sous l'ancien max=10, donc PASSE sous le radar PR et detecte seulement post-merge. Fix : le COMPTE deduplique desormais par (regle x checkpoint), navigateur IGNORE (garde dans details[] pour debug). Le compteur = nombre de defauts DISTINCTS, independant du nombre de navigateurs -> qa-fast (1 nav) == qa-full (3 nav) (prouve : 2 critical / 6 serious identiques en 1-nav et 3-nav). Seuils recalibres sur le compte unique mesure : a11y critical 2 (button-name YouTube x2 checkpoints, timing-dependant) -> max 3 ; serious 6 (color-contrast + aria) -> max 8 ; console erreurs 0 (compute-pressure flaky) -> max 1 conserve. Gate PR re-sensibilisee : une violation sur 1 seul navigateur est desormais attrapee."
+      },
+      {
         "date": "2026-07-01",
         "agent": "validation-donnees",
         "metrique": "erreurs.max",
@@ -73,21 +81,21 @@
   "seuils": {
     "a11y-axe": {
       "violationsCritical": {
-        "max": 10,
-        "actuel": 5,
-        "dette": "5 critical button-name (mesure Sprint S1, +2 vs baseline avril). Faux positif tiers non-actionnable : iframe YouTube embed de chateau.videoBackground='JQ9m51Bl900' (Le Blanc Buisson), classe DOM interne YT .ytmVideoInfoChannelAvatar. axe re-scanne à chaque checkpoint visible. Occurrences ce soir : vitrine-ouverte:blanc-buisson (chromium + webkit + mobile-safari) + modale-reservation:blanc-buisson (chromium + webkit). Marge max=10 ≈ 2× mesure actuelle pour absorber variance multi-navigateurs futurs sans rouvrir la baseline. Reset à 0 dès migration HTML5 (dette Phase 4.4, bloquée par récup master Maïté/Éric + cession droits)."
+        "max": 3,
+        "actuel": 2,
+        "dette": "2 critical button-name (dedup Option X : regle x checkpoint, navigateur ignore, compte = defauts distincts). Faux positif tiers non-actionnable : iframe YouTube embed de chateau.videoBackground='JQ9m51Bl900' (Le Blanc Buisson), classe DOM interne YT .ytmVideoInfoChannelAvatar. 2 checkpoints : vitrine-ouverte:blanc-buisson + modale-reservation:blanc-buisson. max=3 = 2 mesure + 1 marge (timing-dependant : l'iframe YT peut rendre 1 ou 2 selon son UI). Reset a 0 des migration HTML5 (dette Phase 4.4, bloquee par recup master Maite/Eric + cession droits)."
       },
       "violationsSerious": {
-        "max": 30,
-        "actuel": 30,
-        "dette": "21 color-contrast (micro-textes or-sur-crème, eyebrows opacity 0.55, Cormorant italic gris clair) — chantier design tokens Tanguy. + 9 aria-prohibited-attr iframe YouTube — faux positif tiers."
+        "max": 8,
+        "actuel": 6,
+        "dette": "6 serious distincts (dedup Option X : regle x checkpoint). color-contrast (micro-textes or-sur-creme, eyebrows opacity 0.55, Cormorant italic gris clair) — chantier design tokens Tanguy — + aria-prohibited-attr iframe YouTube (faux positif tiers). max=8 = 6 mesure + 2 marge."
       }
     },
     "console-errors": {
       "erreurs": {
         "max": 1,
-        "actuel": 1,
-        "dette": "actuel=1 = état local courant post-Phase 4.x Chantier 1.9 (résidu: erreur 'Permissions policy violation: compute-pressure' issue de l'iframe YouTube Blanc Buisson, sera auto-résolue Phase 4.4 vidéo HTML5). max=1 = strict après reclassification cancels en avertissement (commit 062c490). bri-1.avif mobile-safari désormais classé en avertissement légitime, plus dans erreurs. À resserrer max=0 quand Phase 4.4 résolue."
+        "actuel": 0,
+        "dette": "actuel=0 mesure courante (dedup Option X : type x message normalise, navigateur ignore). Residu potentiel: erreur 'Permissions policy violation: compute-pressure' de l'iframe YouTube Blanc Buisson, TIMING-DEPENDANT (n'apparait pas a chaque run) -> max=1 conserve pour l'absorber sans faux rouge. Sera auto-resolue Phase 4.4 video HTML5. A resserrer max=0 quand Phase 4.4 resolue."
       },
       "avertissements": {
         "max": 2,
