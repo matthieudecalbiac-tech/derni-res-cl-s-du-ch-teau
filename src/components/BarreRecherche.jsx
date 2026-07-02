@@ -144,7 +144,7 @@ export default function BarreRecherche() {
             </svg>
           </div>
 
-          <button className="br-cta" onClick={lancerRecherche}>Trouver votre château <span className="br-cta-fl">→</span></button>
+          <button className="br-cta" onClick={lancerRecherche} disabled={!selection}>Trouver votre château <span className="br-cta-fl">→</span></button>
         </div>
       </div>
     </div>
