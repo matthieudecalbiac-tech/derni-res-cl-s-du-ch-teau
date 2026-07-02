@@ -4,6 +4,7 @@ import { useChateaux } from "../hooks/useChateaux";
 import VitrineDernieresCle from "./VitrineDernieresCle";
 import TransitionPorte from "./TransitionPorte";
 import SkeletonChateau from "./SkeletonChateau";
+import { genererGrilleMois, formatDate, joursAvant, estMemeJour, estEntre } from "../utils/dates";
 import "../styles/dernieres-cles.css";
 
 function getDatesPossibles() {
@@ -17,15 +18,6 @@ function getDatesPossibles() {
   return dates;
 }
 
-function formatDate(d) {
-  return d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" });
-}
-
-function joursAvant(d) {
-  const today = new Date();
-  return Math.round((d - today) / (1000 * 60 * 60 * 24));
-}
-
 function chateauxDisponibles(liste, dateArrivee) {
   if (!dateArrivee) return liste;
   const jours = joursAvant(dateArrivee);
@@ -33,29 +25,6 @@ function chateauxDisponibles(liste, dateArrivee) {
     const seuil = { "J-7": 7, "J-10": 10, "J-15": 15 }[c.urgence] || 15;
     return jours <= seuil;
   });
-}
-
-function genererGrilleMois(premierJourMois) {
-  const annee = premierJourMois.getFullYear();
-  const mois = premierJourMois.getMonth();
-  const premier = new Date(annee, mois, 1);
-  const decalage = (premier.getDay() + 6) % 7;
-  const nbJours = new Date(annee, mois + 1, 0).getDate();
-  const cases = [];
-  // jours du mois PRECEDENT pour combler le debut de la 1re semaine
-  for (let i = decalage; i > 0; i--) {
-    cases.push({ date: new Date(annee, mois, 1 - i), horsMois: true });
-  }
-  // jours du mois COURANT
-  for (let j = 1; j <= nbJours; j++) {
-    cases.push({ date: new Date(annee, mois, j), horsMois: false });
-  }
-  // jours du mois SUIVANT pour completer jusqu'a 42 cases (6 semaines)
-  let suiv = 1;
-  while (cases.length < 42) {
-    cases.push({ date: new Date(annee, mois + 1, suiv++), horsMois: true });
-  }
-  return cases;
 }
 
 export default function DernieresCles({ onClose }) {
@@ -158,9 +127,9 @@ export default function DernieresCles({ onClose }) {
     setMoisAffiche(m => new Date(m.getFullYear(), m.getMonth() - 1, 1));
   const moisSuivant = () =>
     setMoisAffiche(m => new Date(m.getFullYear(), m.getMonth() + 1, 1));
-  const isArrivee = (d) => dateArrivee && d.toDateString() === dateArrivee.toDateString();
-  const isDepart = (d) => dateDepart && d.toDateString() === dateDepart.toDateString();
-  const isBetween = (d) => dateArrivee && dateDepart && d > dateArrivee && d < dateDepart;
+  const isArrivee = (d) => estMemeJour(d, dateArrivee);
+  const isDepart = (d) => estMemeJour(d, dateDepart);
+  const isBetween = (d) => estEntre(d, dateArrivee, dateDepart);
 
   const survolChateau = (id) => {
     setChateauSurvol(id);
