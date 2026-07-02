@@ -18,7 +18,7 @@ const { test, expect } = require('@playwright/test');
 async function ouvrirBriottieres(page) {
   await page.goto('/');
   await page.waitForLoadState('domcontentloaded');
-  const article = page.locator('.une-semaine-demeure').filter({ hasText: /Briotti[èe]res/i });
+  const article = page.locator('.une-semaine-carte').filter({ hasText: /Briotti[èe]res/i });
   await expect(article).toBeVisible();
   const cta = article.locator('.une-semaine-cta');
   await cta.scrollIntoViewIfNeeded();
@@ -48,7 +48,7 @@ test.describe('Vitrine Briottières · parcours critiques', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     await expect(page).toHaveTitle(/./);
-    const article = page.locator('.une-semaine-demeure').filter({ hasText: /Briotti[èe]res/i });
+    const article = page.locator('.une-semaine-carte').filter({ hasText: /Briotti[èe]res/i });
     await expect(article).toBeVisible();
     await expect(article).toContainText(/Briotti[èe]res/i);
   });
@@ -56,16 +56,16 @@ test.describe('Vitrine Briottières · parcours critiques', () => {
   test('On peut ouvrir la vitrine Briottières', async ({ page }) => {
     await ouvrirBriottieres(page);
     await expect(page.locator('.vc3-header-nom')).toContainText(/Briotti[èe]res/i);
-    await expect(page.locator('.vc3-hero-titre')).toContainText(/riotti[èe]res/i);
+    await expect(page.locator('.vc3-hero2-titre')).toContainText(/riotti[èe]res/i);
   });
 
   test('Hero affiche accroche, prix, distance Paris', async ({ page }) => {
     await ouvrirBriottieres(page);
-    await expect(page.locator('.vc3-hero-accroche')).toBeVisible();
-    await expect(page.locator('.vc3-hero-accroche')).toContainText(/sept|g[ée]n[ée]rations|Anjou/i);
-    const metaVals = page.locator('.vc3-hero-meta-val');
-    await expect(metaVals.first()).toContainText('€');
-    await expect(metaVals.nth(1)).toContainText(/2h15|Paris/i);
+    await expect(page.locator('.vc3-hero2-accroche')).toBeVisible();
+    await expect(page.locator('.vc3-hero2-accroche')).toContainText(/sept|g[ée]n[ée]rations|Anjou/i);
+    // Bloc meta hero supprimé en α.1.5 : prix migré dans la carte séjour, distance dans le header.
+    await expect(page.locator('.vc3-sejour-prix')).toContainText('€');
+    await expect(page.locator('.vc3-header-region')).toContainText(/2h15|Paris/i);
   });
 
   test('Les 3 chambres apparaissent avec les bons prix', async ({ page }) => {
@@ -90,7 +90,11 @@ test.describe('Vitrine Briottières · parcours critiques', () => {
   test('Modal de réservation s\'ouvre, sélectionne et se ferme', async ({ page }) => {
     await ouvrirBriottieres(page);
 
-    await page.locator('.vc3-header-cta').click();
+    // Nouveau path α.1.5 : le CTA header ne fait plus que scroll+focus. La modale
+    // réserve s'ouvre via carte module Permanent → panneau → bouton chambre.
+    await page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i }).click();
+    await expect(page.locator('.vc3-module-panel')).toBeVisible();
+    await page.locator('.vc4-permanent-chambre-cta').first().click();
     await expect(page.locator('.vc3-reserve-modal')).toBeVisible();
 
     const chambresModal = page.locator('.vc3-reserve-ch');

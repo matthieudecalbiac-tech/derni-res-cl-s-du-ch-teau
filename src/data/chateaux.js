@@ -1089,7 +1089,6 @@ export const chateaux = [
     images: [
         "/bri-1.avif",
         "/bri-2.avif",
-        "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80",
       ],
     proprietaires: {
         nom: "Arnaud & Madeleine de Valbray",

@@ -9,7 +9,7 @@
  *   1. home (après goto + domcontentloaded)
  *   Pour chaque château avec estLaUne:true (vitrines) :
  *   2. vitrine-ouverte:<slug> (après ouvrirVitrine, .vc3-overlay.vc3-visible)
- *   3. modale-reservation:<slug> (après clic .vc3-header-cta, modale visible)
+ *   3. modale-reservation:<slug> (après clic carte module Permanent → bouton chambre, modale visible)
  *   4. mode-presentation:<slug> (après clic .vc3-mode-pres-btn, overlay visible)
  *
  * Avec 2 vitrines : 1 + 3×2 = 7 checkpoints par navigateur, soit 21 total
@@ -115,7 +115,7 @@ function regexNom(nom) {
 async function ouvrirVitrineSurHome(page, chateau) {
   await page.goto(BASE_URL);
   await page.waitForLoadState('domcontentloaded');
-  const article = page.locator('.une-semaine-demeure').filter({ hasText: regexNom(chateau.nom) });
+  const article = page.locator('.une-semaine-carte').filter({ hasText: regexNom(chateau.nom) });
   const cta = article.locator('.une-semaine-cta');
   await cta.scrollIntoViewIfNeeded();
 
@@ -160,10 +160,14 @@ async function executerParcours(page, nav, chateaux, audits) {
     audits.push(await auditerPage(page, `vitrine-ouverte:${slug}`, nav.id));
 
     // Modale réservation
-    const hcta = page.locator('.vc3-header-cta');
-    if ((await hcta.count()) > 0) {
+    // Nouveau parcours α.1.5 : le CTA header ne fait plus que scroll+focus.
+    // La modale réserve s'ouvre via carte module Permanent → panneau → bouton chambre.
+    const carteModule = page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i });
+    if ((await carteModule.count()) > 0) {
       try {
-        await hcta.click();
+        await carteModule.click();
+        await page.locator('.vc3-module-panel').waitFor({ state: 'visible', timeout: 5000 });
+        await page.locator('.vc4-permanent-chambre-cta').first().click();
         await page.locator('.vc3-reserve-modal').waitFor({ state: 'visible', timeout: 5000 });
         audits.push(await auditerPage(page, `modale-reservation:${slug}`, nav.id));
         await page.locator('.vc3-reserve-close').click();
@@ -172,7 +176,7 @@ async function executerParcours(page, nav, chateaux, audits) {
         console.warn(`[a11y-axe] modale-reservation:${slug} non auditée (${e.message || e})`);
       }
     } else {
-      console.log(`[a11y-axe] modale-reservation:${slug} : pas de .vc3-header-cta — checkpoint skippé`);
+      console.log(`[a11y-axe] modale-reservation:${slug} : pas de carte module Permanent — checkpoint skippé`);
     }
 
     // Mode présentation

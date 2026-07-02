@@ -1,0 +1,29 @@
+.carte-fr { position: relative; width: 100%; }
+.carte-fr-svg { width: 100%; height: auto; display: block; }
+.carte-fr-rose {
+  position: absolute;
+  bottom: 1%;
+  left: -1%;
+  width: 30%;
+  height: auto;
+  background: transparent !important;
+  pointer-events: none;
+  opacity: 1;
+}
+
+/* ombrage cotier + terre */
+.cf-cote { fill: #C9B896; opacity: 0.45; }
+.cf-halo { fill: none; stroke: #C09840; stroke-width: 2; opacity: 0.18; }
+.cf-terre { fill: #FAF4E8; stroke: #C09840; stroke-width: 1; stroke-linejoin: round; opacity: 1; }
+
+/* points chateaux */
+.carte-fr-pt { cursor: pointer; }
+.carte-fr-dot { fill: #C09840; stroke: #5C4326; stroke-width: 1; transition: fill 0.2s; }
+.carte-fr-pt:hover .carte-fr-dot,
+.carte-fr-pt.actif .carte-fr-dot { fill: #EDD880; }
+.carte-fr-halo-pt { fill: rgba(192,152,64,0.32); animation: cfHalo 1.4s ease-out infinite; }
+@keyframes cfHalo { 0% { r: 6; opacity: 0.7; } 100% { r: 22; opacity: 0; } }
+.carte-fr-label {
+  fill: #1A2D5A; font-family: 'Playfair Display', serif; font-style: italic;
+  font-weight: 600; font-size: 15px; paint-order: stroke; stroke: #F1E3C9; stroke-width: 3.5px;
+}

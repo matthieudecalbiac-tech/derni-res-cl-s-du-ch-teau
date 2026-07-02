@@ -1,288 +1,92 @@
-.une-semaine {
-  background: #07101E;
+.une-semaine { background: var(--lcc-creme); }
+.une-semaine img { background: transparent; }
+
+.une-semaine-wrap {
+  max-width: 1320px; margin: 0 auto; padding: 62px 48px 68px;
+  display: grid; grid-template-columns: 0.82fr 1.55fr; gap: 64px; align-items: start;
 }
 
-/* ── Demeure pleine page ── */
-.une-semaine-demeure {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 0;
-  align-items: stretch;
-  padding: 96px 0 72px;
-  overflow: hidden;
+.une-semaine-intro { position: relative; display: flex; flex-direction: column; align-items: flex-start; padding-bottom: 40px; }
+.une-semaine-embleme { width: 92px; height: auto; margin-bottom: 30px; position: relative; z-index: 1; background: transparent !important; }
+.une-semaine-eyebrow { font-family: 'Crimson Pro', Georgia, serif; font-size: 11px; letter-spacing: 0.34em; text-transform: uppercase; color: #A8884E; margin-bottom: 22px; position: relative; z-index: 1; }
+.une-semaine-titre { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2.6rem, 4vw, 3.7rem); font-weight: 400; line-height: 1.02; color: #1A2D5A; margin: 0 0 26px; position: relative; z-index: 1; }
+.une-semaine-intro-sep { width: 54px; height: 1px; background: rgba(192,152,64,0.6); margin-bottom: 26px; position: relative; z-index: 1; }
+.une-semaine-intro-txt { font-family: 'Crimson Pro', Georgia, serif; font-size: 15px; line-height: 1.75; color: #3A4456; max-width: 300px; margin: 0 0 18px; position: relative; z-index: 1; }
+
+.une-semaine-liste { display: flex; flex-direction: column; gap: 30px; }
+.une-semaine-carte { position: relative; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid rgba(26,45,90,0.16); border-radius: 6px; overflow: hidden; background: rgba(251,247,243,0.5); }
+.une-semaine-photo { position: relative; min-height: 340px; overflow: hidden; }
+.une-semaine-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.une-semaine-infos { position: relative; display: flex; flex-direction: column; justify-content: center; padding: 38px 44px; overflow: hidden; }
+.une-semaine-meta { font-family: 'Crimson Pro', Georgia, serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #A8884E; margin-bottom: 16px; position: relative; z-index: 1; }
+.une-semaine-nom { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.7rem, 2.4vw, 2.4rem); font-weight: 400; line-height: 1.05; color: #1A2D5A; margin: 0 0 18px; max-width: 300px; position: relative; z-index: 1; }
+.une-semaine-accroche { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 16px; font-style: italic; color: #3A4456; line-height: 1.6; max-width: 340px; margin: 0 0 24px; position: relative; z-index: 1; }
+.une-semaine-filet { width: 60px; height: 1px; background: rgba(192,152,64,0.55); margin-bottom: 24px; position: relative; z-index: 1; }
+.une-semaine-pied { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; flex-wrap: wrap; position: relative; z-index: 1; }
+.une-semaine-prix { display: flex; align-items: baseline; gap: 9px; flex-wrap: wrap; }
+.une-semaine-prix-prefix { font-family: 'Crimson Pro', Georgia, serif; font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase; color: #9B9282; }
+.une-semaine-prix-val { font-family: 'Playfair Display', Georgia, serif; font-size: 24px; font-weight: 400; color: #1A2D5A; line-height: 1; }
+.une-semaine-prix-nuit { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 13px; font-style: italic; color: #9B9282; }
+.une-semaine-cta { font-family: 'Crimson Pro', Georgia, serif; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase; color: #A8884E; background: transparent; border: none; padding: 0; cursor: pointer; white-space: nowrap; transition: letter-spacing 0.25s ease, color 0.25s ease; }
+.une-semaine-cta:hover { letter-spacing: 0.36em; color: #C09840; }
+
+@media (max-width: 980px) {
+  .une-semaine-wrap { grid-template-columns: 1fr; gap: 48px; padding: 44px 28px 48px; }
+  .une-semaine-intro { align-items: center; text-align: center; }
+  .une-semaine-intro-sep { align-self: center; }
+  .une-semaine-intro-txt { max-width: 460px; }
+}
+@media (max-width: 760px) {
+  .une-semaine-carte { grid-template-columns: 1fr; }
+  .une-semaine-photo { min-height: 240px; }
+  .une-semaine-infos { padding: 30px 26px; }
+  .une-semaine-pied { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .une-semaine-nom, .une-semaine-accroche { max-width: none; }
 }
 
-.une-semaine-demeure--inverse {
-  grid-template-columns: 1fr 1.1fr;
+/* ── Animation au scroll : intro depuis la gauche, cartes depuis la droite (one-shot) ── */
+.une-semaine-embleme,
+.une-semaine-eyebrow,
+.une-semaine-titre,
+.une-semaine-intro-sep,
+.une-semaine-intro-txt {
+  opacity: 0;
+  transform: translateX(-44px);
+  transition: opacity 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.une-semaine-embleme    { transition-delay: 0s; }
+.une-semaine-eyebrow    { transition-delay: 0.10s; }
+.une-semaine-titre      { transition-delay: 0.20s; }
+.une-semaine-intro-sep  { transition-delay: 0.30s; }
+.une-semaine-intro-txt  { transition-delay: 0.38s; }
+
+.une-semaine-carte {
+  opacity: 0;
+  transform: translateX(44px);
+  transition: opacity 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-.une-semaine-demeure--inverse .une-semaine-photo {
-  order: 2;
+.une-semaine--visible .une-semaine-embleme,
+.une-semaine--visible .une-semaine-eyebrow,
+.une-semaine--visible .une-semaine-titre,
+.une-semaine--visible .une-semaine-intro-sep,
+.une-semaine--visible .une-semaine-intro-txt,
+.une-semaine--visible .une-semaine-carte {
+  opacity: 1;
+  transform: translateX(0);
 }
 
-.une-semaine-demeure--inverse .une-semaine-infos {
-  order: 1;
-}
-
-/* ── Filigrane chiffre romain ── */
-.une-semaine-filigrane {
-  position: absolute;
-  top: 40px;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 260px;
-  line-height: 1;
-  color: rgba(192, 152, 64, 0.04);
-  letter-spacing: -0.04em;
-  pointer-events: none;
-  user-select: none;
-  z-index: 0;
-}
-
-.une-semaine-filigrane--gauche {
-  left: 56px;
-}
-
-.une-semaine-filigrane--droite {
-  right: 56px;
-}
-
-/* ── Photo bord à bord ── */
-.une-semaine-photo {
-  position: relative;
-  min-height: 520px;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.une-semaine-photo img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-}
-
-/* ── Infos ── */
-.une-semaine-infos {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 16px 56px;
-}
-
-.une-semaine-meta {
-  font-family: 'Crimson Pro', Georgia, serif;
-  font-size: 11px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: rgba(192, 152, 64, 0.7);
-  margin-bottom: 16px;
-}
-
-/* ── Nom avec lettrine ── */
-.une-semaine-nom {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-  line-height: 0.9;
-  margin: 0 0 20px;
-  font-weight: 400;
-}
-
-.une-semaine-nom-lettrine {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 120px;
-  font-style: italic;
-  color: #C09840;
-  line-height: 0.9;
-}
-
-.une-semaine-nom-reste {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 56px;
-  color: #F7F2E8;
-  letter-spacing: 0.005em;
-  line-height: 0.9;
-}
-
-/* ── Accroche ── */
-.une-semaine-accroche {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 17px;
-  font-style: italic;
-  color: rgba(247, 242, 232, 0.7);
-  line-height: 1.6;
-  max-width: 520px;
-  margin: 0 0 30px;
-}
-
-/* ── Citation ── */
-.une-semaine-citation {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 22px;
-  font-style: italic;
-  color: rgba(247, 242, 232, 0.85);
-  line-height: 1.55;
-  max-width: 540px;
-  margin: 0 0 18px;
-}
-
-/* ── Signature propriétaires ── */
-.une-semaine-signature {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 40px;
-}
-
-.une-semaine-signature-filet {
-  display: block;
-  width: 36px;
-  height: 1px;
-  background: #C09840;
-}
-
-.une-semaine-signature-texte {
-  font-family: 'Crimson Pro', Georgia, serif;
-  font-size: 10px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: #C09840;
-}
-
-/* ── Pied ── */
-.une-semaine-pied {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  padding-top: 24px;
-  border-top: 1px solid rgba(192, 152, 64, 0.2);
-}
-
-.une-semaine-prix {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.une-semaine-prix-prefix {
-  font-family: 'Crimson Pro', Georgia, serif;
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: rgba(247, 242, 232, 0.45);
-}
-
-.une-semaine-prix-val {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 22px;
-  font-weight: 400;
-  color: rgba(247, 242, 232, 0.75);
-  line-height: 1;
-}
-
-.une-semaine-prix-nuit {
-  font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 12px;
-  font-style: italic;
-  color: rgba(247, 242, 232, 0.4);
-}
-
-.une-semaine-cta {
-  font-family: 'Crimson Pro', Georgia, serif;
-  font-size: 13px;
-  letter-spacing: 0.35em;
-  text-transform: uppercase;
-  color: #C09840;
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: letter-spacing 0.25s ease, color 0.25s ease;
-}
-
-.une-semaine-cta:hover {
-  letter-spacing: 0.42em;
-  color: #EDD880;
-}
-
-/* ── Liaison ornementale entre demeures ── */
-.une-semaine-liaison {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 28px;
-  padding: 28px 48px;
-}
-
-.une-semaine-liaison-filet {
-  flex: 1;
-  max-width: 260px;
-  height: 1px;
-}
-
-.une-semaine-liaison-filet--g {
-  background: linear-gradient(90deg, transparent, rgba(192, 152, 64, 0.5));
-}
-
-.une-semaine-liaison-filet--d {
-  background: linear-gradient(90deg, rgba(192, 152, 64, 0.5), transparent);
-}
-
-.une-semaine-liaison-centre {
-  font-family: 'Playfair Display', Georgia, serif;
-  font-size: 16px;
-  color: #C09840;
-  letter-spacing: 0.32em;
-  white-space: nowrap;
-}
-
-/* ── Responsive ── */
-@media (max-width: 900px) {
-  .une-semaine-demeure,
-  .une-semaine-demeure--inverse {
-    grid-template-columns: 1fr;
-    padding: 56px 0 48px;
-  }
-  .une-semaine-demeure--inverse .une-semaine-photo,
-  .une-semaine-demeure--inverse .une-semaine-infos {
-    order: 0;
-  }
-  .une-semaine-filigrane {
-    display: none;
-  }
-  .une-semaine-photo {
-    min-height: 300px;
-  }
-  .une-semaine-infos {
-    padding: 36px 28px 8px;
-  }
-  .une-semaine-nom-lettrine {
-    font-size: 80px;
-  }
-  .une-semaine-nom-reste {
-    font-size: 36px;
-  }
-  .une-semaine-pied {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 20px;
-  }
-}
-
-@media (max-width: 500px) {
-  .une-semaine-nom-lettrine {
-    font-size: 64px;
-  }
-  .une-semaine-nom-reste {
-    font-size: 28px;
-  }
-  .une-semaine-citation {
-    font-size: 18px;
+@media (prefers-reduced-motion: reduce) {
+  .une-semaine-embleme,
+  .une-semaine-eyebrow,
+  .une-semaine-titre,
+  .une-semaine-intro-sep,
+  .une-semaine-intro-txt,
+  .une-semaine-carte {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

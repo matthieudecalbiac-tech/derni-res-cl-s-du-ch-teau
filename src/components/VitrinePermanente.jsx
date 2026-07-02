@@ -3,6 +3,7 @@ import { useChateaux } from "../hooks/useChateaux";
 import ChateauModal from "./ChateauModal";
 import VitrineChateau from "./VitrineChateau";
 import TransitionPorte from "./TransitionPorte";
+import CarteChateaux from "./CarteChateaux";
 import "../styles/espace-membre.css";
 import "../styles/vitrines.css";
 
@@ -10,6 +11,7 @@ export default function VitrinePermanente({ onClose }) {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [transitionChateau, setTransitionChateau] = useState(null);
   const [filtre, setFiltre] = useState("tous");
+  const [survol, setSurvol] = useState(null);
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -28,39 +30,35 @@ export default function VitrinePermanente({ onClose }) {
   const chateauxFiltres = filtre === "tous" ? chateaux : chateaux.filter(c => c.region === filtre);
 
   return (
-    <div className={"em-overlay " + (visible ? "em-overlay--visible" : "")}>
+    <div className={"em-overlay vit-page " + (visible ? "em-overlay--visible" : "")}>
 
-      <header className="page-header">
-        <div className="page-header-gauche">
-          <span className="page-header-lys">&#x269C;</span>
-          <span className="page-header-titre">Vitrines permanentes</span>
-        </div>
-        <button className="page-header-fermer" onClick={onClose}>Fermer</button>
+      <header className="vit-topbar">
+        <button className="vit-topbar-logo" onClick={onClose} aria-label="Accueil">
+          <img src="/L1.png" alt="" aria-hidden="true" className="vit-topbar-embleme" />
+          <img src="/L2.png" alt="Les Clés du Château" className="vit-topbar-wordmark" />
+        </button>
+        <span className="vit-topbar-titre">Vitrines permanentes</span>
       </header>
 
       <div className="vit-hero">
         <div className="vit-hero-bg" />
-        <div className="vit-hero-contenu">
-          <div className="em-orn">
-            <div className="em-orn-ligne" />
-            <span className="em-orn-lys">&#x269C;</span>
-            <div className="em-orn-ligne" />
+        <div className="vit-hero-grille">
+          <div className="vit-hero-titrecol">
+            <p className="vit-fil">Accueil <span>&rsaquo;</span> Les Vitrines Permanentes</p>
+            <h1 className="vit-titre">Les Vitrines<br />Permanentes</h1>
           </div>
-          <p className="vit-surtitre">Patrimoine · France · Histoire</p>
-          <h1 className="vit-titre">Les Vitrines Permanentes</h1>
-          <p className="vit-accroche">
-            Chaque vitrine est une page éditoriale construite comme un article de fond —
-            histoire du lieu, famille propriétaire, territoire. Un univers, pas une fiche produit.
-            Le château valide chaque ligne avant mise en ligne. C’est sa voix.
-          </p>
-          {/* Audit Fondation J2 (P1-1) : chiffres retirés (⚜) ; « <3h » conservé (factuel) */}
-          <div className="vit-stats">
-            <div className="vit-stat"><span className="vit-stat-nb">⚜</span><span className="vit-stat-lbl">Châteaux d'exception</span></div>
-            <div className="vit-stat-sep" />
-            <div className="vit-stat"><span className="vit-stat-nb">⚜</span><span className="vit-stat-lbl">Régions de France</span></div>
-            <div className="vit-stat-sep" />
-            <div className="vit-stat"><span className="vit-stat-nb">&lt;3h</span><span className="vit-stat-lbl">De Paris</span></div>
+          <div className="vit-hero-introcol">
+            <p className="vit-surtitre">Patrimoine &middot; France &middot; Histoire</p>
+            <p className="vit-accroche">
+              <span className="vit-lettrine">C</span>haque vitrine est une page éditoriale
+              construite comme un article de fond &mdash; histoire du lieu, famille propriétaire,
+              territoire. <strong>Un univers, pas une fiche produit.</strong>
+            </p>
+            <p className="vit-citation">
+              Le château valide chaque ligne avant mise en ligne. C&rsquo;est sa voix.
+            </p>
           </div>
+          <div className="vit-hero-gravure" />
         </div>
       </div>
 
@@ -75,30 +73,44 @@ export default function VitrinePermanente({ onClose }) {
           ))}
         </div>
 
-        <div className="vit-grille">
-          {chateauxFiltres.map(c => (
-            <div key={c.id} className="vit-carte" onClick={() => setTransitionChateau(c)}>
-              <div className="vit-carte-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
-                <div className="vit-carte-img-overlay" />
-                <span className="vit-carte-region">{c.region}</span>
-              </div>
-              <div className="vit-carte-corps">
-                <h3 className="vit-carte-nom">{c.nom}</h3>
-                <p className="vit-carte-accroche">{c.accroche}</p>
-                {c.proprietaires?.citation && (
-                  <p className="vit-carte-citation">
-                    « {c.proprietaires.citation.substring(0, 90)}… »
-                  </p>
-                )}
-                <div className="vit-carte-pied">
-                  <span className="vit-carte-prix">
-                    {c.chambres?.[0] ? `à partir de ${c.chambres[0].prix} € / nuit` : "Sur demande"}
-                  </span>
-                  <span className="vit-carte-lien">Voir la vitrine →</span>
+        <div className="vit-corps-bas">
+          <aside className="vit-carte-france">
+            <h3 className="vit-carte-titre">Où trouver nos châteaux</h3>
+            <CarteChateaux
+              chateaux={chateauxFiltres}
+              survolId={survol}
+              onSurvol={setSurvol}
+              onOuvrir={(id) => {
+                const c = chateaux.find((ch) => ch.id === id);
+                if (c) setTransitionChateau(c);
+              }}
+            />
+          </aside>
+
+          <div className="vit-grille">
+            {chateauxFiltres.map(c => (
+              <div key={c.id}
+                className={"vit-carte" + (survol === c.id ? " actif" : "")}
+                onClick={() => setTransitionChateau(c)}
+                onMouseEnter={() => setSurvol(c.id)}
+                onMouseLeave={() => setSurvol(null)}>
+                <div className="vit-carte-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
+                  <div className="vit-carte-img-overlay" />
+                  <span className="vit-carte-region">{c.region}</span>
+                </div>
+                <div className="vit-carte-corps">
+                  <h3 className="vit-carte-nom">{c.nom}</h3>
+                  <p className="vit-carte-accroche">{c.accroche}</p>
+                  <div className="vit-carte-pied">
+                    <span className="vit-carte-prix">
+                      {c.chambres?.[0] ? `à partir de ${c.chambres[0].prix} € / nuit` : "Sur demande"}
+                    </span>
+                    <span className="vit-carte-lien">Lire l’article →</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 

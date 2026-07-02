@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import VitrineDernieresCle from "./VitrineDernieresCle";
@@ -35,6 +35,29 @@ function chateauxDisponibles(liste, dateArrivee) {
   });
 }
 
+function genererGrilleMois(premierJourMois) {
+  const annee = premierJourMois.getFullYear();
+  const mois = premierJourMois.getMonth();
+  const premier = new Date(annee, mois, 1);
+  const decalage = (premier.getDay() + 6) % 7;
+  const nbJours = new Date(annee, mois + 1, 0).getDate();
+  const cases = [];
+  // jours du mois PRECEDENT pour combler le debut de la 1re semaine
+  for (let i = decalage; i > 0; i--) {
+    cases.push({ date: new Date(annee, mois, 1 - i), horsMois: true });
+  }
+  // jours du mois COURANT
+  for (let j = 1; j <= nbJours; j++) {
+    cases.push({ date: new Date(annee, mois, j), horsMois: false });
+  }
+  // jours du mois SUIVANT pour completer jusqu'a 42 cases (6 semaines)
+  let suiv = 1;
+  while (cases.length < 42) {
+    cases.push({ date: new Date(annee, mois + 1, suiv++), horsMois: true });
+  }
+  return cases;
+}
+
 export default function DernieresCles({ onClose }) {
   const navigate = useNavigate();
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
@@ -53,24 +76,44 @@ export default function DernieresCles({ onClose }) {
   const [dateArrivee, setDateArrivee] = useState(null);
   const [dateDepart, setDateDepart] = useState(null);
   const [etape, setEtape] = useState("arrivee");
+  const [moisAffiche, setMoisAffiche] = useState(() => {
+    const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1);
+  });
+  // 1er jour du mois actuellement affiché dans le calendrier mensuel
+  const [voyageurs, setVoyageurs] = useState(2);
+  // DECORATIF — aucune capacité dans les données château. Ne filtre rien.
+  // À brancher au sprint dispo/capacité Supabase (cf brique disponibilités transverse).
+  const [nbNuits, setNbNuits] = useState(null);
+  // nb de nuits choisi via le sélecteur ; pilote la date de départ si arrivée fixée.
+  const [filtreRegion, setFiltreRegion] = useState("toutes");
+  const [filtreTri, setFiltreTri] = useState("pertinence");
   const [chateauSurvol, setChateauSurvol] = useState(null);
-  const mapRef = useRef(null);
-  const mapInstanceRef = useRef(null);
-  const markersRef = useRef({});
   const { chateaux, loading, error } = useChateaux();
   // Audit Fondation J2 — P0-2 : ne lister que les châteaux ayant réellement une
   // offre Module B (modules.dernieresCles). Sans ce filtre, un clic sur un
   // château mock (id 1-6, !estLaUne) navigue vers /chateau/<slug> qui redirige
   // aussitôt vers la home (VitrineChateauRoute). Aujourd'hui : Briottières,
   // Blanc Buisson, Chantilly.
-  const chateauxFiltres = useMemo(
-    () =>
-      chateauxDisponibles(
-        chateaux.filter((c) => c.modules?.dernieresCles === true),
-        dateArrivee,
-      ),
-    [chateaux, dateArrivee]
-  );
+  const chateauxFiltres = useMemo(() => {
+    let base = chateaux.filter((c) => c.modules?.dernieresCles === true);
+    if (filtreRegion !== "toutes") base = base.filter((c) => c.region === filtreRegion);
+    return chateauxDisponibles(base, dateArrivee);
+  }, [chateaux, dateArrivee, filtreRegion]);
+
+  const prixDe = (c) =>
+    c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100))
+                : (c.chambres?.[0]?.prix ?? Infinity);
+  const chateauxAffiches = useMemo(() => {
+    const arr = [...chateauxFiltres];
+    if (filtreTri === "prix-asc") arr.sort((a, b) => prixDe(a) - prixDe(b));
+    else if (filtreTri === "prix-desc") arr.sort((a, b) => prixDe(b) - prixDe(a));
+    return arr; // "pertinence" = ordre naturel (pas de tri)
+  }, [chateauxFiltres, filtreTri]);
+
+  const regionsDispo = useMemo(() => {
+    const base = chateaux.filter((c) => c.modules?.dernieresCles === true);
+    return ["toutes", ...Array.from(new Set(base.map((c) => c.region))).sort()];
+  }, [chateaux]);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -80,91 +123,129 @@ export default function DernieresCles({ onClose }) {
     return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
   }, [onClose, chateauSelectionne]);
 
-  useEffect(() => {
-    if (!mapRef.current || mapInstanceRef.current || !visible) return;
-    const L = window.L;
-    if (!L) return;
-    const map = L.map(mapRef.current, { zoomControl: true, scrollWheelZoom: true });
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: "\u00a9 OpenStreetMap"
-    }).addTo(map);
-    map.setView([46.8, 2.5], 6);
-    mapInstanceRef.current = map;
-  }, [visible]);
-
-  useEffect(() => {
-    const L = window.L;
-    const map = mapInstanceRef.current;
-    if (!L || !map) return;
-    Object.values(markersRef.current).forEach(m => m.remove());
-    markersRef.current = {};
-    chateauxFiltres.filter(c => c.coordonnees).forEach(c => {
-      const isHover = chateauSurvol === c.id;
-      const icon = L.divIcon({
-        className: "",
-        html: `<div style="width:${isHover?18:12}px;height:${isHover?18:12}px;border-radius:50%;background:${isHover?"#EDD880":"#C09840"};border:2px solid ${isHover?"#FFF":"#EDD880"};box-shadow:0 0 ${isHover?16:8}px rgba(192,152,64,${isHover?0.9:0.6});transition:all 0.2s;cursor:pointer"></div>`,
-        iconSize: [isHover?18:12, isHover?18:12],
-        iconAnchor: [isHover?9:6, isHover?9:6],
-      });
-      const marker = L.marker([c.coordonnees.lat, c.coordonnees.lng], { icon })
-        .addTo(map)
-        .bindPopup(`<div style="font-family:Georgia,serif;min-width:180px;padding:4px"><strong style="font-size:0.95rem">${c.nom}</strong><br/><span style="color:#888;font-size:0.82em">${c.region} · ${c.distanceParis}</span><br/><span style="color:#C09840;font-weight:bold;font-size:0.85em">${c.urgence}</span></div>`)
-        .on("click", () => ouvrirChateauModuleB(c));
-      markersRef.current[c.id] = marker;
-    });
-  }, [chateauxFiltres, chateauSurvol, mapInstanceRef.current]);
-
   const dates = getDatesPossibles();
 
   const handleSelectDate = (d) => {
     if (etape === "arrivee") {
-      setDateArrivee(d); setDateDepart(null); setEtape("depart");
+      setDateArrivee(d);
+      if (nbNuits) {
+        const dep = new Date(d);
+        dep.setDate(dep.getDate() + nbNuits);
+        setDateDepart(dep);
+        setEtape("done");
+      } else {
+        setDateDepart(null);
+        setEtape("depart");
+      }
     } else {
       if (d > dateArrivee) { setDateDepart(d); setEtape("done"); }
       else { setDateArrivee(d); setDateDepart(null); setEtape("depart"); }
     }
   };
 
-  const reset = () => { setDateArrivee(null); setDateDepart(null); setEtape("arrivee"); };
+  const choisirNuits = (n) => {
+    setNbNuits(n);
+    if (dateArrivee) {
+      const dep = new Date(dateArrivee);
+      dep.setDate(dep.getDate() + n);
+      setDateDepart(dep);
+      setEtape("done");
+    }
+  };
+
+  const reset = () => { setDateArrivee(null); setDateDepart(null); setEtape("arrivee"); setNbNuits(null); };
+  const moisPrecedent = () =>
+    setMoisAffiche(m => new Date(m.getFullYear(), m.getMonth() - 1, 1));
+  const moisSuivant = () =>
+    setMoisAffiche(m => new Date(m.getFullYear(), m.getMonth() + 1, 1));
   const isArrivee = (d) => dateArrivee && d.toDateString() === dateArrivee.toDateString();
   const isDepart = (d) => dateDepart && d.toDateString() === dateDepart.toDateString();
   const isBetween = (d) => dateArrivee && dateDepart && d > dateArrivee && d < dateDepart;
 
   const survolChateau = (id) => {
     setChateauSurvol(id);
-    const map = mapInstanceRef.current;
-    const marker = markersRef.current[id];
-    if (map && marker) { marker.openPopup(); }
   };
+
+  const estSelectionnable = (d) => {
+    if (!d) return false;
+    const j = joursAvant(d);
+    return j >= 1 && j <= 30;
+  };
+  // garde la même fenêtre J+1..J+30 que la bande actuelle, pour cohérence du filtrage
+
+  const labelMois = moisAffiche.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+
+  const nuitsEffectives = (dateArrivee && dateDepart)
+    ? Math.round((dateDepart - dateArrivee) / 86400000)
+    : nbNuits;
 
   return (
     <div className={"dk-overlay " + (visible ? "dk-overlay--visible" : "")}>
-      <header className="dk-header">
-        <div className="dk-header-gauche">
-          <span className="dk-header-lys">&#x269C;</span>
-          <span className="dk-header-titre">Les Clés du Château</span>
-          <span className="dk-header-sep">·</span>
-          <span className="dk-header-club">Les Dernières Clés</span>
-        </div>
-        <div className="dk-header-droite">
-          <button className="dk-btn-retour" onClick={onClose}>Fermer</button>
-        </div>
+      <header className="dk-topbar">
+        <button className="dk-topbar-logo" onClick={onClose} aria-label="Accueil">
+          <img src="/L1.png" alt="" aria-hidden="true" className="dk-topbar-embleme" />
+          <img src="/L2.png" alt="Les Clés du Château" className="dk-topbar-wordmark" />
+        </button>
+        <span className="dk-topbar-titre">Dernières clés</span>
       </header>
 
-      <div className="dk-layout">
+      <div className="dk-page">
 
-        {/* ── PANNEAU GAUCHE ── */}
-        <div className="dk-panneau">
+        <div className="dk-tete">
 
-          {/* En-tête éditorial */}
-          <div className="dk-panneau-hero">
-            <div className="dk-orn"><div className="dk-orn-ligne" /><span className="dk-orn-lys">&#x269C;</span><div className="dk-orn-ligne" /></div>
-            <h2 className="dk-panneau-titre">Les Dernières Clés</h2>
-            <p className="dk-panneau-accroche">Des créneaux rares sur leurs dates difficiles. Choisissez vos dates.</p>
-          </div>
+        {/* SECTION 1 : HERO éditorial */}
+        <section className="dk-section dk-section-hero">
+          <div className="dk-orn"><div className="dk-orn-ligne" /><span className="dk-orn-lys">&#x269C;</span><div className="dk-orn-ligne" /></div>
+          <h2 className="dk-panneau-titre">Dernières clés</h2>
+          <p className="dk-hero-soustitre">Les offres de dernière minute</p>
+          <div className="dk-hero-sep"><span className="dk-hero-sep-l" /><span className="dk-hero-sep-pt">&#x2756;</span><span className="dk-hero-sep-l" /></div>
+          <p className="dk-panneau-accroche"><strong>Des séjours rares, à saisir sur leurs créneaux d’exception. Choisissez vos dates.</strong></p>
+          <p className="dk-hero-para">Accédez à une sélection confidentielle de demeures disponibles, pour des escapades aussi brèves que mémorables.</p>
+        </section>
 
-          {/* Sélecteur dates */}
+        {/* SECTION 2 : DATES */}
+        <section className="dk-section dk-section-dates">
           <div className="dk-dates-bloc">
+            <div className="dk-bloc-cal">
+            <div className="dk-cal-mois">
+              <div className="dk-cal-nav">
+                <button className="dk-cal-nav-btn" onClick={moisPrecedent} aria-label="Mois précédent">‹</button>
+                <span className="dk-cal-nav-label">{labelMois}</span>
+                <button className="dk-cal-nav-btn" onClick={moisSuivant} aria-label="Mois suivant">›</button>
+              </div>
+              <div className="dk-cal-grille">
+                {["Lu","Ma","Me","Je","Ve","Sa","Di"].map((j) => (
+                  <span key={j} className="dk-cal-jour-entete">{j}</span>
+                ))}
+                {genererGrilleMois(moisAffiche).map((caseJour, i) => {
+                  const d = caseJour.date;
+                  if (caseJour.horsMois) {
+                    return <span key={i} className="dk-cal-case dk-cal-case-horsmois">{d.getDate()}</span>;
+                  }
+                  const selectionnable = estSelectionnable(d);
+                  const classes =
+                    "dk-cal-case" +
+                    (selectionnable ? " dk-cal-case-dispo" : " dk-cal-case-off") +
+                    (isArrivee(d) ? " dk-cal-arrivee" : "") +
+                    (isDepart(d) ? " dk-cal-depart" : "") +
+                    (isBetween(d) ? " dk-cal-between" : "");
+                  return (
+                    <button
+                      key={i}
+                      className={classes}
+                      disabled={!selectionnable}
+                      onClick={() => selectionnable && handleSelectDate(d)}
+                    >
+                      {d.getDate()}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            </div>
+
+            <div className="dk-bloc-selection">
+              <span className="dk-bloc-selection-titre">Sélection actuelle</span>
             <div className="dk-dates-etapes">
               <div className={"dk-dates-etape " + (etape === "arrivee" ? "actif" : dateArrivee ? "done" : "")} onClick={() => setEtape("arrivee")}>
                 <span className="dk-dates-etape-num">1</span>
@@ -184,53 +265,107 @@ export default function DernieresCles({ onClose }) {
               {dateArrivee && <button className="dk-dates-reset" onClick={reset}>✕</button>}
             </div>
 
-            <div className="dk-calendrier">
-              {dates.map((d, i) => {
-                const j = joursAvant(d);
-                const urg = j <= 7 ? "j7" : j <= 10 ? "j10" : "j15";
-                return (
-                  <button key={i} className={"dk-cal-jour dk-cal-" + urg + (isArrivee(d) ? " dk-cal-arrivee" : "") + (isDepart(d) ? " dk-cal-depart" : "") + (isBetween(d) ? " dk-cal-between" : "")} onClick={() => handleSelectDate(d)}>
-                    <span className="dk-cal-jour-nom">{d.toLocaleDateString("fr-FR", { weekday: "short" })}</span>
-                    <span className="dk-cal-jour-num">{d.toLocaleDateString("fr-FR", { day: "numeric" })}</span>
-                    <span className="dk-cal-jour-mois">{d.toLocaleDateString("fr-FR", { month: "short" })}</span>
-                    {j <= 15 && <span className={"dk-cal-urgence dk-cal-urgence-" + urg}>J-{j}</span>}
-                  </button>
-                );
-              })}
+            <div className="dk-selecteurs">
+              <div className="dk-selecteur">
+                <span className="dk-selecteur-label">Nombre de nuits</span>
+                <div className="dk-selecteur-options">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <button
+                      key={n}
+                      className={"dk-selecteur-opt " + (nuitsEffectives === n ? "actif" : "")}
+                      onClick={() => choisirNuits(n)}
+                    >
+                      {n} {n > 1 ? "nuits" : "nuit"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="dk-selecteur">
+                <span className="dk-selecteur-label">Voyageurs</span>
+                <div className="dk-selecteur-options">
+                  {[1, 2, 3, 4].map((v) => (
+                    <button
+                      key={v}
+                      className={"dk-selecteur-opt " + (voyageurs === v ? "actif" : "")}
+                      onClick={() => setVoyageurs(v)}
+                    >
+                      {v}{v === 4 ? "+" : ""}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
             </div>
           </div>
+        </section>
 
-          {/* Liste châteaux */}
+        </div>
+
+        {/* SECTION 3 : FILTRES (réservé, rempli en étape D) */}
+        <section className="dk-section dk-section-filtres">
+          <div className="dk-filtres-barre">
+            <div className="dk-filtres-titre">
+              <svg className="dk-filtres-ico" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <line x1="3" y1="6" x2="17" y2="6" stroke="#C09840" strokeWidth="1.3" strokeLinecap="round"/>
+                <line x1="3" y1="10" x2="17" y2="10" stroke="#C09840" strokeWidth="1.3" strokeLinecap="round"/>
+                <line x1="3" y1="14" x2="17" y2="14" stroke="#C09840" strokeWidth="1.3" strokeLinecap="round"/>
+                <circle cx="7" cy="6" r="2" fill="#FEFCF8" stroke="#C09840" strokeWidth="1.3"/>
+                <circle cx="13" cy="10" r="2" fill="#FEFCF8" stroke="#C09840" strokeWidth="1.3"/>
+                <circle cx="9" cy="14" r="2" fill="#FEFCF8" stroke="#C09840" strokeWidth="1.3"/>
+              </svg>
+              <span className="dk-filtres-titre-txt">Filtrer les offres</span>
+            </div>
+            <div className="dk-filtre">
+              <label className="dk-filtre-label">Région</label>
+              <select className="dk-filtre-select" value={filtreRegion} onChange={(e) => setFiltreRegion(e.target.value)}>
+                {regionsDispo.map((r) => (
+                  <option key={r} value={r}>{r === "toutes" ? "Toutes les régions" : r}</option>
+                ))}
+              </select>
+            </div>
+            <div className="dk-filtre">
+              <label className="dk-filtre-label">Trier par</label>
+              <select className="dk-filtre-select" value={filtreTri} onChange={(e) => setFiltreTri(e.target.value)}>
+                <option value="pertinence">Pertinence</option>
+                <option value="prix-asc">Prix croissant</option>
+                <option value="prix-desc">Prix décroissant</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 4 : GRILLE */}
+        <section className="dk-section dk-section-grille">
           <div className="dk-liste">
             <div className="dk-liste-header">
-              <span className="dk-liste-nb">{chateauxFiltres.length}</span>
-              {" "}domaine{chateauxFiltres.length > 1 ? "s" : ""} disponible{chateauxFiltres.length > 1 ? "s" : ""}
+              <span className="dk-liste-nb">{chateauxAffiches.length}</span>
+              {" "}domaine{chateauxAffiches.length > 1 ? "s" : ""} disponible{chateauxAffiches.length > 1 ? "s" : ""}
               {dateArrivee && dateDepart && <span className="dk-liste-dates"> · {formatDate(dateArrivee)} → {formatDate(dateDepart)}</span>}
             </div>
             <div className="dk-liste-items">
               {loading ? (
                 <SkeletonChateau count={6} />
               ) : (
-                chateauxFiltres.map(c => {
-                const classBadge = { "J-7": "dk-badge-j7", "J-10": "dk-badge-j10", "J-15": "dk-badge-j15" }[c.urgence] || "dk-badge-j15";
+                chateauxAffiches.map(c => {
                 const prixFinal = c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100)) : c.chambres?.[0]?.prix;
                 return (
                   <div
                     key={c.id}
-                    className={"dk-liste-item " + (chateauSurvol === c.id ? "survol" : "")}
+                    className={"dk-carte-offre " + (chateauSurvol === c.id ? "survol" : "")}
                     onClick={() => ouvrirChateauModuleB(c)}
                     onMouseEnter={() => survolChateau(c.id)}
                     onMouseLeave={() => setChateauSurvol(null)}
                   >
-                    <div className="dk-liste-item-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
-                      {c.urgence && <span className={"dk-badge dk-badge-sm " + classBadge}>{c.urgence}</span>}
+                    <div className="dk-carte-offre-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
+                      {/* badge fixe — à brancher sur chambresRestantes/dispo au sprint Supabase */}
+                      <span className="dk-carte-offre-badge">DISPONIBLE</span>
                     </div>
-                    <div className="dk-liste-item-info">
-                      <div className="dk-liste-item-region">{c.region} · {c.distanceParis}</div>
-                      <div className="dk-liste-item-nom">{c.nom}</div>
-                      <div className="dk-liste-item-prix">
-                        {c.prixBarre && <span className="dk-liste-prix-barre">{c.prixBarre} €</span>}
-                        {prixFinal && <span className="dk-liste-prix-final">{prixFinal} € <span className="dk-liste-prix-nuit">/ nuit</span></span>}
+                    <div className="dk-carte-offre-corps">
+                      <div className="dk-carte-offre-region">{c.region} · {c.distanceParis}</div>
+                      <div className="dk-carte-offre-nom">{c.nom}</div>
+                      <div className="dk-carte-offre-prix">
+                        {c.prixBarre && <span className="dk-carte-offre-prix-barre">{c.prixBarre} €</span>}
+                        {prixFinal && <span className="dk-carte-offre-prix-final">{prixFinal} € <span className="dk-carte-offre-prix-nuit">/ nuit</span></span>}
                       </div>
                     </div>
                   </div>
@@ -239,10 +374,8 @@ export default function DernieresCles({ onClose }) {
               )}
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* ── CARTE DROITE ── */}
-        <div ref={mapRef} className="dk-carte-zone" />
       </div>
 
       {transitionChateau && (

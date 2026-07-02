@@ -5,6 +5,14 @@
     "commentaire": "Baseline initiale après audit QA d'avril 2026. Les seuils reflètent la dette identifiée et documentée dans les commits feat(qa):* et fix(a11y):* de la branche feature/dashboard-generique. À réviser quand un chantier de résolution démarre : pass éditorial Tanguy (images + typographie), refonte tokens couleurs Tanguy, ou retrait du videoBackground Blanc Buisson.",
     "revisions": [
       {
+        "date": "2026-07-01",
+        "agent": "validation-donnees",
+        "metrique": "erreurs.max",
+        "ancien": "erreurs.max=3",
+        "nouveau": "erreurs.max=0",
+        "raison": "Règle images resserrée >=3 -> >=2 (Briottières a 2 images après retrait volontaire de la photo générique tropicale). Le seuil >=3 était une dette (URLs Unsplash ajoutées pour l'atteindre) ; le runtime validateChateau n'exige que >=1, >=2 est le plancher produit. Tous les châteaux conformes -> 0 erreur tolérée (zéro tolérance). Validation passe à 8/8 châteaux valides."
+      },
+      {
         "date": "2026-05-07",
         "agent": "console-errors",
         "metrique": "erreurs.max + avertissements.max (suite Chantier 1.8)",
@@ -89,9 +97,9 @@
     },
     "validation-donnees": {
       "erreurs": {
-        "max": 3,
+        "max": 0,
         "actuel": 0,
-        "dette": "3 châteaux avec moins de 3 images (Pierrefonds, Chantilly, Ferté-Saint-Aubin) — pass éditorial Tanguy. Suite à suppression d'URLs Unsplash cassées en commit 2df3d52, sans remplacement pour conserver l'intégrité éditoriale (refus du mensonge photographique)."
+        "dette": "Règle images >=2 (minimum produit, resserrée de >=3 le 2026-07-01). Tous les châteaux conformes → 0 erreur tolérée. Briottières a 2 images (retrait volontaire de la générique tropicale)."
       },
       "avertissements": {
         "max": 100,

@@ -1,0 +1,67 @@
+.pr-main {
+  background: var(--lcc-creme);
+  min-height: 100vh;
+  padding: calc(var(--lcc-header-h, 105px) + 48px) 56px 80px;
+  box-sizing: border-box;
+}
+.pr-entete { text-align: center; margin-bottom: 56px; }
+.pr-orn { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 18px; }
+.pr-orn-l { width: 48px; height: 1px; background: rgba(192,152,64,0.5); }
+.pr-orn-lys { color: #C09840; font-size: 0.9rem; }
+.pr-titre {
+  font-family: 'Playfair Display', serif; font-weight: 400;
+  font-size: clamp(2.2rem, 3.6vw, 3.2rem); color: #1A2D5A; margin: 0;
+}
+.pr-recap {
+  font-family: 'Crimson Pro', serif; font-style: italic; font-size: 1.1rem;
+  color: #A8884E; margin: 14px 0 0; letter-spacing: 0.02em;
+}
+.pr-message {
+  text-align: center; font-family: 'Crimson Pro', serif; font-style: italic;
+  font-size: 1.15rem; color: #4A4640; padding: 60px 0;
+}
+.pr-grille {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px;
+  max-width: 1320px; margin: 0 auto;
+}
+@media (max-width: 1100px) { .pr-grille { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 680px)  { .pr-grille { grid-template-columns: 1fr; } }
+.pr-carte {
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.38);
+  overflow: hidden; transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.pr-carte--cliquable { cursor: pointer; }
+.pr-carte--cliquable:hover {
+  transform: translateY(-4px);
+  border-color: #C09840;
+  box-shadow: 0 18px 44px rgba(26,45,90,0.12);
+}
+.pr-carte-photo { height: 220px; overflow: hidden; }
+.pr-carte-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pr-carte-infos { padding: 22px 24px 26px; }
+.pr-carte-region {
+  font-family: 'Crimson Pro', serif; font-size: 0.66rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: #C09840;
+}
+.pr-carte-nom {
+  font-family: 'Playfair Display', serif; font-weight: 400; font-size: 1.3rem;
+  color: #1A2D5A; margin: 6px 0 10px;
+}
+.pr-carte-accroche {
+  font-family: 'Crimson Pro', serif; font-style: italic; font-size: 0.95rem;
+  color: #4A4640; line-height: 1.6; margin: 0 0 14px;
+}
+.pr-carte-prix {
+  font-family: 'Crimson Pro', serif; font-size: 0.95rem; color: #2A3B57; margin: 0;
+}
+.pr-carte-prix strong { font-family: 'Playfair Display', serif; color: #1A2D5A; }
+.pr-retour { text-align: center; margin-top: 56px; }
+.pr-retour-btn {
+  background: transparent; border: 1px solid rgba(192,152,64,0.4);
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem; letter-spacing: 0.1em;
+  color: #A8884E; padding: 12px 28px; cursor: pointer; transition: all 0.25s;
+}
+.pr-retour-btn:hover { border-color: #C09840; color: #1A2D5A; }
+@media (max-width: 900px) {
+  .pr-main { padding: calc(var(--lcc-header-h, 105px) + 24px) 20px 48px; }
+}

@@ -48,3 +48,9 @@ tmp-ci-artifacts/
 .env.production
 .env.development
 !.env.example
+
+# Backups locaux et sources de travail logo/decor (hors repo)
+public/_logo-backup/
+public/_decor-backup/
+public/newlogo-detoure.png
+public/newlogotext-detoure.png

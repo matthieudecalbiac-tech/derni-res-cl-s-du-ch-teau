@@ -1,141 +1,113 @@
 .bandeau-offres {
-  background: #07101E;
-  padding: 48px 48px 88px;
+  background: var(--lcc-creme);
+  padding: 48px 48px 58px;
 }
 
-/* ── Filet orné ── */
 .bandeau-offres-orne {
   display: flex;
   align-items: center;
   gap: 20px;
-  max-width: 720px;
-  margin: 0 auto 48px;
+  max-width: 540px;
+  margin: 0 auto 14px;
 }
-
-.bandeau-offres-orne-ligne {
-  flex: 1;
-  height: 1px;
-}
-
-.bandeau-offres-orne-ligne--g {
-  background: linear-gradient(90deg, transparent, rgba(192, 152, 64, 0.6));
-}
-
-.bandeau-offres-orne-ligne--d {
-  background: linear-gradient(90deg, rgba(192, 152, 64, 0.6), transparent);
-}
-
+.bandeau-offres-orne-ligne { flex: 1; height: 1px; }
+.bandeau-offres-orne-ligne--g { background: linear-gradient(90deg, transparent, rgba(192,152,64,0.6)); }
+.bandeau-offres-orne-ligne--d { background: linear-gradient(90deg, rgba(192,152,64,0.6), transparent); }
 .bandeau-offres-orne-texte {
   font-family: 'Crimson Pro', Georgia, serif;
-  font-size: 11px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: #C09840;
-  white-space: nowrap;
+  font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: #A8884E; white-space: nowrap;
 }
 
-/* ── Grille ── */
+.bandeau-offres-titre-section {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2rem, 4.5vw, 3.1rem); font-weight: 400;
+  letter-spacing: 0.04em; text-transform: uppercase;
+  color: #1A2D5A; text-align: center; margin: 0 auto 36px;
+}
+
 .bandeau-offres-grille {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  border: 1px solid rgba(192, 152, 64, 0.22);
-  max-width: 1200px;
-  margin: 0 auto;
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border: 1px solid rgba(26,45,90,0.14);
+  max-width: 1200px; margin: 0 auto;
 }
-
 .bandeau-offres-cellule {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 48px 36px 40px;
-  min-height: 210px;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: 44px 36px 40px;
+  background: transparent; border: none;
+  border-right: 1px solid rgba(26,45,90,0.14);
+  cursor: pointer; transition: background 0.3s ease;
+  font: inherit; color: inherit;
+}
+.bandeau-offres-cellule:last-child { border-right: none; }
+.bandeau-offres-cellule--centre { background: rgba(192,152,64,0.06); }
+.bandeau-offres-cellule:hover { background: rgba(192,152,64,0.09); }
+
+.bandeau-offres-num {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 18px; letter-spacing: 0.08em; color: #C09840;
+  margin-bottom: 18px; line-height: 1;
+}
+.bandeau-offres-illu {
+  width: 100%; max-width: 230px; height: auto;
+  margin-bottom: 16px; pointer-events: none; user-select: none;
   background: transparent;
-  border: none;
-  border-right: 1px solid rgba(192, 152, 64, 0.22);
-  cursor: pointer;
-  transition: background 0.3s ease;
-  font: inherit;
-  color: inherit;
 }
-
-.bandeau-offres-cellule:last-child {
-  border-right: none;
+.bandeau-offres-icone-img {
+  height: 26px; width: auto; display: block;
+  margin: 0 auto 14px; background: transparent;
 }
-
-.bandeau-offres-cellule--centre {
-  background: rgba(192, 152, 64, 0.025);
-}
-
-.bandeau-offres-cellule:hover {
-  background: rgba(192, 152, 64, 0.05);
-}
-
-.bandeau-offres-icone {
-  font-size: 28px;
-  color: #C09840;
-  margin-bottom: 18px;
-  line-height: 1;
-}
-
-.bandeau-offres-eyebrow {
-  font-family: 'Crimson Pro', Georgia, serif;
-  font-size: 9px;
-  letter-spacing: 0.38em;
-  text-transform: uppercase;
-  color: rgba(192, 152, 64, 0.65);
-  margin-bottom: 14px;
-}
-
 .bandeau-offres-titre {
   font-family: 'Playfair Display', Georgia, serif;
-  font-size: 23px;
-  font-weight: 400;
-  color: #F7F2E8;
-  margin: 0 0 12px;
-  letter-spacing: 0.005em;
+  font-size: 22px; font-weight: 400; color: #1A2D5A;
+  margin: 0 0 12px; letter-spacing: 0.005em;
 }
-
 .bandeau-offres-desc {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: 13px;
-  font-style: italic;
-  color: rgba(247, 242, 232, 0.5);
-  line-height: 1.65;
-  margin: 0 auto 22px;
-  max-width: 240px;
+  font-size: 14px; font-style: italic; color: #3A4456;
+  line-height: 1.65; margin: 0 auto 22px; max-width: 240px;
 }
-
 .bandeau-offres-lien {
   font-family: 'Crimson Pro', Georgia, serif;
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: #C09840;
-  margin-top: auto;
-  transition: letter-spacing 0.25s ease;
+  font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: #C09840; margin-top: auto; transition: letter-spacing 0.25s ease;
 }
-
-.bandeau-offres-cellule:hover .bandeau-offres-lien {
-  letter-spacing: 0.36em;
-}
+.bandeau-offres-cellule:hover .bandeau-offres-lien { letter-spacing: 0.36em; }
 
 @media (max-width: 760px) {
-  .bandeau-offres {
-    padding: 40px 20px 60px;
-  }
-  .bandeau-offres-grille {
-    grid-template-columns: 1fr;
-  }
+  .bandeau-offres { padding: 36px 20px 40px; }
+  .bandeau-offres-grille { grid-template-columns: 1fr; }
+  .bandeau-offres-cellule { border-right: none; border-bottom: 1px solid rgba(26,45,90,0.14); }
+  .bandeau-offres-cellule:last-child { border-bottom: none; }
+  .bandeau-offres-orne-texte { font-size: 10px; letter-spacing: 0.25em; }
+}
+
+/* ── Animation au scroll : entree depuis la gauche (one-shot) ── */
+.bandeau-offres-orne,
+.bandeau-offres-titre-section,
+.bandeau-offres-cellule {
+  opacity: 0;
+  transform: translateX(-48px);
+  transition: opacity 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
+              transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.bandeau-offres-orne          { transition-delay: 0s; }
+.bandeau-offres-titre-section { transition-delay: 0.12s; }
+/* les 3 cellules : delai gere en inline via index (style transitionDelay) */
+
+.bandeau-offres--visible .bandeau-offres-orne,
+.bandeau-offres--visible .bandeau-offres-titre-section,
+.bandeau-offres--visible .bandeau-offres-cellule {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bandeau-offres-orne,
+  .bandeau-offres-titre-section,
   .bandeau-offres-cellule {
-    border-right: none;
-    border-bottom: 1px solid rgba(192, 152, 64, 0.22);
-  }
-  .bandeau-offres-cellule:last-child {
-    border-bottom: none;
-  }
-  .bandeau-offres-orne-texte {
-    font-size: 10px;
-    letter-spacing: 0.25em;
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

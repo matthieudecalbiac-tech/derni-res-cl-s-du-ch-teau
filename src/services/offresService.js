@@ -25,13 +25,20 @@ function attendre(ms) {
  * @param {"dernieresCles" | "club"} module
  * @returns {Promise<Array>}
  */
-export async function getOffresPourChateau(chateauSlug, module) {
-  const cle = `${chateauSlug}|${module}`;
+export async function getOffresPourChateau(chateauSlug, module, filtre = null) {
+  // Cle de cache : inclut le filtre s'il est fourni, pour ne pas melanger
+  // resultats filtres et non-filtres.
+  const cle = filtre
+    ? `${chateauSlug}|${module}|${filtre.dateArrivee || ""}|${filtre.dateDepart || ""}|${filtre.voyageurs || ""}`
+    : `${chateauSlug}|${module}`;
   if (_cacheOffres.has(cle)) return _cacheOffres.get(cle);
   await attendre(LATENCE_MOCK_MS);
   const resultat = mockOffres.filter(
     (o) => o.chateauSlug === chateauSlug && o.module === module,
   );
+  // ═══ PLUG-READY DISPO ═══ Quand Supabase + vraies dispos : filtrer ici sur
+  // filtre.dateArrivee / filtre.dateDepart / filtre.voyageurs. Aujourd'hui : ignore (mock).
+  // Le param est accepte et participe au cache, mais ne change pas encore le resultat.
   _cacheOffres.set(cle, resultat);
   return resultat;
 }
@@ -50,7 +57,7 @@ export async function getOffreParId(offreId) {
  * @param {"dernieresCles" | "club"} module
  * @returns {Promise<number>}
  */
-export async function compterOffresPourChateau(chateauSlug, module) {
-  const offres = await getOffresPourChateau(chateauSlug, module);
+export async function compterOffresPourChateau(chateauSlug, module, filtre = null) {
+  const offres = await getOffresPourChateau(chateauSlug, module, filtre);
   return offres.length;
 }

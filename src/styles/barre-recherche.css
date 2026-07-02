@@ -1,0 +1,87 @@
+.barre-recherche {
+  background: var(--lcc-creme);
+  width: 100%;
+  padding: 0 48px 8px;
+  margin-top: -104px;
+  position: relative; z-index: 10;
+}
+.br-inner { max-width: 1480px; margin: 0 auto; }
+.br-carte {
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.25);
+  border-radius: 10px; box-shadow: 0 16px 44px rgba(26,45,90,0.10);
+  display: grid; grid-template-columns: 1.3fr auto 1fr auto 1fr auto; align-items: center;
+  padding: 10px 14px; gap: 8px;
+}
+.br-champ { display: flex; align-items: center; gap: 12px; padding: 10px 20px; cursor: pointer; }
+.br-ico { color: #C09840; font-size: 1.1rem; flex-shrink: 0; }
+.br-champ-txt { display: flex; flex-direction: column; gap: 2px; }
+.br-label {
+  font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #A8884E;
+}
+.br-valeur { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #1A2D5A; white-space: nowrap; }
+.br-chevron { color: #A8884E; font-size: 0.85rem; margin-left: auto; flex-shrink: 0; }
+.br-sep { width: 1px; height: 40px; background: rgba(192,152,64,0.25); }
+.br-cta {
+  background: #1A2D5A; color: #FAF6EE; border: none; border-radius: 8px;
+  font-family: 'Crimson Pro', serif; font-size: 0.82rem; letter-spacing: 0.1em;
+  text-transform: uppercase; padding: 16px 28px; cursor: pointer; display: flex;
+  align-items: center; gap: 10px; white-space: nowrap; transition: background 0.25s;
+}
+.br-cta:hover { background: #24386b; }
+.br-cta-fl { font-size: 1rem; }
+@media (max-width: 900px) {
+  .barre-recherche { margin-top: -24px; padding: 0 16px 8px; }
+  .br-carte { grid-template-columns: 1fr; gap: 0; }
+  .br-sep { width: 100%; height: 1px; }
+  .br-cta { width: 100%; justify-content: center; margin-top: 8px; }
+}
+
+/* ── Champ Destination deroulant ── */
+.br-champ--dest { position: relative; padding: 0; }
+.br-champ-btn {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 10px 20px; background: transparent; border: none; cursor: pointer;
+  text-align: left; font: inherit;
+}
+.br-chevron--ouvert { transform: rotate(180deg); }
+.br-dest-panneau {
+  position: absolute; top: calc(100% + 12px); left: 0; z-index: 50;
+  width: 340px; max-height: 380px; overflow-y: auto;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.25);
+  border-radius: 10px; box-shadow: 0 18px 50px rgba(26,45,90,0.16);
+  padding: 10px 0;
+}
+.br-dest-vide {
+  padding: 14px 22px; font-family: 'Crimson Pro', serif; font-style: italic;
+  color: #A8884E; font-size: 0.9rem; margin: 0;
+}
+.br-dest-region { padding: 6px 0; }
+.br-dest-region + .br-dest-region { border-top: 1px solid rgba(192,152,64,0.12); }
+.br-dest-region-titre {
+  display: block; width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;
+  padding: 8px 22px 6px; font-family: 'Crimson Pro', serif; font-size: 0.66rem;
+  letter-spacing: 0.16em; text-transform: uppercase; color: #C09840; transition: color 0.18s;
+}
+.br-dest-region-titre:hover { color: #1A2D5A; }
+.br-dest-chateaux { list-style: none; margin: 0; padding: 0; }
+.br-dest-chateau {
+  display: block; width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;
+  padding: 8px 22px 8px 34px; font-family: 'Playfair Display', serif; font-size: 0.95rem;
+  color: #1A2D5A; transition: background 0.18s;
+}
+.br-dest-chateau:hover { background: rgba(192,152,64,0.10); }
+
+/* ── Animation d'entree (en dernier dans la sequence hero) ── */
+@keyframes barreFadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.barre-recherche {
+  opacity: 0;
+  animation: barreFadeUp 1.1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation-delay: 1.45s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .barre-recherche { opacity: 1; animation: none; }
+}

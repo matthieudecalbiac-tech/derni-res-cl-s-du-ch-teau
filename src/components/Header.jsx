@@ -20,14 +20,6 @@ const MENU_ITEMS = [
     couleur: "default",
   },
   {
-    id: "conciergerie",
-    icone: "\u2726",
-    titre: "Conciergerie",
-    description: "Transfert en berline ou h\u00e9licopt\u00e8re, accueil champagne, spa priv\u00e9, photographie \u2014 nous sublimions chaque d\u00e9tail de votre s\u00e9jour.",
-    action: "conciergerie",
-    couleur: "default",
-  },
-  {
     id: "evenementiel",
     icone: "\u2726",
     titre: "Les Cl\u00e9s de l\u2019\u00c9v\u00e9nementiel",
@@ -67,7 +59,6 @@ export default function Header({
   onOuvrirDernieresClefs,
   onOuvrirProprietaires,
   onOuvrirEvenementiel,
-  onOuvrirConciergerie,
 }) {
   const navigate = useNavigate();
   const [menuOuvert, setMenuOuvert] = useState(false);
@@ -88,16 +79,16 @@ export default function Header({
   const fermer = () => setMenuOuvert(false);
 
   const handleAction = (action) => {
-    fermer();
-    setTimeout(() => {
-      if (action === "vitrines") onOuvrirVitrines?.();
-      else if (action === "dernieres") onOuvrirDernieresClefs?.();
-      else if (action === "apropos") onOuvrirAPropos?.();
-      else if (action === "conciergerie") onOuvrirConciergerie?.();
-      else if (action === "evenementiel") onOuvrirEvenementiel?.();
-      else if (action === "proprietaires") onOuvrirProprietaires?.();
-      else if (action === "club") navigate("/inscription");
-    }, 300);
+    // 1. Ouvrir la destination IMMEDIATEMENT (elle se monte par-dessus le menu, z-index superieur)
+    if (action === "vitrines") onOuvrirVitrines?.();
+    else if (action === "dernieres") onOuvrirDernieresClefs?.();
+    else if (action === "apropos") onOuvrirAPropos?.();
+    else if (action === "evenementiel") onOuvrirEvenementiel?.();
+    else if (action === "proprietaires") onOuvrirProprietaires?.();
+    else if (action === "club") navigate("/inscription");
+    // 2. Fermer le menu APRES le fondu d'entree de la destination (~550ms),
+    //    pour qu'il serve de backdrop opaque pendant le cross-fade (jamais la home).
+    setTimeout(() => setMenuOuvert(false), 550);
   };
 
   return (
@@ -109,11 +100,8 @@ export default function Header({
             onClick={() => { fermer(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
             aria-label="Accueil"
           >
-            <span className="header-lys">&#x269C;</span>
-            <div className="logo-texte">
-              <span className="logo-principal">Les Clés du Château</span>
-              <span className="logo-secondaire">Patrimoine · Art de vivre français</span>
-            </div>
+            <img src="/L1.png" alt="" aria-hidden="true" className="header-logo-embleme" />
+            <img src="/L2.png" alt="Les Clés du Château" className="header-logo-wordmark" />
           </button>
 
           <div className="header-actions">
@@ -148,11 +136,19 @@ export default function Header({
           <span />
         </button>
 
-        <div className="hm-contenu">
-          <div className="hm-ornement">
-            <span className="hm-trait" />
-            <span className="hm-lys">⚜</span>
-            <span className="hm-trait" />
+        <div className="hm-contenu hm-contenu--sommaire">
+          <div className="hm-col-gauche">
+            <h2 className="hm-sommaire-titre">Sommaire</h2>
+            <div className="hm-ornement">
+              <span className="hm-trait" />
+              <span className="hm-lys">⚜</span>
+              <span className="hm-trait" />
+            </div>
+            <p className="hm-sommaire-intro">Explorez l'univers des châteaux à travers des expériences d'exception, des lieux rares et des privilèges réservés à nos membres.</p>
+            <div className="hm-sommaire-bas">
+              <span className="hm-lys hm-lys--petit">⚜</span>
+              <p className="hm-baseline">Les plus beaux châteaux de France<br />à moins de 3h de Paris</p>
+            </div>
           </div>
 
           <nav className="hm-nav" role="navigation">
@@ -163,31 +159,17 @@ export default function Header({
                 onClick={() => handleAction(item.action)}
                 onMouseEnter={() => setItemSurvole(item.id)}
                 onMouseLeave={() => setItemSurvole(null)}
-                style={{ animationDelay: menuOuvert ? `${i * 80}ms` : "0ms" }}
+                style={{ animationDelay: menuOuvert ? `${0.35 + i * 0.11}s` : "0s" }}
               >
-                <div className="hm-item-gauche">
-                  <span className="hm-item-num">0{i + 1}</span>
-                </div>
+                <span className="hm-item-num">0{i + 1}</span>
+                <span className="hm-item-barre" />
                 <div className="hm-item-centre">
-                  <div className="hm-item-header">
-                    <span className="hm-item-icone">{item.icone}</span>
-                    <span className="hm-item-titre">{item.titre}</span>
-                  </div>
+                  <span className="hm-item-titre">{item.titre}</span>
                   <p className="hm-item-desc">{item.description}</p>
                 </div>
-                <div className="hm-item-fleche">→</div>
               </button>
             ))}
           </nav>
-
-          <div className="hm-bas">
-            <div className="hm-ornement hm-ornement--bas">
-              <span className="hm-trait" />
-              <span className="hm-lys hm-lys--petit">⚜</span>
-              <span className="hm-trait" />
-            </div>
-            <p className="hm-baseline">Les plus beaux châteaux de France · À moins de 3h de Paris</p>
-          </div>
         </div>
       </div>
     </>

@@ -3,14 +3,14 @@
   position: fixed;
   inset: 0;
   z-index: 7000;
-  background: #07101E;
+  background: #FAF6EE;
   display: flex;
   flex-direction: column;
   opacity: 0;
   transition: opacity 0.3s ease;
   height: 100vh;
   width: 100vw;
-  overflow: hidden;
+  overflow-y: auto;
 }
 .dk-overlay--visible { opacity: 1; }
 
@@ -19,49 +19,24 @@
 ═══════════════════════════════════════════ */
 
 /* Layout global */
-.dk-full {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow: hidden;
+.dk-page {
+  width: 100%; max-width: 1320px; margin: 0 auto;
+  padding: 28px 32px 60px;
+  display: flex; flex-direction: column; gap: 20px;
 }
-
-.dk-layout {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-  height: calc(100vh - 52px);
-}
-
-/* ── PANNEAU GAUCHE ── */
-.dk-panneau {
-  width: 42.857%;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  background: #07101E;
-  border-right: 1px solid rgba(192,152,64,0.15);
-  overflow: hidden;
-}
-
-.dk-panneau-hero {
-  padding: 20px 20px 14px;
-  border-bottom: 1px solid rgba(192,152,64,0.1);
-  text-align: center;
-  flex-shrink: 0;
-}
+.dk-section { width: 100%; }
+.dk-section-hero { text-align: center; }
 .dk-panneau-titre {
   font-family: 'Playfair Display', serif;
   font-size: 1.2rem;
   font-weight: 400;
-  color: #F5F0E8;
+  color: #1A2D5A;
   margin: 8px 0 5px;
 }
 .dk-panneau-accroche {
   font-family: 'Crimson Pro', serif;
   font-size: 0.85rem;
-  color: rgba(245,240,232,0.45);
+  color: #3A4456;
   font-style: italic;
   margin: 0;
 }
@@ -83,157 +58,303 @@
   align-items: center;
   gap: 7px;
   padding: 7px 10px;
-  border: 1px solid rgba(192,152,64,0.12);
-  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(192,152,64,0.3);
+  background: #FEFCF8;
   cursor: pointer;
   flex: 1;
   transition: all 0.2s;
 }
-.dk-dates-etape.actif { border-color: #C09840; background: rgba(192,152,64,0.06); }
+.dk-dates-etape.actif { border-color: #C09840; background: rgba(192,152,64,0.12); }
 .dk-dates-etape.done { border-color: rgba(192,152,64,0.3); }
 .dk-dates-etape-num {
   width: 18px; height: 18px; border-radius: 50%;
-  background: rgba(192,152,64,0.12); color: rgba(192,152,64,0.8);
+  background: rgba(192,152,64,0.18); color: rgba(192,152,64,0.8);
   font-family: 'Crimson Pro', serif; font-size: 0.7rem;
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
-.dk-dates-etape.actif .dk-dates-etape-num { background: #C09840; color: #07101E; }
+.dk-dates-etape.actif .dk-dates-etape-num { background: #C09840; color: #FBF8F1; }
 .dk-dates-etape-label {
   display: block; font-family: 'Crimson Pro', serif;
   font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
-  color: rgba(192,152,64,0.5);
+  color: #A8884E;
 }
 .dk-dates-etape-val {
   display: block; font-family: 'Playfair Display', serif;
-  font-size: 0.8rem; color: #F5F0E8;
+  font-size: 0.8rem; color: #1A2D5A;
 }
 .dk-dates-fleche { color: rgba(192,152,64,0.3); font-size: 0.85rem; flex-shrink: 0; }
 .dk-dates-reset {
   background: transparent; border: 1px solid rgba(192,152,64,0.2);
-  color: rgba(245,240,232,0.4); width: 26px; height: 26px;
+  color: #A8884E; width: 26px; height: 26px;
   cursor: pointer; font-size: 0.7rem; flex-shrink: 0; transition: all 0.2s;
 }
 .dk-dates-reset:hover { border-color: #C09840; color: #C09840; }
 
-/* Calendrier */
-.dk-calendrier {
-  display: flex; gap: 4px; overflow-x: auto; padding-bottom: 2px;
-  scrollbar-width: thin; scrollbar-color: rgba(192,152,64,0.15) transparent;
-}
-.dk-cal-jour {
-  flex-shrink: 0; width: 48px; padding: 6px 3px;
-  display: flex; flex-direction: column; align-items: center; gap: 1px;
-  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
-  cursor: pointer; transition: all 0.15s;
-}
-.dk-cal-jour:hover { border-color: rgba(192,152,64,0.4); background: rgba(192,152,64,0.05); }
-.dk-cal-arrivee, .dk-cal-depart { background: rgba(192,152,64,0.14) !important; border-color: #C09840 !important; }
-.dk-cal-between { background: rgba(192,152,64,0.05) !important; border-color: rgba(192,152,64,0.18) !important; }
-.dk-cal-j7 { border-top: 2px solid rgba(192,57,43,0.6); }
-.dk-cal-j10 { border-top: 2px solid rgba(211,84,0,0.6); }
-.dk-cal-j15 { border-top: 2px solid rgba(192,152,64,0.4); }
-.dk-cal-jour-nom { font-family: 'Crimson Pro', serif; font-size: 0.58rem; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(245,240,232,0.3); }
-.dk-cal-jour-num { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #F5F0E8; line-height: 1; }
-.dk-cal-jour-mois { font-family: 'Crimson Pro', serif; font-size: 0.58rem; color: rgba(245,240,232,0.35); }
-.dk-cal-urgence { font-family: 'Crimson Pro', serif; font-size: 0.52rem; font-weight: 600; padding: 1px 3px; margin-top: 1px; }
-.dk-cal-urgence-j7 { color: rgba(192,57,43,0.9); background: rgba(192,57,43,0.1); }
-.dk-cal-urgence-j10 { color: rgba(211,84,0,0.9); background: rgba(211,84,0,0.1); }
-.dk-cal-urgence-j15 { color: rgba(192,152,64,0.85); background: rgba(192,152,64,0.08); }
-
 /* Liste châteaux */
 .dk-liste {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  min-height: 0;
 }
 .dk-liste-header {
   padding: 10px 16px;
   border-bottom: 1px solid rgba(192,152,64,0.1);
   font-family: 'Crimson Pro', serif; font-size: 0.8rem;
-  color: rgba(245,240,232,0.4); font-style: italic; flex-shrink: 0;
+  color: #4A4640; font-style: italic; flex-shrink: 0;
 }
 .dk-liste-nb { font-family: 'Playfair Display', serif; font-size: 1rem; color: #C09840; font-style: normal; }
-.dk-liste-dates { color: rgba(192,152,64,0.55); }
+.dk-liste-dates { color: #A8884E; }
 .dk-liste-items {
   overflow-y: auto; flex: 1;
   scrollbar-width: thin; scrollbar-color: rgba(192,152,64,0.15) transparent;
 }
-.dk-liste-item {
-  display: flex; border-bottom: 1px solid rgba(192,152,64,0.07);
-  cursor: pointer; transition: background 0.15s;
-}
-.dk-liste-item:hover, .dk-liste-item.survol { background: rgba(192,152,64,0.05); }
-.dk-liste-item-img {
-  width: 90px; min-width: 90px; height: 72px;
-  background-size: cover; background-position: center;
-  position: relative; flex-shrink: 0;
-}
-.dk-badge { position: absolute; top: 6px; left: 6px; font-family: 'Crimson Pro', serif; font-weight: 700; font-size: 0.62rem; letter-spacing: 0.08em; padding: 2px 7px; }
-.dk-badge-sm { font-size: 0.58rem; padding: 2px 5px; }
-.dk-badge-j7 { background: rgba(192,57,43,0.9); color: #fff; }
-.dk-badge-j10 { background: rgba(211,84,0,0.9); color: #fff; }
-.dk-badge-j15 { background: rgba(192,152,64,0.9); color: #07101E; }
-.dk-badge-reduction { position: absolute; top: 6px; right: 6px; background: rgba(7,16,30,0.85); color: #C09840; font-family: 'Crimson Pro', serif; font-size: 0.72rem; font-weight: 600; padding: 2px 7px; }
-.dk-liste-item-info { padding: 8px 12px; flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
-.dk-liste-item-region { font-family: 'Crimson Pro', serif; font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(192,152,64,0.6); }
-.dk-liste-item-nom { font-family: 'Playfair Display', serif; font-size: 0.85rem; color: #F5F0E8; line-height: 1.2; }
-.dk-liste-item-prix { display: flex; align-items: baseline; gap: 5px; }
-.dk-liste-prix-barre { font-family: 'Crimson Pro', serif; font-size: 0.72rem; color: rgba(245,240,232,0.25); text-decoration: line-through; }
-.dk-liste-prix-final { font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #C09840; font-weight: 600; }
-.dk-liste-prix-nuit { font-size: 0.68rem; color: rgba(245,240,232,0.35); font-weight: 400; }
 
-/* Carte droite */
-.dk-carte-zone {
-  flex: 1;
-  min-width: 0;
-  position: relative;
-  z-index: 1;
-}
-
-@media (max-width: 900px) {
-  .dk-layout { flex-direction: column; }
-  .dk-panneau { width: 100%; max-height: 50vh; }
-  .dk-carte-zone { height: 300px; flex: none; }
-}
-
-/* ── Header ── */
-.dk-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  height: 52px;
-  background: rgba(7,16,30,0.98);
+/* ── Topbar (calqué sur .vit-topbar des Vitrines) ── */
+.dk-topbar {
+  position: sticky; top: 0; z-index: 100; display: flex; align-items: center;
+  justify-content: space-between; padding: 12px 3rem; flex-shrink: 0;
+  background: #FAF6EE; backdrop-filter: none;
   border-bottom: 1px solid rgba(192,152,64,0.2);
-  flex-shrink: 0;
-  z-index: 10;
 }
-.dk-header-gauche { display: flex; align-items: center; gap: 10px; }
-.dk-header-lys { color: #C09840; font-size: 1rem; }
-.dk-header-titre {
-  font-family: 'Crimson Pro', serif; font-size: 0.82rem;
-  font-weight: 300; letter-spacing: 0.12em;
-  color: rgba(245,240,232,0.7);
+.dk-topbar-logo {
+  display: flex; align-items: center; gap: 1.15rem; background: none;
+  border: none; padding: 0; cursor: pointer;
 }
-.dk-header-sep { color: rgba(192,152,64,0.4); }
-.dk-header-club {
-  font-family: 'Crimson Pro', serif; font-size: 0.82rem;
-  color: rgba(192,152,64,0.85); letter-spacing: 0.06em;
+.dk-topbar-embleme { height: 64px; width: auto; display: block; background: transparent; }
+/* Etat creme permanent (repris du Sommaire) : wordmark image creme cache,
+   remplace par un texte navy injecte via ::after. */
+.dk-topbar-wordmark { display: none; }
+.dk-topbar-logo::after {
+  content: "Les Clés du Château";
+  font-family: 'Playfair Display', serif; font-weight: 400; font-size: 1.5rem;
+  color: #1A2D5A; letter-spacing: 0.01em; white-space: nowrap;
 }
-.dk-header-droite {}
-.dk-btn-retour {
-  background: transparent;
-  border: 1px solid rgba(192,152,64,0.3);
-  color: rgba(245,240,232,0.6);
-  font-family: 'Crimson Pro', serif;
-  font-size: 0.82rem; letter-spacing: 0.06em;
-  padding: 6px 16px; cursor: pointer; transition: all 0.2s;
+.dk-topbar-titre {
+  font-family: 'Playfair Display', serif; font-size: 1.3rem;
+  font-weight: 400; font-style: italic; color: #9A7223; letter-spacing: 0.05em;
 }
-.dk-btn-retour:hover { border-color: #C09840; color: #F5F0E8; }
 
 /* ── Ornement ── */
 .dk-orn { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; justify-content: center; }
 .dk-orn-ligne { width: 40px; height: 1px; background: rgba(192,152,64,0.35); }
 .dk-orn-lys { color: #C09840; font-size: 0.9rem; }
+
+/* ── Calendrier mensuel (C2) ── */
+.dk-cal-mois { max-width: 100%; margin: 0 auto; }
+.dk-cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.dk-cal-nav-btn {
+  background: transparent; border: 1px solid rgba(192,152,64,0.3); color: #C09840;
+  width: 32px; height: 32px; cursor: pointer; font-size: 1rem; line-height: 1;
+  transition: all 0.2s;
+}
+.dk-cal-nav-btn:hover { border-color: #C09840; background: rgba(192,152,64,0.08); }
+.dk-cal-nav-label {
+  font-family: 'Playfair Display', serif; font-size: 1.05rem; color: #1A2D5A;
+  text-transform: capitalize; letter-spacing: 0.04em;
+}
+.dk-cal-grille { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.dk-cal-jour-entete {
+  text-align: center; font-family: 'Crimson Pro', serif; font-size: 0.58rem;
+  letter-spacing: 0.1em; text-transform: uppercase; color: #A8884E;
+  padding-bottom: 6px;
+}
+.dk-cal-case {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 0.85rem; color: #1A2D5A;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer; transition: all 0.15s;
+  width: 80%; margin: 0 auto;
+}
+.dk-cal-case-vide { background: transparent; border: none; cursor: default; }
+.dk-cal-case-horsmois { color: rgba(26,45,90,0.18); cursor: default; pointer-events: none; }
+.dk-cal-case-dispo:hover { background: rgba(192,152,64,0.15); color: #1A2D5A; }
+.dk-cal-case-off { color: rgba(26,45,90,0.22); cursor: not-allowed; background: transparent; }
+.dk-cal-arrivee, .dk-cal-depart { background: #C09840 !important; color: #FBF8F1 !important; }
+.dk-cal-between { background: rgba(192,152,64,0.18) !important; border-radius: 50% !important; }
+
+/* ── Sélecteurs nuits / voyageurs (D1) ── */
+.dk-selecteurs { display: flex; gap: 32px; justify-content: center; margin-top: 24px; flex-wrap: wrap; }
+.dk-selecteur { display: flex; flex-direction: column; gap: 8px; }
+.dk-selecteur-label {
+  font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #A8884E; text-align: center;
+}
+.dk-selecteur-options { display: flex; gap: 4px; }
+.dk-selecteur-opt {
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.3);
+  color: #1A2D5A; font-family: 'Crimson Pro', serif; font-size: 0.8rem;
+  padding: 7px 13px; cursor: pointer; transition: all 0.18s; white-space: nowrap;
+}
+.dk-selecteur-opt:hover { border-color: rgba(192,152,64,0.5); }
+.dk-selecteur-opt.actif { background: #C09840; border-color: #C09840; color: #FBF8F1; }
+
+/* ── Barre de filtres (D2) ── */
+.dk-filtres-barre {
+  display: flex; align-items: center; gap: 28px; flex-wrap: wrap;
+  background: #FEFCF8;
+  border: 1px solid rgba(192,152,64,0.3);
+  border-radius: 4px;
+  padding: 16px 24px;
+  margin-top: 0;
+}
+.dk-filtres-titre { display: flex; align-items: center; gap: 10px; padding-right: 20px; border-right: 1px solid rgba(192,152,64,0.25); }
+.dk-filtres-ico { width: 20px; height: 20px; flex-shrink: 0; }
+.dk-filtres-titre-txt {
+  font-family: 'Crimson Pro', serif; font-size: 0.72rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #1A2D5A; white-space: nowrap;
+}
+.dk-filtres-barre .dk-filtre { flex-direction: column; gap: 6px; }
+.dk-filtre { display: flex; flex-direction: column; gap: 6px; }
+.dk-filtre-label {
+  font-family: 'Crimson Pro', serif; font-size: 0.6rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #A8884E;
+}
+.dk-filtre-select {
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.3);
+  color: #1A2D5A; font-family: 'Crimson Pro', serif; font-size: 0.82rem;
+  padding: 8px 12px; cursor: pointer; outline: none; transition: border-color 0.2s;
+}
+.dk-filtre-select:focus { border-color: #C09840; }
+.dk-filtre-select option { background: #FEFCF8; color: #1A2D5A; }
+
+/* ── Grille de cartes offres (E) ── */
+.dk-liste-items {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  overflow: visible;
+}
+@media (max-width: 980px) { .dk-liste-items { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .dk-liste-items { grid-template-columns: 1fr; } }
+
+.dk-carte-offre {
+  background: #FEFCF8;
+  border: 1px solid rgba(192,152,64,0.3);
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  display: flex; flex-direction: column;
+}
+.dk-carte-offre:hover, .dk-carte-offre.survol {
+  transform: translateY(-4px);
+  border-color: #C09840;
+  box-shadow: 0 16px 40px rgba(26,45,90,0.14);
+}
+.dk-carte-offre-img {
+  position: relative; height: 200px;
+  background-size: cover; background-position: center;
+  background-color: #E3D4B5;
+}
+.dk-carte-offre-badge {
+  position: absolute; top: 12px; left: 12px;
+  background: rgba(192,152,64,0.92); color: #07101E;
+  font-family: 'Crimson Pro', serif; font-weight: 700; font-size: 0.6rem;
+  letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 10px;
+}
+.dk-carte-offre-corps { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
+.dk-carte-offre-region {
+  font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #A8884E;
+}
+.dk-carte-offre-nom {
+  font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #1A2D5A; line-height: 1.25;
+}
+.dk-carte-offre-prix { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; }
+.dk-carte-offre-prix-barre {
+  font-family: 'Crimson Pro', serif; font-size: 0.8rem;
+  color: rgba(26,45,90,0.4); text-decoration: line-through;
+}
+.dk-carte-offre-prix-final {
+  font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #C09840;
+}
+.dk-carte-offre-prix-nuit { font-family: 'Crimson Pro', serif; font-size: 0.7rem; color: #4A4640; }
+
+/* ── Layout deux colonnes (G1) ── */
+.dk-tete {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 48px;
+  align-items: start;
+  margin-bottom: 8px;
+}
+@media (max-width: 920px) { .dk-tete { grid-template-columns: 1fr; gap: 28px; } }
+
+/* hero a gauche, aligne a gauche */
+.dk-tete .dk-section-hero { text-align: left; padding-top: 8px; }
+.dk-tete .dk-orn { justify-content: flex-start; margin-bottom: 24px; }
+.dk-tete .dk-panneau-titre {
+  font-size: clamp(2.8rem, 5vw, 4.5rem);
+  line-height: 1.02;
+  color: #1A2D5A;
+  margin: 0 0 20px;
+  font-weight: 400;
+}
+.dk-tete .dk-panneau-accroche {
+  font-size: 1.05rem;
+  color: #3A4456;
+  line-height: 1.7;
+  max-width: 420px;
+  margin: 0;
+}
+
+/* bloc dates encadre a droite */
+.dk-section-dates { width: 100%; }
+.dk-dates-bloc {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 28px;
+  background: #FEFCF8;
+  border: 1px solid rgba(192,152,64,0.3);
+  border-radius: 4px;
+  padding: 28px 30px;
+}
+@media (max-width: 920px) { .dk-dates-bloc { grid-template-columns: 1fr; gap: 22px; } }
+
+.dk-bloc-cal { min-width: 0; }
+.dk-bloc-selection { display: flex; flex-direction: column; justify-content: space-between; gap: 18px; min-width: 0; height: 100%; }
+.dk-bloc-selection-titre {
+  font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.16em;
+  text-transform: uppercase; color: #A8884E;
+}
+
+/* le bloc selection empile etapes puis selecteurs verticalement */
+.dk-bloc-selection .dk-dates-etapes { flex-direction: column; align-items: stretch; gap: 10px; }
+.dk-bloc-selection .dk-selecteurs { flex-direction: column; gap: 16px; margin-top: 0; }
+/* boutons "Nombre de nuits" (1er selecteur) sur 2 lignes : 3 + 2 */
+.dk-bloc-selection .dk-selecteurs .dk-selecteur:first-child .dk-selecteur-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+}
+
+/* zone basse pleine largeur, alignee a gauche (G2a) */
+.dk-section-filtres { width: 100%; }
+.dk-section-grille { width: 100%; }
+.dk-liste-header { text-align: left; }
+
+/* ── Fleche verticale + branche decorative (G2b) ── */
+.dk-bloc-selection .dk-dates-fleche {
+  align-self: center;
+  transform: rotate(90deg);
+  margin: 2px 0;
+  color: rgba(192,152,64,0.5);
+}
+
+/* ── Hiérarchie typo hero (H2) ── */
+.dk-tete .dk-hero-soustitre {
+  font-family: 'Cormorant Garamond', 'Playfair Display', serif;
+  font-size: 1.4rem; font-style: italic; color: #C09840;
+  margin: 0 0 18px; letter-spacing: 0.01em;
+}
+.dk-hero-sep { display: flex; align-items: center; gap: 12px; margin: 0 0 22px; max-width: 200px; }
+.dk-hero-sep-l { flex: 1; height: 1px; background: linear-gradient(to right, transparent, rgba(192,152,64,0.5)); }
+.dk-hero-sep-l:last-child { background: linear-gradient(to left, transparent, rgba(192,152,64,0.5)); }
+.dk-hero-sep-pt { color: #C09840; font-size: 0.7rem; }
+.dk-tete .dk-panneau-accroche { margin-bottom: 14px; }
+.dk-tete .dk-panneau-accroche strong { font-weight: 500; color: #1A2D5A; }
+.dk-tete .dk-hero-para {
+  font-family: 'Crimson Pro', serif; font-size: 0.95rem; font-style: italic;
+  color: #3A4456; line-height: 1.7; max-width: 420px; margin: 0;
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { compterOffresPourChateau } from "../../services/offresService";
+import { getOffresPourChateau } from "../../services/offresService";
 
 const PHRASES_BANDEAU = {
   permanent: "Les chambres du château, disponibles toute l'année.",
@@ -13,45 +13,71 @@ const LIBELLES = {
   club: "Club Châtelains",
 };
 
-export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange, onClubLock }) {
+const ICONES = {
+  permanent: "/icon-demeure.png",
+  dernieresCles: "/icon-cle.png",
+  club: "/icon-couronne.png",
+};
+
+export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange, onClubLock, dispoVerifiee, dateArrivee, dateDepart, voyageurs, prixAPartir }) {
   const [compteursB, setCompteursB] = useState(null);
   const [compteursC, setCompteursC] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
+    // Filtre dispo : actif uniquement apres "Verifier" ; sinon comptage de base.
+    const filtre = dispoVerifiee ? { dateArrivee, dateDepart, voyageurs } : null;
     if (chateau.modules?.dernieresCles) {
-      compterOffresPourChateau(chateau.slug, "dernieresCles").then((n) => {
-        if (!cancelled) setCompteursB(n);
+      getOffresPourChateau(chateau.slug, "dernieresCles", filtre).then((offres) => {
+        if (!cancelled)
+          setCompteursB({
+            count: offres.length,
+            prixMin: offres.length ? Math.min(...offres.map((o) => o.prixOffre)) : null,
+          });
       });
     }
     // Module C : on charge le compteur même pour les non-membres — l'onglet
     // est désormais toujours visible (gate via modale au click, pas par masquage).
     if (chateau.modules?.club) {
-      compterOffresPourChateau(chateau.slug, "club").then((n) => {
-        if (!cancelled) setCompteursC(n);
+      getOffresPourChateau(chateau.slug, "club", filtre).then((offres) => {
+        if (!cancelled)
+          setCompteursC({
+            count: offres.length,
+            prixMin: offres.length ? Math.min(...offres.map((o) => o.prixOffre)) : null,
+          });
       });
     }
     return () => {
       cancelled = true;
     };
-  }, [chateau.slug, chateau.modules]);
+  }, [chateau.slug, chateau.modules, dispoVerifiee, dateArrivee, dateDepart, voyageurs]);
 
+  // DETTE C5+ : filtrage chambres Permanent par capacite/dates a brancher avec Supabase (logique distincte d'offresService)
   const nbChambres = chateau.chambres?.length || 0;
 
   // Défense en profondeur : un compteur == 0 cache son suffixe "· N offres"
   // (bouton reste rendu, juste sans le suffix). Évite l'affichage "0 offres".
   const formaterCompteur = (m) => {
+    // C4 : suffixe "X disponibles à vos dates" si dispoVerifiee, sinon libelle de base.
+    // N reste le compteur actuel — le vrai filtrage par dates viendra en C5.
+    const suffixe = (n, mot) =>
+      dispoVerifiee
+        ? `${n} ${mot}${n === 1 ? "" : "s"} disponible${n === 1 ? "" : "s"} à vos dates`
+        : n === 1
+          ? `1 ${mot}`
+          : `${n} ${mot}s`;
+
     if (m === "permanent") {
       if (nbChambres === 0) return null;
-      return nbChambres === 1 ? "1 chambre" : `${nbChambres} chambres`;
+      return suffixe(nbChambres, "chambre");
     }
     if (m === "dernieresCles" && compteursB !== null) {
-      if (compteursB === 0) return null;
-      return compteursB === 1 ? "1 offre" : `${compteursB} offres`;
+      if (compteursB.count === 0) return null;
+      return suffixe(compteursB.count, "offre");
     }
     if (m === "club" && compteursC !== null) {
-      if (compteursC === 0) return null;
-      return compteursC === 1 ? "1 offre" : `${compteursC} offres`;
+      if (compteursC.count === 0) return null;
+      return suffixe(compteursC.count, "offre");
     }
     return null;
   };
@@ -71,29 +97,41 @@ export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange,
     onChange(m);
   };
 
+  // Apres "Verifier les disponibilites" : feedback dispo (preserve C4). Sinon : prix d'appel.
+  const accrochePourModule = (m) => {
+    if (dispoVerifiee) {
+      const lib = formaterCompteur(m); // "N chambres/offres disponibles a vos dates"
+      if (lib) return lib;
+    }
+    if (m === "permanent") return `À partir de ${prixAPartir} €`;
+    if (m === "dernieresCles")
+      return compteursB?.prixMin ? `Dès ${compteursB.prixMin} €` : `${compteursB?.count || 0} offres`;
+    if (m === "club") return "Découvrir les privilèges";
+    return null;
+  };
+
   return (
     <div className="vc4-onglets-n1-wrap">
       <nav className="vc4-onglets-n1" role="tablist" aria-label="Modules commerciaux">
-        {onglets.map((m) => {
-          const compteurLib = formaterCompteur(m);
-          return (
-            <button
-              key={m}
-              role="tab"
-              aria-selected={actif === m}
-              className={"vc4-onglet-n1 " + (actif === m ? "vc4-onglet-n1--actif" : "")}
-              onClick={() => handleClick(m)}
-              data-onglet={m}
-            >
-              <span className="vc4-onglet-n1-lib">{LIBELLES[m]}</span>
-              {compteurLib && (
-                <span className="vc4-onglet-n1-compteur">· {compteurLib}</span>
-              )}
-            </button>
-          );
-        })}
+        {onglets.map((m) => (
+          <button
+            key={m}
+            role="tab"
+            aria-selected={actif === m}
+            className={"vc4-offre-card " + (actif === m ? "vc4-offre-card--actif" : "")}
+            onClick={() => handleClick(m)}
+            data-onglet={m}
+          >
+            <img className="vc4-offre-icone" src={ICONES[m]} alt="" aria-hidden="true" />
+            <span className="vc4-offre-corps">
+              <span className="vc4-offre-titre">{LIBELLES[m]}</span>
+              <span className="vc4-offre-sous">{PHRASES_BANDEAU[m]}</span>
+              <span className="vc4-offre-accroche">{accrochePourModule(m)}</span>
+            </span>
+            <span className="vc4-offre-fleche">→</span>
+          </button>
+        ))}
       </nav>
-      <p className="vc4-bandeau-explicatif">{PHRASES_BANDEAU[actif] || PHRASES_BANDEAU.permanent}</p>
     </div>
   );
 }

@@ -2,8 +2,8 @@
  * Tests E2E · Château du Blanc Buisson (id 8)
  *
  * Spécificités :
- *   - Seul château avec `videoBackground` (YouTube iframe) en mode jour
- *   - Mode nuit (20h → 7h) : lune + étoiles + image, pas de vidéo
+ *   - Seul château avec `videoBackground` : hero vidéo YouTube rendu en journée
+ *     (7h → 20h) ; la nuit, fond image (pas de vidéo, plus d'overlay nuit)
  *   - Propriétaires : Maïté & Éric de la Fresnaye
  *
  * Pour les bugs latents transverses (météo, chiffres clés, découpage propriétaires)
@@ -14,7 +14,7 @@ const { test, expect } = require('@playwright/test');
 async function ouvrirBlancBuisson(page) {
   await page.goto('/');
   await page.waitForLoadState('domcontentloaded');
-  const article = page.locator('.une-semaine-demeure').filter({ hasText: /Blanc Buisson/i });
+  const article = page.locator('.une-semaine-carte').filter({ hasText: /Blanc Buisson/i });
   await expect(article).toBeVisible();
   const cta = article.locator('.une-semaine-cta');
   await cta.scrollIntoViewIfNeeded();
@@ -43,7 +43,7 @@ test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
   test('La home charge et propose Blanc Buisson dans « La Une »', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    const article = page.locator('.une-semaine-demeure').filter({ hasText: /Blanc Buisson/i });
+    const article = page.locator('.une-semaine-carte').filter({ hasText: /Blanc Buisson/i });
     await expect(article).toBeVisible();
     await expect(article).toContainText(/Blanc Buisson/i);
   });
@@ -51,26 +51,16 @@ test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
   test('La vitrine Blanc Buisson s\'ouvre', async ({ page }) => {
     await ouvrirBlancBuisson(page);
     await expect(page.locator('.vc3-header-nom')).toContainText(/Blanc Buisson/i);
-    await expect(page.locator('.vc3-hero-titre')).toContainText(/lanc Buisson/i);
+    await expect(page.locator('.vc3-hero2-titre')).toContainText(/lanc Buisson/i);
   });
 
-  test('Hero affiche vidéo YouTube 24/7 + overlay nuit étoilé', async ({ page }) => {
+  test('Hero affiche la vidéo YouTube (mode jour)', async ({ page }) => {
     await ouvrirBlancBuisson(page);
-
-    const heurePage = await page.evaluate(() => new Date().getHours());
-    const estNuit = heurePage >= 20 || heurePage < 7;
-
-    if (estNuit) {
-      await expect(page.locator('.vc3-hero--nuit')).toBeVisible();
-      await expect(page.locator('.vc3-hero-moon')).toBeVisible();
-      await expect(page.locator('.vc3-hero-star')).toHaveCount(20);
-      await expect(page.locator('.vc3-hero-iframe')).toHaveCount(1);
-    } else {
-      const iframe = page.locator('.vc3-hero-iframe');
-      await expect(iframe).toBeVisible();
-      const src = await iframe.getAttribute('src');
-      expect(src).toContain('JQ9m51Bl900'); // videoBackground dans chateaux.js
-    }
+    const estNuit = await page.evaluate(() => { const h = new Date().getHours(); return h >= 20 || h < 7; });
+    test.skip(estNuit, 'Vidéo hero rendue en journée uniquement (7h-20h)');
+    const iframe = page.locator('.vc3-hero2-iframe');
+    await expect(iframe).toBeVisible();
+    expect(await iframe.getAttribute('src')).toContain('JQ9m51Bl900');
   });
 
   test('Les 2 hébergements sont listés (Donjon, La Réserve)', async ({ page }) => {
@@ -92,7 +82,10 @@ test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
 
   test('Modal de réservation propose les 2 hébergements', async ({ page }) => {
     await ouvrirBlancBuisson(page);
-    await page.locator('.vc3-header-cta').click();
+    // Nouveau path α.1.5 : carte module Permanent → panneau → bouton chambre → modale.
+    await page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i }).click();
+    await expect(page.locator('.vc3-module-panel')).toBeVisible();
+    await page.locator('.vc4-permanent-chambre-cta').first().click();
     await expect(page.locator('.vc3-reserve-modal')).toBeVisible();
     await expect(page.locator('.vc3-reserve-ch')).toHaveCount(2);
     await page.locator('.vc3-reserve-close').click();
@@ -139,27 +132,6 @@ test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
     await page.waitForTimeout(1500);
 
     expect(echecs, `Images /bb-* en erreur :\n${echecs.join('\n')}`).toHaveLength(0);
-  });
-
-  test('Simulation mode nuit — force l\'heure à 23h', async ({ page }) => {
-    await page.addInitScript(() => {
-      const RealDate = Date;
-      class MockDate extends RealDate {
-        constructor(...args) { super(...args); }
-        getHours() { return 23; }
-        getMinutes() { return 15; }
-      }
-      // @ts-ignore
-      // eslint-disable-next-line no-global-assign
-      Date = MockDate;
-    });
-
-    await ouvrirBlancBuisson(page);
-
-    await expect(page.locator('.vc3-hero--nuit')).toBeVisible();
-    await expect(page.locator('.vc3-hero-moon')).toBeVisible();
-    await expect(page.locator('.vc3-hero-star')).toHaveCount(20);    // contrat heroNightStars=true Le Blanc Buisson
-    await expect(page.locator('.vc3-hero-iframe')).toHaveCount(1);   // vidéo 24/7 sous overlay nuit
   });
 
 });

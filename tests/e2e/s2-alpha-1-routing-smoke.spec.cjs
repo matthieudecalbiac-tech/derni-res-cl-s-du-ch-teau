@@ -54,13 +54,13 @@ test.describe('S2-α.1 · routing smoke + non-régression', () => {
     // Pas de placeholder S2 sur la home.
     await expect(page.locator('.s2-placeholder')).toHaveCount(0);
     // Section historique "Une de la semaine" présente.
-    await expect(page.locator('.une-semaine-demeure').first()).toBeVisible();
+    await expect(page.locator('.une-semaine-carte').first()).toBeVisible();
   });
 
   test('Régression : ouvrir un château depuis la home fonctionne toujours', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    const article = page.locator('.une-semaine-demeure').filter({ hasText: /Briotti[èe]res/i });
+    const article = page.locator('.une-semaine-carte').filter({ hasText: /Briotti[èe]res/i });
     await expect(article).toBeVisible();
     const cta = article.locator('.une-semaine-cta');
     await cta.scrollIntoViewIfNeeded();
