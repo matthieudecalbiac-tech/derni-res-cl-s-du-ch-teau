@@ -219,12 +219,12 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
 
               <div className="vc3-sejour-dates">
                 <div className="vc3-sejour-field">
-                  <label>Arrivee</label>
-                  <input ref={arriveeRef} type="date" value={dateArrivee} onChange={(e) => setDateArrivee(e.target.value)} />
+                  <label htmlFor="vc3-sejour-arrivee">Arrivee</label>
+                  <input id="vc3-sejour-arrivee" ref={arriveeRef} type="date" value={dateArrivee} onChange={(e) => setDateArrivee(e.target.value)} />
                 </div>
                 <div className="vc3-sejour-field">
-                  <label>Depart</label>
-                  <input type="date" value={dateDepart} onChange={(e) => setDateDepart(e.target.value)} />
+                  <label htmlFor="vc3-sejour-depart">Depart</label>
+                  <input id="vc3-sejour-depart" type="date" value={dateDepart} onChange={(e) => setDateDepart(e.target.value)} />
                 </div>
               </div>
 
