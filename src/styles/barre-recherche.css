@@ -74,6 +74,38 @@
 }
 .br-dest-chateau:hover { background: rgba(192,152,64,0.10); }
 
+/* ── Champ Invites deroulant (steppers adultes / enfants) ── */
+.br-champ--invites { position: relative; padding: 0; }
+.br-invites-panneau {
+  position: absolute; top: calc(100% + 12px); right: 0; z-index: 50;
+  width: 340px;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.25);
+  border-radius: 10px; box-shadow: 0 18px 50px rgba(26,45,90,0.16);
+  padding: 6px 4px;
+}
+.br-stepper-ligne {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+}
+.br-stepper-ligne + .br-stepper-ligne { border-top: 1px solid rgba(192,152,64,0.12); }
+.br-stepper-label {
+  font-family: 'Playfair Display', serif; font-size: 0.98rem; color: #1A2D5A;
+}
+.br-stepper { display: flex; align-items: center; gap: 16px; }
+.br-stepper-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid rgba(192,152,64,0.5); background: transparent;
+  color: #1A2D5A; font-size: 1.15rem; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.18s, border-color 0.18s;
+}
+.br-stepper-btn:hover:not(:disabled) { background: rgba(192,152,64,0.12); border-color: #C09840; }
+.br-stepper-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.br-stepper-val {
+  font-family: 'Playfair Display', serif; font-size: 1rem; color: #1A2D5A;
+  min-width: 20px; text-align: center;
+}
+
 /* ── Animation d'entree (en dernier dans la sequence hero) ── */
 @keyframes barreFadeUp {
   from { opacity: 0; transform: translateY(28px); }
