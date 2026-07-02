@@ -316,6 +316,11 @@ async function main() {
   stats.regleTotalesTestees = reglesEvaluees.size;
 
   const details = [];
+  // Comptage stats (Option X) : (regle x checkpoint) UNIQUES, navigateur IGNORE.
+  // Le compteur reflete le nombre de defauts distincts, independant du nombre de
+  // navigateurs (qa-fast 1 nav == qa-full 3 nav) — re-sensibilise la gate PR.
+  // details[] garde navigateur (debug) ; seul le COMPTE deduplique sans navigateur.
+  const uniqParImpact = { critical: new Set(), serious: new Set(), moderate: new Set(), minor: new Set() };
   for (const v of dedup.values()) {
     const estErreur = v.impact === 'critical' || v.impact === 'serious';
     const entry = {
@@ -333,12 +338,17 @@ async function main() {
       helpUrl: v.helpUrl,
     };
     details.push(entry);
-    stats.violationsUniques++;
-    if (v.impact === 'critical') stats.violationsCritical++;
-    else if (v.impact === 'serious') stats.violationsSerious++;
-    else if (v.impact === 'moderate') stats.violationsModerate++;
-    else stats.violationsMinor++;
+    const cleUnique = `${v.regleId}::${v.checkpoint}`;
+    const bucket = (v.impact === 'critical' || v.impact === 'serious' || v.impact === 'moderate') ? v.impact : 'minor';
+    uniqParImpact[bucket].add(cleUnique);
   }
+  stats.violationsCritical = uniqParImpact.critical.size;
+  stats.violationsSerious = uniqParImpact.serious.size;
+  stats.violationsModerate = uniqParImpact.moderate.size;
+  stats.violationsMinor = uniqParImpact.minor.size;
+  stats.violationsUniques =
+    uniqParImpact.critical.size + uniqParImpact.serious.size +
+    uniqParImpact.moderate.size + uniqParImpact.minor.size;
 
   const okGlobal = stats.violationsCritical === 0 && stats.violationsSerious === 0;
   ecrireRapport({
