@@ -1,6 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { formatDate } from "../utils/dates";
 import "../styles/carte-interactive.css";
 
 // Prix "a partir de" : meme cascade que PageResultats (prix reduit -> prixBarre
@@ -12,9 +13,15 @@ const prixAffiche = (c) => {
   return c.prixBarre || c.chambres?.[0]?.prix || null;
 };
 
-export default function CarteInteractive({ chateaux, onSelectChateau }) {
-  const conteneurRef = useRef(null); // div DOM cible
-  const carteRef = useRef(null);     // instance Leaflet (montage unique)
+export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, invites, onSelectChateau }) {
+  const conteneurRef = useRef(null);
+  const carteRef = useRef(null);
+  const [selection, setSelection] = useState(null);
+
+  // La carte ne montre que les chateaux reels (estLaUne) : seuls routables vers
+  // une vraie vitrine. Coherent avec PageResultats qui filtre pareil. Evite un
+  // cul-de-sac (clic mock -> panneau -> vitrine vide).
+  const reels = (chateaux || []).filter((c) => c.estLaUne === true);
 
   useEffect(() => {
     if (!conteneurRef.current || carteRef.current) return;
@@ -28,12 +35,12 @@ export default function CarteInteractive({ chateaux, onSelectChateau }) {
     carteRef.current = carte;
 
     L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      attribution: "&copy; OpenStreetMap &copy; CARTO",
       subdomains: "abcd",
       maxZoom: 19,
     }).addTo(carte);
 
-    (chateaux || []).forEach((c) => {
+    reels.forEach((c) => {
       const lat = c.coordonnees?.lat;
       const lng = c.coordonnees?.lng;
       if (typeof lat !== "number" || typeof lng !== "number") return;
@@ -45,7 +52,10 @@ export default function CarteInteractive({ chateaux, onSelectChateau }) {
         iconSize: null,
       });
       const marqueur = L.marker([lat, lng], { icon: icone }).addTo(carte);
-      marqueur.on("click", () => onSelectChateau && onSelectChateau(c));
+      marqueur.on("click", () => {
+        setSelection(c);
+        onSelectChateau && onSelectChateau(c);
+      });
     });
 
     const t = setTimeout(() => carte.invalidateSize(), 120);
@@ -57,5 +67,48 @@ export default function CarteInteractive({ chateaux, onSelectChateau }) {
     };
   }, [chateaux, onSelectChateau]);
 
-  return <div className="ci-carte" ref={conteneurRef} />;
+  const rappelSejour = () => {
+    const parts = [];
+    if (dateArrivee && dateDepart) parts.push(`${formatDate(dateArrivee)} → ${formatDate(dateDepart)}`);
+    if (invites) {
+      const a = invites.adultes, e = invites.enfants;
+      let s = `${a} adulte${a > 1 ? "s" : ""}`;
+      if (e > 0) s += `, ${e} enfant${e > 1 ? "s" : ""}`;
+      parts.push(s);
+    }
+    return parts;
+  };
+
+  return (
+    <div className="ci-wrap">
+      <div className="ci-carte" ref={conteneurRef} />
+
+      {selection && (
+        <div className="ci-detail">
+          <button className="ci-detail-close" onClick={() => setSelection(null)} aria-label="Fermer">✕</button>
+          <div className="ci-detail-photo" style={{ backgroundImage: `url('${selection.images?.[0]}')` }} />
+          <div className="ci-detail-corps">
+            <div className="ci-detail-region">{selection.region} · {selection.distanceParis}</div>
+            <h3 className="ci-detail-nom">{selection.nom}</h3>
+            <p className="ci-detail-accroche">{selection.accroche}</p>
+            {rappelSejour().length > 0 && (
+              <div className="ci-detail-sejour">
+                {rappelSejour().map((p, i) => (
+                  <span key={i} className="ci-detail-sejour-item">{p}</span>
+                ))}
+              </div>
+            )}
+            {prixAffiche(selection) && (
+              <div className="ci-detail-prix">
+                À partir de <strong>{prixAffiche(selection)} €</strong> / nuit
+              </div>
+            )}
+            <button className="ci-detail-cta" type="button">
+              Voir le château →
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
