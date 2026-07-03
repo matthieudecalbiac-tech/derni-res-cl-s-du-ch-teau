@@ -343,6 +343,7 @@ export default function BarreRecherche({ onEntrerChateau }) {
           onSelectDate={handleSelectDate}
           onResetDates={resetDates}
           invites={invites}
+          setInvites={setInvites}
           onVoirChateau={onVoirChateau}
         />
       </Modale>

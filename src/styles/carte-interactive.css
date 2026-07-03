@@ -153,6 +153,33 @@
    popover calendrier. On abaisse le pane des controles quand le calendrier
    carte est ouvert. */
 .ci-conteneur:has(.ci-cal-pop) .leaflet-top,
-.ci-conteneur:has(.ci-cal-pop) .leaflet-bottom {
+.ci-conteneur:has(.ci-cal-pop) .leaflet-bottom,
+.ci-conteneur:has(.ci-voy-pop) .leaflet-top,
+.ci-conteneur:has(.ci-voy-pop) .leaflet-bottom {
   z-index: 400;
 }
+
+/* Popover voyageurs (carte) */
+.ci-filtre-voyageurs { position: relative; }
+.ci-voy-pop {
+  position: absolute; top: calc(100% + 10px); left: 0; z-index: 800;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.3);
+  border-radius: 12px; box-shadow: 0 18px 50px rgba(7,16,30,0.22);
+  padding: 8px 4px; width: 260px;
+}
+.ci-voy-ligne {
+  display: flex; align-items: center; justify-content: space-between; padding: 12px 18px;
+}
+.ci-voy-ligne + .ci-voy-ligne { border-top: 1px solid rgba(192,152,64,0.12); }
+.ci-voy-label { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #1A2D5A; }
+.ci-voy-stepper { display: flex; align-items: center; gap: 14px; }
+.ci-voy-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid rgba(192,152,64,0.5); background: transparent;
+  color: #1A2D5A; font-size: 1.1rem; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.18s, border-color 0.18s;
+}
+.ci-voy-btn:hover:not(:disabled) { background: rgba(192,152,64,0.12); border-color: #C09840; }
+.ci-voy-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.ci-voy-val { font-family: 'Playfair Display', serif; font-size: 1rem; color: #1A2D5A; min-width: 18px; text-align: center; }

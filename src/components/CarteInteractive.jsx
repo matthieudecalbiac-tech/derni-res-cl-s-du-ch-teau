@@ -7,11 +7,12 @@ import { capaciteSuffisante } from "../utils/capacite";
 import CalendrierPlage from "./CalendrierPlage";
 import "../styles/carte-interactive.css";
 
-export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, etapeDate, onSelectDate, onResetDates, invites, onVoirChateau }) {
+export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, etapeDate, onSelectDate, onResetDates, invites, setInvites, onVoirChateau }) {
   const conteneurRef = useRef(null);
   const carteRef = useRef(null);
   const [survolId, setSurvolId] = useState(null);
   const [calOuvert, setCalOuvert] = useState(false);
+  const [voyOuvert, setVoyOuvert] = useState(false);
 
   // La carte ne montre que les chateaux reels (estLaUne) : seuls routables vers
   // une vraie vitrine. Puis filtre capacite (voyageurs herites de la barre).
@@ -122,13 +123,48 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
         </div>
 
         <div className="ci-filtre-voyageurs">
-          <svg className="ci-filtre-ico" width="16" height="16" viewBox="0 0 18 18" fill="none">
-            <circle cx="6.8" cy="6.5" r="2.3" stroke="#C09840" strokeWidth="1.5"/>
-            <circle cx="12.2" cy="7" r="1.8" stroke="#C09840" strokeWidth="1.5"/>
-            <path d="M3 15c0-2.1 1.7-3.4 3.8-3.4S10.6 12.9 10.6 15" stroke="#C09840" strokeWidth="1.5" strokeLinecap="round"/>
-            <path d="M11.2 11.7c1.9 0 3.3 1.2 3.3 3.3" stroke="#C09840" strokeWidth="1.5" strokeLinecap="round"/>
-          </svg>
-          {invites ? invites.adultes + invites.enfants : 0} voyageur{(invites && invites.adultes + invites.enfants > 1) ? "s" : ""}
+          <button
+            type="button"
+            className="ci-filtre-btn"
+            onClick={() => setVoyOuvert((o) => !o)}
+            aria-expanded={voyOuvert}
+          >
+            <svg className="ci-filtre-ico" width="16" height="16" viewBox="0 0 18 18" fill="none">
+              <circle cx="6.8" cy="6.5" r="2.3" stroke="#C09840" strokeWidth="1.5"/>
+              <circle cx="12.2" cy="7" r="1.8" stroke="#C09840" strokeWidth="1.5"/>
+              <path d="M3 15c0-2.1 1.7-3.4 3.8-3.4S10.6 12.9 10.6 15" stroke="#C09840" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M11.2 11.7c1.9 0 3.3 1.2 3.3 3.3" stroke="#C09840" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            {invites.adultes + invites.enfants} voyageur{invites.adultes + invites.enfants > 1 ? "s" : ""}
+          </button>
+          {voyOuvert && (
+            <div className="ci-voy-pop">
+              <div className="ci-voy-ligne">
+                <span className="ci-voy-label">Adultes</span>
+                <div className="ci-voy-stepper">
+                  <button type="button" className="ci-voy-btn" aria-label="Diminuer les adultes"
+                    onClick={() => setInvites((v) => ({ ...v, adultes: Math.max(1, v.adultes - 1) }))}
+                    disabled={invites.adultes <= 1}>−</button>
+                  <span className="ci-voy-val">{invites.adultes}</span>
+                  <button type="button" className="ci-voy-btn" aria-label="Augmenter les adultes"
+                    onClick={() => setInvites((v) => ({ ...v, adultes: v.adultes + 1 }))}
+                    disabled={invites.adultes + invites.enfants >= 20}>+</button>
+                </div>
+              </div>
+              <div className="ci-voy-ligne">
+                <span className="ci-voy-label">Enfants</span>
+                <div className="ci-voy-stepper">
+                  <button type="button" className="ci-voy-btn" aria-label="Diminuer les enfants"
+                    onClick={() => setInvites((v) => ({ ...v, enfants: Math.max(0, v.enfants - 1) }))}
+                    disabled={invites.enfants <= 0}>−</button>
+                  <span className="ci-voy-val">{invites.enfants}</span>
+                  <button type="button" className="ci-voy-btn" aria-label="Augmenter les enfants"
+                    onClick={() => setInvites((v) => ({ ...v, enfants: v.enfants + 1 }))}
+                    disabled={invites.adultes + invites.enfants >= 20}>+</button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="ci-filtre-services">
