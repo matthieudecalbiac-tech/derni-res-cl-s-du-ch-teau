@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import BandeauOffres from "./components/BandeauOffres";
@@ -49,6 +49,8 @@ function App() {
   const [proprietairesOuvert, setProprietairesOuvert] = useState(false);
   const [dernieresOuvert, setDernieresOuvert] = useState(false);
   const [transitionChateau, setTransitionChateau] = useState(null);
+  const navigate = useNavigate();
+  const [transitionCarte, setTransitionCarte] = useState(null); // { chateau, url }
 
   const ouvrirChateau = (chateau) => {
     setTransitionChateau(chateau);
@@ -69,7 +71,7 @@ function App() {
       />
       <main>
         <Hero />
-        <BarreRecherche />
+        <BarreRecherche onEntrerChateau={(chateau, url) => setTransitionCarte({ chateau, url })} />
         <BandeauOffres
           onOuvrirDernieres={() => setDernieresOuvert(true)}
           onOuvrirVitrines={() => setVitrinesOuvert(true)}
@@ -102,6 +104,16 @@ function App() {
           onTermine={() => {
             setChateauSelectionne(transitionChateau);
             setTransitionChateau(null);
+          }}
+        />
+      )}
+      {transitionCarte && (
+        <TransitionPorte
+          chateau={transitionCarte.chateau}
+          onTermine={() => {
+            const url = transitionCarte.url;
+            setTransitionCarte(null);
+            navigate(url);
           }}
         />
       )}

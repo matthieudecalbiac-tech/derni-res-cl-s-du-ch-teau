@@ -7,7 +7,7 @@ import Modale from "./Modale";
 import CarteInteractive from "./CarteInteractive";
 import "../styles/barre-recherche.css";
 
-export default function BarreRecherche() {
+export default function BarreRecherche({ onEntrerChateau }) {
   const { chateaux } = useChateaux();
   const navigate = useNavigate();
 
@@ -198,8 +198,13 @@ export default function BarreRecherche() {
       p.set("arrivee", toISODate(dateArrivee));
       p.set("depart", toISODate(dateDepart));
     }
+    const url = `/chateau/${chateau.slug}?${p.toString()}`;
     setCarteOuvert(false);
-    navigate(`/chateau/${chateau.slug}?${p.toString()}`);
+    if (onEntrerChateau) {
+      onEntrerChateau(chateau, url);
+    } else {
+      navigate(url);
+    }
   };
 
   return (
