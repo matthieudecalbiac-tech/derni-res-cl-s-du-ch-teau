@@ -4,12 +4,14 @@ import "leaflet/dist/leaflet.css";
 import { formatDate } from "../utils/dates";
 import { prixAffiche } from "../utils/derivePrix";
 import { capaciteSuffisante } from "../utils/capacite";
+import CalendrierPlage from "./CalendrierPlage";
 import "../styles/carte-interactive.css";
 
-export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, invites, onVoirChateau }) {
+export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, etapeDate, onSelectDate, onResetDates, invites, onVoirChateau }) {
   const conteneurRef = useRef(null);
   const carteRef = useRef(null);
   const [survolId, setSurvolId] = useState(null);
+  const [calOuvert, setCalOuvert] = useState(false);
 
   // La carte ne montre que les chateaux reels (estLaUne) : seuls routables vers
   // une vraie vitrine. Puis filtre capacite (voyageurs herites de la barre).
@@ -72,8 +74,80 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, in
     return parts.join(" · ");
   };
 
+  // Filtres services : illustratifs, desactives. Aucun champ service booleen
+  // n'existe encore sur les chateaux (equipements en texte libre uniquement).
+  // Actives quand la donnee structuree existera. Affiches pour la vision produit.
+  const servicesBientot = ["Spa", "Piscine", "Table d’hôtes", "Parc & jardins", "Animaux bienvenus"];
+
+  const labelDatesFiltre = () => {
+    if (dateArrivee && dateDepart) return `${formatDate(dateArrivee)} → ${formatDate(dateDepart)}`;
+    if (dateArrivee) return `${formatDate(dateArrivee)} → …`;
+    return "Ajouter des dates";
+  };
+
   return (
-    <div className="ci-split">
+    <div className="ci-conteneur">
+      {/* BARRE DE FILTRES */}
+      <div className="ci-filtres">
+        <div className="ci-filtre-dates">
+          <button
+            type="button"
+            className="ci-filtre-btn"
+            onClick={() => setCalOuvert((o) => !o)}
+            aria-expanded={calOuvert}
+          >
+            <svg className="ci-filtre-ico" width="16" height="16" viewBox="0 0 18 18" fill="none">
+              <rect x="3" y="4.5" width="12" height="10.5" rx="1.5" stroke="#C09840" strokeWidth="1.5"/>
+              <path d="M3 7.5h12M6 3v3M12 3v3" stroke="#C09840" strokeWidth="1.5" strokeLinecap="round"/>
+            </svg>
+            {labelDatesFiltre()}
+          </button>
+          {calOuvert && (
+            <div className="ci-cal-pop">
+              <CalendrierPlage
+                dateArrivee={dateArrivee}
+                dateDepart={dateDepart}
+                etape={etapeDate}
+                onSelectDate={(d) => {
+                  onSelectDate(d);
+                  // referme quand la plage est complete (depart pose)
+                  if (etapeDate === "depart" && dateArrivee && d > dateArrivee) {
+                    setCalOuvert(false);
+                  }
+                }}
+                onReset={onResetDates}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="ci-filtre-voyageurs">
+          <svg className="ci-filtre-ico" width="16" height="16" viewBox="0 0 18 18" fill="none">
+            <circle cx="6.8" cy="6.5" r="2.3" stroke="#C09840" strokeWidth="1.5"/>
+            <circle cx="12.2" cy="7" r="1.8" stroke="#C09840" strokeWidth="1.5"/>
+            <path d="M3 15c0-2.1 1.7-3.4 3.8-3.4S10.6 12.9 10.6 15" stroke="#C09840" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M11.2 11.7c1.9 0 3.3 1.2 3.3 3.3" stroke="#C09840" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+          {invites ? invites.adultes + invites.enfants : 0} voyageur{(invites && invites.adultes + invites.enfants > 1) ? "s" : ""}
+        </div>
+
+        <div className="ci-filtre-services">
+          {servicesBientot.map((s) => (
+            <button key={s} type="button" className="ci-filtre-service" disabled title="Bientôt disponible">
+              {s}
+            </button>
+          ))}
+          <button type="button" className="ci-filtre-service ci-filtre-plus" disabled title="Bientôt disponible">
+            Plus de filtres
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
+              <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* SPLIT liste + carte */}
+      <div className="ci-split">
       {/* LISTE DE VIGNETTES */}
       <div className="ci-liste">
         <div className="ci-liste-tete">
@@ -125,8 +199,9 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, in
         })}
       </div>
 
-      {/* CARTE */}
-      <div className="ci-carte" ref={conteneurRef} />
+        {/* CARTE */}
+        <div className="ci-carte" ref={conteneurRef} />
+      </div>
     </div>
   );
 }

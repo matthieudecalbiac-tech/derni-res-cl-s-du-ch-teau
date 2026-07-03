@@ -339,6 +339,9 @@ export default function BarreRecherche({ onEntrerChateau }) {
           chateaux={chateaux}
           dateArrivee={dateArrivee}
           dateDepart={dateDepart}
+          etapeDate={etapeDate}
+          onSelectDate={handleSelectDate}
+          onResetDates={resetDates}
           invites={invites}
           onVoirChateau={onVoirChateau}
         />

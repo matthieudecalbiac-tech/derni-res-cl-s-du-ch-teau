@@ -106,3 +106,53 @@
   .ci-liste { max-height: 40vh; padding-right: 0; }
   .ci-split .ci-carte { height: 45vh; }
 }
+
+/* ── Barre de filtres carte ── */
+.ci-conteneur { display: flex; flex-direction: column; gap: 14px; }
+.ci-filtres {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding-bottom: 12px; border-bottom: 1px solid rgba(192,152,64,0.18);
+}
+.ci-filtre-dates { position: relative; }
+.ci-filtre-btn {
+  display: flex; align-items: center; gap: 8px;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.4); border-radius: 22px;
+  padding: 8px 16px; cursor: pointer;
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #1A2D5A;
+  transition: border-color 0.18s, background 0.18s;
+}
+.ci-filtre-btn:hover { border-color: #C09840; background: rgba(192,152,64,0.06); }
+.ci-filtre-ico { font-size: 0.9rem; }
+.ci-cal-pop {
+  position: absolute; top: calc(100% + 10px); left: 0; z-index: 800;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.3);
+  border-radius: 12px; box-shadow: 0 18px 50px rgba(7,16,30,0.22);
+  padding: 20px; width: 640px; max-width: 90vw;
+}
+.ci-filtre-voyageurs {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #4A4640;
+  padding: 8px 4px;
+}
+.ci-filtre-services {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-left: auto;
+}
+.ci-filtre-service {
+  display: flex; align-items: center; gap: 6px;
+  background: transparent; border: 1px solid rgba(168,136,78,0.28); border-radius: 20px;
+  padding: 7px 14px; cursor: not-allowed;
+  font-family: 'Crimson Pro', serif; font-size: 0.8rem; color: #A8884E;
+  transition: opacity 0.18s;
+}
+.ci-filtre-plus { border-style: dashed; }
+@media (max-width: 720px) {
+  .ci-filtre-services { margin-left: 0; }
+}
+
+/* Les controles zoom Leaflet (z-index interne eleve) passaient AU-DESSUS du
+   popover calendrier. On abaisse le pane des controles quand le calendrier
+   carte est ouvert. */
+.ci-conteneur:has(.ci-cal-pop) .leaflet-top,
+.ci-conteneur:has(.ci-cal-pop) .leaflet-bottom {
+  z-index: 400;
+}
