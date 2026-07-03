@@ -3,6 +3,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { formatDate } from "../utils/dates";
 import { prixAffiche } from "../utils/derivePrix";
+import { capaciteSuffisante } from "../utils/capacite";
 import "../styles/carte-interactive.css";
 
 export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, invites, onVoirChateau }) {
@@ -11,8 +12,12 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, in
   const [survolId, setSurvolId] = useState(null);
 
   // La carte ne montre que les chateaux reels (estLaUne) : seuls routables vers
-  // une vraie vitrine. Un seul tableau alimente la liste ET les marqueurs.
-  const reels = (chateaux || []).filter((c) => c.estLaUne === true);
+  // une vraie vitrine. Puis filtre capacite (voyageurs herites de la barre).
+  // Un seul tableau alimente la liste ET les marqueurs.
+  const totalInvites = invites ? invites.adultes + invites.enfants : 0;
+  const reels = (chateaux || [])
+    .filter((c) => c.estLaUne === true)
+    .filter((c) => capaciteSuffisante(c, totalInvites));
 
   useEffect(() => {
     if (!conteneurRef.current || carteRef.current) return;
@@ -75,6 +80,17 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, in
           <span className="ci-liste-nb">{reels.length}</span> demeure{reels.length > 1 ? "s" : ""}
           {rappelSejour() && <span className="ci-liste-sejour"> · {rappelSejour()}</span>}
         </div>
+        {reels.length === 0 && (
+          <div className="ci-liste-vide">
+            <span className="ci-liste-vide-lys">⚜</span>
+            <p className="ci-liste-vide-txt">
+              Aucune demeure ne peut accueillir {totalInvites} voyageurs pour l’instant.
+            </p>
+            <p className="ci-liste-vide-sous">
+              Notre réseau s’agrandit — réduisez le nombre de voyageurs ou revenez bientôt.
+            </p>
+          </div>
+        )}
         {reels.map((c) => {
           const prix = prixAffiche(c);
           return (

@@ -88,6 +88,19 @@
   width: 100%; height: 100%; min-height: 0;
 }
 
+.ci-liste-vide {
+  text-align: center; padding: 32px 18px; color: #4A4640;
+}
+.ci-liste-vide-lys { color: #C09840; font-size: 1.1rem; }
+.ci-liste-vide-txt {
+  font-family: 'Playfair Display', serif; font-size: 1rem; color: #1A2D5A;
+  margin: 12px 0 6px; line-height: 1.35;
+}
+.ci-liste-vide-sous {
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem; font-style: italic;
+  color: #A8884E; margin: 0;
+}
+
 @media (max-width: 720px) {
   .ci-split { grid-template-columns: 1fr; height: auto; }
   .ci-liste { max-height: 40vh; padding-right: 0; }
