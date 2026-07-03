@@ -2,8 +2,9 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { getRegionsAvecChateaux } from "../utils/regions";
-import { genererGrilleMois, formatDate, estMemeJour, estEntre } from "../utils/dates";
+import { formatDate } from "../utils/dates";
 import Modale from "./Modale";
+import CalendrierPlage from "./CalendrierPlage";
 import CarteInteractive from "./CarteInteractive";
 import "../styles/barre-recherche.css";
 
@@ -20,10 +21,6 @@ export default function BarreRecherche({ onEntrerChateau }) {
   const [dateArrivee, setDateArrivee] = useState(null);
   const [dateDepart, setDateDepart] = useState(null);
   const [etapeDate, setEtapeDate] = useState("arrivee");
-  const [moisAffiche, setMoisAffiche] = useState(() => {
-    const d = new Date();
-    return new Date(d.getFullYear(), d.getMonth(), 1);
-  });
 
   // Invites
   const [invOuvert, setInvOuvert] = useState(false);
@@ -43,24 +40,8 @@ export default function BarreRecherche({ onEntrerChateau }) {
     setCarteOuvert(champ === "carte");
   };
 
-  // ── Calendrier : bornes deterministes (aujourd'hui inclus, pas de passe, pas de plafond) ──
-  const aujourdhui = new Date();
-  aujourdhui.setHours(0, 0, 0, 0);
-  const moisCourant = new Date(aujourdhui.getFullYear(), aujourdhui.getMonth(), 1);
-  const peutReculer = moisAffiche > moisCourant;
-
-  const estSelectionnable = (d) => {
-    const jour = new Date(d);
-    jour.setHours(0, 0, 0, 0);
-    return jour >= aujourdhui;
-  };
-
-  const moisPrecedent = () => {
-    if (peutReculer) setMoisAffiche((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1));
-  };
-  const moisSuivant = () =>
-    setMoisAffiche((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1));
-
+  // Machine a etats arrivee -> depart (la source de verite des dates reste ici,
+  // le calendrier n'est qu'un rendu ; cf. CalendrierPlage).
   const handleSelectDate = (d) => {
     if (etapeDate === "arrivee") {
       setDateArrivee(d);
@@ -84,51 +65,6 @@ export default function BarreRecherche({ onEntrerChateau }) {
     setDateDepart(null);
     setEtapeDate("arrivee");
   };
-
-  const isArrivee = (d) => estMemeJour(d, dateArrivee);
-  const isDepart = (d) => estMemeJour(d, dateDepart);
-  const isBetween = (d) => estEntre(d, dateArrivee, dateDepart);
-
-  // Rendu d'une grille mensuelle (appelee 2x pour l'affichage cote a cote).
-  const rendreGrille = (premierDuMois) => {
-    const label = premierDuMois.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-    return (
-      <div className="br-cal-mois">
-        <div className="br-cal-mois-label">{label}</div>
-        <div className="br-cal-grille">
-          {["Lu","Ma","Me","Je","Ve","Sa","Di"].map((j) => (
-            <span key={j} className="br-cal-entete">{j}</span>
-          ))}
-          {genererGrilleMois(premierDuMois).map((caseJour, i) => {
-            const d = caseJour.date;
-            if (caseJour.horsMois) {
-              return <span key={i} className="br-cal-case br-cal-case--horsmois">{d.getDate()}</span>;
-            }
-            const selectionnable = estSelectionnable(d);
-            const classes =
-              "br-cal-case" +
-              (selectionnable ? " br-cal-case--dispo" : " br-cal-case--off") +
-              (isArrivee(d) ? " br-cal-arrivee" : "") +
-              (isDepart(d) ? " br-cal-depart" : "") +
-              (isBetween(d) ? " br-cal-between" : "");
-            return (
-              <button
-                key={i}
-                type="button"
-                className={classes}
-                disabled={!selectionnable}
-                onClick={() => selectionnable && handleSelectDate(d)}
-              >
-                {d.getDate()}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  const moisSuivantDate = new Date(moisAffiche.getFullYear(), moisAffiche.getMonth() + 1, 1);
 
   const labelDestination = selection
     ? selection.type === "chateau"
@@ -344,33 +280,13 @@ export default function BarreRecherche({ onEntrerChateau }) {
 
       {/* MODALE DATES (2 mois cote a cote) */}
       <Modale ouvert={datesOuvert} onClose={() => setDatesOuvert(false)} titre="Vos dates" largeur={720}>
-        <div className="br-cal-etape">
-          {etapeDate === "arrivee" ? "Sélectionnez votre arrivée" : "Sélectionnez votre départ"}
-        </div>
-        <div className="br-cal-nav">
-          <button
-            type="button"
-            className="br-cal-nav-btn"
-            onClick={moisPrecedent}
-            disabled={!peutReculer}
-            aria-label="Mois précédent"
-          >‹</button>
-          <button
-            type="button"
-            className="br-cal-nav-btn"
-            onClick={moisSuivant}
-            aria-label="Mois suivant"
-          >›</button>
-        </div>
-        <div className="br-cal-duo">
-          {rendreGrille(moisAffiche)}
-          {rendreGrille(moisSuivantDate)}
-        </div>
-        {dateArrivee && (
-          <div className="br-cal-pied">
-            <button type="button" className="br-cal-reset" onClick={resetDates}>Effacer les dates</button>
-          </div>
-        )}
+        <CalendrierPlage
+          dateArrivee={dateArrivee}
+          dateDepart={dateDepart}
+          etape={etapeDate}
+          onSelectDate={handleSelectDate}
+          onReset={resetDates}
+        />
       </Modale>
 
       {/* MODALE INVITES */}
