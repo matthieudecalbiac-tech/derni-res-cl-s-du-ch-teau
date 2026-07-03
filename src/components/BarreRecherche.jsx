@@ -184,6 +184,24 @@ export default function BarreRecherche() {
     navigate(`/resultats?${p.toString()}`);
   };
 
+  // Depuis la carte : va a la vitrine du chateau en transportant les memes
+  // criteres que lancerRecherche (memes cles d'URL, meme toISODate). Ferme la
+  // modale carte avant de naviguer pour ne pas la retrouver ouverte au retour.
+  const onVoirChateau = (chateau) => {
+    if (!chateau?.slug) return;
+    const p = new URLSearchParams();
+    const totalInvites = invites.adultes + invites.enfants;
+    p.set("invites", String(totalInvites));
+    p.set("adultes", String(invites.adultes));
+    p.set("enfants", String(invites.enfants));
+    if (dateArrivee && dateDepart) {
+      p.set("arrivee", toISODate(dateArrivee));
+      p.set("depart", toISODate(dateDepart));
+    }
+    setCarteOuvert(false);
+    navigate(`/chateau/${chateau.slug}?${p.toString()}`);
+  };
+
   return (
     <div className="barre-recherche">
       <div className="br-inner">
@@ -401,6 +419,7 @@ export default function BarreRecherche() {
           dateArrivee={dateArrivee}
           dateDepart={dateDepart}
           invites={invites}
+          onVoirChateau={onVoirChateau}
           onSelectChateau={(c) => {
             console.log("Chateau selectionne sur la carte :", c.nom);
           }}

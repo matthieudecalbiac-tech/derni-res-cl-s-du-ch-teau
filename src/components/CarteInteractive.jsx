@@ -13,7 +13,7 @@ const prixAffiche = (c) => {
   return c.prixBarre || c.chambres?.[0]?.prix || null;
 };
 
-export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, invites, onSelectChateau }) {
+export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, invites, onSelectChateau, onVoirChateau }) {
   const conteneurRef = useRef(null);
   const carteRef = useRef(null);
   const [selection, setSelection] = useState(null);
@@ -103,7 +103,11 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, in
                 À partir de <strong>{prixAffiche(selection)} €</strong> / nuit
               </div>
             )}
-            <button className="ci-detail-cta" type="button">
+            <button
+              className="ci-detail-cta"
+              type="button"
+              onClick={() => onVoirChateau && onVoirChateau(selection)}
+            >
               Voir le château →
             </button>
           </div>
