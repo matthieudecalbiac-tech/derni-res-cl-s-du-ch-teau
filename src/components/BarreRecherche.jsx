@@ -413,16 +413,13 @@ export default function BarreRecherche() {
       </Modale>
 
       {/* MODALE CARTE */}
-      <Modale ouvert={carteOuvert} onClose={() => setCarteOuvert(false)} titre="Naviguer sur la carte" largeur={1100}>
+      <Modale ouvert={carteOuvert} onClose={() => setCarteOuvert(false)} titre="Naviguer sur la carte" largeur={1280}>
         <CarteInteractive
           chateaux={chateaux}
           dateArrivee={dateArrivee}
           dateDepart={dateDepart}
           invites={invites}
           onVoirChateau={onVoirChateau}
-          onSelectChateau={(c) => {
-            console.log("Chateau selectionne sur la carte :", c.nom);
-          }}
         />
       </Modale>
     </div>

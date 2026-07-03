@@ -13,14 +13,13 @@ const prixAffiche = (c) => {
   return c.prixBarre || c.chambres?.[0]?.prix || null;
 };
 
-export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, invites, onSelectChateau, onVoirChateau }) {
+export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, invites, onVoirChateau }) {
   const conteneurRef = useRef(null);
   const carteRef = useRef(null);
-  const [selection, setSelection] = useState(null);
+  const [survolId, setSurvolId] = useState(null);
 
   // La carte ne montre que les chateaux reels (estLaUne) : seuls routables vers
-  // une vraie vitrine. Coherent avec PageResultats qui filtre pareil. Evite un
-  // cul-de-sac (clic mock -> panneau -> vitrine vide).
+  // une vraie vitrine. Un seul tableau alimente la liste ET les marqueurs.
   const reels = (chateaux || []).filter((c) => c.estLaUne === true);
 
   useEffect(() => {
@@ -52,10 +51,7 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, in
         iconSize: null,
       });
       const marqueur = L.marker([lat, lng], { icon: icone }).addTo(carte);
-      marqueur.on("click", () => {
-        setSelection(c);
-        onSelectChateau && onSelectChateau(c);
-      });
+      marqueur.on("click", () => onVoirChateau && onVoirChateau(c));
     });
 
     const t = setTimeout(() => carte.invalidateSize(), 120);
@@ -65,7 +61,7 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, in
       carte.remove();
       carteRef.current = null;
     };
-  }, [chateaux, onSelectChateau]);
+  }, [chateaux, onVoirChateau]);
 
   const rappelSejour = () => {
     const parts = [];
@@ -76,43 +72,53 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, in
       if (e > 0) s += `, ${e} enfant${e > 1 ? "s" : ""}`;
       parts.push(s);
     }
-    return parts;
+    return parts.join(" · ");
   };
 
   return (
-    <div className="ci-wrap">
-      <div className="ci-carte" ref={conteneurRef} />
-
-      {selection && (
-        <div className="ci-detail">
-          <button className="ci-detail-close" onClick={() => setSelection(null)} aria-label="Fermer">✕</button>
-          <div className="ci-detail-photo" style={{ backgroundImage: `url('${selection.images?.[0]}')` }} />
-          <div className="ci-detail-corps">
-            <div className="ci-detail-region">{selection.region} · {selection.distanceParis}</div>
-            <h3 className="ci-detail-nom">{selection.nom}</h3>
-            <p className="ci-detail-accroche">{selection.accroche}</p>
-            {rappelSejour().length > 0 && (
-              <div className="ci-detail-sejour">
-                {rappelSejour().map((p, i) => (
-                  <span key={i} className="ci-detail-sejour-item">{p}</span>
-                ))}
-              </div>
-            )}
-            {prixAffiche(selection) && (
-              <div className="ci-detail-prix">
-                À partir de <strong>{prixAffiche(selection)} €</strong> / nuit
-              </div>
-            )}
-            <button
-              className="ci-detail-cta"
-              type="button"
-              onClick={() => onVoirChateau && onVoirChateau(selection)}
-            >
-              Voir le château →
-            </button>
-          </div>
+    <div className="ci-split">
+      {/* LISTE DE VIGNETTES */}
+      <div className="ci-liste">
+        <div className="ci-liste-tete">
+          <span className="ci-liste-nb">{reels.length}</span> demeure{reels.length > 1 ? "s" : ""}
+          {rappelSejour() && <span className="ci-liste-sejour"> · {rappelSejour()}</span>}
         </div>
-      )}
+        {reels.map((c) => {
+          const prix = prixAffiche(c);
+          return (
+            <div
+              key={c.id}
+              className={"ci-vignette" + (survolId === c.id ? " ci-vignette--survol" : "")}
+              onMouseEnter={() => setSurvolId(c.id)}
+              onMouseLeave={() => setSurvolId(null)}
+            >
+              <div className="ci-vignette-photo" style={{ backgroundImage: `url('${c.images?.[0]}')` }} />
+              <div className="ci-vignette-corps">
+                <div className="ci-vignette-region">{c.region} · {c.distanceParis}</div>
+                <h3 className="ci-vignette-nom">{c.nom}</h3>
+                <p className="ci-vignette-accroche">{c.accroche}</p>
+                <div className="ci-vignette-bas">
+                  {prix && (
+                    <span className="ci-vignette-prix">
+                      dès <strong>{prix} €</strong> / nuit
+                    </span>
+                  )}
+                  <button
+                    className="ci-vignette-cta"
+                    type="button"
+                    onClick={() => onVoirChateau && onVoirChateau(c)}
+                  >
+                    Voir le château →
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* CARTE */}
+      <div className="ci-carte" ref={conteneurRef} />
     </div>
   );
 }
