@@ -2,21 +2,44 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { getRegionsAvecChateaux } from "../utils/regions";
+import { genererGrilleMois, formatDate, estMemeJour, estEntre } from "../utils/dates";
 import "../styles/barre-recherche.css";
 
 export default function BarreRecherche() {
   const { chateaux } = useChateaux();
   const navigate = useNavigate();
+
+  // Destination
   const [destOuvert, setDestOuvert] = useState(false);
   const [selection, setSelection] = useState(null); // { type: "region"|"chateau", region, chateau? }
   const destRef = useRef(null);
+
+  // Dates (calendrier de plage)
+  const [datesOuvert, setDatesOuvert] = useState(false);
+  const [dateArrivee, setDateArrivee] = useState(null);
+  const [dateDepart, setDateDepart] = useState(null);
+  const [etapeDate, setEtapeDate] = useState("arrivee");
+  const [moisAffiche, setMoisAffiche] = useState(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+  });
+  const datesRef = useRef(null);
+
+  // Invites
   const [invOuvert, setInvOuvert] = useState(false);
   const [invites, setInvites] = useState({ adultes: 2, enfants: 0 });
   const invRef = useRef(null);
 
   const regions = getRegionsAvecChateaux(chateaux);
 
-  // Fermeture au clic-dehors
+  // Ouverture exclusive : un seul panneau ouvert a la fois
+  const ouvrir = (champ) => {
+    setDestOuvert(champ === "dest" ? (o) => !o : false);
+    setDatesOuvert(champ === "dates" ? (o) => !o : false);
+    setInvOuvert(champ === "invites" ? (o) => !o : false);
+  };
+
+  // Fermeture au clic-dehors — un effet independant par panneau
   useEffect(() => {
     if (!destOuvert) return;
     const onClick = (e) => {
@@ -26,7 +49,15 @@ export default function BarreRecherche() {
     return () => document.removeEventListener("mousedown", onClick);
   }, [destOuvert]);
 
-  // Fermeture au clic-dehors (panneau Invites) — effet independant
+  useEffect(() => {
+    if (!datesOuvert) return;
+    const onClick = (e) => {
+      if (datesRef.current && !datesRef.current.contains(e.target)) setDatesOuvert(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [datesOuvert]);
+
   useEffect(() => {
     if (!invOuvert) return;
     const onClick = (e) => {
@@ -36,11 +67,65 @@ export default function BarreRecherche() {
     return () => document.removeEventListener("mousedown", onClick);
   }, [invOuvert]);
 
+  // ── Calendrier : bornes deterministes (aujourd'hui inclus, pas de passe, pas de plafond) ──
+  const aujourdhui = new Date();
+  aujourdhui.setHours(0, 0, 0, 0);
+  const moisCourant = new Date(aujourdhui.getFullYear(), aujourdhui.getMonth(), 1);
+  const peutReculer = moisAffiche > moisCourant;
+
+  const estSelectionnable = (d) => {
+    const jour = new Date(d);
+    jour.setHours(0, 0, 0, 0);
+    return jour >= aujourdhui;
+  };
+
+  const moisPrecedent = () => {
+    if (peutReculer) setMoisAffiche((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1));
+  };
+  const moisSuivant = () =>
+    setMoisAffiche((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1));
+
+  const handleSelectDate = (d) => {
+    if (etapeDate === "arrivee") {
+      setDateArrivee(d);
+      setDateDepart(null);
+      setEtapeDate("depart");
+    } else {
+      if (d > dateArrivee) {
+        setDateDepart(d);
+        setEtapeDate("arrivee");
+        setDatesOuvert(false);
+      } else {
+        setDateArrivee(d);
+        setDateDepart(null);
+        setEtapeDate("depart");
+      }
+    }
+  };
+
+  const resetDates = () => {
+    setDateArrivee(null);
+    setDateDepart(null);
+    setEtapeDate("arrivee");
+  };
+
+  const isArrivee = (d) => estMemeJour(d, dateArrivee);
+  const isDepart = (d) => estMemeJour(d, dateDepart);
+  const isBetween = (d) => estEntre(d, dateArrivee, dateDepart);
+
+  const labelMois = moisAffiche.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+
   const labelDestination = selection
     ? selection.type === "chateau"
       ? selection.chateau.nom
       : selection.region
     : "Où rêvez-vous d’aller ?";
+
+  const labelDates = () => {
+    if (dateArrivee && dateDepart) return `${formatDate(dateArrivee)} → ${formatDate(dateDepart)}`;
+    if (dateArrivee) return `${formatDate(dateArrivee)} → …`;
+    return "Arrivée — Départ";
+  };
 
   const labelInvites = () => {
     const a = invites.adultes, e = invites.enfants;
@@ -82,7 +167,7 @@ export default function BarreRecherche() {
             <button
               type="button"
               className="br-champ-btn"
-              onClick={() => { setInvOuvert(false); setDestOuvert((o) => !o); }}
+              onClick={() => ouvrir("dest")}
               aria-expanded={destOuvert}
             >
               <svg className="br-ico" width="18" height="18" viewBox="0 0 18 18" fill="none">
@@ -133,19 +218,84 @@ export default function BarreRecherche() {
 
           <div className="br-sep" />
 
-          {/* DATES (statique pour l'instant) */}
-          <div className="br-champ">
-            <svg className="br-ico" width="18" height="18" viewBox="0 0 18 18" fill="none">
-              <rect x="3" y="4.5" width="12" height="10.5" rx="1.5" stroke="#C09840" strokeWidth="1.5"/>
-              <path d="M3 7.5h12M6 3v3M12 3v3" stroke="#C09840" strokeWidth="1.5" strokeLinecap="round"/>
-            </svg>
-            <div className="br-champ-txt">
-              <span className="br-label">Dates</span>
-              <span className="br-valeur">Arrivée — Départ</span>
-            </div>
-            <svg className="br-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+          {/* DATES (calendrier de plage) */}
+          <div className="br-champ br-champ--dates" ref={datesRef}>
+            <button
+              type="button"
+              className="br-champ-btn"
+              onClick={() => ouvrir("dates")}
+              aria-expanded={datesOuvert}
+            >
+              <svg className="br-ico" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <rect x="3" y="4.5" width="12" height="10.5" rx="1.5" stroke="#C09840" strokeWidth="1.5"/>
+                <path d="M3 7.5h12M6 3v3M12 3v3" stroke="#C09840" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+              <span className="br-champ-txt">
+                <span className="br-label">Dates</span>
+                <span className="br-valeur">{labelDates()}</span>
+              </span>
+              <svg className={"br-chevron" + (datesOuvert ? " br-chevron--ouvert" : "")} width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+
+            {datesOuvert && (
+              <div className="br-cal-panneau">
+                <div className="br-cal-etape">
+                  {etapeDate === "arrivee" ? "Sélectionnez votre arrivée" : "Sélectionnez votre départ"}
+                </div>
+                <div className="br-cal-nav">
+                  <button
+                    type="button"
+                    className="br-cal-nav-btn"
+                    onClick={moisPrecedent}
+                    disabled={!peutReculer}
+                    aria-label="Mois précédent"
+                  >‹</button>
+                  <span className="br-cal-nav-label">{labelMois}</span>
+                  <button
+                    type="button"
+                    className="br-cal-nav-btn"
+                    onClick={moisSuivant}
+                    aria-label="Mois suivant"
+                  >›</button>
+                </div>
+                <div className="br-cal-grille">
+                  {["Lu","Ma","Me","Je","Ve","Sa","Di"].map((j) => (
+                    <span key={j} className="br-cal-entete">{j}</span>
+                  ))}
+                  {genererGrilleMois(moisAffiche).map((caseJour, i) => {
+                    const d = caseJour.date;
+                    if (caseJour.horsMois) {
+                      return <span key={i} className="br-cal-case br-cal-case--horsmois">{d.getDate()}</span>;
+                    }
+                    const selectionnable = estSelectionnable(d);
+                    const classes =
+                      "br-cal-case" +
+                      (selectionnable ? " br-cal-case--dispo" : " br-cal-case--off") +
+                      (isArrivee(d) ? " br-cal-arrivee" : "") +
+                      (isDepart(d) ? " br-cal-depart" : "") +
+                      (isBetween(d) ? " br-cal-between" : "");
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        className={classes}
+                        disabled={!selectionnable}
+                        onClick={() => selectionnable && handleSelectDate(d)}
+                      >
+                        {d.getDate()}
+                      </button>
+                    );
+                  })}
+                </div>
+                {dateArrivee && (
+                  <div className="br-cal-pied">
+                    <button type="button" className="br-cal-reset" onClick={resetDates}>Effacer les dates</button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="br-sep" />
@@ -155,7 +305,7 @@ export default function BarreRecherche() {
             <button
               type="button"
               className="br-champ-btn"
-              onClick={() => { setDestOuvert(false); setInvOuvert((o) => !o); }}
+              onClick={() => ouvrir("invites")}
               aria-expanded={invOuvert}
             >
               <svg className="br-ico" width="18" height="18" viewBox="0 0 18 18" fill="none">
