@@ -143,6 +143,14 @@ export default function BarreRecherche() {
     setDestOuvert(false);
   };
 
+  // Date -> "YYYY-MM-DD" construit depuis les composantes LOCALES (jamais
+  // toISOString, qui bascule en UTC et peut decaler d'un jour selon le fuseau).
+  const toISODate = (d) => {
+    const mois = String(d.getMonth() + 1).padStart(2, "0");
+    const jour = String(d.getDate()).padStart(2, "0");
+    return `${d.getFullYear()}-${mois}-${jour}`;
+  };
+
   const lancerRecherche = () => {
     const p = new URLSearchParams();
     if (selection?.type === "chateau" && selection.chateau?.slug) {
@@ -154,6 +162,10 @@ export default function BarreRecherche() {
     p.set("invites", String(totalInvites));
     p.set("adultes", String(invites.adultes));
     p.set("enfants", String(invites.enfants));
+    if (dateArrivee && dateDepart) {
+      p.set("arrivee", toISODate(dateArrivee));
+      p.set("depart", toISODate(dateDepart));
+    }
     navigate(`/resultats?${p.toString()}`);
   };
 

@@ -13,6 +13,23 @@ export default function PageResultats() {
   const invites = params.get("invites");
   const nbInvites = invites ? parseInt(invites, 10) : null;
 
+  const arrivee = params.get("arrivee");
+  const depart = params.get("depart");
+
+  // "YYYY-MM-DD" -> "9 juil." pour le recap. Parse manuel (pas new Date("...")
+  // qui interprete l'ISO en UTC et peut afficher la veille selon le fuseau).
+  const formatJourMois = (iso) => {
+    if (!iso) return null;
+    const [a, m, j] = iso.split("-").map(Number);
+    if (!a || !m || !j) return null;
+    const d = new Date(a, m - 1, j);
+    return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
+  };
+  const labelDates =
+    arrivee && depart
+      ? `${formatJourMois(arrivee)} → ${formatJourMois(depart)}`
+      : null;
+
   // Capacite totale du chateau = somme des capacites de ses chambres.
   // Un chateau se loue souvent en plusieurs chambres / en entier, donc on
   // raisonne en capacite d'accueil globale, pas chambre par chambre.
@@ -42,6 +59,7 @@ export default function PageResultats() {
   const recap = [
     region ? region : null,
     chateauSlug && resultats[0] ? resultats[0].nom : null,
+    labelDates,
     invites ? `${invites} invites` : null,
   ].filter(Boolean).join(" · ");
 
