@@ -1,5 +1,6 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
+import { prixAffiche } from "../utils/derivePrix";
 import Header from "./Header";
 import "../styles/page-resultats.css";
 
@@ -65,13 +66,6 @@ export default function PageResultats() {
 
   // Header : depuis /resultats, les boutons d'overlay ramenent a la home.
   const versHome = () => navigate("/");
-
-  const prixAffiche = (c) => {
-    if (c.prixBarre && c.reduction) {
-      return Math.round(c.prixBarre * (1 - c.reduction / 100));
-    }
-    return c.prixBarre || c.chambres?.[0]?.prix || null;
-  };
 
   return (
     <div className="app">

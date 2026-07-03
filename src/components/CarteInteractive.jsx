@@ -2,16 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { formatDate } from "../utils/dates";
+import { prixAffiche } from "../utils/derivePrix";
 import "../styles/carte-interactive.css";
-
-// Prix "a partir de" : meme cascade que PageResultats (prix reduit -> prixBarre
-// -> 1er prix chambre). Une seule facon de calculer un prix dans le produit.
-const prixAffiche = (c) => {
-  if (c.prixBarre && c.reduction) {
-    return Math.round(c.prixBarre * (1 - c.reduction / 100));
-  }
-  return c.prixBarre || c.chambres?.[0]?.prix || null;
-};
 
 export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, invites, onVoirChateau }) {
   const conteneurRef = useRef(null);
