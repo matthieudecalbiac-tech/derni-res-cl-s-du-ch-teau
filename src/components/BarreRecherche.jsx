@@ -4,6 +4,7 @@ import { useChateaux } from "../hooks/useChateaux";
 import { getRegionsAvecChateaux } from "../utils/regions";
 import { genererGrilleMois, formatDate, estMemeJour, estEntre } from "../utils/dates";
 import Modale from "./Modale";
+import CarteInteractive from "./CarteInteractive";
 import "../styles/barre-recherche.css";
 
 export default function BarreRecherche() {
@@ -28,6 +29,9 @@ export default function BarreRecherche() {
   const [invOuvert, setInvOuvert] = useState(false);
   const [invites, setInvites] = useState({ adultes: 2, enfants: 0 });
 
+  // Carte interactive
+  const [carteOuvert, setCarteOuvert] = useState(false);
+
   const regions = getRegionsAvecChateaux(chateaux);
 
   // Ouverture exclusive : chaque champ ouvre sa modale (une seule a la fois,
@@ -36,6 +40,7 @@ export default function BarreRecherche() {
     setDestOuvert(champ === "dest");
     setDatesOuvert(champ === "dates");
     setInvOuvert(champ === "invites");
+    setCarteOuvert(champ === "carte");
   };
 
   // ── Calendrier : bornes deterministes (aujourd'hui inclus, pas de passe, pas de plafond) ──
@@ -256,6 +261,27 @@ export default function BarreRecherche() {
             </button>
           </div>
 
+          <div className="br-sep" />
+
+          {/* NAVIGUER SUR LA CARTE */}
+          <div className="br-champ br-champ--carte">
+            <button
+              type="button"
+              className="br-champ-btn"
+              onClick={() => ouvrir("carte")}
+              aria-expanded={carteOuvert}
+            >
+              <svg className="br-ico" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M6.5 3 3 4.5v10L6.5 13l5 1.5L15 13V3l-3.5 1.5L6.5 3Z" stroke="#C09840" strokeWidth="1.5" strokeLinejoin="round"/>
+                <path d="M6.5 3v10M11.5 4.5v10" stroke="#C09840" strokeWidth="1.5"/>
+              </svg>
+              <span className="br-champ-txt">
+                <span className="br-label">Explorer</span>
+                <span className="br-valeur">Naviguer sur la carte</span>
+              </span>
+            </button>
+          </div>
+
           <button className="br-cta" onClick={lancerRecherche} disabled={!selection}>Trouver votre château <span className="br-cta-fl">→</span></button>
         </div>
       </div>
@@ -366,6 +392,16 @@ export default function BarreRecherche() {
             >+</button>
           </div>
         </div>
+      </Modale>
+
+      {/* MODALE CARTE */}
+      <Modale ouvert={carteOuvert} onClose={() => setCarteOuvert(false)} titre="Naviguer sur la carte" largeur={1100}>
+        <CarteInteractive
+          chateaux={chateaux}
+          onSelectChateau={(c) => {
+            console.log("Chateau selectionne sur la carte :", c.nom);
+          }}
+        />
       </Modale>
     </div>
   );

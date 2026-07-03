@@ -9,7 +9,7 @@
 .br-carte {
   background: #FEFCF8; border: 1px solid rgba(192,152,64,0.25);
   border-radius: 10px; box-shadow: 0 16px 44px rgba(26,45,90,0.10);
-  display: grid; grid-template-columns: 1.3fr auto 1fr auto 1fr auto; align-items: center;
+  display: grid; grid-template-columns: 1.3fr auto 1fr auto 1fr auto 1fr auto; align-items: center;
   padding: 10px 14px; gap: 8px;
 }
 .br-champ { display: flex; align-items: center; gap: 12px; padding: 10px 20px; cursor: pointer; }
@@ -109,6 +109,8 @@
 
 /* ── Champ Invites (steppers adultes / enfants) ── */
 .br-champ--invites { padding: 0; }
+/* ── Champ Carte (bouton declencheur de la modale carte) ── */
+.br-champ--carte { padding: 0; }
 .br-stepper-ligne {
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 20px;
