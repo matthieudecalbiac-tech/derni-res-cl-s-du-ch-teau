@@ -39,21 +39,14 @@
   .br-cta { width: 100%; justify-content: center; margin-top: 8px; }
 }
 
-/* ── Champ Destination deroulant ── */
-.br-champ--dest { position: relative; padding: 0; }
+/* ── Champ Destination (bouton declencheur de modale) ── */
+.br-champ--dest { padding: 0; }
 .br-champ-btn {
   display: flex; align-items: center; gap: 12px; width: 100%;
   padding: 10px 20px; background: transparent; border: none; cursor: pointer;
   text-align: left; font: inherit;
 }
 .br-chevron--ouvert { transform: rotate(180deg); }
-.br-dest-panneau {
-  position: absolute; top: calc(100% + 12px); left: 0; z-index: 50;
-  width: 340px; max-height: 380px; overflow-y: auto;
-  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.25);
-  border-radius: 10px; box-shadow: 0 18px 50px rgba(26,45,90,0.16);
-  padding: 10px 0;
-}
 .br-dest-vide {
   padding: 14px 22px; font-family: 'Crimson Pro', serif; font-style: italic;
   color: #A8884E; font-size: 0.9rem; margin: 0;
@@ -75,21 +68,7 @@
 .br-dest-chateau:hover { background: rgba(192,152,64,0.10); }
 
 /* ── Champ Dates : calendrier de plage ── */
-.br-champ--dates { position: relative; padding: 0; }
-.br-cal-panneau {
-  position: absolute; top: calc(100% + 12px); left: 50%; transform: translateX(-50%);
-  z-index: 50; width: 320px;
-  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.25);
-  border-radius: 10px; box-shadow: 0 18px 50px rgba(26,45,90,0.16);
-  padding: 16px 16px 12px;
-}
-.br-cal-etape {
-  text-align: center; font-family: 'Crimson Pro', serif; font-size: 0.68rem;
-  letter-spacing: 0.14em; text-transform: uppercase; color: #C09840; margin-bottom: 12px;
-}
-.br-cal-nav {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
-}
+.br-champ--dates { padding: 0; }
 .br-cal-nav-btn {
   width: 30px; height: 30px; border-radius: 50%;
   border: 1px solid rgba(192,152,64,0.4); background: transparent;
@@ -99,10 +78,6 @@
 }
 .br-cal-nav-btn:hover:not(:disabled) { background: rgba(192,152,64,0.12); border-color: #C09840; }
 .br-cal-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-.br-cal-nav-label {
-  font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #1A2D5A;
-  text-transform: capitalize;
-}
 .br-cal-grille {
   display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
 }
@@ -132,15 +107,8 @@
 }
 .br-cal-reset:hover { color: #1A2D5A; }
 
-/* ── Champ Invites deroulant (steppers adultes / enfants) ── */
-.br-champ--invites { position: relative; padding: 0; }
-.br-invites-panneau {
-  position: absolute; top: calc(100% + 12px); right: 0; z-index: 50;
-  width: 340px;
-  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.25);
-  border-radius: 10px; box-shadow: 0 18px 50px rgba(26,45,90,0.16);
-  padding: 6px 4px;
-}
+/* ── Champ Invites (steppers adultes / enfants) ── */
+.br-champ--invites { padding: 0; }
 .br-stepper-ligne {
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 20px;
@@ -163,6 +131,31 @@
   font-family: 'Playfair Display', serif; font-size: 1rem; color: #1A2D5A;
   min-width: 20px; text-align: center;
 }
+
+/* ── Contenu des modales de la barre (destination / dates / invites) ── */
+.br-dest-liste { display: flex; flex-direction: column; }
+.br-dest-liste .br-dest-region + .br-dest-region { border-top: 1px solid rgba(192,152,64,0.12); }
+
+.br-cal-etape {
+  text-align: center; font-family: 'Crimson Pro', serif; font-size: 0.72rem;
+  letter-spacing: 0.14em; text-transform: uppercase; color: #C09840; margin-bottom: 16px;
+}
+.br-cal-nav {
+  display: flex; align-items: center; justify-content: center; gap: 24px; margin-bottom: 14px;
+}
+.br-cal-duo {
+  display: flex; gap: 32px; justify-content: center;
+}
+.br-cal-mois { flex: 1; max-width: 300px; }
+.br-cal-mois-label {
+  text-align: center; font-family: 'Playfair Display', serif; font-size: 1rem;
+  color: #1A2D5A; text-transform: capitalize; margin-bottom: 12px;
+}
+@media (max-width: 620px) {
+  .br-cal-duo { flex-direction: column; align-items: center; gap: 24px; }
+  .br-cal-mois { max-width: 320px; width: 100%; }
+}
+.br-stepper-ligne:first-child { border-top: none; }
 
 /* ── Animation d'entree (en dernier dans la sequence hero) ── */
 @keyframes barreFadeUp {

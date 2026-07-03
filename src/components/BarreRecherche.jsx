@@ -1,8 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { getRegionsAvecChateaux } from "../utils/regions";
 import { genererGrilleMois, formatDate, estMemeJour, estEntre } from "../utils/dates";
+import Modale from "./Modale";
 import "../styles/barre-recherche.css";
 
 export default function BarreRecherche() {
@@ -12,7 +13,6 @@ export default function BarreRecherche() {
   // Destination
   const [destOuvert, setDestOuvert] = useState(false);
   const [selection, setSelection] = useState(null); // { type: "region"|"chateau", region, chateau? }
-  const destRef = useRef(null);
 
   // Dates (calendrier de plage)
   const [datesOuvert, setDatesOuvert] = useState(false);
@@ -23,49 +23,20 @@ export default function BarreRecherche() {
     const d = new Date();
     return new Date(d.getFullYear(), d.getMonth(), 1);
   });
-  const datesRef = useRef(null);
 
   // Invites
   const [invOuvert, setInvOuvert] = useState(false);
   const [invites, setInvites] = useState({ adultes: 2, enfants: 0 });
-  const invRef = useRef(null);
 
   const regions = getRegionsAvecChateaux(chateaux);
 
-  // Ouverture exclusive : un seul panneau ouvert a la fois
+  // Ouverture exclusive : chaque champ ouvre sa modale (une seule a la fois,
+  // garanti structurellement par le plein ecran).
   const ouvrir = (champ) => {
-    setDestOuvert(champ === "dest" ? (o) => !o : false);
-    setDatesOuvert(champ === "dates" ? (o) => !o : false);
-    setInvOuvert(champ === "invites" ? (o) => !o : false);
+    setDestOuvert(champ === "dest");
+    setDatesOuvert(champ === "dates");
+    setInvOuvert(champ === "invites");
   };
-
-  // Fermeture au clic-dehors — un effet independant par panneau
-  useEffect(() => {
-    if (!destOuvert) return;
-    const onClick = (e) => {
-      if (destRef.current && !destRef.current.contains(e.target)) setDestOuvert(false);
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, [destOuvert]);
-
-  useEffect(() => {
-    if (!datesOuvert) return;
-    const onClick = (e) => {
-      if (datesRef.current && !datesRef.current.contains(e.target)) setDatesOuvert(false);
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, [datesOuvert]);
-
-  useEffect(() => {
-    if (!invOuvert) return;
-    const onClick = (e) => {
-      if (invRef.current && !invRef.current.contains(e.target)) setInvOuvert(false);
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, [invOuvert]);
 
   // ── Calendrier : bornes deterministes (aujourd'hui inclus, pas de passe, pas de plafond) ──
   const aujourdhui = new Date();
@@ -113,7 +84,46 @@ export default function BarreRecherche() {
   const isDepart = (d) => estMemeJour(d, dateDepart);
   const isBetween = (d) => estEntre(d, dateArrivee, dateDepart);
 
-  const labelMois = moisAffiche.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  // Rendu d'une grille mensuelle (appelee 2x pour l'affichage cote a cote).
+  const rendreGrille = (premierDuMois) => {
+    const label = premierDuMois.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+    return (
+      <div className="br-cal-mois">
+        <div className="br-cal-mois-label">{label}</div>
+        <div className="br-cal-grille">
+          {["Lu","Ma","Me","Je","Ve","Sa","Di"].map((j) => (
+            <span key={j} className="br-cal-entete">{j}</span>
+          ))}
+          {genererGrilleMois(premierDuMois).map((caseJour, i) => {
+            const d = caseJour.date;
+            if (caseJour.horsMois) {
+              return <span key={i} className="br-cal-case br-cal-case--horsmois">{d.getDate()}</span>;
+            }
+            const selectionnable = estSelectionnable(d);
+            const classes =
+              "br-cal-case" +
+              (selectionnable ? " br-cal-case--dispo" : " br-cal-case--off") +
+              (isArrivee(d) ? " br-cal-arrivee" : "") +
+              (isDepart(d) ? " br-cal-depart" : "") +
+              (isBetween(d) ? " br-cal-between" : "");
+            return (
+              <button
+                key={i}
+                type="button"
+                className={classes}
+                disabled={!selectionnable}
+                onClick={() => selectionnable && handleSelectDate(d)}
+              >
+                {d.getDate()}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
+  const moisSuivantDate = new Date(moisAffiche.getFullYear(), moisAffiche.getMonth() + 1, 1);
 
   const labelDestination = selection
     ? selection.type === "chateau"
@@ -174,8 +184,8 @@ export default function BarreRecherche() {
       <div className="br-inner">
         <div className="br-carte">
 
-          {/* DESTINATION (deroulant) */}
-          <div className="br-champ br-champ--dest" ref={destRef}>
+          {/* DESTINATION */}
+          <div className="br-champ br-champ--dest">
             <button
               type="button"
               className="br-champ-btn"
@@ -194,44 +204,12 @@ export default function BarreRecherche() {
                 <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-
-            {destOuvert && (
-              <div className="br-dest-panneau">
-                {regions.length === 0 && (
-                  <p className="br-dest-vide">Chargement des destinations…</p>
-                )}
-                {regions.map((r) => (
-                  <div className="br-dest-region" key={r.region}>
-                    <button
-                      type="button"
-                      className="br-dest-region-titre"
-                      onClick={() => choisirRegion(r.region)}
-                    >
-                      {r.region}
-                    </button>
-                    <ul className="br-dest-chateaux">
-                      {r.chateaux.map((c) => (
-                        <li key={c.id}>
-                          <button
-                            type="button"
-                            className="br-dest-chateau"
-                            onClick={() => choisirChateau(r.region, c)}
-                          >
-                            {c.nom}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
           <div className="br-sep" />
 
-          {/* DATES (calendrier de plage) */}
-          <div className="br-champ br-champ--dates" ref={datesRef}>
+          {/* DATES */}
+          <div className="br-champ br-champ--dates">
             <button
               type="button"
               className="br-champ-btn"
@@ -250,70 +228,12 @@ export default function BarreRecherche() {
                 <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-
-            {datesOuvert && (
-              <div className="br-cal-panneau">
-                <div className="br-cal-etape">
-                  {etapeDate === "arrivee" ? "Sélectionnez votre arrivée" : "Sélectionnez votre départ"}
-                </div>
-                <div className="br-cal-nav">
-                  <button
-                    type="button"
-                    className="br-cal-nav-btn"
-                    onClick={moisPrecedent}
-                    disabled={!peutReculer}
-                    aria-label="Mois précédent"
-                  >‹</button>
-                  <span className="br-cal-nav-label">{labelMois}</span>
-                  <button
-                    type="button"
-                    className="br-cal-nav-btn"
-                    onClick={moisSuivant}
-                    aria-label="Mois suivant"
-                  >›</button>
-                </div>
-                <div className="br-cal-grille">
-                  {["Lu","Ma","Me","Je","Ve","Sa","Di"].map((j) => (
-                    <span key={j} className="br-cal-entete">{j}</span>
-                  ))}
-                  {genererGrilleMois(moisAffiche).map((caseJour, i) => {
-                    const d = caseJour.date;
-                    if (caseJour.horsMois) {
-                      return <span key={i} className="br-cal-case br-cal-case--horsmois">{d.getDate()}</span>;
-                    }
-                    const selectionnable = estSelectionnable(d);
-                    const classes =
-                      "br-cal-case" +
-                      (selectionnable ? " br-cal-case--dispo" : " br-cal-case--off") +
-                      (isArrivee(d) ? " br-cal-arrivee" : "") +
-                      (isDepart(d) ? " br-cal-depart" : "") +
-                      (isBetween(d) ? " br-cal-between" : "");
-                    return (
-                      <button
-                        key={i}
-                        type="button"
-                        className={classes}
-                        disabled={!selectionnable}
-                        onClick={() => selectionnable && handleSelectDate(d)}
-                      >
-                        {d.getDate()}
-                      </button>
-                    );
-                  })}
-                </div>
-                {dateArrivee && (
-                  <div className="br-cal-pied">
-                    <button type="button" className="br-cal-reset" onClick={resetDates}>Effacer les dates</button>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           <div className="br-sep" />
 
-          {/* INVITES (adultes / enfants, panneau overlay facon Destination) */}
-          <div className="br-champ br-champ--invites" ref={invRef}>
+          {/* INVITES */}
+          <div className="br-champ br-champ--invites">
             <button
               type="button"
               className="br-champ-btn"
@@ -334,56 +254,119 @@ export default function BarreRecherche() {
                 <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-
-            {invOuvert && (
-              <div className="br-invites-panneau">
-                <div className="br-stepper-ligne">
-                  <span className="br-stepper-label">Adultes</span>
-                  <div className="br-stepper">
-                    <button
-                      type="button"
-                      className="br-stepper-btn"
-                      aria-label="Diminuer les adultes"
-                      onClick={() => setInvites((v) => ({ ...v, adultes: Math.max(1, v.adultes - 1) }))}
-                      disabled={invites.adultes <= 1}
-                    >−</button>
-                    <span className="br-stepper-val">{invites.adultes}</span>
-                    <button
-                      type="button"
-                      className="br-stepper-btn"
-                      aria-label="Augmenter les adultes"
-                      onClick={() => setInvites((v) => ({ ...v, adultes: v.adultes + 1 }))}
-                      disabled={invites.adultes + invites.enfants >= 20}
-                    >+</button>
-                  </div>
-                </div>
-                <div className="br-stepper-ligne">
-                  <span className="br-stepper-label">Enfants</span>
-                  <div className="br-stepper">
-                    <button
-                      type="button"
-                      className="br-stepper-btn"
-                      aria-label="Diminuer les enfants"
-                      onClick={() => setInvites((v) => ({ ...v, enfants: Math.max(0, v.enfants - 1) }))}
-                      disabled={invites.enfants <= 0}
-                    >−</button>
-                    <span className="br-stepper-val">{invites.enfants}</span>
-                    <button
-                      type="button"
-                      className="br-stepper-btn"
-                      aria-label="Augmenter les enfants"
-                      onClick={() => setInvites((v) => ({ ...v, enfants: v.enfants + 1 }))}
-                      disabled={invites.adultes + invites.enfants >= 20}
-                    >+</button>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
           <button className="br-cta" onClick={lancerRecherche} disabled={!selection}>Trouver votre château <span className="br-cta-fl">→</span></button>
         </div>
       </div>
+
+      {/* MODALE DESTINATION */}
+      <Modale ouvert={destOuvert} onClose={() => setDestOuvert(false)} titre="Destination" largeur={520}>
+        <div className="br-dest-liste">
+          {regions.length === 0 && (
+            <p className="br-dest-vide">Chargement des destinations…</p>
+          )}
+          {regions.map((r) => (
+            <div className="br-dest-region" key={r.region}>
+              <button
+                type="button"
+                className="br-dest-region-titre"
+                onClick={() => choisirRegion(r.region)}
+              >
+                {r.region}
+              </button>
+              <ul className="br-dest-chateaux">
+                {r.chateaux.map((c) => (
+                  <li key={c.id}>
+                    <button
+                      type="button"
+                      className="br-dest-chateau"
+                      onClick={() => choisirChateau(r.region, c)}
+                    >
+                      {c.nom}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </Modale>
+
+      {/* MODALE DATES (2 mois cote a cote) */}
+      <Modale ouvert={datesOuvert} onClose={() => setDatesOuvert(false)} titre="Vos dates" largeur={720}>
+        <div className="br-cal-etape">
+          {etapeDate === "arrivee" ? "Sélectionnez votre arrivée" : "Sélectionnez votre départ"}
+        </div>
+        <div className="br-cal-nav">
+          <button
+            type="button"
+            className="br-cal-nav-btn"
+            onClick={moisPrecedent}
+            disabled={!peutReculer}
+            aria-label="Mois précédent"
+          >‹</button>
+          <button
+            type="button"
+            className="br-cal-nav-btn"
+            onClick={moisSuivant}
+            aria-label="Mois suivant"
+          >›</button>
+        </div>
+        <div className="br-cal-duo">
+          {rendreGrille(moisAffiche)}
+          {rendreGrille(moisSuivantDate)}
+        </div>
+        {dateArrivee && (
+          <div className="br-cal-pied">
+            <button type="button" className="br-cal-reset" onClick={resetDates}>Effacer les dates</button>
+          </div>
+        )}
+      </Modale>
+
+      {/* MODALE INVITES */}
+      <Modale ouvert={invOuvert} onClose={() => setInvOuvert(false)} titre="Voyageurs" largeur={460}>
+        <div className="br-stepper-ligne">
+          <span className="br-stepper-label">Adultes</span>
+          <div className="br-stepper">
+            <button
+              type="button"
+              className="br-stepper-btn"
+              aria-label="Diminuer les adultes"
+              onClick={() => setInvites((v) => ({ ...v, adultes: Math.max(1, v.adultes - 1) }))}
+              disabled={invites.adultes <= 1}
+            >−</button>
+            <span className="br-stepper-val">{invites.adultes}</span>
+            <button
+              type="button"
+              className="br-stepper-btn"
+              aria-label="Augmenter les adultes"
+              onClick={() => setInvites((v) => ({ ...v, adultes: v.adultes + 1 }))}
+              disabled={invites.adultes + invites.enfants >= 20}
+            >+</button>
+          </div>
+        </div>
+        <div className="br-stepper-ligne">
+          <span className="br-stepper-label">Enfants</span>
+          <div className="br-stepper">
+            <button
+              type="button"
+              className="br-stepper-btn"
+              aria-label="Diminuer les enfants"
+              onClick={() => setInvites((v) => ({ ...v, enfants: Math.max(0, v.enfants - 1) }))}
+              disabled={invites.enfants <= 0}
+            >−</button>
+            <span className="br-stepper-val">{invites.enfants}</span>
+            <button
+              type="button"
+              className="br-stepper-btn"
+              aria-label="Augmenter les enfants"
+              onClick={() => setInvites((v) => ({ ...v, enfants: v.enfants + 1 }))}
+              disabled={invites.adultes + invites.enfants >= 20}
+            >+</button>
+          </div>
+        </div>
+      </Modale>
     </div>
   );
 }
