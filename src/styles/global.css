@@ -334,3 +334,11 @@ body.vitrine-open .cles-lys-pattern { opacity: 0 !important; pointer-events: non
 body.vitrine-open svg rect[fill] { opacity: 0 !important; }
 body.vitrine-open .lys-pattern svg { opacity: 0 !important; }
 body.vitrine-open .cles-lys-pattern { opacity: 0 !important; }
+
+/* Placeholder creme pendant le chargement de la route vitrine : evite que le
+   body navy transparaisse entre la fin de la TransitionPorte (creme) et le
+   paint de la vitrine (fetch + hero async). Continuite creme -> vitrine. */
+.vitrine-route-placeholder {
+  position: fixed; inset: 0; z-index: 1;
+  background: #FEFCF8;
+}

@@ -10,8 +10,9 @@ export default function VitrineChateauRoute() {
   const navigate = useNavigate();
   const { chateau, loading, error } = useChateau(slug);
 
-  // Fetch en cours → ne rien rendre (évite une redirection prématurée)
-  if (loading) return null;
+  // Fetch en cours → placeholder creme (evite que le body navy transparaisse
+  // entre la fin de la TransitionPorte creme et le paint de la vitrine)
+  if (loading) return <div className="vitrine-route-placeholder" />;
 
   // Erreur Supabase → home
   if (error) return <Navigate to="/" replace />;
