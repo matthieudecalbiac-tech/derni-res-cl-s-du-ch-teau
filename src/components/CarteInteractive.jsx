@@ -54,6 +54,8 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
       });
       const marqueur = L.marker([lat, lng], { icon: icone }).addTo(carte);
       marqueur.on("click", () => setApercuChateau(c));
+      marqueur.on("mouseover", () => setSurvolId(c.id));
+      marqueur.on("mouseout", () => setSurvolId(null));
     });
 
     const t = setTimeout(() => carte.invalidateSize(), 120);
@@ -64,6 +66,19 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
       carteRef.current = null;
     };
   }, [chateaux, onVoirChateau, apercuChateau]);
+
+  // Sens vignette -> pastille : au survol d'une vignette (survolId), surligne la
+  // pastille correspondante. Les pastilles portent data-id ; querySelector no-op
+  // si absente (vue apercu). Nettoie l'ancienne a chaque changement.
+  useEffect(() => {
+    const root = conteneurRef.current?.closest(".ci-conteneur") || document;
+    // retire le surlignage de toutes les pastilles
+    root.querySelectorAll(".ci-pastille--survol").forEach((el) => el.classList.remove("ci-pastille--survol"));
+    if (survolId != null) {
+      const el = root.querySelector(`.ci-pastille[data-id="${survolId}"]`);
+      if (el) el.classList.add("ci-pastille--survol");
+    }
+  }, [survolId]);
 
   const rappelSejour = () => {
     const parts = [];

@@ -19,6 +19,12 @@
   transform: translate(-50%, -50%) scale(1.06);
   z-index: 500;
 }
+/* Pastille surlignee par le survol d'une vignette (sens liste -> carte) */
+.ci-pastille--survol {
+  background: #1A2D5A; color: #FAF6EE; border-color: #1A2D5A;
+  transform: translate(-50%, -50%) scale(1.06);
+  z-index: 500;
+}
 .ci-carte .leaflet-control-attribution {
   font-family: 'Crimson Pro', serif; font-size: 0.6rem;
   background: rgba(254,252,248,0.85); color: #A8884E;
