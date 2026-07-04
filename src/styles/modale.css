@@ -34,7 +34,10 @@
   margin-bottom: 22px; padding-bottom: 18px;
   border-bottom: 1px solid rgba(192,152,64,0.18);
 }
-.mdl-entete-lys { color: #C09840; font-size: 0.95rem; }
+.mdl-entete-logo {
+  height: 52px; width: auto; display: block;
+  background: transparent; /* neutralise le fond navy global de global.css img {} */
+}
 .mdl-entete-titre {
   font-family: 'Playfair Display', serif; font-size: 1.35rem;
   color: #1A2D5A; letter-spacing: 0.02em;
