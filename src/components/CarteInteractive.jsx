@@ -13,6 +13,8 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
   const [survolId, setSurvolId] = useState(null);
   const [calOuvert, setCalOuvert] = useState(false);
   const [voyOuvert, setVoyOuvert] = useState(false);
+  const [apercuChateau, setApercuChateau] = useState(null);
+  const [photoZoom, setPhotoZoom] = useState(null);
 
   // La carte ne montre que les chateaux reels (estLaUne) : seuls routables vers
   // une vraie vitrine. Puis filtre capacite (voyageurs herites de la barre).
@@ -51,7 +53,7 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
         iconSize: null,
       });
       const marqueur = L.marker([lat, lng], { icon: icone }).addTo(carte);
-      marqueur.on("click", () => onVoirChateau && onVoirChateau(c));
+      marqueur.on("click", () => setApercuChateau(c));
     });
 
     const t = setTimeout(() => carte.invalidateSize(), 120);
@@ -61,7 +63,7 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
       carte.remove();
       carteRef.current = null;
     };
-  }, [chateaux, onVoirChateau]);
+  }, [chateaux, onVoirChateau, apercuChateau]);
 
   const rappelSejour = () => {
     const parts = [];
@@ -86,8 +88,107 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
     return "Ajouter des dates";
   };
 
+  const prix = apercuChateau ? prixAffiche(apercuChateau) : null;
+
   return (
     <div className="ci-conteneur">
+      {apercuChateau ? (
+        <div className="ci-apercu">
+          <div className="ci-apercu-barre">
+            <button type="button" className="ci-apercu-retour" onClick={() => setApercuChateau(null)}>
+              ← Retour à la carte
+            </button>
+            <button type="button" className="ci-apercu-cta" onClick={() => onVoirChateau(apercuChateau)}>
+              Voir la vitrine pour réserver →
+            </button>
+          </div>
+
+          <div className="ci-apercu-photos">
+            {(apercuChateau.images || []).slice(0, 3).map((src, i) => (
+              <div key={i} className="ci-apercu-photo" style={{ backgroundImage: `url('${src}')` }}
+                onClick={() => setPhotoZoom(src)} />
+            ))}
+          </div>
+
+          <div className="ci-apercu-tete">
+            <div className="ci-apercu-region">{apercuChateau.region} · {apercuChateau.distanceParis}</div>
+            <h2 className="ci-apercu-nom">{apercuChateau.nom}</h2>
+            <p className="ci-apercu-accroche">{apercuChateau.accroche}</p>
+          </div>
+
+          {Array.isArray(apercuChateau.chiffresCles) && apercuChateau.chiffresCles.length > 0 && (
+            <div className="ci-apercu-chiffres">
+              {apercuChateau.chiffresCles.slice(0, 4).map((c, i) => (
+                <div key={i} className="ci-apercu-chiffre">
+                  <span className="ci-apercu-chiffre-val">{c.valeur ?? c.val}</span>
+                  <span className="ci-apercu-chiffre-lab">{c.label ?? c.lab}</span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* LE LIEU */}
+          {apercuChateau.description && (
+            <div className="ci-apercu-section">
+              <h3 className="ci-apercu-titre">Le lieu</h3>
+              <p className="ci-apercu-texte">{apercuChateau.description}</p>
+              <div className="ci-apercu-localisation">
+                <svg width="15" height="15" viewBox="0 0 18 18" fill="none">
+                  <path d="M9 16s5-4.4 5-8.5a5 5 0 0 0-10 0C4 11.6 9 16 9 16Z" stroke="#C09840" strokeWidth="1.5" strokeLinejoin="round"/>
+                  <circle cx="9" cy="7.5" r="1.8" stroke="#C09840" strokeWidth="1.5"/>
+                </svg>
+                {apercuChateau.ville}, {apercuChateau.departement} · {apercuChateau.distanceParis}
+              </div>
+            </div>
+          )}
+
+          {/* CHAMBRES */}
+          {Array.isArray(apercuChateau.chambres) && apercuChateau.chambres.length > 0 && (
+            <div className="ci-apercu-section">
+              <h3 className="ci-apercu-titre">Aperçu des chambres</h3>
+              <div className="ci-apercu-chambres">
+                {apercuChateau.chambres.map((ch, i) => (
+                  <div key={i} className="ci-apercu-chambre">
+                    {ch.image && (
+                      <div className="ci-apercu-chambre-photo" style={{ backgroundImage: `url('${ch.image}')` }}
+                        onClick={() => setPhotoZoom(ch.image)} />
+                    )}
+                    <div className="ci-apercu-chambre-corps">
+                      <div className="ci-apercu-chambre-nom">{ch.nom}</div>
+                      <div className="ci-apercu-chambre-meta">
+                        {ch.superficie ? `${ch.superficie} · ` : ""}{ch.capacite} pers.
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* SERVICES (illustratifs, a completer) */}
+          <div className="ci-apercu-section">
+            <h3 className="ci-apercu-titre">Services & prestations</h3>
+            <div className="ci-apercu-services">
+              {["Spa", "Piscine", "Table d’hôtes", "Parc & jardins", "Animaux bienvenus", "Wifi", "Parking"].map((s) => (
+                <span key={s} className="ci-apercu-service">{s}</span>
+              ))}
+            </div>
+            <p className="ci-apercu-services-note">Prestations détaillées à venir</p>
+          </div>
+
+          <div className="ci-apercu-pied">
+            {prix && <span className="ci-apercu-prix">à partir de <strong>{prix} €</strong> / nuit</span>}
+          </div>
+
+          {photoZoom && (
+            <div className="ci-lightbox" onClick={() => setPhotoZoom(null)}>
+              <button className="ci-lightbox-close" onClick={() => setPhotoZoom(null)} aria-label="Fermer">✕</button>
+              <img src={photoZoom} alt="" className="ci-lightbox-img" onClick={(e) => e.stopPropagation()} />
+            </div>
+          )}
+        </div>
+      ) : (
+        <>
       {/* BARRE DE FILTRES */}
       <div className="ci-filtres">
         <div className="ci-filtre-dates">
@@ -224,7 +325,7 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
                   <button
                     className="ci-vignette-cta"
                     type="button"
-                    onClick={() => onVoirChateau && onVoirChateau(c)}
+                    onClick={() => setApercuChateau(c)}
                   >
                     Voir le château →
                   </button>
@@ -238,6 +339,8 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
         {/* CARTE */}
         <div className="ci-carte" ref={conteneurRef} />
       </div>
+        </>
+      )}
     </div>
   );
 }

@@ -183,3 +183,118 @@
 .ci-voy-btn:hover:not(:disabled) { background: rgba(192,152,64,0.12); border-color: #C09840; }
 .ci-voy-btn:disabled { opacity: 0.35; cursor: not-allowed; }
 .ci-voy-val { font-family: 'Playfair Display', serif; font-size: 1rem; color: #1A2D5A; min-width: 18px; text-align: center; }
+
+/* ── Mini-vitrine (apercu condense dans la modale carte) ── */
+.ci-apercu { display: flex; flex-direction: column; gap: 12px; animation: ciApercuIn 0.3s ease forwards; }
+@keyframes ciApercuIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.ci-apercu-retour {
+  align-self: flex-start; background: transparent; border: none; cursor: pointer;
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #A8884E; padding: 0;
+  transition: color 0.18s;
+}
+.ci-apercu-retour:hover { color: #1A2D5A; }
+.ci-apercu-photos { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; height: 190px; }
+.ci-apercu-photos > :first-child { grid-row: span 1; }
+.ci-apercu-photo { background-size: cover; background-position: center; border-radius: 8px; min-height: 0; }
+.ci-apercu-photos > :only-child { grid-column: 1 / -1; }
+.ci-apercu-tete { text-align: center; }
+.ci-apercu-region {
+  font-family: 'Crimson Pro', serif; font-size: 0.7rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #A8884E; margin-bottom: 8px;
+}
+.ci-apercu-nom { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #1A2D5A; margin: 0 0 6px; }
+.ci-apercu-accroche {
+  font-family: 'Crimson Pro', serif; font-size: 1rem; font-style: italic;
+  color: #4A4640; line-height: 1.5; margin: 0 auto; max-width: 620px;
+}
+.ci-apercu-chiffres {
+  display: flex; justify-content: center; gap: 36px; flex-wrap: wrap;
+  padding: 12px 0; border-top: 1px solid rgba(192,152,64,0.18); border-bottom: 1px solid rgba(192,152,64,0.18);
+}
+.ci-apercu-chiffre { text-align: center; }
+.ci-apercu-chiffre-val {
+  display: block; font-family: 'Playfair Display', serif; font-size: 1.25rem; color: #C09840;
+}
+.ci-apercu-chiffre-lab {
+  display: block; font-family: 'Crimson Pro', serif; font-size: 0.72rem;
+  letter-spacing: 0.08em; text-transform: uppercase; color: #A8884E; margin-top: 4px;
+}
+.ci-apercu-pied {
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+  padding-top: 8px; flex-wrap: wrap;
+}
+.ci-apercu-prix { font-family: 'Crimson Pro', serif; font-size: 1rem; color: #4A4640; }
+.ci-apercu-prix strong { font-family: 'Playfair Display', serif; color: #1A2D5A; font-size: 1.2rem; }
+.ci-apercu-cta {
+  background: #1A2D5A; color: #FAF6EE; border: none; border-radius: 8px;
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem; letter-spacing: 0.08em;
+  text-transform: uppercase; padding: 14px 28px; cursor: pointer; transition: background 0.22s;
+}
+.ci-apercu-cta:hover { background: #24386b; }
+
+/* ── Mini-vitrine : sections enrichies (2b) ── */
+.ci-apercu-section { padding-top: 0; }
+.ci-apercu-titre { font-family: 'Crimson Pro', serif; font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: #C09840; margin: 0 0 8px; text-align: center; }
+.ci-apercu-texte {
+  font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; line-height: 1.5;
+  margin: 0 auto 10px; max-width: 680px; text-align: center;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.ci-apercu-localisation {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #1A2D5A;
+}
+.ci-apercu-chambres { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+.ci-apercu-chambre {
+  border: 1px solid rgba(192,152,64,0.2); border-radius: 10px; overflow: hidden;
+  background: #FEFCF8;
+}
+.ci-apercu-chambre-photo { height: 130px; background-size: cover; background-position: center; cursor: zoom-in; }
+.ci-apercu-chambre-corps { padding: 8px 12px; }
+.ci-apercu-chambre-nom { font-family: 'Playfair Display', serif; font-size: 0.92rem; color: #1A2D5A; margin-bottom: 3px; }
+.ci-apercu-chambre-meta { font-family: 'Crimson Pro', serif; font-size: 0.74rem; color: #A8884E; margin-bottom: 0; }
+.ci-apercu-chambre-prix {
+  font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #1A2D5A;
+}
+.ci-apercu-services { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.ci-apercu-service { border: 1px solid rgba(168,136,78,0.28); border-radius: 20px; padding: 5px 13px; font-family: 'Crimson Pro', serif; font-size: 0.78rem; color: #A8884E; opacity: 0.7; }
+.ci-apercu-services-note {
+  text-align: center; font-family: 'Crimson Pro', serif; font-size: 0.72rem;
+  font-style: italic; color: #C09840; margin: 8px 0 0;
+}
+
+/* En mode apercu, on masque l'en-tete de la modale (logo + titre) pour gagner
+   toute la hauteur. :has remonte au panneau qui contient l'apercu. */
+.mdl-panneau:has(.ci-apercu) .mdl-entete { display: none; }
+.mdl-panneau:has(.ci-apercu) { padding-top: 20px; }
+
+/* Barre haute de l'apercu : retour + CTA reserver */
+.ci-apercu-barre {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding-right: 48px; /* laisse la place a la croix de fermeture de la modale */
+}
+.ci-apercu-photo, .ci-apercu-chambre-photo { cursor: zoom-in; }
+
+/* Pied : prix seul, centre */
+.ci-apercu-pied { display: flex; justify-content: center; padding-top: 4px; }
+
+/* Lightbox photo plein ecran */
+.ci-lightbox {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(7, 16, 30, 0.9);
+  display: flex; align-items: center; justify-content: center; padding: 40px;
+  cursor: zoom-out; animation: ciLightboxIn 0.2s ease forwards;
+}
+@keyframes ciLightboxIn { from { opacity: 0; } to { opacity: 1; } }
+.ci-lightbox-img {
+  max-width: 92vw; max-height: 88vh; object-fit: contain;
+  border-radius: 6px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); cursor: default;
+}
+.ci-lightbox-close {
+  position: absolute; top: 24px; right: 28px;
+  width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.4); background: rgba(0,0,0,0.3);
+  color: #FAF6EE; font-size: 1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.ci-lightbox-close:hover { background: rgba(0,0,0,0.6); }
