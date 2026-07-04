@@ -13,7 +13,10 @@ import "../styles/vitrine-onglets.css";
 export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const isClubMember = useClubMember();
   const navigate = useNavigate();
-  const [visible, setVisible] = useState(false);
+  // En mode route (arrivee directe / apres TransitionPorte), on demarre visible
+  // pour eviter le fade-in opacity 0->1 qui laisserait transparaitre le body navy.
+  // En mode modal (overlay depuis la home), le fade-in reste (visible = false).
+  const [visible, setVisible] = useState(mode === "route");
   const [reserve, setReserve] = useState(false);
   const [chambreIdx, setChambreIdx] = useState(0);
   const [dateArrivee, setDateArrivee] = useState("");
