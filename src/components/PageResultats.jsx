@@ -1,5 +1,7 @@
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
+import { prixAffiche } from "../utils/derivePrix";
+import { capaciteSuffisante } from "../utils/capacite";
 import Header from "./Header";
 import "../styles/page-resultats.css";
 
@@ -30,15 +32,6 @@ export default function PageResultats() {
       ? `${formatJourMois(arrivee)} → ${formatJourMois(depart)}`
       : null;
 
-  // Capacite totale du chateau = somme des capacites de ses chambres.
-  // Un chateau se loue souvent en plusieurs chambres / en entier, donc on
-  // raisonne en capacite d'accueil globale, pas chambre par chambre.
-  const capaciteSuffisante = (c) => {
-    if (!nbInvites || Number.isNaN(nbInvites)) return true; // pas de critere invites
-    if (!c.chambres || c.chambres.length === 0) return true; // pas de donnee -> on n'exclut pas
-    const total = c.chambres.reduce((acc, ch) => acc + (ch.capacite || 0), 0);
-    return total >= nbInvites;
-  };
 
   // Decision (B): la page resultats ne montre que les chateaux reels (estLaUne).
   // Les mocks (id 1-6) peuplent la home pour la demo mais n'ont pas de vitrine
@@ -53,7 +46,7 @@ export default function PageResultats() {
   } else if (region) {
     resultats = reels.filter((c) => c.region === region);
   }
-  resultats = resultats.filter(capaciteSuffisante);
+  resultats = resultats.filter((c) => capaciteSuffisante(c, nbInvites));
 
   // Sous-titre recapitulatif de la selection
   const recap = [
@@ -65,13 +58,6 @@ export default function PageResultats() {
 
   // Header : depuis /resultats, les boutons d'overlay ramenent a la home.
   const versHome = () => navigate("/");
-
-  const prixAffiche = (c) => {
-    if (c.prixBarre && c.reduction) {
-      return Math.round(c.prixBarre * (1 - c.reduction / 100));
-    }
-    return c.prixBarre || c.chambres?.[0]?.prix || null;
-  };
 
   return (
     <div className="app">

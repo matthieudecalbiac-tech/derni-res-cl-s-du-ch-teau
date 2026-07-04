@@ -2,11 +2,13 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { getRegionsAvecChateaux } from "../utils/regions";
-import { genererGrilleMois, formatDate, estMemeJour, estEntre } from "../utils/dates";
+import { formatDate } from "../utils/dates";
 import Modale from "./Modale";
+import CalendrierPlage from "./CalendrierPlage";
+import CarteInteractive from "./CarteInteractive";
 import "../styles/barre-recherche.css";
 
-export default function BarreRecherche() {
+export default function BarreRecherche({ onEntrerChateau }) {
   const { chateaux } = useChateaux();
   const navigate = useNavigate();
 
@@ -19,14 +21,13 @@ export default function BarreRecherche() {
   const [dateArrivee, setDateArrivee] = useState(null);
   const [dateDepart, setDateDepart] = useState(null);
   const [etapeDate, setEtapeDate] = useState("arrivee");
-  const [moisAffiche, setMoisAffiche] = useState(() => {
-    const d = new Date();
-    return new Date(d.getFullYear(), d.getMonth(), 1);
-  });
 
   // Invites
   const [invOuvert, setInvOuvert] = useState(false);
   const [invites, setInvites] = useState({ adultes: 2, enfants: 0 });
+
+  // Carte interactive
+  const [carteOuvert, setCarteOuvert] = useState(false);
 
   const regions = getRegionsAvecChateaux(chateaux);
 
@@ -36,26 +37,11 @@ export default function BarreRecherche() {
     setDestOuvert(champ === "dest");
     setDatesOuvert(champ === "dates");
     setInvOuvert(champ === "invites");
+    setCarteOuvert(champ === "carte");
   };
 
-  // ── Calendrier : bornes deterministes (aujourd'hui inclus, pas de passe, pas de plafond) ──
-  const aujourdhui = new Date();
-  aujourdhui.setHours(0, 0, 0, 0);
-  const moisCourant = new Date(aujourdhui.getFullYear(), aujourdhui.getMonth(), 1);
-  const peutReculer = moisAffiche > moisCourant;
-
-  const estSelectionnable = (d) => {
-    const jour = new Date(d);
-    jour.setHours(0, 0, 0, 0);
-    return jour >= aujourdhui;
-  };
-
-  const moisPrecedent = () => {
-    if (peutReculer) setMoisAffiche((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1));
-  };
-  const moisSuivant = () =>
-    setMoisAffiche((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1));
-
+  // Machine a etats arrivee -> depart (la source de verite des dates reste ici,
+  // le calendrier n'est qu'un rendu ; cf. CalendrierPlage).
   const handleSelectDate = (d) => {
     if (etapeDate === "arrivee") {
       setDateArrivee(d);
@@ -79,51 +65,6 @@ export default function BarreRecherche() {
     setDateDepart(null);
     setEtapeDate("arrivee");
   };
-
-  const isArrivee = (d) => estMemeJour(d, dateArrivee);
-  const isDepart = (d) => estMemeJour(d, dateDepart);
-  const isBetween = (d) => estEntre(d, dateArrivee, dateDepart);
-
-  // Rendu d'une grille mensuelle (appelee 2x pour l'affichage cote a cote).
-  const rendreGrille = (premierDuMois) => {
-    const label = premierDuMois.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-    return (
-      <div className="br-cal-mois">
-        <div className="br-cal-mois-label">{label}</div>
-        <div className="br-cal-grille">
-          {["Lu","Ma","Me","Je","Ve","Sa","Di"].map((j) => (
-            <span key={j} className="br-cal-entete">{j}</span>
-          ))}
-          {genererGrilleMois(premierDuMois).map((caseJour, i) => {
-            const d = caseJour.date;
-            if (caseJour.horsMois) {
-              return <span key={i} className="br-cal-case br-cal-case--horsmois">{d.getDate()}</span>;
-            }
-            const selectionnable = estSelectionnable(d);
-            const classes =
-              "br-cal-case" +
-              (selectionnable ? " br-cal-case--dispo" : " br-cal-case--off") +
-              (isArrivee(d) ? " br-cal-arrivee" : "") +
-              (isDepart(d) ? " br-cal-depart" : "") +
-              (isBetween(d) ? " br-cal-between" : "");
-            return (
-              <button
-                key={i}
-                type="button"
-                className={classes}
-                disabled={!selectionnable}
-                onClick={() => selectionnable && handleSelectDate(d)}
-              >
-                {d.getDate()}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  const moisSuivantDate = new Date(moisAffiche.getFullYear(), moisAffiche.getMonth() + 1, 1);
 
   const labelDestination = selection
     ? selection.type === "chateau"
@@ -177,6 +118,29 @@ export default function BarreRecherche() {
       p.set("depart", toISODate(dateDepart));
     }
     navigate(`/resultats?${p.toString()}`);
+  };
+
+  // Depuis la carte : va a la vitrine du chateau en transportant les memes
+  // criteres que lancerRecherche (memes cles d'URL, meme toISODate). Ferme la
+  // modale carte avant de naviguer pour ne pas la retrouver ouverte au retour.
+  const onVoirChateau = (chateau) => {
+    if (!chateau?.slug) return;
+    const p = new URLSearchParams();
+    const totalInvites = invites.adultes + invites.enfants;
+    p.set("invites", String(totalInvites));
+    p.set("adultes", String(invites.adultes));
+    p.set("enfants", String(invites.enfants));
+    if (dateArrivee && dateDepart) {
+      p.set("arrivee", toISODate(dateArrivee));
+      p.set("depart", toISODate(dateDepart));
+    }
+    const url = `/chateau/${chateau.slug}?${p.toString()}`;
+    setCarteOuvert(false);
+    if (onEntrerChateau) {
+      onEntrerChateau(chateau, url);
+    } else {
+      navigate(url);
+    }
   };
 
   return (
@@ -256,6 +220,27 @@ export default function BarreRecherche() {
             </button>
           </div>
 
+          <div className="br-sep" />
+
+          {/* NAVIGUER SUR LA CARTE */}
+          <div className="br-champ br-champ--carte">
+            <button
+              type="button"
+              className="br-champ-btn"
+              onClick={() => ouvrir("carte")}
+              aria-expanded={carteOuvert}
+            >
+              <svg className="br-ico" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M6.5 3 3 4.5v10L6.5 13l5 1.5L15 13V3l-3.5 1.5L6.5 3Z" stroke="#C09840" strokeWidth="1.5" strokeLinejoin="round"/>
+                <path d="M6.5 3v10M11.5 4.5v10" stroke="#C09840" strokeWidth="1.5"/>
+              </svg>
+              <span className="br-champ-txt">
+                <span className="br-label">Explorer</span>
+                <span className="br-valeur">Naviguer sur la carte</span>
+              </span>
+            </button>
+          </div>
+
           <button className="br-cta" onClick={lancerRecherche} disabled={!selection}>Trouver votre château <span className="br-cta-fl">→</span></button>
         </div>
       </div>
@@ -295,33 +280,13 @@ export default function BarreRecherche() {
 
       {/* MODALE DATES (2 mois cote a cote) */}
       <Modale ouvert={datesOuvert} onClose={() => setDatesOuvert(false)} titre="Vos dates" largeur={720}>
-        <div className="br-cal-etape">
-          {etapeDate === "arrivee" ? "Sélectionnez votre arrivée" : "Sélectionnez votre départ"}
-        </div>
-        <div className="br-cal-nav">
-          <button
-            type="button"
-            className="br-cal-nav-btn"
-            onClick={moisPrecedent}
-            disabled={!peutReculer}
-            aria-label="Mois précédent"
-          >‹</button>
-          <button
-            type="button"
-            className="br-cal-nav-btn"
-            onClick={moisSuivant}
-            aria-label="Mois suivant"
-          >›</button>
-        </div>
-        <div className="br-cal-duo">
-          {rendreGrille(moisAffiche)}
-          {rendreGrille(moisSuivantDate)}
-        </div>
-        {dateArrivee && (
-          <div className="br-cal-pied">
-            <button type="button" className="br-cal-reset" onClick={resetDates}>Effacer les dates</button>
-          </div>
-        )}
+        <CalendrierPlage
+          dateArrivee={dateArrivee}
+          dateDepart={dateDepart}
+          etape={etapeDate}
+          onSelectDate={handleSelectDate}
+          onReset={resetDates}
+        />
       </Modale>
 
       {/* MODALE INVITES */}
@@ -366,6 +331,21 @@ export default function BarreRecherche() {
             >+</button>
           </div>
         </div>
+      </Modale>
+
+      {/* MODALE CARTE */}
+      <Modale ouvert={carteOuvert} onClose={() => setCarteOuvert(false)} titre="Naviguer sur la carte" largeur={1280}>
+        <CarteInteractive
+          chateaux={chateaux}
+          dateArrivee={dateArrivee}
+          dateDepart={dateDepart}
+          etapeDate={etapeDate}
+          onSelectDate={handleSelectDate}
+          onResetDates={resetDates}
+          invites={invites}
+          setInvites={setInvites}
+          onVoirChateau={onVoirChateau}
+        />
       </Modale>
     </div>
   );

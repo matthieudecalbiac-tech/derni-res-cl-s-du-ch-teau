@@ -76,6 +76,21 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
     };
   }, [onClose]);
 
+  // Maillon 4 (parcours carte) : en mode route, pre-remplit la reservation depuis
+  // l'URL (arrivee/depart en ISO YYYY-MM-DD, invites total). Ne s'execute qu'au
+  // montage : une modif manuelle de l'utilisateur ne doit pas etre reecrasee.
+  useEffect(() => {
+    if (mode !== "route") return;
+    const estISO = (s) => /^\d{4}-\d{2}-\d{2}$/.test(s || "");
+    const a = searchParams.get("arrivee");
+    const d = searchParams.get("depart");
+    if (estISO(a)) setDateArrivee(a);
+    if (estISO(d)) setDateDepart(d);
+    const inv = parseInt(searchParams.get("invites"), 10);
+    if (!Number.isNaN(inv)) setVoyageurs(Math.min(8, Math.max(1, inv)));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Escape : ferme d'abord l'overlay module s'il est ouvert, sinon ferme la vitrine.
   useEffect(() => {
     const onKey = (e) => {

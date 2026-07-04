@@ -34,7 +34,7 @@ export default function Modale({ ouvert, onClose, titre, children, largeur = 560
         <button className="mdl-close" onClick={onClose} aria-label="Fermer">✕</button>
         {titre && (
           <div className="mdl-entete">
-            <span className="mdl-entete-lys">⚜</span>
+            <img src="/FDL-transparent.png" alt="" className="mdl-entete-logo" />
             <span className="mdl-entete-titre">{titre}</span>
           </div>
         )}
