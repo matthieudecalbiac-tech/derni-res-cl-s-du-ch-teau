@@ -74,7 +74,7 @@ export function AuthProvider({ children }) {
     let cancelled = false;
     supabase
       .from("users")
-      .select("id, email, role, full_name, first_name, last_name, civilite, telephone, created_at")
+      .select("id, email, role, full_name, first_name, last_name, civilite, telephone, marketing_consent, created_at")
       .eq("id", session.user.id)
       .single()
       .then(({ data, error }) => {
@@ -175,6 +175,17 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   };
 
+  const refreshProfile = async () => {
+    const uid = session?.user?.id;
+    if (!uid) return;
+    const { data, error } = await supabase
+      .from("users")
+      .select("id, email, role, full_name, first_name, last_name, civilite, telephone, marketing_consent, created_at")
+      .eq("id", uid)
+      .single();
+    if (!error && data) setProfile(data);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -188,6 +199,7 @@ export function AuthProvider({ children }) {
         updatePassword,
         signInWithMagicLink,
         signOut,
+        refreshProfile,
       }}
     >
       {children}

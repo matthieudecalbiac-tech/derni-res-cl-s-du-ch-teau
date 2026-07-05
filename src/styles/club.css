@@ -220,3 +220,57 @@
 @media (max-width: 900px) {
   .sej-liste { grid-template-columns: 1fr; }
 }
+
+/* ── Onglet Informations personnelles ── */
+.infos { max-width: 640px; }
+.infos-entete { margin-bottom: 28px; }
+.infos-titre { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1A2D5A; margin: 0 0 6px; }
+.infos-sous { font-family: 'Crimson Pro', serif; font-size: 1rem; font-style: italic; color: #4A4640; margin: 0; }
+.infos-form { display: flex; flex-direction: column; gap: 20px; }
+.infos-rangee { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.infos-champ { display: flex; flex-direction: column; gap: 7px; }
+.infos-label { font-family: 'Crimson Pro', serif; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: #A8884E; }
+.infos-input {
+  font-family: 'Crimson Pro', serif; font-size: 0.95rem; color: #1A2D5A;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.3); border-radius: 8px; padding: 12px 14px;
+  transition: border-color 0.18s;
+}
+.infos-input:focus { outline: none; border-color: #C09840; }
+.infos-input--lecture { background: rgba(192,152,64,0.06); color: #A8884E; cursor: not-allowed; }
+.infos-aide { font-family: 'Crimson Pro', serif; font-size: 0.78rem; font-style: italic; color: #A8884E; }
+.infos-consent { display: flex; align-items: flex-start; gap: 10px; font-family: 'Crimson Pro', serif; font-size: 0.88rem; color: #4A4640; line-height: 1.4; cursor: pointer; }
+.infos-consent input { margin-top: 3px; flex-shrink: 0; }
+.infos-message { font-family: 'Crimson Pro', serif; font-size: 0.9rem; padding: 12px 16px; border-radius: 8px; }
+.infos-message--ok { background: rgba(74,138,74,0.1); color: #3d7a3d; }
+.infos-message--erreur { background: rgba(160,48,40,0.1); color: #a03028; }
+.infos-bouton {
+  align-self: flex-start; background: #1A2D5A; color: #FAF6EE; border: none; border-radius: 8px;
+  font-family: 'Crimson Pro', serif; font-size: 0.9rem; letter-spacing: 0.06em;
+  padding: 14px 32px; cursor: pointer; transition: background 0.2s;
+}
+.infos-bouton:hover:not(:disabled) { background: #24386b; }
+.infos-bouton:disabled { opacity: 0.6; cursor: wait; }
+
+@media (max-width: 700px) { .infos-rangee { grid-template-columns: 1fr; } }
+
+/* Mode lecture / edition de l'onglet infos */
+.infos-entete { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.infos-modifier {
+  background: transparent; border: 1px solid rgba(192,152,64,0.5); color: #A8884E;
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem; letter-spacing: 0.06em;
+  padding: 10px 24px; border-radius: 8px; cursor: pointer; transition: all 0.18s; white-space: nowrap;
+}
+.infos-modifier:hover { border-color: #C09840; color: #1A2D5A; background: rgba(192,152,64,0.06); }
+.infos-lecture { display: flex; flex-direction: column; gap: 0; max-width: 640px; }
+.infos-ligne-l { display: flex; justify-content: space-between; gap: 24px; padding: 16px 0; border-bottom: 1px solid rgba(192,152,64,0.14); }
+.infos-ligne-l:last-child { border-bottom: none; }
+.infos-lab-l { font-family: 'Crimson Pro', serif; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: #A8884E; }
+.infos-val-l { font-family: 'Crimson Pro', serif; font-size: 0.98rem; color: #1A2D5A; text-align: right; }
+.infos-check { color: #3d7a3d; font-weight: 700; margin-right: 4px; }
+.infos-actions { display: flex; align-items: center; gap: 14px; }
+.infos-annuler {
+  background: transparent; border: none; color: #A8884E; font-family: 'Crimson Pro', serif; font-size: 0.9rem;
+  cursor: pointer; padding: 14px 8px; transition: color 0.18s;
+}
+.infos-annuler:hover { color: #1A2D5A; }
+.infos-message { display: flex; align-items: center; margin-bottom: 20px; }

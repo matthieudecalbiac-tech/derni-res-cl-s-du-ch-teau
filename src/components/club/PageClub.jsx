@@ -5,6 +5,7 @@ import { getEspaceClub } from "../../services/clubService.js";
 import DashboardClub from "./DashboardClub";
 import OngletAvantages from "./OngletAvantages";
 import OngletSejours from "./OngletSejours";
+import OngletInfos from "./OngletInfos";
 import "../../styles/club.css";
 
 // Avatar monogramme (initiales) tant qu'on n'a pas d'upload photo.
@@ -121,7 +122,7 @@ export default function PageClub() {
             )}
             {ongletActif === "messages" && <div className="club-placeholder-onglet">Messagerie (a construire)</div>}
             {ongletActif === "avantages" && <OngletAvantages espace={espace} />}
-            {ongletActif === "infos" && <div className="club-placeholder-onglet">Informations personnelles (a construire)</div>}
+            {ongletActif === "infos" && <OngletInfos profile={profile} user={user} />}
             {ongletActif === "preferences" && <div className="club-placeholder-onglet">Préférences (a definir)</div>}
           </div>
         )}
