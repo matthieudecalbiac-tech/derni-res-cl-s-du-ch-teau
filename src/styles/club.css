@@ -52,3 +52,92 @@
   font-family: 'Crimson Pro', serif; color: #4A4640; padding: 40px;
   background: #FEFCF8; border: 1px solid rgba(192,152,64,0.2); border-radius: 12px; line-height: 1.6;
 }
+
+/* ── Dashboard Club ── */
+.dash { display: flex; flex-direction: column; gap: 24px; }
+.dash-rangee { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+.dash-carte {
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.22);
+  border-radius: 14px; padding: 24px;
+}
+.dash-carte-titre {
+  font-family: 'Crimson Pro', serif; font-size: 0.72rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #A8884E; margin: 0 0 16px;
+}
+
+/* Carte membre */
+.dash-membre-tete { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.dash-membre-avatar {
+  width: 60px; height: 60px; border-radius: 50%; flex-shrink: 0;
+  background: #0B1A33; color: #C09840; display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 1.3rem;
+}
+.dash-membre-nom { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #1A2D5A; margin: 0; }
+.dash-membre-depuis { font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #A8884E; margin: 4px 0 0; }
+.dash-membre-statut { border-top: 1px solid rgba(192,152,64,0.15); padding-top: 16px; display: flex; flex-direction: column; gap: 4px; }
+.dash-membre-statut-label { font-family: 'Crimson Pro', serif; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #A8884E; }
+.dash-membre-statut-valeur { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #1A2D5A; }
+.dash-membre-sejours { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; }
+
+/* Progression */
+.dash-prog-niveau { font-family: 'Crimson Pro', serif; font-size: 1rem; color: #1A2D5A; margin: 0 0 8px; }
+.dash-prog-texte { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; line-height: 1.5; margin: 0 0 18px; }
+.dash-prog-barre { height: 8px; background: rgba(192,152,64,0.15); border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+.dash-prog-remplissage { height: 100%; background: linear-gradient(90deg, #C09840, #EDD880); border-radius: 4px; transition: width 0.6s ease; }
+.dash-prog-legende { display: flex; justify-content: space-between; font-family: 'Crimson Pro', serif; font-size: 0.82rem; color: #4A4640; }
+.dash-prog-restants { color: #C09840; font-weight: 600; }
+
+/* Prochain avantage */
+.dash-av-decl { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; margin: 0 0 8px; }
+.dash-av-pct { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #C09840; margin: 0; line-height: 1; }
+.dash-av-plus { font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #A8884E; margin: 10px 0 0; }
+
+/* Reservations / sejours */
+.dash-resa-nom, .dash-passe-nom { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #1A2D5A; }
+.dash-resa-region, .dash-passe-region { font-family: 'Crimson Pro', serif; font-size: 0.82rem; color: #A8884E; margin: 2px 0; }
+.dash-resa-dates, .dash-passe-dates { font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #4A4640; }
+.dash-passes-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+.dash-passe { border-bottom: 1px solid rgba(192,152,64,0.12); padding-bottom: 12px; }
+.dash-passe:last-child { border-bottom: none; padding-bottom: 0; }
+.dash-vide { font-family: 'Crimson Pro', serif; font-size: 0.9rem; font-style: italic; color: #A8884E; margin: 0; }
+
+/* Avantages inclus */
+.dash-inclus-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.dash-inclus-item { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; padding-left: 18px; position: relative; }
+.dash-inclus-item::before { content: "⚜"; position: absolute; left: 0; color: #C09840; font-size: 0.8rem; }
+
+/* Bandeau paliers */
+.dash-bandeau { background: #FEFCF8; border: 1px solid rgba(192,152,64,0.22); border-radius: 14px; padding: 32px; }
+.dash-bandeau-titre { font-family: 'Crimson Pro', serif; font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: #A8884E; margin: 0 0 4px; text-align: center; }
+.dash-bandeau-sous { font-family: 'Crimson Pro', serif; font-size: 0.95rem; font-style: italic; color: #4A4640; text-align: center; margin: 0 0 28px; }
+.dash-paliers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.dash-palier { text-align: center; padding: 20px 12px; border-radius: 12px; transition: background 0.2s; }
+.dash-palier.actif { background: rgba(192,152,64,0.08); border: 1px solid rgba(192,152,64,0.3); }
+.dash-palier-lys { color: #C09840; font-size: 1.1rem; letter-spacing: 3px; margin-bottom: 10px; }
+.dash-palier-nom { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #1A2D5A; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+.dash-palier-seuil { font-family: 'Crimson Pro', serif; font-size: 0.8rem; color: #A8884E; margin-bottom: 14px; }
+.dash-palier-avantages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.dash-palier-avantages li { font-family: 'Crimson Pro', serif; font-size: 0.8rem; color: #4A4640; padding-left: 14px; position: relative; line-height: 1.4; }
+.dash-palier-avantages li::before { content: "•"; position: absolute; left: 0; color: #C09840; }
+
+/* Responsive : empile en dessous de 1000px */
+@media (max-width: 1000px) {
+  .dash-rangee { grid-template-columns: 1fr; }
+  .dash-paliers { grid-template-columns: 1fr 1fr; }
+}
+/* Compactage dashboard (4c-bis) : overrides denses pour tenir sans scroll. */
+/* Snippets partiels appended en override : ne remplacent pas les regles de base. */
+.dash { gap: 18px; }
+.dash-carte { border-radius: 12px; padding: 18px 20px; }
+.dash-carte-titre { font-size: 0.68rem; margin: 0 0 12px; }
+.dash-membre-tete { gap: 14px; margin-bottom: 14px; }
+.dash-membre-avatar { width: 52px; height: 52px; font-size: 1.15rem; }
+.dash-membre-nom { font-size: 1.25rem; }
+.dash-membre-statut { padding-top: 12px; }
+.dash-membre-statut-valeur { font-size: 1.4rem; }
+.dash-av-pct { font-size: 2.2rem; }
+.dash-prog-texte { margin: 0 0 14px; }
+.dash-passes-liste { gap: 12px; }
+.club-contenu { padding: 32px 44px; }
+.club-entete { margin-bottom: 22px; }
+.club-titre { font-size: 2rem; }

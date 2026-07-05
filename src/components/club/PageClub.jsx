@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { getEspaceClub } from "../../services/clubService.js";
+import DashboardClub from "./DashboardClub";
 import "../../styles/club.css";
 
 // Avatar monogramme (initiales) tant qu'on n'a pas d'upload photo.
@@ -25,13 +26,13 @@ function nomAffiche(profile) {
 }
 
 const ONGLETS = [
-  { id: "dashboard", label: "Club des Chatelains" },
-  { id: "reservations", label: "Mes reservations" },
-  { id: "sejours", label: "Mes sejours" },
+  { id: "dashboard", label: "Club des Châtelains" },
+  { id: "reservations", label: "Mes réservations" },
+  { id: "sejours", label: "Mes séjours" },
   { id: "messages", label: "Messages" },
   { id: "avantages", label: "Mes avantages" },
   { id: "infos", label: "Informations personnelles" },
-  { id: "preferences", label: "Preferences" },
+  { id: "preferences", label: "Préférences" },
 ];
 
 export default function PageClub() {
@@ -62,8 +63,8 @@ export default function PageClub() {
       {/* SIDEBAR */}
       <aside className="club-sidebar">
         <button className="club-logo" onClick={() => navigate("/")} aria-label="Retour a l'accueil">
-          <span className="club-logo-nom">Les Cles du Chateau</span>
-          <span className="club-logo-sub">Sejours d'exception</span>
+          <span className="club-logo-nom">Les Clés du Château</span>
+          <span className="club-logo-sub">Séjours d'exception</span>
         </button>
 
         <nav className="club-nav">
@@ -92,8 +93,8 @@ export default function PageClub() {
       {/* CONTENU */}
       <main className="club-contenu">
         <header className="club-entete">
-          <h1 className="club-titre">Club des Chatelains</h1>
-          <p className="club-sous-titre">Votre espace privilegie au sein des Cles du Chateau.</p>
+          <h1 className="club-titre">Club des Châtelains</h1>
+          <p className="club-sous-titre">Votre espace privilégié au sein des Clés du Château.</p>
         </header>
 
         {chargement && <div className="club-etat">Chargement de votre espace...</div>}
@@ -102,17 +103,14 @@ export default function PageClub() {
         {!chargement && !erreur && espace && (
           <div className="club-panneau">
             {ongletActif === "dashboard" && (
-              <div className="club-placeholder-onglet">
-                Tableau de bord — palier {espace.palierActuel?.nom}, {espace.nbSejours} sejour(s) confirme(s).
-                <br />(contenu detaille a venir)
-              </div>
+              <DashboardClub espace={espace} profile={profile} />
             )}
-            {ongletActif === "reservations" && <div className="club-placeholder-onglet">Mes reservations a venir (a construire)</div>}
-            {ongletActif === "sejours" && <div className="club-placeholder-onglet">Mes sejours passes (a construire)</div>}
+            {ongletActif === "reservations" && <div className="club-placeholder-onglet">Mes réservations a venir (a construire)</div>}
+            {ongletActif === "sejours" && <div className="club-placeholder-onglet">Mes séjours passes (a construire)</div>}
             {ongletActif === "messages" && <div className="club-placeholder-onglet">Messagerie (a construire)</div>}
             {ongletActif === "avantages" && <div className="club-placeholder-onglet">Mes avantages (a construire)</div>}
             {ongletActif === "infos" && <div className="club-placeholder-onglet">Informations personnelles (a construire)</div>}
-            {ongletActif === "preferences" && <div className="club-placeholder-onglet">Preferences (a definir)</div>}
+            {ongletActif === "preferences" && <div className="club-placeholder-onglet">Préférences (a definir)</div>}
           </div>
         )}
       </main>
