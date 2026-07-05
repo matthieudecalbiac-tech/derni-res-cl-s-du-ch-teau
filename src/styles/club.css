@@ -188,3 +188,35 @@
   .av-situation { flex-direction: column; align-items: flex-start; }
   .av-situation-suite { text-align: left; }
 }
+
+/* ── Onglets Mes reservations / Mes sejours ── */
+.sej { display: flex; flex-direction: column; gap: 24px; }
+.sej-entete { }
+.sej-titre { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1A2D5A; margin: 0 0 6px; }
+.sej-sous { font-family: 'Crimson Pro', serif; font-size: 1rem; font-style: italic; color: #4A4640; margin: 0; }
+
+.sej-vide {
+  background: #FEFCF8; border: 1px dashed rgba(192,152,64,0.3); border-radius: 14px;
+  padding: 48px; text-align: center;
+}
+.sej-vide p { font-family: 'Crimson Pro', serif; font-size: 1rem; font-style: italic; color: #A8884E; margin: 0; }
+
+.sej-liste { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.sej-carte {
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.22); border-radius: 14px; padding: 22px 24px;
+}
+.sej-carte-tete { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid rgba(192,152,64,0.15); }
+.sej-carte-chateau { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #1A2D5A; }
+.sej-carte-region { font-family: 'Crimson Pro', serif; font-size: 0.82rem; color: #A8884E; margin-top: 2px; }
+.sej-statut { font-family: 'Crimson Pro', serif; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 12px; border-radius: 12px; white-space: nowrap; }
+.sej-statut--confirmed, .sej-statut--completed { background: rgba(74,138,74,0.12); color: #3d7a3d; }
+.sej-statut--pending { background: rgba(192,152,64,0.14); color: #A8884E; }
+.sej-statut--cancelled { background: rgba(160,48,40,0.1); color: #a03028; }
+.sej-carte-corps { display: flex; flex-direction: column; gap: 8px; }
+.sej-ligne { display: flex; justify-content: space-between; gap: 16px; font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; }
+.sej-lab { color: #A8884E; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.sej-prix { font-family: 'Playfair Display', serif; color: #1A2D5A; font-size: 1.05rem; }
+
+@media (max-width: 900px) {
+  .sej-liste { grid-template-columns: 1fr; }
+}

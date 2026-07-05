@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { getEspaceClub } from "../../services/clubService.js";
 import DashboardClub from "./DashboardClub";
 import OngletAvantages from "./OngletAvantages";
+import OngletSejours from "./OngletSejours";
 import "../../styles/club.css";
 
 // Avatar monogramme (initiales) tant qu'on n'a pas d'upload photo.
@@ -106,8 +107,18 @@ export default function PageClub() {
             {ongletActif === "dashboard" && (
               <DashboardClub espace={espace} profile={profile} />
             )}
-            {ongletActif === "reservations" && <div className="club-placeholder-onglet">Mes réservations a venir (a construire)</div>}
-            {ongletActif === "sejours" && <div className="club-placeholder-onglet">Mes séjours passes (a construire)</div>}
+            {ongletActif === "reservations" && (
+              <OngletSejours
+                mode="avenir"
+                reservations={(espace.reservations || []).filter((r) => r.date_depart >= new Date().toISOString().slice(0,10)).sort((a,b) => a.date_arrivee.localeCompare(b.date_arrivee))}
+              />
+            )}
+            {ongletActif === "sejours" && (
+              <OngletSejours
+                mode="passes"
+                reservations={(espace.reservations || []).filter((r) => r.date_depart < new Date().toISOString().slice(0,10)).sort((a,b) => b.date_arrivee.localeCompare(a.date_arrivee))}
+              />
+            )}
             {ongletActif === "messages" && <div className="club-placeholder-onglet">Messagerie (a construire)</div>}
             {ongletActif === "avantages" && <OngletAvantages espace={espace} />}
             {ongletActif === "infos" && <div className="club-placeholder-onglet">Informations personnelles (a construire)</div>}
