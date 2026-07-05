@@ -61,10 +61,10 @@ export default function PageClub() {
     <div className="club">
       {/* SIDEBAR */}
       <aside className="club-sidebar">
-        <div className="club-logo">
+        <button className="club-logo" onClick={() => navigate("/")} aria-label="Retour a l'accueil">
           <span className="club-logo-nom">Les Cles du Chateau</span>
           <span className="club-logo-sub">Sejours d'exception</span>
-        </div>
+        </button>
 
         <nav className="club-nav">
           {ONGLETS.map((o) => (
