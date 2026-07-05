@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { getEspaceClub } from "../../services/clubService.js";
 import DashboardClub from "./DashboardClub";
+import OngletAvantages from "./OngletAvantages";
 import "../../styles/club.css";
 
 // Avatar monogramme (initiales) tant qu'on n'a pas d'upload photo.
@@ -108,7 +109,7 @@ export default function PageClub() {
             {ongletActif === "reservations" && <div className="club-placeholder-onglet">Mes réservations a venir (a construire)</div>}
             {ongletActif === "sejours" && <div className="club-placeholder-onglet">Mes séjours passes (a construire)</div>}
             {ongletActif === "messages" && <div className="club-placeholder-onglet">Messagerie (a construire)</div>}
-            {ongletActif === "avantages" && <div className="club-placeholder-onglet">Mes avantages (a construire)</div>}
+            {ongletActif === "avantages" && <OngletAvantages espace={espace} />}
             {ongletActif === "infos" && <div className="club-placeholder-onglet">Informations personnelles (a construire)</div>}
             {ongletActif === "preferences" && <div className="club-placeholder-onglet">Préférences (a definir)</div>}
           </div>
