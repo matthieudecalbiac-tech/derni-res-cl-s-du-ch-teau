@@ -1,0 +1,47 @@
+.club { display: flex; min-height: 100vh; background: #FAF6EE; }
+
+/* SIDEBAR navy */
+.club-sidebar {
+  width: 280px; flex-shrink: 0; background: #0B1A33; color: #F7F2E8;
+  display: flex; flex-direction: column; padding: 32px 0;
+}
+.club-logo { text-align: center; padding: 0 24px 32px; border-bottom: 1px solid rgba(192,152,64,0.2); }
+.club-logo-nom { display: block; font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #F7F2E8; letter-spacing: 0.02em; }
+.club-logo-sub { display: block; font-family: 'Crimson Pro', serif; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: #C09840; margin-top: 6px; }
+
+.club-nav { flex: 1; display: flex; flex-direction: column; gap: 4px; padding: 24px 16px; }
+.club-nav-item {
+  text-align: left; background: transparent; border: none; cursor: pointer;
+  font-family: 'Crimson Pro', serif; font-size: 0.95rem; color: rgba(247,242,232,0.7);
+  padding: 12px 18px; border-radius: 8px; transition: background 0.18s, color 0.18s;
+}
+.club-nav-item:hover { background: rgba(192,152,64,0.1); color: #F7F2E8; }
+.club-nav-item.actif { background: rgba(192,152,64,0.16); color: #EDD880; }
+
+.club-sidebar-bas { padding: 24px 24px 0; border-top: 1px solid rgba(192,152,64,0.2); }
+.club-membre { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.club-avatar {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+  background: #C09840; color: #0B1A33; display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600;
+}
+.club-membre-nom { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #F7F2E8; }
+.club-deconnexion {
+  width: 100%; background: transparent; border: 1px solid rgba(192,152,64,0.3); color: rgba(247,242,232,0.7);
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem; padding: 10px; border-radius: 8px; cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+}
+.club-deconnexion:hover { border-color: #C09840; color: #EDD880; }
+
+/* CONTENU creme */
+.club-contenu { flex: 1; padding: 48px 56px; overflow-y: auto; }
+.club-entete { margin-bottom: 32px; }
+.club-titre { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #1A2D5A; margin: 0 0 6px; }
+.club-sous-titre { font-family: 'Crimson Pro', serif; font-size: 1rem; color: #4A4640; margin: 0; }
+
+.club-etat { font-family: 'Crimson Pro', serif; color: #4A4640; padding: 40px 0; }
+.club-etat--erreur { color: #a03028; }
+.club-placeholder-onglet {
+  font-family: 'Crimson Pro', serif; color: #4A4640; padding: 40px;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.2); border-radius: 12px; line-height: 1.6;
+}

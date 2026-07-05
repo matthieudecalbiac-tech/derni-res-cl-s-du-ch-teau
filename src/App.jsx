@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, useNavigate, Navigate } from "react-router-dom";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import BandeauOffres from "./components/BandeauOffres";
@@ -23,11 +23,11 @@ import RequireAuth from "./components/auth/RequireAuth";
 import RequireRole from "./components/auth/RequireRole";
 import BookingFlowPlaceholder from "./components/placeholders/BookingFlowPlaceholder";
 import BookingConfirmationPlaceholder from "./components/placeholders/BookingConfirmationPlaceholder";
-import ClientAccountPlaceholder from "./components/placeholders/ClientAccountPlaceholder";
 import OwnerDashboardPlaceholder from "./components/placeholders/OwnerDashboardPlaceholder";
 import AdminDashboardPlaceholder from "./components/placeholders/AdminDashboardPlaceholder";
 // Sprint S2-α.1.5 — route vitrine SEO /chateau/:slug?onglet=&theme=&offre=
 import VitrineChateauRoute from "./components/VitrineChateauRoute";
+import PageClub from "./components/club/PageClub";
 import PageResultats from "./components/PageResultats";
 
 // Sprint S2-α.2 — pages auth magic link (remplace AuthCallbackPlaceholder)
@@ -131,14 +131,8 @@ function App() {
     <Routes>
       <Route path="/reserver/:chateauSlug" element={<BookingFlowPlaceholder />} />
       <Route path="/reservation/:id/confirmation" element={<BookingConfirmationPlaceholder />} />
-      <Route
-        path="/mon-compte"
-        element={
-          <RequireAuth>
-            <ClientAccountPlaceholder />
-          </RequireAuth>
-        }
-      />
+      <Route path="/club" element={<RequireAuth><PageClub /></RequireAuth>} />
+      <Route path="/mon-compte" element={<Navigate to="/club" replace />} />
       <Route
         path="/chatelain/dashboard"
         element={

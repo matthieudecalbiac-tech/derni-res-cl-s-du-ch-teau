@@ -74,7 +74,7 @@ export function AuthProvider({ children }) {
     let cancelled = false;
     supabase
       .from("users")
-      .select("id, email, role, full_name, telephone")
+      .select("id, email, role, full_name, first_name, last_name, civilite, telephone, created_at")
       .eq("id", session.user.id)
       .single()
       .then(({ data, error }) => {
