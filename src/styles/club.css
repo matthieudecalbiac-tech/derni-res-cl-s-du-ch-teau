@@ -1,0 +1,276 @@
+.club { display: flex; min-height: 100vh; background: #FAF6EE; }
+
+/* SIDEBAR navy */
+.club-sidebar {
+  width: 280px; flex-shrink: 0; background: #0B1A33; color: #F7F2E8;
+  display: flex; flex-direction: column; padding: 32px 0;
+}
+.club-logo {
+  text-align: center; padding: 0 24px 32px;
+  border-bottom: 1px solid rgba(192,152,64,0.2);
+  background: transparent; border-left: none; border-right: none; border-top: none;
+  width: 100%; cursor: pointer; display: block;
+  transition: opacity 0.18s;
+}
+.club-logo:hover { opacity: 0.8; }
+.club-logo-nom { display: block; font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #F7F2E8; letter-spacing: 0.02em; }
+.club-logo-sub { display: block; font-family: 'Crimson Pro', serif; font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase; color: #C09840; margin-top: 6px; }
+
+.club-nav { flex: 1; display: flex; flex-direction: column; gap: 4px; padding: 24px 16px; }
+.club-nav-item {
+  text-align: left; background: transparent; border: none; cursor: pointer;
+  font-family: 'Crimson Pro', serif; font-size: 0.95rem; color: rgba(247,242,232,0.7);
+  padding: 12px 18px; border-radius: 8px; transition: background 0.18s, color 0.18s;
+}
+.club-nav-item:hover { background: rgba(192,152,64,0.1); color: #F7F2E8; }
+.club-nav-item.actif { background: rgba(192,152,64,0.16); color: #EDD880; }
+
+.club-sidebar-bas { padding: 24px 24px 0; border-top: 1px solid rgba(192,152,64,0.2); }
+.club-membre { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.club-avatar {
+  width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+  background: #C09840; color: #0B1A33; display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 600;
+}
+.club-membre-nom { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #F7F2E8; }
+.club-deconnexion {
+  width: 100%; background: transparent; border: 1px solid rgba(192,152,64,0.3); color: rgba(247,242,232,0.7);
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem; padding: 10px; border-radius: 8px; cursor: pointer;
+  transition: border-color 0.18s, color 0.18s;
+}
+.club-deconnexion:hover { border-color: #C09840; color: #EDD880; }
+
+/* CONTENU creme */
+.club-contenu { flex: 1; padding: 48px 56px; overflow-y: auto; }
+.club-entete { margin-bottom: 32px; }
+.club-titre { font-family: 'Playfair Display', serif; font-size: 2.4rem; color: #1A2D5A; margin: 0 0 6px; }
+.club-sous-titre { font-family: 'Crimson Pro', serif; font-size: 1rem; color: #4A4640; margin: 0; }
+
+.club-etat { font-family: 'Crimson Pro', serif; color: #4A4640; padding: 40px 0; }
+.club-etat--erreur { color: #a03028; }
+.club-placeholder-onglet {
+  font-family: 'Crimson Pro', serif; color: #4A4640; padding: 40px;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.2); border-radius: 12px; line-height: 1.6;
+}
+
+/* ── Dashboard Club ── */
+.dash { display: flex; flex-direction: column; gap: 24px; }
+.dash-rangee { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+.dash-carte {
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.22);
+  border-radius: 14px; padding: 24px;
+}
+.dash-carte-titre {
+  font-family: 'Crimson Pro', serif; font-size: 0.72rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #A8884E; margin: 0 0 16px;
+}
+
+/* Carte membre */
+.dash-membre-tete { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+.dash-membre-avatar {
+  width: 60px; height: 60px; border-radius: 50%; flex-shrink: 0;
+  background: #0B1A33; color: #C09840; display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 1.3rem;
+}
+.dash-membre-nom { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: #1A2D5A; margin: 0; }
+.dash-membre-depuis { font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #A8884E; margin: 4px 0 0; }
+.dash-membre-statut { border-top: 1px solid rgba(192,152,64,0.15); padding-top: 16px; display: flex; flex-direction: column; gap: 4px; }
+.dash-membre-statut-label { font-family: 'Crimson Pro', serif; font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #A8884E; }
+.dash-membre-statut-valeur { font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #1A2D5A; }
+.dash-membre-sejours { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; }
+
+/* Progression */
+.dash-prog-niveau { font-family: 'Crimson Pro', serif; font-size: 1rem; color: #1A2D5A; margin: 0 0 8px; }
+.dash-prog-texte { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; line-height: 1.5; margin: 0 0 18px; }
+.dash-prog-barre { height: 8px; background: rgba(192,152,64,0.15); border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+.dash-prog-remplissage { height: 100%; background: linear-gradient(90deg, #C09840, #EDD880); border-radius: 4px; transition: width 0.6s ease; }
+.dash-prog-legende { display: flex; justify-content: space-between; font-family: 'Crimson Pro', serif; font-size: 0.82rem; color: #4A4640; }
+.dash-prog-restants { color: #C09840; font-weight: 600; }
+
+/* Prochain avantage */
+.dash-av-decl { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; margin: 0 0 8px; }
+.dash-av-pct { font-family: 'Playfair Display', serif; font-size: 2.6rem; color: #C09840; margin: 0; line-height: 1; }
+.dash-av-plus { font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #A8884E; margin: 10px 0 0; }
+
+/* Reservations / sejours */
+.dash-resa-nom, .dash-passe-nom { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #1A2D5A; }
+.dash-resa-region, .dash-passe-region { font-family: 'Crimson Pro', serif; font-size: 0.82rem; color: #A8884E; margin: 2px 0; }
+.dash-resa-dates, .dash-passe-dates { font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #4A4640; }
+.dash-passes-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 16px; }
+.dash-passe { border-bottom: 1px solid rgba(192,152,64,0.12); padding-bottom: 12px; }
+.dash-passe:last-child { border-bottom: none; padding-bottom: 0; }
+.dash-vide { font-family: 'Crimson Pro', serif; font-size: 0.9rem; font-style: italic; color: #A8884E; margin: 0; }
+
+/* Avantages inclus */
+.dash-inclus-liste { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.dash-inclus-item { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; padding-left: 18px; position: relative; }
+.dash-inclus-item::before { content: "⚜"; position: absolute; left: 0; color: #C09840; font-size: 0.8rem; }
+
+/* Bandeau paliers */
+.dash-bandeau { background: #FEFCF8; border: 1px solid rgba(192,152,64,0.22); border-radius: 14px; padding: 32px; }
+.dash-bandeau-titre { font-family: 'Crimson Pro', serif; font-size: 0.75rem; letter-spacing: 0.14em; text-transform: uppercase; color: #A8884E; margin: 0 0 4px; text-align: center; }
+.dash-bandeau-sous { font-family: 'Crimson Pro', serif; font-size: 0.95rem; font-style: italic; color: #4A4640; text-align: center; margin: 0 0 28px; }
+.dash-paliers { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+.dash-palier { text-align: center; padding: 20px 12px; border-radius: 12px; transition: background 0.2s; }
+.dash-palier.actif { background: rgba(192,152,64,0.08); border: 1px solid rgba(192,152,64,0.3); }
+.dash-palier-lys { color: #C09840; font-size: 1.1rem; letter-spacing: 3px; margin-bottom: 10px; }
+.dash-palier-nom { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #1A2D5A; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 6px; }
+.dash-palier-seuil { font-family: 'Crimson Pro', serif; font-size: 0.8rem; color: #A8884E; margin-bottom: 14px; }
+.dash-palier-avantages { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.dash-palier-avantages li { font-family: 'Crimson Pro', serif; font-size: 0.8rem; color: #4A4640; padding-left: 14px; position: relative; line-height: 1.4; }
+.dash-palier-avantages li::before { content: "•"; position: absolute; left: 0; color: #C09840; }
+
+/* Responsive : empile en dessous de 1000px */
+@media (max-width: 1000px) {
+  .dash-rangee { grid-template-columns: 1fr; }
+  .dash-paliers { grid-template-columns: 1fr 1fr; }
+}
+/* Compactage dashboard (4c-bis) : overrides denses pour tenir sans scroll. */
+/* Snippets partiels appended en override : ne remplacent pas les regles de base. */
+.dash { gap: 18px; }
+.dash-carte { border-radius: 12px; padding: 18px 20px; }
+.dash-carte-titre { font-size: 0.68rem; margin: 0 0 12px; }
+.dash-membre-tete { gap: 14px; margin-bottom: 14px; }
+.dash-membre-avatar { width: 52px; height: 52px; font-size: 1.15rem; }
+.dash-membre-nom { font-size: 1.25rem; }
+.dash-membre-statut { padding-top: 12px; }
+.dash-membre-statut-valeur { font-size: 1.4rem; }
+.dash-av-pct { font-size: 2.2rem; }
+.dash-prog-texte { margin: 0 0 14px; }
+.dash-passes-liste { gap: 12px; }
+.club-contenu { padding: 32px 44px; }
+.club-entete { margin-bottom: 22px; }
+.club-titre { font-size: 2rem; }
+
+/* ── Onglet Mes avantages ── */
+.av { display: flex; flex-direction: column; gap: 24px; }
+.av-entete { text-align: center; }
+.av-titre { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1A2D5A; margin: 0 0 6px; }
+.av-sous { font-family: 'Crimson Pro', serif; font-size: 1rem; font-style: italic; color: #4A4640; margin: 0; }
+
+.av-situation {
+  background: #0B1A33; color: #F7F2E8; border-radius: 14px; padding: 24px 28px;
+  display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+}
+.av-situation-actuel { display: flex; flex-direction: column; gap: 4px; }
+.av-situation-label { font-family: 'Crimson Pro', serif; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: #C09840; }
+.av-situation-nom { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #EDD880; }
+.av-situation-sejours { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: rgba(247,242,232,0.8); }
+.av-situation-suite { font-family: 'Crimson Pro', serif; font-size: 0.95rem; color: rgba(247,242,232,0.9); line-height: 1.5; max-width: 320px; text-align: right; }
+.av-situation-suite strong { color: #EDD880; }
+
+.av-paliers { display: flex; flex-direction: column; gap: 16px; }
+.av-palier {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 32px;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.22); border-radius: 14px; padding: 24px 28px;
+  transition: opacity 0.2s;
+}
+.av-palier--atteint { opacity: 0.62; }
+.av-palier--actuel { border: 2px solid #C09840; background: rgba(192,152,64,0.06); box-shadow: 0 8px 30px rgba(192,152,64,0.12); }
+.av-palier--avenir { }
+
+.av-palier-gauche { display: flex; align-items: flex-start; gap: 16px; min-width: 240px; }
+.av-palier-badge { width: 24px; flex-shrink: 0; padding-top: 2px; }
+.av-check { color: #4a8a4a; font-size: 1.1rem; font-weight: 700; }
+.av-puce-actuel { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #C09840; margin-top: 4px; }
+.av-palier-nom { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #1A2D5A; letter-spacing: 0.06em; text-transform: uppercase; }
+.av-palier-seuil { font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #A8884E; margin-top: 4px; }
+.av-palier-restant { font-family: 'Crimson Pro', serif; font-size: 0.82rem; color: #4A4640; margin-top: 6px; font-style: italic; }
+.av-palier-tag { display: inline-block; margin-top: 8px; font-family: 'Crimson Pro', serif; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: #C09840; border: 1px solid rgba(192,152,64,0.4); border-radius: 12px; padding: 3px 10px; }
+.av-palier-tag--atteint { color: #4a8a4a; border-color: rgba(74,138,74,0.4); }
+
+.av-palier-avantages { list-style: none; margin: 0; padding: 0; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.av-palier-avantages li { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; padding-left: 18px; position: relative; line-height: 1.4; }
+.av-palier-avantages li::before { content: "\269C"; position: absolute; left: 0; color: #C09840; font-size: 0.75rem; }
+
+@media (max-width: 800px) {
+  .av-palier { flex-direction: column; gap: 16px; }
+  .av-situation { flex-direction: column; align-items: flex-start; }
+  .av-situation-suite { text-align: left; }
+}
+
+/* ── Onglets Mes reservations / Mes sejours ── */
+.sej { display: flex; flex-direction: column; gap: 24px; }
+.sej-entete { }
+.sej-titre { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1A2D5A; margin: 0 0 6px; }
+.sej-sous { font-family: 'Crimson Pro', serif; font-size: 1rem; font-style: italic; color: #4A4640; margin: 0; }
+
+.sej-vide {
+  background: #FEFCF8; border: 1px dashed rgba(192,152,64,0.3); border-radius: 14px;
+  padding: 48px; text-align: center;
+}
+.sej-vide p { font-family: 'Crimson Pro', serif; font-size: 1rem; font-style: italic; color: #A8884E; margin: 0; }
+
+.sej-liste { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.sej-carte {
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.22); border-radius: 14px; padding: 22px 24px;
+}
+.sej-carte-tete { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid rgba(192,152,64,0.15); }
+.sej-carte-chateau { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #1A2D5A; }
+.sej-carte-region { font-family: 'Crimson Pro', serif; font-size: 0.82rem; color: #A8884E; margin-top: 2px; }
+.sej-statut { font-family: 'Crimson Pro', serif; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 12px; border-radius: 12px; white-space: nowrap; }
+.sej-statut--confirmed, .sej-statut--completed { background: rgba(74,138,74,0.12); color: #3d7a3d; }
+.sej-statut--pending { background: rgba(192,152,64,0.14); color: #A8884E; }
+.sej-statut--cancelled { background: rgba(160,48,40,0.1); color: #a03028; }
+.sej-carte-corps { display: flex; flex-direction: column; gap: 8px; }
+.sej-ligne { display: flex; justify-content: space-between; gap: 16px; font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; }
+.sej-lab { color: #A8884E; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.sej-prix { font-family: 'Playfair Display', serif; color: #1A2D5A; font-size: 1.05rem; }
+
+@media (max-width: 900px) {
+  .sej-liste { grid-template-columns: 1fr; }
+}
+
+/* ── Onglet Informations personnelles ── */
+.infos { max-width: 640px; }
+.infos-entete { margin-bottom: 28px; }
+.infos-titre { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1A2D5A; margin: 0 0 6px; }
+.infos-sous { font-family: 'Crimson Pro', serif; font-size: 1rem; font-style: italic; color: #4A4640; margin: 0; }
+.infos-form { display: flex; flex-direction: column; gap: 20px; }
+.infos-rangee { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.infos-champ { display: flex; flex-direction: column; gap: 7px; }
+.infos-label { font-family: 'Crimson Pro', serif; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: #A8884E; }
+.infos-input {
+  font-family: 'Crimson Pro', serif; font-size: 0.95rem; color: #1A2D5A;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.3); border-radius: 8px; padding: 12px 14px;
+  transition: border-color 0.18s;
+}
+.infos-input:focus { outline: none; border-color: #C09840; }
+.infos-input--lecture { background: rgba(192,152,64,0.06); color: #A8884E; cursor: not-allowed; }
+.infos-aide { font-family: 'Crimson Pro', serif; font-size: 0.78rem; font-style: italic; color: #A8884E; }
+.infos-consent { display: flex; align-items: flex-start; gap: 10px; font-family: 'Crimson Pro', serif; font-size: 0.88rem; color: #4A4640; line-height: 1.4; cursor: pointer; }
+.infos-consent input { margin-top: 3px; flex-shrink: 0; }
+.infos-message { font-family: 'Crimson Pro', serif; font-size: 0.9rem; padding: 12px 16px; border-radius: 8px; }
+.infos-message--ok { background: rgba(74,138,74,0.1); color: #3d7a3d; }
+.infos-message--erreur { background: rgba(160,48,40,0.1); color: #a03028; }
+.infos-bouton {
+  align-self: flex-start; background: #1A2D5A; color: #FAF6EE; border: none; border-radius: 8px;
+  font-family: 'Crimson Pro', serif; font-size: 0.9rem; letter-spacing: 0.06em;
+  padding: 14px 32px; cursor: pointer; transition: background 0.2s;
+}
+.infos-bouton:hover:not(:disabled) { background: #24386b; }
+.infos-bouton:disabled { opacity: 0.6; cursor: wait; }
+
+@media (max-width: 700px) { .infos-rangee { grid-template-columns: 1fr; } }
+
+/* Mode lecture / edition de l'onglet infos */
+.infos-entete { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+.infos-modifier {
+  background: transparent; border: 1px solid rgba(192,152,64,0.5); color: #A8884E;
+  font-family: 'Crimson Pro', serif; font-size: 0.85rem; letter-spacing: 0.06em;
+  padding: 10px 24px; border-radius: 8px; cursor: pointer; transition: all 0.18s; white-space: nowrap;
+}
+.infos-modifier:hover { border-color: #C09840; color: #1A2D5A; background: rgba(192,152,64,0.06); }
+.infos-lecture { display: flex; flex-direction: column; gap: 0; max-width: 640px; }
+.infos-ligne-l { display: flex; justify-content: space-between; gap: 24px; padding: 16px 0; border-bottom: 1px solid rgba(192,152,64,0.14); }
+.infos-ligne-l:last-child { border-bottom: none; }
+.infos-lab-l { font-family: 'Crimson Pro', serif; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: #A8884E; }
+.infos-val-l { font-family: 'Crimson Pro', serif; font-size: 0.98rem; color: #1A2D5A; text-align: right; }
+.infos-check { color: #3d7a3d; font-weight: 700; margin-right: 4px; }
+.infos-actions { display: flex; align-items: center; gap: 14px; }
+.infos-annuler {
+  background: transparent; border: none; color: #A8884E; font-family: 'Crimson Pro', serif; font-size: 0.9rem;
+  cursor: pointer; padding: 14px 8px; transition: color 0.18s;
+}
+.infos-annuler:hover { color: #1A2D5A; }
+.infos-message { display: flex; align-items: center; margin-bottom: 20px; }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import "../styles/header.css";
 
 const MENU_ITEMS = [
@@ -61,6 +62,7 @@ export default function Header({
   onOuvrirEvenementiel,
 }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [menuOuvert, setMenuOuvert] = useState(false);
   const [solide, setSolide] = useState(false);
   const [itemSurvole, setItemSurvole] = useState(null);
@@ -85,7 +87,7 @@ export default function Header({
     else if (action === "apropos") onOuvrirAPropos?.();
     else if (action === "evenementiel") onOuvrirEvenementiel?.();
     else if (action === "proprietaires") onOuvrirProprietaires?.();
-    else if (action === "club") navigate("/inscription");
+    else if (action === "club") navigate(user ? "/club" : "/inscription");
     // 2. Fermer le menu APRES le fondu d'entree de la destination (~550ms),
     //    pour qu'il serve de backdrop opaque pendant le cross-fade (jamais la home).
     setTimeout(() => setMenuOuvert(false), 550);
@@ -105,12 +107,20 @@ export default function Header({
           </button>
 
           <div className="header-actions">
-            <button className="header-connexion" onClick={() => { fermer(); navigate("/connexion"); }}>
-              Connexion
-            </button>
-            <button className="header-cta" onClick={() => { fermer(); navigate("/inscription"); }}>
-              Rejoindre le Club
-            </button>
+            {user ? (
+              <button className="header-cta" onClick={() => { fermer(); navigate("/club"); }}>
+                Mon compte
+              </button>
+            ) : (
+              <>
+                <button className="header-connexion" onClick={() => { fermer(); navigate("/connexion"); }}>
+                  Connexion
+                </button>
+                <button className="header-cta" onClick={() => { fermer(); navigate("/inscription"); }}>
+                  Rejoindre le Club
+                </button>
+              </>
+            )}
             <button
               className={`header-burger${menuOuvert ? " ouvert" : ""}`}
               onClick={() => setMenuOuvert(!menuOuvert)}

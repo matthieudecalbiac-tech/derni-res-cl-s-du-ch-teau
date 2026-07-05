@@ -14,18 +14,23 @@ const { test, expect } = require('@playwright/test');
 
 test.describe('S2-α.1 · routing smoke + non-régression', () => {
 
-  test('Route /mon-compte sans session → RequireAuth redirect /connexion + localStorage (Mini-Phase 6.1)', async ({ page }) => {
-    // Sprint S2-α.2 Phase 2 : RequireAuth est passé du stub return children
-    // à la vraie impl qui redirige vers /connexion si !user.
-    // Mini-Phase 6.1 : sessionStorage → localStorage["lcc_auth_next"] pour
-    // robustesse cross-tab (nouveau tab Gmail).
-    await page.goto('/mon-compte');
-    await page.waitForLoadState('domcontentloaded');
-    await expect(page).toHaveURL(/\/connexion$/, { timeout: 5000 });
+  test('Route /club sans session → RequireAuth redirect /connexion + lcc_auth_next=/club', async ({ page }) => {
+    await page.goto('/club');
+    await page.waitForURL('**/connexion');
     const origin = await page.evaluate(() =>
       localStorage.getItem('lcc_auth_next')
     );
-    expect(origin).toBe('/mon-compte');
+    expect(origin).toBe('/club');
+  });
+
+  test('Route /mon-compte (alias) sans session → redirige vers /club → RequireAuth /connexion + lcc_auth_next=/club', async ({ page }) => {
+    await page.goto('/mon-compte');
+    await page.waitForURL('**/connexion');
+    const origin = await page.evaluate(() =>
+      localStorage.getItem('lcc_auth_next')
+    );
+    // /mon-compte redirige vers /club (route pérenne) ; c'est /club que RequireAuth mémorise.
+    expect(origin).toBe('/club');
   });
 
   test('Route /reserver/les-briottieres affiche le placeholder booking', async ({ page }) => {
