@@ -21,6 +21,15 @@
   text-align: left; background: transparent; border: none; cursor: pointer;
   font-family: 'Crimson Pro', serif; font-size: 0.95rem; color: rgba(247,242,232,0.7);
   padding: 12px 18px; border-radius: 8px; transition: background 0.18s, color 0.18s;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+/* Pastille de messages non lus. Elle disparait des que l'onglet est ouvert. */
+.club-pastille {
+  flex-shrink: 0; min-width: 22px; height: 22px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #C09840; color: #0B1A33; border-radius: 11px;
+  font-family: 'Crimson Pro', serif; font-size: 0.78rem; font-weight: 600;
+  padding: 0 7px;
 }
 .club-nav-item:hover { background: rgba(192,152,64,0.1); color: #F7F2E8; }
 .club-nav-item.actif { background: rgba(192,152,64,0.16); color: #EDD880; }
@@ -309,3 +318,105 @@
 .oc-carte-prix-offre { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #1A2D5A; }
 
 @media (max-width: 900px) { .oc-liste { grid-template-columns: 1fr; } }
+
+/* ── Bienvenue (overlay d'entree dans le Club) ── */
+.bvn {
+  position: fixed; inset: 0; z-index: 9000;
+  background: #FAF6EE;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+}
+.bvn--phase0 { opacity: 1; }               /* couvre immediatement le chargement */
+.bvn--phase1 { opacity: 1; }
+.bvn--phase2 { opacity: 0; }               /* fondu de sortie */
+
+.bvn-contenu {
+  display: flex; flex-direction: column; align-items: center;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 1s ease 0.2s, transform 1s ease 0.2s;
+}
+.bvn--phase1 .bvn-contenu,
+.bvn--phase2 .bvn-contenu { opacity: 1; transform: translateY(0); }
+
+.bvn-logo { height: 56px; width: auto; background: transparent; margin-bottom: 22px; }
+
+.bvn-texte {
+  font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400;
+  font-size: clamp(1.3rem, 2.6vw, 2rem);
+  color: #1A2D5A; text-align: center; line-height: 1.5; margin: 0;
+}
+.bvn-prenom { display: block; color: #1A2D5A; margin-top: 2px; }
+
+.bvn-trait {
+  display: block; height: 1px; width: 0; margin-top: 22px;
+  background: linear-gradient(to right, transparent, #C09840, transparent);
+  transition: width 1.2s ease 0.5s;
+}
+.bvn--phase1 .bvn-trait,
+.bvn--phase2 .bvn-trait { width: 220px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bvn, .bvn-contenu, .bvn-trait { transition: none; }
+}
+
+/* ── Onglet Messages ── */
+/* Le fil s'adapte a son contenu jusqu'a un plafond, au-dela duquel il defile.
+   Une hauteur fixe laissait un gouffre sous les premiers messages d'un fil neuf. */
+.msg { display: flex; flex-direction: column; max-width: 780px; }
+.msg-entete { flex-shrink: 0; margin-bottom: 20px; }
+.msg-titre { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1A2D5A; margin: 0 0 6px; }
+.msg-sous { font-family: 'Crimson Pro', serif; font-size: 1rem; font-style: italic; color: #4A4640; margin: 0; }
+
+.msg-fil {
+  min-height: 180px;
+  max-height: calc(100vh - 340px);
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 20px; background: #FEFCF8;
+  border: 1px solid rgba(192,152,64,0.22); border-radius: 14px;
+}
+.msg-etat { font-family: 'Crimson Pro', serif; color: #4A4640; margin: auto; }
+.msg-etat--erreur { color: #a03028; }
+
+.msg-vide { margin: auto; text-align: center; }
+.msg-vide p { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-style: italic; color: #A8884E; margin: 0; }
+
+.msg-bulle { max-width: 76%; display: flex; flex-direction: column; gap: 4px; }
+.msg-bulle--equipe { align-self: flex-start; }
+.msg-bulle--membre { align-self: flex-end; align-items: flex-end; }
+
+.msg-auteur {
+  font-family: 'Crimson Pro', serif; font-size: 0.7rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #A8884E;
+}
+.msg-contenu {
+  font-family: 'Crimson Pro', serif; font-size: 0.95rem; line-height: 1.6; margin: 0;
+  padding: 12px 16px; border-radius: 12px; white-space: pre-wrap;
+}
+.msg-bulle--equipe .msg-contenu {
+  background: rgba(192,152,64,0.09); color: #1A2D5A;
+  border: 1px solid rgba(192,152,64,0.2); border-top-left-radius: 4px;
+}
+.msg-bulle--membre .msg-contenu {
+  background: #1A2D5A; color: #F7F2E8; border-top-right-radius: 4px;
+}
+.msg-heure { font-family: 'Crimson Pro', serif; font-size: 0.72rem; color: #A8884E; }
+
+.msg-saisie { flex-shrink: 0; display: flex; gap: 12px; align-items: flex-end; margin-top: 16px; }
+.msg-champ {
+  flex: 1; resize: none; font-family: 'Crimson Pro', serif; font-size: 0.95rem;
+  color: #1A2D5A; background: #FEFCF8; padding: 12px 14px;
+  border: 1px solid rgba(192,152,64,0.35); border-radius: 10px;
+  transition: border-color 0.18s;
+}
+.msg-champ:focus { outline: none; border-color: #C09840; }
+.msg-champ::placeholder { color: rgba(74,70,64,0.55); font-style: italic; }
+.msg-envoyer {
+  flex-shrink: 0; background: #1A2D5A; color: #F7F2E8; border: none; border-radius: 10px;
+  font-family: 'Crimson Pro', serif; font-size: 0.9rem; letter-spacing: 0.04em;
+  padding: 14px 26px; cursor: pointer; transition: background 0.2s;
+}
+.msg-envoyer:hover:not(:disabled) { background: #0B1A33; }
+.msg-envoyer:disabled { opacity: 0.45; cursor: not-allowed; }

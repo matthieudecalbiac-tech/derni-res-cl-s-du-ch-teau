@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { getEspaceClub } from "../../services/clubService.js";
+import { compterNonLus } from "../../services/messagesService.js";
 import DashboardClub from "./DashboardClub";
 import OngletOffresClub from "./OngletOffresClub";
 import OngletAvantages from "./OngletAvantages";
 import OngletSejours from "./OngletSejours";
 import OngletInfos from "./OngletInfos";
+import BienvenueClub from "./BienvenueClub";
+import OngletMessages from "./OngletMessages";
 import "../../styles/club.css";
 
 // Avatar monogramme (initiales) tant qu'on n'a pas d'upload photo.
@@ -47,6 +50,26 @@ export default function PageClub() {
   const [espace, setEspace] = useState(null);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
+  const [nonLus, setNonLus] = useState(0);
+
+  // Bienvenue : une fois par session, et seulement quand le prenom est connu.
+  // prefers-reduced-motion : on ne joue pas l'animation du tout.
+  const [bienvenue, setBienvenue] = useState(false);
+  const [bienvenueEvaluee, setBienvenueEvaluee] = useState(false);
+
+  useEffect(() => {
+    if (bienvenueEvaluee) return;
+    const prenom = profile?.first_name?.trim();
+    if (!prenom) return;   // on attend que le profil arrive (null au premier rendu)
+
+    setBienvenueEvaluee(true);
+
+    const dejaVue = sessionStorage.getItem("lcc_club_bienvenue") === "1";
+    const motionReduit = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (dejaVue || motionReduit) return;
+
+    setBienvenue(true);
+  }, [profile?.first_name, bienvenueEvaluee]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -58,13 +81,36 @@ export default function PageClub() {
     return () => { annule = true; };
   }, [user?.id]);
 
+  // Le compteur de messages non lus, charge une fois. Il ne se rafraichit pas
+  // au changement d'onglet : seule l'ouverture de Messages le remet a zero.
+  useEffect(() => {
+    if (!user?.id) return;
+    let annule = false;
+    compterNonLus(user.id)
+      .then((n) => { if (!annule) setNonLus(n); })
+      .catch(() => { /* une pastille absente vaut mieux qu'une erreur */ });
+    return () => { annule = true; };
+  }, [user?.id]);
+
   const handleDeconnexion = async () => {
     await signOut();
     navigate("/");
   };
 
   return (
-    <div className="club">
+    <>
+      {bienvenue && (
+        <BienvenueClub
+          prenom={profile?.first_name}
+          onTermine={() => {
+            // Le drapeau marque "vue", pas "evaluee" : une visite qui ne joue pas
+            // l'animation (motion reduit, profil incomplet) ne la consomme pas.
+            sessionStorage.setItem("lcc_club_bienvenue", "1");
+            setBienvenue(false);
+          }}
+        />
+      )}
+      <div className="club">
       {/* SIDEBAR */}
       <aside className="club-sidebar">
         <button className="club-logo" onClick={() => navigate("/")} aria-label="Retour a l'accueil">
@@ -79,7 +125,12 @@ export default function PageClub() {
               className={"club-nav-item " + (ongletActif === o.id ? "actif" : "")}
               onClick={() => setOngletActif(o.id)}
             >
-              {o.label}
+              <span>{o.label}</span>
+              {o.id === "messages" && nonLus > 0 && (
+                <span className="club-pastille" aria-label={`${nonLus} message${nonLus > 1 ? "s" : ""} non lu${nonLus > 1 ? "s" : ""}`}>
+                  {nonLus}
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -123,13 +174,16 @@ export default function PageClub() {
                 reservations={(espace.reservations || []).filter((r) => r.date_depart < new Date().toISOString().slice(0,10)).sort((a,b) => b.date_arrivee.localeCompare(a.date_arrivee))}
               />
             )}
-            {ongletActif === "messages" && <div className="club-placeholder-onglet">Messagerie (a construire)</div>}
+            {ongletActif === "messages" && (
+              <OngletMessages userId={user?.id} onLu={() => setNonLus(0)} />
+            )}
             {ongletActif === "avantages" && <OngletAvantages espace={espace} />}
             {ongletActif === "infos" && <OngletInfos profile={profile} user={user} />}
             {ongletActif === "preferences" && <div className="club-placeholder-onglet">Préférences (a definir)</div>}
           </div>
         )}
       </main>
-    </div>
+      </div>
+    </>
   );
 }
