@@ -1,63 +1,85 @@
-// Service offres mock — Sprint S2-α.1.5.
-// TODO α.2/α.3 : remplacer par `await supabase.from("offres").select(...).eq("chateau_id", ...).eq("module_code", ...)`
-//   La table offres existe déjà en S1-γ + α.1 (cf. supabase/schema.sql, seed offre-bri-001 en migration 2026-05-09).
-//   Le mapping `chateauId number ↔ chateau_id uuid` sera fait via `_mapping.js` (Phase 4.3).
+import { supabase } from "../lib/supabase.js";
+import { mapOffre, MODULE_B_ID, MODULE_C_ID } from "./_mapping.js";
 
-import { mockOffres } from "../data/mockOffres";
+// ============================================================
+// Service des offres. Lit la table public.offres (plus de mock).
+// Le filtrage par role est assure par la RLS (offres_select_visible) :
+// une offre a requires_role non-null n'est renvoyee qu'a un utilisateur
+// connecte. On ne refiltre pas cote front.
+// ============================================================
 
-// Latence mock passée de 200 à 0 (audit Fondation J2, P0-1) : la latence
-// artificielle faisait clignoter « Chargement des offres… » à chaque bascule
-// d'onglet de la vitrine premium. Conservée comme constante (à 0) pour
-// pouvoir réactiver des tests de loading state si besoin.
-const LATENCE_MOCK_MS = 0;
+const TTL_MS = 5 * 60 * 1000;
+const _cache = new Map();
 
-// Cache module-level (clé "slug|module" → Array d'offres). Évite de re-filtrer
-// — et de relancer un cycle async — à chaque retour sur un onglet déjà visité.
-// Invalidé au reload de page (mock en mémoire).
-const _cacheOffres = new Map();
-
-function attendre(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function _cleValide(entree) {
+  return entree && Date.now() - entree.t < TTL_MS;
 }
 
-/**
- * @param {string} chateauSlug - Slug humain (ex: "les-briottieres")
- * @param {"dernieresCles" | "club"} module
- * @returns {Promise<Array>}
- */
+const MODULES = {
+  dernieresCles: MODULE_B_ID,
+  club: MODULE_C_ID,
+};
+
+// Jointure vers chateaux pour resoudre le slug (la table offres ne l'a pas).
+const SELECT_OFFRES = `
+  *,
+  chateaux!inner ( slug )
+`;
+
 export async function getOffresPourChateau(chateauSlug, module, filtre = null) {
-  // Cle de cache : inclut le filtre s'il est fourni, pour ne pas melanger
-  // resultats filtres et non-filtres.
-  const cle = filtre
-    ? `${chateauSlug}|${module}|${filtre.dateArrivee || ""}|${filtre.dateDepart || ""}|${filtre.voyageurs || ""}`
-    : `${chateauSlug}|${module}`;
-  if (_cacheOffres.has(cle)) return _cacheOffres.get(cle);
-  await attendre(LATENCE_MOCK_MS);
-  const resultat = mockOffres.filter(
-    (o) => o.chateauSlug === chateauSlug && o.module === module,
-  );
-  // ═══ PLUG-READY DISPO ═══ Quand Supabase + vraies dispos : filtrer ici sur
-  // filtre.dateArrivee / filtre.dateDepart / filtre.voyageurs. Aujourd'hui : ignore (mock).
-  // Le param est accepte et participe au cache, mais ne change pas encore le resultat.
-  _cacheOffres.set(cle, resultat);
-  return resultat;
+  const moduleId = MODULES[module];
+  if (!chateauSlug || !moduleId) return [];
+
+  // Le filtre entre dans la cle de cache mais n'est pas encore applique
+  // (PLUG-READY DISPO : sera branche sur les vraies disponibilites).
+  const cle = [chateauSlug, module, filtre?.dateArrivee, filtre?.dateDepart, filtre?.voyageurs]
+    .filter(Boolean).join("|");
+  const hit = _cache.get(cle);
+  if (_cleValide(hit)) return hit.v;
+
+  const { data, error } = await supabase
+    .from("offres")
+    .select(SELECT_OFFRES)
+    .eq("chateaux.slug", chateauSlug)
+    .eq("module_id", moduleId)
+    .eq("visible", true)
+    .order("ordre", { ascending: true });
+
+  if (error) {
+    console.error("[offresService] getOffresPourChateau:", error);
+    throw error;
+  }
+
+  const offres = (data ?? []).map((r) => mapOffre(r, module, chateauSlug)).filter(Boolean);
+  _cache.set(cle, { t: Date.now(), v: offres });
+  return offres;
 }
 
-/**
- * @param {string} offreId
- * @returns {Promise<Object | null>}
- */
 export async function getOffreParId(offreId) {
-  await attendre(LATENCE_MOCK_MS);
-  return mockOffres.find((o) => o.id === offreId) || null;
+  if (!offreId) return null;
+  const { data, error } = await supabase
+    .from("offres")
+    .select(SELECT_OFFRES)
+    .eq("id", offreId)
+    .eq("visible", true)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[offresService] getOffreParId:", error);
+    throw error;
+  }
+  if (!data) return null;
+
+  // Retrouve le nom du module depuis son uuid.
+  const moduleNom = Object.keys(MODULES).find((k) => MODULES[k] === data.module_id) ?? null;
+  return mapOffre(data, moduleNom);
 }
 
-/**
- * @param {string} chateauSlug - Slug humain (ex: "les-briottieres")
- * @param {"dernieresCles" | "club"} module
- * @returns {Promise<number>}
- */
 export async function compterOffresPourChateau(chateauSlug, module, filtre = null) {
   const offres = await getOffresPourChateau(chateauSlug, module, filtre);
   return offres.length;
+}
+
+export function invalidateCacheOffres() {
+  _cache.clear();
 }

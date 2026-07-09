@@ -85,9 +85,9 @@ export default function ContenuDernieresCles({ chateau, offreCible, onReserver }
 
             <div className="vc4-dc-card-prix-col">
               {o.prixOriginal && o.prixOriginal !== o.prixOffre && (
-                <span className="vc4-dc-card-prix-barre">{o.prixOriginal} €</span>
+                <span className="vc4-dc-card-prix-barre">{o.prixOriginalAffiche} €</span>
               )}
-              <span className="vc4-dc-card-prix-offre">{o.prixOffre} €</span>
+              <span className="vc4-dc-card-prix-offre">{o.prixOffreAffiche} €</span>
               <span className="vc4-dc-card-prix-meta">total séjour</span>
               <button
                 className="vc4-dc-card-cta"
