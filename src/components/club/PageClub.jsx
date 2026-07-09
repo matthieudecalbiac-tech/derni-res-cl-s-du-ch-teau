@@ -7,6 +7,7 @@ import OngletOffresClub from "./OngletOffresClub";
 import OngletAvantages from "./OngletAvantages";
 import OngletSejours from "./OngletSejours";
 import OngletInfos from "./OngletInfos";
+import BienvenueClub from "./BienvenueClub";
 import "../../styles/club.css";
 
 // Avatar monogramme (initiales) tant qu'on n'a pas d'upload photo.
@@ -48,6 +49,25 @@ export default function PageClub() {
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
 
+  // Bienvenue : une fois par session, et seulement quand le prenom est connu.
+  // prefers-reduced-motion : on ne joue pas l'animation du tout.
+  const [bienvenue, setBienvenue] = useState(false);
+  const [bienvenueEvaluee, setBienvenueEvaluee] = useState(false);
+
+  useEffect(() => {
+    if (bienvenueEvaluee) return;
+    const prenom = profile?.first_name?.trim();
+    if (!prenom) return;   // on attend que le profil arrive (null au premier rendu)
+
+    setBienvenueEvaluee(true);
+
+    const dejaVue = sessionStorage.getItem("lcc_club_bienvenue") === "1";
+    const motionReduit = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (dejaVue || motionReduit) return;
+
+    setBienvenue(true);
+  }, [profile?.first_name, bienvenueEvaluee]);
+
   useEffect(() => {
     if (!user?.id) return;
     let annule = false;
@@ -64,7 +84,19 @@ export default function PageClub() {
   };
 
   return (
-    <div className="club">
+    <>
+      {bienvenue && (
+        <BienvenueClub
+          prenom={profile?.first_name}
+          onTermine={() => {
+            // Le drapeau marque "vue", pas "evaluee" : une visite qui ne joue pas
+            // l'animation (motion reduit, profil incomplet) ne la consomme pas.
+            sessionStorage.setItem("lcc_club_bienvenue", "1");
+            setBienvenue(false);
+          }}
+        />
+      )}
+      <div className="club">
       {/* SIDEBAR */}
       <aside className="club-sidebar">
         <button className="club-logo" onClick={() => navigate("/")} aria-label="Retour a l'accueil">
@@ -130,6 +162,7 @@ export default function PageClub() {
           </div>
         )}
       </main>
-    </div>
+      </div>
+    </>
   );
 }

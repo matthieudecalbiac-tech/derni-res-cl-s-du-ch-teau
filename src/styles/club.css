@@ -309,3 +309,45 @@
 .oc-carte-prix-offre { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #1A2D5A; }
 
 @media (max-width: 900px) { .oc-liste { grid-template-columns: 1fr; } }
+
+/* ── Bienvenue (overlay d'entree dans le Club) ── */
+.bvn {
+  position: fixed; inset: 0; z-index: 9000;
+  background: #FAF6EE;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  pointer-events: none;
+}
+.bvn--phase0 { opacity: 1; }               /* couvre immediatement le chargement */
+.bvn--phase1 { opacity: 1; }
+.bvn--phase2 { opacity: 0; }               /* fondu de sortie */
+
+.bvn-contenu {
+  display: flex; flex-direction: column; align-items: center;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 1s ease 0.2s, transform 1s ease 0.2s;
+}
+.bvn--phase1 .bvn-contenu,
+.bvn--phase2 .bvn-contenu { opacity: 1; transform: translateY(0); }
+
+.bvn-logo { height: 56px; width: auto; background: transparent; margin-bottom: 22px; }
+
+.bvn-texte {
+  font-family: 'Playfair Display', serif; font-style: italic; font-weight: 400;
+  font-size: clamp(1.3rem, 2.6vw, 2rem);
+  color: #1A2D5A; text-align: center; line-height: 1.5; margin: 0;
+}
+.bvn-prenom { display: block; color: #1A2D5A; margin-top: 2px; }
+
+.bvn-trait {
+  display: block; height: 1px; width: 0; margin-top: 22px;
+  background: linear-gradient(to right, transparent, #C09840, transparent);
+  transition: width 1.2s ease 0.5s;
+}
+.bvn--phase1 .bvn-trait,
+.bvn--phase2 .bvn-trait { width: 220px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bvn, .bvn-contenu, .bvn-trait { transition: none; }
+}
