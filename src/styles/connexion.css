@@ -1,26 +1,30 @@
 /* ════════════════════════════════════════════════════════════════════════════
-   Sprint S2-α.2 Phase 3 — Pages /connexion + /auth/callback
-   Préfixe .cnx-* (distinct de vc3-/vc4-/cm-/dk- existants)
-   Tokens : navy #07101E, or #C09840, crème #F7F2E8
+   Pages /connexion + /auth/callback — DA crème/navy (refonte auth)
+   Préfixe .cnx-* (distinct de vc3-/vc4-/cm-/dk-/ins- existants)
+   Registre : carte compacte crème + navy, plus de navy plein écran.
+   Tokens dérivés des tokens globaux (charte) — pas de valeur en dur qui diverge.
+   Partagé avec AuthCallback.jsx (garde .cnx-lys / .cnx-lys-spin).
    ════════════════════════════════════════════════════════════════════════════ */
 
-:root {
-  --cnx-navy: #07101E;
-  --cnx-navy-2: rgba(8, 14, 26, 0.96);
-  --cnx-or: #C09840;
-  --cnx-or-soft: rgba(192, 152, 64, 0.6);
-  --cnx-or-faint: rgba(192, 152, 64, 0.15);
-  --cnx-creme: #F7F2E8;
-  --cnx-creme-soft: rgba(247, 242, 232, 0.7);
-  --cnx-creme-faint: rgba(247, 242, 232, 0.45);
-  --cnx-rouge: #d97a6c;
+/* Pas de :root local : on dérive des tokens globaux (charte).
+   Le registre passe de navy plein écran à crème + navy, comme le reste du site. */
+.cnx-page {
+  --cnx-fond: #FAF6EE;
+  --cnx-carte: #FEFCF8;
+  --cnx-navy: #1A2D5A;
+  --cnx-navy-fonce: #0B1A33;
+  --cnx-or: var(--or);
+  --cnx-texte: #4A4640;
+  --cnx-or-doux: rgba(192, 152, 64, 0.28);
+  --cnx-texte-faint: rgba(74, 70, 64, 0.5);
+  --cnx-rouge: #b23a2e;
 }
 
-/* ═══ Page plein écran ═══ */
+/* ═══ Page ═══ */
 
 .cnx-page {
   min-height: 100vh;
-  background: var(--cnx-navy);
+  background: var(--cnx-fond);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -30,8 +34,10 @@
 .cnx-container {
   width: 100%;
   max-width: 480px;
-  background: rgba(8, 14, 26, 0.55);
-  border: 1px solid var(--cnx-or-faint);
+  background: var(--cnx-carte);
+  border: 1px solid var(--cnx-or-doux);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(26, 45, 90, 0.08);
   padding: 48px 36px;
   display: flex;
   flex-direction: column;
@@ -39,7 +45,15 @@
   text-align: center;
 }
 
-/* ═══ Lys + titres ═══ */
+/* ═══ Logo + lys (AuthCallback) + titres ═══ */
+
+.cnx-logo {
+  height: 44px;
+  width: auto;
+  display: block;
+  margin: 0 auto 18px;
+  background: transparent; /* global.css met un fond navy sur toutes les img */
+}
 
 .cnx-lys {
   font-size: 28px;
@@ -60,7 +74,7 @@
   font-family: "Playfair Display", serif;
   font-size: 28px;
   font-weight: 400;
-  color: var(--cnx-creme);
+  color: var(--cnx-navy);
   margin: 0 0 12px;
   letter-spacing: 0.01em;
 }
@@ -70,7 +84,7 @@
   font-size: 18px;
   font-weight: 400;
   font-style: italic;
-  color: var(--cnx-creme-soft);
+  color: var(--cnx-texte);
   margin: 16px 0 0;
 }
 
@@ -79,7 +93,7 @@
   font-style: italic;
   font-size: 15px;
   line-height: 1.6;
-  color: var(--cnx-creme-soft);
+  color: var(--cnx-texte);
   margin: 0 0 32px;
   max-width: 380px;
 }
@@ -112,19 +126,19 @@
 }
 
 .cnx-input {
-  background: transparent;
-  border: 1px solid var(--cnx-or-soft);
+  background: var(--cnx-carte);
+  border: 1px solid var(--cnx-or-doux);
   border-radius: 2px;
   padding: 12px 14px;
   font-family: "Crimson Pro", serif;
   font-size: 14px;
-  color: var(--cnx-creme);
+  color: var(--cnx-navy);
   outline: none;
   transition: border-color 0.25s ease;
 }
 
 .cnx-input::placeholder {
-  color: var(--cnx-creme-faint);
+  color: var(--cnx-texte-faint);
   font-style: italic;
 }
 
@@ -148,7 +162,7 @@
   font-family: "Playfair Display", serif;
   font-size: 14px;
   letter-spacing: 0.06em;
-  color: var(--cnx-navy);
+  color: var(--cnx-navy-fonce);
   cursor: pointer;
   transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
   margin-top: 8px;
@@ -169,12 +183,12 @@
 .cnx-btn-secondary {
   background: transparent;
   color: var(--cnx-or);
-  border-color: var(--cnx-or-soft);
+  border-color: var(--cnx-or-doux);
 }
 
 .cnx-btn-secondary:hover:not(:disabled) {
-  background: var(--cnx-or-faint);
-  color: var(--cnx-creme);
+  background: rgba(192, 152, 64, 0.1);
+  color: var(--cnx-navy);
   border-color: var(--cnx-or);
 }
 
@@ -191,12 +205,12 @@
   font-style: italic;
   font-size: 15px;
   line-height: 1.65;
-  color: var(--cnx-creme-soft);
+  color: var(--cnx-texte);
   margin: 0;
 }
 
 .cnx-success-msg strong {
-  color: var(--cnx-creme);
+  color: var(--cnx-navy);
   font-style: normal;
   font-weight: 600;
 }
@@ -215,18 +229,7 @@
   gap: 0;
 }
 
-/* ═══ Footer ═══ */
-
-.cnx-footer {
-  font-family: "Cormorant Garamond", serif;
-  font-style: italic;
-  font-size: 12px;
-  color: var(--cnx-creme-faint);
-  margin: 32px 0 0;
-  line-height: 1.5;
-}
-
-/* ═══ Mot de passe — toggle visibilité ═══ */
+/* ═══ Mot de passe — toggle visibilité (icônes SVG, currentColor = or) ═══ */
 
 .cnx-password-wrapper {
   position: relative;
@@ -247,11 +250,14 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 15px;
-  line-height: 1;
+  color: var(--cnx-or);
+  line-height: 0;
   padding: 6px 8px;
-  opacity: 0.65;
+  opacity: 0.75;
   transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cnx-show-password-toggle:hover {
@@ -271,14 +277,14 @@
   font-family: "Cormorant Garamond", serif;
   font-style: italic;
   font-size: 13px;
-  color: var(--cnx-creme-soft);
+  color: var(--cnx-or);
   text-decoration: none;
   margin-top: 2px;
   transition: color 0.2s ease;
 }
 
 .cnx-forgot:hover {
-  color: var(--cnx-or);
+  color: var(--cnx-navy);
 }
 
 /* ═══ « Pas encore de compte ? » ═══ */
@@ -287,7 +293,7 @@
   font-family: "Cormorant Garamond", serif;
   font-style: italic;
   font-size: 14px;
-  color: var(--cnx-creme-soft);
+  color: var(--cnx-texte);
   margin: 20px 0 0;
 }
 
@@ -298,7 +304,7 @@
 }
 
 .cnx-no-account a:hover {
-  color: var(--cnx-creme);
+  color: var(--cnx-navy);
 }
 
 /* ═══ Séparateur « ou » ═══ */
@@ -316,7 +322,7 @@
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--cnx-or-faint);
+  background: var(--cnx-or-doux);
 }
 
 .cnx-separator span {
@@ -324,28 +330,28 @@
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--cnx-creme-faint);
+  color: var(--cnx-texte-faint);
 }
 
 /* ═══ Méthode alternative (bascule magic link / retour) ═══ */
 
 .cnx-alt-method {
   background: transparent;
-  border: 1px solid var(--cnx-or-faint);
+  border: 1px solid var(--cnx-or-doux);
   border-radius: 2px;
   padding: 12px 20px;
   width: 100%;
   font-family: "Cormorant Garamond", serif;
   font-style: italic;
   font-size: 14px;
-  color: var(--cnx-creme-soft);
+  color: var(--cnx-or);
   cursor: pointer;
   transition: border-color 0.2s ease, color 0.2s ease;
 }
 
 .cnx-alt-method:hover {
-  border-color: var(--cnx-or-soft);
-  color: var(--cnx-or);
+  border-color: var(--cnx-or);
+  color: var(--cnx-navy);
 }
 
 /* ═══ Responsive ═══ */
