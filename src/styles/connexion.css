@@ -14,6 +14,7 @@
   --cnx-navy: #1A2D5A;
   --cnx-navy-fonce: #0B1A33;
   --cnx-or: var(--or);
+  --cnx-or-texte: #9A7530;
   --cnx-texte: #4A4640;
   --cnx-or-doux: rgba(192, 152, 64, 0.28);
   --cnx-texte-faint: rgba(74, 70, 64, 0.5);
@@ -120,7 +121,8 @@
   font-family: "Crimson Pro", serif;
   font-size: 11px;
   letter-spacing: 0.14em;
-  color: var(--cnx-or);
+  color: #8A6828;
+  font-weight: 500;
   text-transform: uppercase;
   text-align: left;
 }
@@ -138,7 +140,7 @@
 }
 
 .cnx-input::placeholder {
-  color: var(--cnx-texte-faint);
+  color: rgba(74, 70, 64, 0.55);
   font-style: italic;
 }
 
@@ -155,23 +157,23 @@
 
 .cnx-btn,
 .cnx-btn-secondary {
-  background: var(--cnx-or);
-  border: 1px solid var(--cnx-or);
+  background: var(--cnx-navy);
+  border: 1px solid var(--cnx-navy);
   border-radius: 2px;
   padding: 14px 24px;
   font-family: "Playfair Display", serif;
   font-size: 14px;
+  font-weight: 500;
   letter-spacing: 0.06em;
-  color: var(--cnx-navy-fonce);
+  color: #F7F2E8;
   cursor: pointer;
   transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
   margin-top: 8px;
 }
 
-.cnx-btn:hover:not(:disabled),
-.cnx-btn-secondary:hover:not(:disabled) {
-  background: transparent;
-  color: var(--cnx-or);
+.cnx-btn:hover:not(:disabled) {
+  background: var(--cnx-navy-fonce);
+  border-color: var(--cnx-navy-fonce);
 }
 
 .cnx-btn:disabled,
