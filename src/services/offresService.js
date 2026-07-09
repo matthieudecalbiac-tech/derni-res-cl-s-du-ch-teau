@@ -26,6 +26,14 @@ const SELECT_OFFRES = `
   chateaux!inner ( slug )
 `;
 
+// Toutes les offres du Club, tous chateaux confondus (module C).
+// La RLS (offres_select_visible) ne les renvoie qu'a un utilisateur connecte
+// puisqu'elles portent un requires_role non-null : le filtrage n'est pas ici.
+const SELECT_OFFRES_CLUB = `
+  *,
+  chateaux!inner ( slug, nom, region )
+`;
+
 export async function getOffresPourChateau(chateauSlug, module, filtre = null) {
   const moduleId = MODULES[module];
   if (!chateauSlug || !moduleId) return [];
@@ -51,6 +59,39 @@ export async function getOffresPourChateau(chateauSlug, module, filtre = null) {
   }
 
   const offres = (data ?? []).map((r) => mapOffre(r, module, chateauSlug)).filter(Boolean);
+  _cache.set(cle, { t: Date.now(), v: offres });
+  return offres;
+}
+
+export async function getOffresClub() {
+  const cle = "club|toutes";
+  const hit = _cache.get(cle);
+  if (_cleValide(hit)) return hit.v;
+
+  const { data, error } = await supabase
+    .from("offres")
+    .select(SELECT_OFFRES_CLUB)
+    .eq("module_id", MODULE_C_ID)
+    .eq("visible", true)
+    .order("ordre", { ascending: true });
+
+  if (error) {
+    console.error("[offresService] getOffresClub:", error);
+    throw error;
+  }
+
+  const offres = (data ?? []).map((r) => {
+    const offre = mapOffre(r, "club");
+    if (!offre) return null;
+    // Le chateau d'origine, pour situer l'offre dans la liste agregee.
+    offre.chateau = {
+      slug: r.chateaux?.slug ?? null,
+      nom: r.chateaux?.nom ?? null,
+      region: r.chateaux?.region ?? null,
+    };
+    return offre;
+  }).filter(Boolean);
+
   _cache.set(cle, { t: Date.now(), v: offres });
   return offres;
 }

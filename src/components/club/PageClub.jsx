@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { getEspaceClub } from "../../services/clubService.js";
 import DashboardClub from "./DashboardClub";
+import OngletOffresClub from "./OngletOffresClub";
 import OngletAvantages from "./OngletAvantages";
 import OngletSejours from "./OngletSejours";
 import OngletInfos from "./OngletInfos";
@@ -30,6 +31,7 @@ function nomAffiche(profile) {
 
 const ONGLETS = [
   { id: "dashboard", label: "Club des Châtelains" },
+  { id: "offres", label: "Offres du Club" },
   { id: "reservations", label: "Mes réservations" },
   { id: "sejours", label: "Mes séjours" },
   { id: "messages", label: "Messages" },
@@ -108,6 +110,7 @@ export default function PageClub() {
             {ongletActif === "dashboard" && (
               <DashboardClub espace={espace} profile={profile} />
             )}
+            {ongletActif === "offres" && <OngletOffresClub />}
             {ongletActif === "reservations" && (
               <OngletSejours
                 mode="avenir"
