@@ -3,8 +3,8 @@
  *
  * Couvre :
  *   1.  /chateau/les-briottieres → hero + onglet Permanent défaut + phrase intro + chambres
- *   2.  ?onglet=dernieresCles → onglet B actif, offres avec services
- *   3.  ?onglet=dernieresCles&offre=offre-bri-001 → highlight de l'offre ciblée
+ *   2.  ?onglet=dernieresCles → onglet B actif, offre B affichée
+ *   3.  ?onglet=dernieresCles&offre=<id lu au DOM> → highlight de l'offre ciblée
  *   4.  ?onglet=club → fallback Permanent (IS_CLUB_MEMBER stub = false)
  *   5.  Onglet Club PAS dans la liste (non-membre)
  *   6.  Click onglet "Histoire" niveau 2 → ?theme=histoire + timeline visible
@@ -40,7 +40,7 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     expect(await chambres.count()).toBeGreaterThanOrEqual(2);
   });
 
-  test('Test 2 · ?onglet=dernieresCles : offres B avec services', async ({ page }) => {
+  test('Test 2 · ?onglet=dernieresCles : offre B affichée', async ({ page }) => {
     await page.goto('/chateau/les-briottieres?onglet=dernieresCles');
     await page.waitForLoadState('domcontentloaded');
 
@@ -48,22 +48,29 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(ongletDC).toBeVisible({ timeout: 8000 });
     await expect(ongletDC).toHaveClass(/vc4-offre-card--actif/);
 
-    // Au moins 1 offre listée
+    // Au moins 1 offre listée (les services ne sont plus en base : la colonne
+    // conditions est du texte libre, mapper renvoie servicesInclus: [], assume).
     const cards = page.locator('.vc4-dc-card');
     await expect(cards.first()).toBeVisible({ timeout: 8000 });
-
-    // Services inclus visibles
-    await expect(cards.first().locator('.vc4-dc-card-service').first()).toBeVisible();
   });
 
-  test('Test 3 · ?onglet=dernieresCles&offre=offre-bri-001 : highlight', async ({ page }) => {
-    await page.goto('/chateau/les-briottieres?onglet=dernieresCles&offre=offre-bri-001');
-    await page.waitForLoadState('domcontentloaded');
+  test('Test 3 · ?onglet=dernieresCles&offre=<id> : highlight', async ({ page }) => {
+    // On lit l'id de la premiere offre reelle dans le DOM, plutot que de le coder
+    // en dur : le test valide le mecanisme de highlight, pas une donnee de la base.
+    await page.goto('/chateau/les-briottieres?onglet=dernieresCles');
+    const premiere = page.locator('.vc4-dc-card').first();
+    await expect(premiere).toBeVisible({ timeout: 8000 });
 
-    const card = page.getByTestId('offre-card-offre-bri-001');
-    await expect(card).toBeVisible({ timeout: 8000 });
-    // La classe highlight est appliquée pendant 3s — vérifie dans la fenêtre
-    await expect(card).toHaveClass(/vc4-dc-card--highlight/, { timeout: 2000 });
+    const testId = await premiere.getAttribute('data-testid');
+    expect(testId).toBeTruthy();
+    const offreId = testId.replace('offre-card-', '');
+
+    // Rechargement avec le parametre offre : la carte ciblee recoit la classe
+    // --highlight (appliquee 3s par ContenuDernieresCles apres scrollIntoView).
+    await page.goto(`/chateau/les-briottieres?onglet=dernieresCles&offre=${offreId}`);
+    const ciblee = page.getByTestId(`offre-card-${offreId}`);
+    await expect(ciblee).toBeVisible({ timeout: 8000 });
+    await expect(ciblee).toHaveClass(/vc4-dc-card--highlight/, { timeout: 2000 });
   });
 
   test('Test 4 · ?onglet=club → fallback Permanent (non-membre)', async ({ page }) => {
