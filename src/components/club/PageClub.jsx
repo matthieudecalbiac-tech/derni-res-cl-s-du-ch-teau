@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import { getEspaceClub } from "../../services/clubService.js";
+import { compterNonLus } from "../../services/messagesService.js";
 import DashboardClub from "./DashboardClub";
 import OngletOffresClub from "./OngletOffresClub";
 import OngletAvantages from "./OngletAvantages";
@@ -49,6 +50,7 @@ export default function PageClub() {
   const [espace, setEspace] = useState(null);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);
+  const [nonLus, setNonLus] = useState(0);
 
   // Bienvenue : une fois par session, et seulement quand le prenom est connu.
   // prefers-reduced-motion : on ne joue pas l'animation du tout.
@@ -76,6 +78,17 @@ export default function PageClub() {
     getEspaceClub(user.id)
       .then((data) => { if (!annule) { setEspace(data); setChargement(false); } })
       .catch((e) => { if (!annule) { setErreur(e); setChargement(false); } });
+    return () => { annule = true; };
+  }, [user?.id]);
+
+  // Le compteur de messages non lus, charge une fois. Il ne se rafraichit pas
+  // au changement d'onglet : seule l'ouverture de Messages le remet a zero.
+  useEffect(() => {
+    if (!user?.id) return;
+    let annule = false;
+    compterNonLus(user.id)
+      .then((n) => { if (!annule) setNonLus(n); })
+      .catch(() => { /* une pastille absente vaut mieux qu'une erreur */ });
     return () => { annule = true; };
   }, [user?.id]);
 
@@ -112,7 +125,12 @@ export default function PageClub() {
               className={"club-nav-item " + (ongletActif === o.id ? "actif" : "")}
               onClick={() => setOngletActif(o.id)}
             >
-              {o.label}
+              <span>{o.label}</span>
+              {o.id === "messages" && nonLus > 0 && (
+                <span className="club-pastille" aria-label={`${nonLus} message${nonLus > 1 ? "s" : ""} non lu${nonLus > 1 ? "s" : ""}`}>
+                  {nonLus}
+                </span>
+              )}
             </button>
           ))}
         </nav>
@@ -156,7 +174,9 @@ export default function PageClub() {
                 reservations={(espace.reservations || []).filter((r) => r.date_depart < new Date().toISOString().slice(0,10)).sort((a,b) => b.date_arrivee.localeCompare(a.date_arrivee))}
               />
             )}
-            {ongletActif === "messages" && <OngletMessages userId={user?.id} />}
+            {ongletActif === "messages" && (
+              <OngletMessages userId={user?.id} onLu={() => setNonLus(0)} />
+            )}
             {ongletActif === "avantages" && <OngletAvantages espace={espace} />}
             {ongletActif === "infos" && <OngletInfos profile={profile} user={user} />}
             {ongletActif === "preferences" && <div className="club-placeholder-onglet">Préférences (a definir)</div>}

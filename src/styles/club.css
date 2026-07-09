@@ -21,6 +21,15 @@
   text-align: left; background: transparent; border: none; cursor: pointer;
   font-family: 'Crimson Pro', serif; font-size: 0.95rem; color: rgba(247,242,232,0.7);
   padding: 12px 18px; border-radius: 8px; transition: background 0.18s, color 0.18s;
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+/* Pastille de messages non lus. Elle disparait des que l'onglet est ouvert. */
+.club-pastille {
+  flex-shrink: 0; min-width: 22px; height: 22px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: #C09840; color: #0B1A33; border-radius: 11px;
+  font-family: 'Crimson Pro', serif; font-size: 0.78rem; font-weight: 600;
+  padding: 0 7px;
 }
 .club-nav-item:hover { background: rgba(192,152,64,0.1); color: #F7F2E8; }
 .club-nav-item.actif { background: rgba(192,152,64,0.16); color: #EDD880; }
