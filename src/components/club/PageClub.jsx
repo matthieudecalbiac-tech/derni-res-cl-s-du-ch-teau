@@ -8,6 +8,7 @@ import OngletAvantages from "./OngletAvantages";
 import OngletSejours from "./OngletSejours";
 import OngletInfos from "./OngletInfos";
 import BienvenueClub from "./BienvenueClub";
+import OngletMessages from "./OngletMessages";
 import "../../styles/club.css";
 
 // Avatar monogramme (initiales) tant qu'on n'a pas d'upload photo.
@@ -155,7 +156,7 @@ export default function PageClub() {
                 reservations={(espace.reservations || []).filter((r) => r.date_depart < new Date().toISOString().slice(0,10)).sort((a,b) => b.date_arrivee.localeCompare(a.date_arrivee))}
               />
             )}
-            {ongletActif === "messages" && <div className="club-placeholder-onglet">Messagerie (a construire)</div>}
+            {ongletActif === "messages" && <OngletMessages userId={user?.id} />}
             {ongletActif === "avantages" && <OngletAvantages espace={espace} />}
             {ongletActif === "infos" && <OngletInfos profile={profile} user={user} />}
             {ongletActif === "preferences" && <div className="club-placeholder-onglet">Préférences (a definir)</div>}

@@ -351,3 +351,63 @@
 @media (prefers-reduced-motion: reduce) {
   .bvn, .bvn-contenu, .bvn-trait { transition: none; }
 }
+
+/* ── Onglet Messages ── */
+/* Le fil s'adapte a son contenu jusqu'a un plafond, au-dela duquel il defile.
+   Une hauteur fixe laissait un gouffre sous les premiers messages d'un fil neuf. */
+.msg { display: flex; flex-direction: column; max-width: 780px; }
+.msg-entete { flex-shrink: 0; margin-bottom: 20px; }
+.msg-titre { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1A2D5A; margin: 0 0 6px; }
+.msg-sous { font-family: 'Crimson Pro', serif; font-size: 1rem; font-style: italic; color: #4A4640; margin: 0; }
+
+.msg-fil {
+  min-height: 180px;
+  max-height: calc(100vh - 340px);
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
+  padding: 20px; background: #FEFCF8;
+  border: 1px solid rgba(192,152,64,0.22); border-radius: 14px;
+}
+.msg-etat { font-family: 'Crimson Pro', serif; color: #4A4640; margin: auto; }
+.msg-etat--erreur { color: #a03028; }
+
+.msg-vide { margin: auto; text-align: center; }
+.msg-vide p { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-style: italic; color: #A8884E; margin: 0; }
+
+.msg-bulle { max-width: 76%; display: flex; flex-direction: column; gap: 4px; }
+.msg-bulle--equipe { align-self: flex-start; }
+.msg-bulle--membre { align-self: flex-end; align-items: flex-end; }
+
+.msg-auteur {
+  font-family: 'Crimson Pro', serif; font-size: 0.7rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #A8884E;
+}
+.msg-contenu {
+  font-family: 'Crimson Pro', serif; font-size: 0.95rem; line-height: 1.6; margin: 0;
+  padding: 12px 16px; border-radius: 12px; white-space: pre-wrap;
+}
+.msg-bulle--equipe .msg-contenu {
+  background: rgba(192,152,64,0.09); color: #1A2D5A;
+  border: 1px solid rgba(192,152,64,0.2); border-top-left-radius: 4px;
+}
+.msg-bulle--membre .msg-contenu {
+  background: #1A2D5A; color: #F7F2E8; border-top-right-radius: 4px;
+}
+.msg-heure { font-family: 'Crimson Pro', serif; font-size: 0.72rem; color: #A8884E; }
+
+.msg-saisie { flex-shrink: 0; display: flex; gap: 12px; align-items: flex-end; margin-top: 16px; }
+.msg-champ {
+  flex: 1; resize: none; font-family: 'Crimson Pro', serif; font-size: 0.95rem;
+  color: #1A2D5A; background: #FEFCF8; padding: 12px 14px;
+  border: 1px solid rgba(192,152,64,0.35); border-radius: 10px;
+  transition: border-color 0.18s;
+}
+.msg-champ:focus { outline: none; border-color: #C09840; }
+.msg-champ::placeholder { color: rgba(74,70,64,0.55); font-style: italic; }
+.msg-envoyer {
+  flex-shrink: 0; background: #1A2D5A; color: #F7F2E8; border: none; border-radius: 10px;
+  font-family: 'Crimson Pro', serif; font-size: 0.9rem; letter-spacing: 0.04em;
+  padding: 14px 26px; cursor: pointer; transition: background 0.2s;
+}
+.msg-envoyer:hover:not(:disabled) { background: #0B1A33; }
+.msg-envoyer:disabled { opacity: 0.45; cursor: not-allowed; }
