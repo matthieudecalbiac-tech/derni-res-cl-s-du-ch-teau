@@ -26,6 +26,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../contexts/AuthContext";
+import { IconOeil, IconOeilBarre } from "./IconesOeil";
 import "../../styles/connexion.css";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -65,7 +66,7 @@ export default function Connexion() {
     return (
       <div className="cnx-page">
         <div className="cnx-container">
-          <span className="cnx-lys">⚜</span>
+          <img src="/FDL-transparent.png" alt="" className="cnx-logo" />
           <h1 className="cnx-titre">Vous êtes connecté</h1>
           <p className="cnx-sous-titre">
             Compte : <strong>{user.email}</strong>
@@ -92,9 +93,6 @@ export default function Connexion() {
           >
             Se déconnecter
           </button>
-          <p className="cnx-footer">
-            ⚜ Une partie de nos recettes est reversée à la Fondation du Patrimoine.
-          </p>
         </div>
       </div>
     );
@@ -178,7 +176,7 @@ export default function Connexion() {
   return (
     <div className="cnx-page">
       <div className="cnx-container">
-        <span className="cnx-lys">⚜</span>
+        <img src="/FDL-transparent.png" alt="" className="cnx-logo" />
         <h1 className="cnx-titre">Espace membre du Club</h1>
         <p className="cnx-sous-titre">
           {mode === "password"
@@ -232,7 +230,7 @@ export default function Connexion() {
                       : "Afficher le mot de passe"
                   }
                 >
-                  {showPassword ? "🙈" : "👁"}
+                  {showPassword ? <IconOeilBarre /> : <IconOeil />}
                 </button>
               </div>
 
@@ -327,10 +325,6 @@ export default function Connexion() {
             </button>
           </form>
         )}
-
-        <p className="cnx-footer">
-          ⚜ Une partie de nos recettes est reversée à la Fondation du Patrimoine.
-        </p>
       </div>
     </div>
   );

@@ -32,8 +32,16 @@ test.describe('Auth Phase B · email + mot de passe (UI/routing)', () => {
 
     // Landing argumentaire — h1 patrimonial + 4 avantages
     await expect(page.getByRole('heading', { level: 1, name: 'Le Club des Châtelains' })).toBeVisible();
+
+    // Les 4 cartes d'avantages (contrat actuel)
     await expect(page.getByRole('heading', { level: 3, name: 'Offres confidentielles' })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 3, name: 'Contribution patrimoniale' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 3, name: 'Vitrines permanentes' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 3, name: 'Une fidélité qui se mérite' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 3, name: 'Des demeures vivantes' })).toBeVisible();
+
+    // Regle editoriale : le partenariat Fondation du Patrimoine n'est pas signe,
+    // il ne doit apparaitre nulle part dans le parcours d'inscription.
+    await expect(page.getByText(/Fondation du Patrimoine/i)).toHaveCount(0);
 
     // Formulaire — les 3 champs requis pour activer le bouton (cf. Inscription.jsx L236)
     const email = page.locator('#ins-email');
@@ -83,6 +91,9 @@ test.describe('Auth Phase B · email + mot de passe (UI/routing)', () => {
     // Présence des liens de bascule mode (perdu vos clés / créer un compte)
     await expect(page.getByRole('link', { name: 'Vous avez perdu vos clés ?' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Rejoindre le Club' })).toBeVisible();
+
+    // Regle editoriale : pas de mention Fondation du Patrimoine dans le parcours auth.
+    await expect(page.getByText(/Fondation du Patrimoine/i)).toHaveCount(0);
   });
 
   test('Garde de route : /mon-compte sans session ne reste pas sur /mon-compte', async ({ page }) => {

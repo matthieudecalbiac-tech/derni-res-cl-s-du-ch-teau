@@ -1,51 +1,62 @@
 /* ════════════════════════════════════════════════════════════════════════════
-   Sprint alpha.2.5 Phase B3 — Page /inscription
-   Mini-landing argumentaire Club des Châtelains + formulaire création compte.
-   Préfixe .ins-* (distinct de .cnx-* /connexion).
-   Tokens : navy #07101E, or #C09840, crème #F5F0E8.
+   Page /inscription — DA crème/navy, mise en page deux colonnes (refonte auth)
+   Colonne gauche : argumentaire + 4 cartes navy. Colonne droite : formulaire.
+   Tient sans scroll sur écran standard. Préfixe .ins-* (distinct de .cnx-*).
+   Tokens dérivés du global (charte).
    ════════════════════════════════════════════════════════════════════════════ */
 
-:root {
-  --ins-nuit: #07101E;
-  --ins-nuit-2: #0d1a2e;
-  --ins-or: #C09840;
-  --ins-or-soft: #c8973e;
-  --ins-or-faint: rgba(192, 152, 64, 0.25);
-  --ins-creme: #F5F0E8;
-  --ins-creme-soft: rgba(245, 240, 232, 0.75);
-  --ins-creme-faint: rgba(245, 240, 232, 0.4);
-  --ins-rouge: #d97a6c;
+/* Pas de :root local : variables scopées à .ins-page, dérivées du global. */
+.ins-page {
+  --ins-fond: #FAF6EE;
+  --ins-carte: #FEFCF8;
+  --ins-navy: #1A2D5A;
+  --ins-navy-fonce: #0B1A33;
+  --ins-or: var(--or);
+  --ins-or-texte: #9A7530;              /* or assombri, lisible en petit sur crème */
+  --ins-texte: #4A4640;
+  --ins-texte-faint: rgba(74, 70, 64, 0.5);
+  --ins-or-doux: rgba(192, 152, 64, 0.28);
+  --ins-carte-texte: #F7F2E8;
+  --ins-carte-texte-doux: rgba(247, 242, 232, 0.92);
+  --ins-rouge: #b23a2e;
 }
 
-/* ═══ Page ═══ */
+/* ═══ Page + split deux colonnes ═══ */
 
 .ins-page {
   min-height: 100vh;
-  background: var(--ins-nuit);
-  color: var(--ins-creme);
-}
-
-/* ═══ SECTION 1 — Hero argumentaire ═══ */
-
-.ins-hero {
-  min-height: 88vh;
+  background: var(--ins-fond);
+  color: var(--ins-texte);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  padding: 80px 24px;
-  background: linear-gradient(
-    180deg,
-    var(--ins-nuit-2) 0%,
-    var(--ins-nuit) 100%
-  );
+  padding: 32px 24px;
 }
 
-.ins-lys {
-  font-size: 34px;
-  color: var(--ins-or);
-  margin-bottom: 20px;
+.ins-split {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 56px;
+  width: 100%;
+  max-width: 1240px;
+  align-items: center;
+}
+
+/* ═══ Colonne gauche — argumentaire ═══ */
+
+.ins-gauche {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centre les enfants (le bloc entier) au lieu de les étirer */
+  text-align: center;
+}
+
+.ins-logo {
+  height: 48px;
+  width: auto;
+  display: block;
+  margin: 0 0 14px;
+  background: transparent; /* global.css met un fond navy sur toutes les img */
 }
 
 .ins-eyebrow {
@@ -53,36 +64,20 @@
   font-size: 12px;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--ins-or);
-  margin: 0 0 20px;
+  color: var(--ins-or-texte);
+  text-align: center;
+  margin: 0 0 12px;
 }
 
 .ins-titre {
   font-family: "Playfair Display", serif;
   font-style: italic;
   font-weight: 400;
-  font-size: clamp(32px, 6vw, 52px);
-  color: var(--ins-creme);
-  margin: 0;
+  font-size: clamp(30px, 3.4vw, 44px);
+  color: var(--ins-navy);
+  margin: 0 0 18px;
   line-height: 1.15;
-}
-
-.ins-ornement {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin: 26px 0;
-}
-
-.ins-trait {
-  width: 60px;
-  height: 1px;
-  background: var(--ins-or-faint);
-}
-
-.ins-lys-petit {
-  font-size: 14px;
-  color: var(--ins-or);
+  text-align: center;
 }
 
 .ins-sous-titre {
@@ -90,81 +85,75 @@
   font-style: italic;
   font-size: clamp(16px, 2.2vw, 21px);
   line-height: 1.7;
-  color: var(--ins-creme-soft);
-  margin: 0;
-  max-width: 540px;
-}
-
-/* ═══ Titre de section « ─ Texte ─ » ═══ */
-
-.ins-section-titre {
-  font-family: "Playfair Display", serif;
-  font-weight: 400;
-  font-size: clamp(20px, 3vw, 26px);
-  color: var(--ins-creme);
+  color: var(--ins-texte);
+  margin: 0 auto 30px;
+  max-width: 480px;
   text-align: center;
-  margin: 0 0 40px;
-  letter-spacing: 0.02em;
 }
 
-/* ═══ SECTION 2 — Avantages ═══ */
-
-.ins-avantages {
-  padding: 80px 24px;
-  max-width: 900px;
-  margin: 0 auto;
-}
+/* ═══ Cartes d'avantages (navy sur crème) ═══ */
 
 .ins-avantages-grille {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%; /* reprend toute la largeur malgré align-items:center du parent */
 }
 
 .ins-avantage {
-  border: 1px solid var(--ins-or-faint);
-  padding: 32px 28px;
+  background: var(--ins-navy-fonce);
+  border: 1px solid rgba(192, 152, 64, 0.25);
+  border-radius: 12px;
+  padding: 26px 20px;
   text-align: center;
-  transition: border-color 0.25s ease, background 0.25s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .ins-avantage:hover {
-  border-color: var(--ins-or-soft);
-  background: rgba(192, 152, 64, 0.04);
-}
-
-.ins-avantage-lys {
-  display: block;
-  font-size: 22px;
-  color: var(--ins-or);
-  margin-bottom: 14px;
+  border-color: var(--ins-or);
+  box-shadow: 0 16px 40px rgba(11, 26, 51, 0.18);
 }
 
 .ins-avantage-titre {
   font-family: "Playfair Display", serif;
   font-weight: 400;
-  font-size: 19px;
-  color: var(--ins-creme);
-  margin: 0 0 10px;
+  font-size: 17px;
+  color: var(--ins-carte-texte);
+  margin: 0 0 8px;
 }
 
 .ins-avantage-desc {
   font-family: "Crimson Pro", serif;
-  font-size: 14px;
-  line-height: 1.65;
-  color: var(--ins-creme-soft);
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ins-carte-texte-doux);
   margin: 0;
 }
 
-/* ═══ SECTION 3 — Formulaire ═══ */
+/* ═══ Colonne droite — carte formulaire ═══ */
 
-.ins-form-section {
-  padding: 80px 24px 64px;
-  max-width: 460px;
-  margin: 0 auto;
+.ins-droite {
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  justify-content: center;
+}
+
+.ins-form-carte {
+  background: var(--ins-carte);
+  border: 1px solid var(--ins-or-doux);
+  border-radius: 14px;
+  box-shadow: 0 20px 60px rgba(26, 45, 90, 0.08);
+  padding: 40px 34px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.ins-form-titre {
+  font-family: "Playfair Display", serif;
+  font-size: 24px;
+  color: var(--ins-navy);
+  text-align: center;
+  margin: 0 0 26px;
+  font-weight: 400;
 }
 
 .ins-form {
@@ -179,7 +168,8 @@
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ins-or);
+  color: #8A6828;
+  font-weight: 500;
   text-align: left;
   margin-top: 10px;
 }
@@ -187,29 +177,31 @@
 .ins-label-hint {
   text-transform: none;
   letter-spacing: 0.02em;
-  color: var(--ins-creme-faint);
+  color: rgba(74, 70, 64, 0.62);
+  font-weight: 400;
   font-style: italic;
 }
 
 .ins-input {
-  background: transparent;
-  border: 1px solid var(--ins-or-faint);
+  background: var(--ins-carte);
+  border: 1px solid rgba(192, 152, 64, 0.42);
   border-radius: 2px;
   padding: 12px 14px;
   font-family: "Crimson Pro", serif;
   font-size: 14px;
-  color: var(--ins-creme);
+  color: var(--ins-navy);
   outline: none;
-  transition: border-color 0.25s ease;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .ins-input::placeholder {
-  color: var(--ins-creme-faint);
+  color: rgba(74, 70, 64, 0.55);
   font-style: italic;
 }
 
 .ins-input:focus {
-  border-color: var(--ins-or);
+  border-color: #B8903A;
+  box-shadow: 0 0 0 3px rgba(184, 144, 58, 0.12);
 }
 
 .ins-input:disabled {
@@ -217,7 +209,7 @@
   cursor: not-allowed;
 }
 
-/* Toggle visibilité mot de passe */
+/* Toggle visibilité mot de passe (icônes SVG, currentColor = or) */
 .ins-password-wrapper {
   position: relative;
   display: flex;
@@ -237,11 +229,14 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 15px;
-  line-height: 1;
+  color: var(--ins-or);
+  line-height: 0;
   padding: 6px 8px;
-  opacity: 0.65;
+  opacity: 0.75;
   transition: opacity 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .ins-show-password-toggle:hover {
@@ -253,24 +248,25 @@
   outline-offset: 2px;
 }
 
-/* Bouton principal */
+/* Bouton principal — or plus dense, texte navy fonce (paraissait desactive) */
 .ins-btn {
-  background: var(--ins-or);
-  border: 1px solid var(--ins-or);
+  background: var(--ins-navy);
+  border: 1px solid var(--ins-navy);
   border-radius: 2px;
   padding: 14px 24px;
   margin-top: 16px;
   font-family: "Playfair Display", serif;
   font-size: 14px;
+  font-weight: 500;
   letter-spacing: 0.06em;
-  color: var(--ins-nuit);
+  color: #F7F2E8;
   cursor: pointer;
-  transition: background 0.25s ease, color 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 .ins-btn:hover:not(:disabled) {
-  background: transparent;
-  color: var(--ins-or);
+  background: var(--ins-navy-fonce);
+  border-color: var(--ins-navy-fonce);
 }
 
 .ins-btn:disabled {
@@ -291,19 +287,19 @@
   font-family: "Cormorant Garamond", serif;
   font-style: italic;
   font-size: 14px;
-  color: var(--ins-creme-soft);
+  color: var(--ins-texte);
   text-align: center;
   margin: 20px 0 0;
 }
 
 .ins-already-member a {
-  color: var(--ins-or);
+  color: #8A6828;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .ins-already-member a:hover {
-  color: var(--ins-creme);
+  color: var(--ins-navy);
 }
 
 /* État succès (remplace le formulaire) */
@@ -313,9 +309,6 @@
   align-items: center;
   text-align: center;
   gap: 16px;
-  border: 1px solid var(--ins-or-faint);
-  padding: 36px 28px;
-  width: 100%;
 }
 
 .ins-success-lys {
@@ -328,7 +321,7 @@
   font-style: italic;
   font-size: 16px;
   line-height: 1.65;
-  color: var(--ins-creme-soft);
+  color: var(--ins-texte);
   margin: 0;
 }
 
@@ -337,47 +330,34 @@
   font-family: "Cormorant Garamond", serif;
   font-style: italic;
   font-size: 14px;
-  color: var(--ins-creme-soft);
+  color: var(--ins-texte);
 }
 
 .ins-success-hint a {
-  color: var(--ins-or);
+  color: var(--ins-or-texte);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
 .ins-success-hint a:hover {
-  color: var(--ins-creme);
+  color: var(--ins-navy);
 }
 
-/* Footer Fondation */
-.ins-footer {
-  font-family: "Cormorant Garamond", serif;
-  font-style: italic;
-  font-size: 12px;
-  color: var(--ins-creme-faint);
-  text-align: center;
-  margin: 32px 0 0;
-  line-height: 1.5;
+/* ═══ Responsive : sous 1000px, une seule colonne centrée ═══ */
+
+@media (max-width: 1000px) {
+  .ins-split {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  /* Le bloc gauche est déjà centré (align-items:center + text-align:center en base). */
+  .ins-page {
+    align-items: flex-start;
+  }
 }
 
-/* ═══ Responsive ═══ */
-
-@media (max-width: 760px) {
-  .ins-hero {
-    min-height: 80vh;
-    padding: 64px 20px;
-  }
-  .ins-avantages {
-    padding: 56px 20px;
-  }
+@media (max-width: 560px) {
   .ins-avantages-grille {
     grid-template-columns: 1fr;
-  }
-  .ins-form-section {
-    padding: 56px 20px 48px;
-  }
-  .ins-section-titre {
-    margin-bottom: 28px;
   }
 }
