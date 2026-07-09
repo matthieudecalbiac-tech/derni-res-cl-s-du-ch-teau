@@ -88,7 +88,7 @@ export default function ContenuClub({ chateau, offreCible, onReserver }) {
             </div>
 
             <div className="vc4-club-card-prix-col">
-              <span className="vc4-club-card-prix-offre">{o.prixOffre} €</span>
+              <span className="vc4-club-card-prix-offre">{o.prixOffreAffiche} €</span>
               <span className="vc4-club-card-prix-meta">total séjour</span>
               <button
                 className="vc4-club-card-cta"

@@ -30,6 +30,12 @@
  */
 export const MODULE_B_ID = "636f3128-5185-5803-8ca4-13b8dff29592";
 
+/**
+ * UUID du Module C (Le Club des Châtelains) dans le seed S1-γ.
+ * Source : deterministicUUID('module', 'C') = SHA-1('module:C')
+ */
+export const MODULE_C_ID = "7bcbca95-be39-558b-8d9e-f0628d962fda";
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // HELPERS PRIVÉS
@@ -249,6 +255,77 @@ export function applyOffreModuleB(offres) {
     prixBarre: base,
     prix: promo !== null ? promo : base,
     reduction: nullable(moduleB.reduction_pct),
+  };
+}
+
+
+// Formate un prix en euros a la francaise : 237.8 -> "237,80", 290 -> "290".
+// Les entiers restent sans decimales (un chateau a 290 EUR, pas 290,00 EUR).
+// Exporte : reutilise pour formater un prix derive (ex. min d'offres) a l'affichage.
+export function formaterPrix(euros) {
+  if (euros === null || euros === undefined) return null;
+  const entier = Number.isInteger(euros);
+  return euros.toLocaleString("fr-FR", {
+    minimumFractionDigits: entier ? 0 : 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+// Formate la plage de dates d'une offre : "24 au 26 mai 2026", ou null si absente.
+function labelDates(debut, fin) {
+  if (!debut && !fin) return null;
+  const opts = { day: "numeric", month: "long", year: "numeric" };
+  try {
+    if (debut && fin) {
+      const d = new Date(debut), f = new Date(fin);
+      return `Du ${d.toLocaleDateString("fr-FR", opts)} au ${f.toLocaleDateString("fr-FR", opts)}`;
+    }
+    const seul = new Date(debut || fin);
+    return seul.toLocaleDateString("fr-FR", opts);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Mappe une row Supabase "offres" vers la shape attendue par les vitrines
+ * (ContenuDernieresCles / ContenuClub). Reprend le patron de prix
+ * d'applyOffreModuleB : prixOffre n'est JAMAIS null (fallback base).
+ *
+ * Le slug du château arrive par la jointure (row.chateaux?.slug) ou en argument.
+ *
+ * @param {Object} row - Ligne `offres` (éventuellement jointe à chateaux(slug)).
+ * @param {"dernieresCles"|"club"} moduleNom - Nom de module côté front.
+ * @param {string|null} chateauSlug - Slug fourni directement (prioritaire).
+ * @returns {Object|null} Offre au format React, ou null si row null.
+ */
+export function mapOffre(row, moduleNom, chateauSlug = null) {
+  if (!row) return null;
+  const base = centsToEuros(row.prix_base_cents);
+  const promo = centsToEuros(row.prix_promo_cents);
+  return {
+    id: row.id,
+    chateauSlug: chateauSlug ?? row.chateaux?.slug ?? null,
+    module: moduleNom,
+    titre: row.titre,
+    description: nullable(row.description),
+    dates: {
+      debut: nullable(row.date_debut),
+      fin: nullable(row.date_fin),
+      label: labelDates(row.date_debut, row.date_fin),
+    },
+    prixOriginal: base,
+    // JAMAIS null : les deux renderers font {o.prixOffre} sans garde.
+    prixOffre: promo !== null ? promo : base,
+    // Champs formates FR pour l'affichage (les numeriques restent pour les calculs).
+    prixOriginalAffiche: formaterPrix(base),
+    prixOffreAffiche: formaterPrix(promo !== null ? promo : base),
+    reduction: nullable(row.reduction_pct),
+    // Pas de colonne en base : on n'invente pas de donnee.
+    chambresRestantes: null,   // dependra du chantier disponibilites
+    urgence: null,             // derive de chambresRestantes
+    servicesInclus: [],        // "conditions" est du texte libre, pas une liste
+    photo: null,               // les deux renderers utilisent un placeholder
   };
 }
 

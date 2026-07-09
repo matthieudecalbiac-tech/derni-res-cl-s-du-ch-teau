@@ -274,3 +274,38 @@
 }
 .infos-annuler:hover { color: #1A2D5A; }
 .infos-message { display: flex; align-items: center; margin-bottom: 20px; }
+
+/* ── Onglet Offres du Club ── */
+.oc { display: flex; flex-direction: column; gap: 24px; }
+.oc-entete { }
+.oc-titre { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #1A2D5A; margin: 0 0 6px; }
+.oc-sous { font-family: 'Crimson Pro', serif; font-size: 1rem; font-style: italic; color: #4A4640; margin: 0; }
+
+.oc-etat { font-family: 'Crimson Pro', serif; color: #4A4640; padding: 24px 0; }
+.oc-etat--erreur { color: #a03028; }
+
+.oc-vide {
+  background: #FEFCF8; border: 1px dashed rgba(192,152,64,0.3); border-radius: 14px;
+  padding: 56px 32px; text-align: center;
+}
+.oc-vide p { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #1A2D5A; margin: 0; }
+.oc-vide-sub { font-family: 'Crimson Pro', serif; font-size: 0.95rem; font-style: italic; color: #A8884E; margin-top: 8px !important; }
+
+.oc-liste { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.oc-carte {
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.22); border-radius: 14px;
+  padding: 24px; display: flex; flex-direction: column; gap: 10px;
+}
+.oc-carte-tete { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(192,152,64,0.15); }
+.oc-carte-chateau { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #1A2D5A; }
+.oc-carte-region { font-family: 'Crimson Pro', serif; font-size: 0.8rem; color: #A8884E; margin-top: 2px; }
+.oc-carte-reduction { font-family: 'Crimson Pro', serif; font-size: 0.78rem; letter-spacing: 0.06em; color: #0B1A33; background: #C09840; border-radius: 12px; padding: 4px 12px; white-space: nowrap; }
+.oc-carte-titre { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #1A2D5A; margin: 4px 0 0; font-weight: 400; }
+.oc-carte-dates { font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #A8884E; margin: 0; }
+.oc-carte-desc { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #4A4640; line-height: 1.6; margin: 0; }
+.oc-carte-pied { margin-top: auto; padding-top: 12px; border-top: 1px solid rgba(192,152,64,0.15); }
+.oc-carte-prix { display: flex; align-items: baseline; gap: 10px; }
+.oc-carte-prix-barre { font-family: 'Crimson Pro', serif; font-size: 0.9rem; color: #A8884E; text-decoration: line-through; }
+.oc-carte-prix-offre { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #1A2D5A; }
+
+@media (max-width: 900px) { .oc-liste { grid-template-columns: 1fr; } }
