@@ -334,7 +334,7 @@ export default function BarreRecherche({ onEntrerChateau }) {
       </Modale>
 
       {/* MODALE CARTE */}
-      <Modale ouvert={carteOuvert} onClose={() => setCarteOuvert(false)} titre="Naviguer sur la carte" largeur={1280}>
+      <Modale ouvert={carteOuvert} onClose={() => setCarteOuvert(false)} titre="Naviguer sur la carte" largeur={1440}>
         <CarteInteractive
           chateaux={chateaux}
           dateArrivee={dateArrivee}

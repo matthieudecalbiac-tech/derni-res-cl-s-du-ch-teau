@@ -31,6 +31,7 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
       center: [46.7, 2.3],
       zoom: 6,
       scrollWheelZoom: true,
+      zoomSnap: 0,
       attributionControl: true,
     });
     carteRef.current = carte;
@@ -58,7 +59,13 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
       marqueur.on("mouseout", () => setSurvolId(null));
     });
 
-    const t = setTimeout(() => carte.invalidateSize(), 120);
+    // Bornes de la France metropolitaine : garantit que le pays entier tient
+    // dans le conteneur, quelle que soit sa taille (un zoom fixe ne le peut pas).
+    const BORNES_FRANCE = L.latLngBounds([42.3, -5.2], [51.1, 8.3]);
+    const t = setTimeout(() => {
+      carte.invalidateSize();
+      carte.fitBounds(BORNES_FRANCE, { padding: [20, 20] });
+    }, 120);
 
     return () => {
       clearTimeout(t);
@@ -206,6 +213,7 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
         <>
       {/* BARRE DE FILTRES */}
       <div className="ci-filtres">
+        <img src="/FDL-transparent.png" alt="" className="ci-filtres-logo" />
         <div className="ci-filtre-dates">
           <button
             type="button"
@@ -323,6 +331,10 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
             <div
               key={c.id}
               className={"ci-vignette" + (survolId === c.id ? " ci-vignette--survol" : "")}
+              role="button"
+              tabIndex={0}
+              onClick={() => setApercuChateau(c)}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setApercuChateau(c); } }}
               onMouseEnter={() => setSurvolId(c.id)}
               onMouseLeave={() => setSurvolId(null)}
             >
@@ -340,7 +352,7 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
                   <button
                     className="ci-vignette-cta"
                     type="button"
-                    onClick={() => setApercuChateau(c)}
+                    tabIndex={-1}
                   >
                     Voir le château →
                   </button>

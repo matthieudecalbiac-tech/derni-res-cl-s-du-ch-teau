@@ -21,7 +21,7 @@
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 .mdl-close {
-  position: absolute; top: 16px; right: 18px;
+  position: absolute; top: 16px; right: 18px; z-index: 10;
   width: 34px; height: 34px; border-radius: 50%;
   border: 1px solid rgba(192,152,64,0.35); background: transparent;
   color: #1A2D5A; font-size: 0.9rem; cursor: pointer;

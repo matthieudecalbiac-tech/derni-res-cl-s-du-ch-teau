@@ -33,11 +33,11 @@
 
 /* ── Split : liste de vignettes (gauche) + carte (droite) ── */
 .ci-split {
-  display: grid; grid-template-columns: 340px 1fr; gap: 0;
-  height: 66vh; min-height: 440px;
+  display: grid; grid-template-columns: 380px 1fr; gap: 0;
+  height: clamp(480px, calc(88vh - 150px), 860px); min-height: 480px;
 }
 .ci-liste {
-  overflow-y: auto; padding: 4px 14px 14px 0;
+  overflow-y: auto; min-height: 0; padding: 4px 14px 14px 0;
   display: flex; flex-direction: column; gap: 14px;
 }
 .ci-liste-tete {
@@ -52,14 +52,14 @@
 .ci-vignette {
   border: 1px solid rgba(192,152,64,0.22); border-radius: 10px; overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
-  cursor: default;
+  cursor: pointer; flex-shrink: 0;
 }
 .ci-vignette--survol {
   border-color: #C09840; box-shadow: 0 8px 24px rgba(26,45,90,0.12);
   transform: translateY(-2px);
 }
 .ci-vignette-photo {
-  height: 130px; background-size: cover; background-position: center;
+  height: 110px; background-size: cover; background-position: center;
 }
 .ci-vignette-corps { padding: 12px 14px 14px; }
 .ci-vignette-region {
@@ -73,7 +73,8 @@
 .ci-vignette-accroche {
   font-family: 'Crimson Pro', serif; font-size: 0.82rem; font-style: italic;
   color: #4A4640; line-height: 1.45; margin: 0 0 12px;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden; text-overflow: ellipsis;
 }
 .ci-vignette-bas {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
@@ -107,17 +108,25 @@
   color: #A8884E; margin: 0;
 }
 
-@media (max-width: 720px) {
+@media (max-width: 860px) {
   .ci-split { grid-template-columns: 1fr; height: auto; }
   .ci-liste { max-height: 40vh; padding-right: 0; }
   .ci-split .ci-carte { height: 45vh; }
+  .ci-filtres { padding-right: 0; }
 }
 
 /* ── Barre de filtres carte ── */
 .ci-conteneur { display: flex; flex-direction: column; gap: 14px; }
 .ci-filtres {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-  padding-bottom: 12px; border-bottom: 1px solid rgba(192,152,64,0.18);
+  padding-bottom: 12px; padding-right: 56px; border-bottom: 1px solid rgba(192,152,64,0.18);
+}
+/* Logo de marque : reprend place a gauche de la barre depuis que l'entete de
+   modale est masquee en mode carte. background transparent obligatoire :
+   global.css applique un fond navy a toutes les img. */
+.ci-filtres-logo {
+  height: 34px; width: auto; display: block; flex-shrink: 0; margin-right: 6px;
+  background: transparent;
 }
 .ci-filtre-dates { position: relative; }
 .ci-filtre-btn {
@@ -273,6 +282,11 @@
    toute la hauteur. :has remonte au panneau qui contient l'apercu. */
 .mdl-panneau:has(.ci-apercu) .mdl-entete { display: none; }
 .mdl-panneau:has(.ci-apercu) { padding-top: 20px; }
+
+/* L'entete de modale (lys + titre) coute ~138px : on la masque en mode carte
+   pour rendre cet espace a la carte. Meme pattern que le mode apercu. */
+.mdl-panneau:has(.ci-split) .mdl-entete { display: none; }
+.mdl-panneau:has(.ci-split) { padding-top: 20px; }
 
 /* Barre haute de l'apercu : retour + CTA reserver */
 .ci-apercu-barre {
