@@ -253,9 +253,16 @@ CREATE POLICY users_delete_admin ON public.users
 -- 6.1 — chateaux (4 policies)
 -- ───────────────────────────────────────────────────────────────────────────
 
+-- Le catalogue public se filtre par statut ; les brouillons restent visibles
+-- de leur châtelain et de l'administration.
 DROP POLICY IF EXISTS chateaux_select_public ON public.chateaux;
 CREATE POLICY chateaux_select_public ON public.chateaux
-  FOR SELECT USING (true);
+  FOR SELECT
+  USING (
+    statut = 'publie'
+    OR public.is_chatelain_of(id)
+    OR public.is_admin()
+  );
 
 DROP POLICY IF EXISTS chateaux_insert_admin ON public.chateaux;
 CREATE POLICY chateaux_insert_admin ON public.chateaux

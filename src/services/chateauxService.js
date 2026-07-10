@@ -93,6 +93,13 @@ function _isMock(chateau) {
 
 /**
  * Round-trip Supabase + mapping.
+ *
+ * Le filtre `statut = 'publie'` est explicite : la RLS l'accorderait aussi aux
+ * brouillons d'un admin ou d'un châtelain, qui atterriraient alors dans le
+ * cache global — non indexé sur la session — puis seraient resservis à un
+ * visiteur anonyme pendant le reste du TTL. Le service dit ce qu'il veut ;
+ * la RLS reste le filet.
+ *
  * @returns {Promise<Object[]>} Tableau de châteaux mappés (format React).
  * @throws Si Supabase retourne une erreur.
  */
@@ -100,6 +107,7 @@ async function _fetchAllChateaux() {
   const { data, error } = await supabase
     .from("chateaux")
     .select(SELECT_FULL)
+    .eq("statut", "publie")
     .order("est_la_une", { ascending: false })
     .order("nom", { ascending: true });
 

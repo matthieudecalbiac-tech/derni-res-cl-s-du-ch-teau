@@ -73,6 +73,10 @@ DO $$ BEGIN
   CREATE TYPE amenity_type AS ENUM ('service', 'activite');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 
+DO $$ BEGIN
+  CREATE TYPE chateau_statut AS ENUM ('brouillon', 'publie', 'archive');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 3. FONCTIONS UTILITAIRES
@@ -196,6 +200,12 @@ CREATE TABLE IF NOT EXISTS public.chateaux (
   parking                     boolean      NOT NULL DEFAULT false,
   wifi                        boolean      NOT NULL DEFAULT false,
   animaux                     boolean      NOT NULL DEFAULT false,
+
+  -- Cycle de vie éditorial : on prépare, on diffuse, on retire sans détruire.
+  -- Un bootstrap neuf n'a pas d'existant à sauver : le défaut est 'brouillon'.
+  -- (La migration 2026-07-10 crée la colonne en 'publie' puis bascule le défaut,
+  --  pour ne pas vider le catalogue des bases déjà déployées.)
+  statut                      public.chateau_statut NOT NULL DEFAULT 'brouillon',
 
   created_at                  timestamptz  NOT NULL DEFAULT NOW(),
   updated_at                  timestamptz  NOT NULL DEFAULT NOW(),
