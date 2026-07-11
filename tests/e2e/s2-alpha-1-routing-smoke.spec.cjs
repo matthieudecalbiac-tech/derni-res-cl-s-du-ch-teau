@@ -4,8 +4,8 @@
  * Vérifie que :
  *   1-3. Les nouvelles routes transactionnelles répondent et affichent leur placeholder.
  *   4.   La home ("/") affiche toujours les overlays historiques (régression).
- *   5.   Ouvrir un château depuis la home fonctionne toujours (régression aiguillage
- *        ChateauModal / VitrineChateau).
+ *   5.   Ouvrir un château depuis la home fonctionne toujours (régression : toute
+ *        demeure servie ouvre la vitrine).
  *
  * Pattern strangler fig : les <Routes> sont ajoutées à côté des overlays, pas
  * en remplacement — d'où les checks de non-régression 4 et 5.

@@ -8,7 +8,6 @@ import UneDeLaSemaine from "./components/UneDeLaSemaine";
 import HeureAuxDemeures from "./components/HeureAuxDemeures";
 import PiedPatrimoine from "./components/PiedPatrimoine";
 import Conciergerie from "./components/Services";
-// import ChateauModal from "./components/ChateauModal"; // plus d'appelant dans App (pièce 2 geste 2) — retrait complet en pièce 3
 import VitrineChateau from "./components/VitrineChateau";
 import ClesEvenementiel from "./components/ClesEvenementiel";
 import APropos from "./components/APropos";

@@ -178,7 +178,7 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(carteBri).toBeVisible({ timeout: 5000 });
     await carteBri.click();
 
-    // Attendre l'overlay vc3 (Dette 2 : aiguillage estLaUne → VitrineChateau, pas ChateauModal)
+    // Attendre l'overlay vc3 (depuis la pièce 2, toute demeure servie ouvre la vitrine)
     await expect(page.locator('.vc3-overlay')).toBeVisible({ timeout: 8000 });
   });
 

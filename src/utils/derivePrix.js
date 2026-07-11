@@ -3,8 +3,7 @@
 // Helper centralisé pour dériver le prix nuit d'affichage d'un château
 // depuis la première chambre. Conçu Chantier 2.1 (Phase A3) pour
 // remplacer les multiples dérivations dispersées dans les composants
-// (CarteExplorer, ChateauModal, UneDeLaSemaine,
-// VitrineClub) avant la suppression du champ `prix` top-level
+// (UneDeLaSemaine, VitrineClub, etc.) avant la suppression du champ `prix` top-level
 // du schéma Chateau.
 
 /**

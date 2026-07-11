@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useChateaux } from "../hooks/useChateaux";
-// import ChateauModal from "./ChateauModal"; // plus d'appelant (pièce 2 geste 2) — retrait complet en pièce 3
 import VitrineChateau from "./VitrineChateau";
 import TransitionPorte from "./TransitionPorte";
 import CarteChateaux from "./CarteChateaux";

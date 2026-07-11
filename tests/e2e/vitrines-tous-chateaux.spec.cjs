@@ -8,9 +8,8 @@
  * estLaUne:true sera testé automatiquement, sans modification de ce fichier.
  *
  * Filtrage sur estLaUne (critère métier) plutôt que sur c.id in [7,8]
- * (critère d'implémentation). Note : App.jsx:137-140 utilise encore l'id
- * hardcodé pour choisir entre VitrineChateau et ChateauModal — un mini-fix
- * cohérent (utiliser c.estLaUne à la place) est à prévoir hors audit.
+ * (critère d'implémentation). Depuis la pièce 2, l'aiguillage vitrine/modale
+ * n'existe plus : toute demeure servie ouvre la vitrine.
  *
  * Champs optionnels → test.skip si absents, pas d'échec :
  *   - chateau.accroche              (assertion hero accroche)
