@@ -28,30 +28,29 @@ export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange,
     let cancelled = false;
     // Filtre dispo : actif uniquement apres "Verifier" ; sinon comptage de base.
     const filtre = dispoVerifiee ? { dateArrivee, dateDepart, voyageurs } : null;
-    if (chateau.modules?.dernieresCles) {
-      getOffresPourChateau(chateau.slug, "dernieresCles", filtre).then((offres) => {
-        if (!cancelled)
-          setCompteursB({
-            count: offres.length,
-            prixMin: offres.length ? Math.min(...offres.map((o) => o.prixOffre)) : null,
-          });
-      });
-    }
-    // Module C : on charge le compteur même pour les non-membres — l'onglet
-    // est désormais toujours visible (gate via modale au click, pas par masquage).
-    if (chateau.modules?.club) {
-      getOffresPourChateau(chateau.slug, "club", filtre).then((offres) => {
-        if (!cancelled)
-          setCompteursC({
-            count: offres.length,
-            prixMin: offres.length ? Math.min(...offres.map((o) => o.prixOffre)) : null,
-          });
-      });
-    }
+    // Fetchs inconditionnels : on interroge la base pour chaque module, sans
+    // consulter un contrat souscrit. Un onglet sans offre affiche l'etat vide
+    // parce qu'on a cherche et rien trouve, pas parce qu'on s'est abstenu.
+    getOffresPourChateau(chateau.slug, "dernieresCles", filtre).then((offres) => {
+      if (!cancelled)
+        setCompteursB({
+          count: offres.length,
+          prixMin: offres.length ? Math.min(...offres.map((o) => o.prixOffre)) : null,
+        });
+    });
+    // Module C : compteur charge meme pour les non-membres — l'onglet est
+    // toujours visible (gate via modale au click, pas par masquage).
+    getOffresPourChateau(chateau.slug, "club", filtre).then((offres) => {
+      if (!cancelled)
+        setCompteursC({
+          count: offres.length,
+          prixMin: offres.length ? Math.min(...offres.map((o) => o.prixOffre)) : null,
+        });
+    });
     return () => {
       cancelled = true;
     };
-  }, [chateau.slug, chateau.modules, dispoVerifiee, dateArrivee, dateDepart, voyageurs]);
+  }, [chateau.slug, dispoVerifiee, dateArrivee, dateDepart, voyageurs]);
 
   // DETTE C5+ : filtrage chambres Permanent par capacite/dates a brancher avec Supabase (logique distincte d'offresService)
   const nbChambres = chateau.chambres?.length || 0;
@@ -83,12 +82,10 @@ export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange,
     return null;
   };
 
-  const onglets = [];
-  if (chateau.modules?.permanent !== false) onglets.push("permanent");
-  if (chateau.modules?.dernieresCles) onglets.push("dernieresCles");
-  // Club toujours visible si activé sur le château — la restriction membre
-  // s'applique au click (modale stub d'auth), pas au rendu (effet de découverte).
-  if (chateau.modules?.club) onglets.push("club");
+  // Piece 1a : les trois onglets sont toujours visibles. Un onglet sans offre
+  // s'affiche quand meme — l'etat vide est gere par son contenu. La restriction
+  // membre du Club s'applique au click (modale stub d'auth), pas au rendu.
+  const onglets = ["permanent", "dernieresCles", "club"];
 
   const handleClick = (m) => {
     if (m === "club" && !isClubMember) {
@@ -111,6 +108,17 @@ export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange,
     return null;
   };
 
+  // Le point s'allume quand le module a au moins une offre reelle. Il reste
+  // absent tant que le comptage n'est pas revenu (compteur null) : pas de point
+  // pendant le chargement, plutot qu'un point qui apparait puis disparait.
+  // Permanent est exclu : il compte des chambres, un point y serait toujours
+  // allume et n'apprendrait rien.
+  const aOffre = (m) => {
+    if (m === "dernieresCles") return compteursB !== null && compteursB.count > 0;
+    if (m === "club") return compteursC !== null && compteursC.count > 0;
+    return false;
+  };
+
   return (
     <div className="vc4-onglets-n1-wrap">
       <nav className="vc4-onglets-n1" role="tablist" aria-label="Modules commerciaux">
@@ -125,7 +133,10 @@ export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange,
           >
             <img className="vc4-offre-icone" src={ICONES[m]} alt="" aria-hidden="true" />
             <span className="vc4-offre-corps">
-              <span className="vc4-offre-titre">{LIBELLES[m]}</span>
+              <span className="vc4-offre-titre">
+                {LIBELLES[m]}
+                {aOffre(m) && <span className="vc4-offre-point" aria-hidden="true" />}
+              </span>
               <span className="vc4-offre-sous">{PHRASES_BANDEAU[m]}</span>
               <span className="vc4-offre-accroche">{accrochePourModule(m)}</span>
             </span>

@@ -45,7 +45,7 @@ export default function ContenuClub({ chateau, offreCible, onReserver }) {
       </div>
 
       {offres.length === 0 && (
-        <p className="vc4-dc-vide">Aucune offre Club disponible pour le moment.</p>
+        <p className="vc4-dc-vide">Aucune offre pour cette demeure en ce moment.</p>
       )}
 
       <div className="vc4-club-liste">
