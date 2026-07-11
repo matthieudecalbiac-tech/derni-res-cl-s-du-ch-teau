@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
+import { getSlugsAvecOffreDernieresCles } from "../services/offresService.js";
 import VitrineDernieresCle from "./VitrineDernieresCle";
 import TransitionPorte from "./TransitionPorte";
 import SkeletonChateau from "./SkeletonChateau";
@@ -58,16 +59,18 @@ export default function DernieresCles({ onClose }) {
   const [filtreTri, setFiltreTri] = useState("pertinence");
   const [chateauSurvol, setChateauSurvol] = useState(null);
   const { chateaux, loading, error } = useChateaux();
+  // Slugs des chateaux ayant une offre Dernieres Cles reelle. null tant que non charge :
+  // on attend cette source comme on attend les chateaux, pour ne pas afficher de grille vide.
+  const [slugsAvecOffre, setSlugsAvecOffre] = useState(null);
   // Audit Fondation J2 — P0-2 : ne lister que les châteaux ayant réellement une
-  // offre Module B (modules.dernieresCles). Sans ce filtre, un clic sur un
-  // château mock (id 1-6, !estLaUne) navigue vers /chateau/<slug> qui redirige
-  // aussitôt vers la home (VitrineChateauRoute). Aujourd'hui : Briottières,
-  // Blanc Buisson, Chantilly.
+  // offre Module B visible (le Set slugsAvecOffre, interrogé en base). Sans ce
+  // filtre, un clic sur un château sans offre navigue vers /chateau/<slug> qui
+  // n'aurait rien à montrer sous l'onglet Dernières Clés.
   const chateauxFiltres = useMemo(() => {
-    let base = chateaux.filter((c) => c.modules?.dernieresCles === true);
+    let base = chateaux.filter((c) => slugsAvecOffre?.has(c.slug));
     if (filtreRegion !== "toutes") base = base.filter((c) => c.region === filtreRegion);
     return chateauxDisponibles(base, dateArrivee);
-  }, [chateaux, dateArrivee, filtreRegion]);
+  }, [chateaux, dateArrivee, filtreRegion, slugsAvecOffre]);
 
   const prixDe = (c) =>
     c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100))
@@ -80,9 +83,9 @@ export default function DernieresCles({ onClose }) {
   }, [chateauxFiltres, filtreTri]);
 
   const regionsDispo = useMemo(() => {
-    const base = chateaux.filter((c) => c.modules?.dernieresCles === true);
+    const base = chateaux.filter((c) => slugsAvecOffre?.has(c.slug));
     return ["toutes", ...Array.from(new Set(base.map((c) => c.region))).sort()];
-  }, [chateaux]);
+  }, [chateaux, slugsAvecOffre]);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -91,6 +94,14 @@ export default function DernieresCles({ onClose }) {
     window.addEventListener("keydown", onKey);
     return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
   }, [onClose, chateauSelectionne]);
+
+  useEffect(() => {
+    let annule = false;
+    getSlugsAvecOffreDernieresCles()
+      .then((set) => { if (!annule) setSlugsAvecOffre(set); })
+      .catch(() => { if (!annule) setSlugsAvecOffre(new Set()); }); // en cas d'echec, grille vide plutot que plantage
+    return () => { annule = true; };
+  }, []);
 
   const dates = getDatesPossibles();
 
@@ -312,7 +323,7 @@ export default function DernieresCles({ onClose }) {
               {dateArrivee && dateDepart && <span className="dk-liste-dates"> · {formatDate(dateArrivee)} → {formatDate(dateDepart)}</span>}
             </div>
             <div className="dk-liste-items">
-              {loading ? (
+              {loading || slugsAvecOffre === null ? (
                 <SkeletonChateau count={6} />
               ) : (
                 chateauxAffiches.map(c => {

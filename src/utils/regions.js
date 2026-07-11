@@ -3,21 +3,15 @@
  * Travaille sur un tableau de chateaux deja charge (via useChateaux()).
  * Centralise la derivation region->chateaux aujourd hui dupliquee
  * (VitrinePermanente, DernieresCles) avec des divergences (sentinelles,
- * tri, perimetre). Ici : pas de sentinelle (detail UI de chaque ecran),
- * tri alphabetique stable, perimetre parametrable.
+ * tri). Ici : pas de sentinelle (detail UI de chaque ecran),
+ * tri alphabetique stable.
  *
  * @param {Array} chateaux - tableau de chateaux deja charge
- * @param {Object} [opts]
- * @param {"permanent"|"dernieresCles"|"club"} [opts.module] - filtre de perimetre ; si absent, tous les chateaux
- * @returns {Array<{region: string, chateaux: Array<{id, nom, slug, estLaUne, modules}>}>}
+ * @returns {Array<{region: string, chateaux: Array<{id, nom, slug, estLaUne}>}>}
  */
-export function getRegionsAvecChateaux(chateaux = [], { module: moduleFiltre } = {}) {
-  const base = moduleFiltre
-    ? chateaux.filter((c) => c.modules?.[moduleFiltre] === true)
-    : chateaux;
-
+export function getRegionsAvecChateaux(chateaux = []) {
   const parRegion = new Map();
-  for (const c of base) {
+  for (const c of chateaux) {
     if (!c.region) continue;
     if (!parRegion.has(c.region)) parRegion.set(c.region, []);
     parRegion.get(c.region).push({
@@ -25,7 +19,6 @@ export function getRegionsAvecChateaux(chateaux = [], { module: moduleFiltre } =
       nom: c.nom,
       slug: c.slug,
       estLaUne: c.estLaUne === true,
-      modules: c.modules || {},
     });
   }
 
@@ -35,14 +28,4 @@ export function getRegionsAvecChateaux(chateaux = [], { module: moduleFiltre } =
       chateaux: liste.sort((a, b) => a.nom.localeCompare(b.nom, "fr")),
     }))
     .sort((a, b) => a.region.localeCompare(b.region, "fr"));
-}
-
-/**
- * Liste plate des regions (noms seuls), triee. Pratique pour un menu simple.
- * @param {Array} chateaux
- * @param {Object} [opts] - meme signature que getRegionsAvecChateaux
- * @returns {string[]}
- */
-export function getRegions(chateaux = [], opts = {}) {
-  return getRegionsAvecChateaux(chateaux, opts).map((r) => r.region);
 }
