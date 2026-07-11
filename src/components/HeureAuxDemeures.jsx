@@ -25,6 +25,7 @@ export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres })
   const renderMedaillon = (c, n) => (
     <article
       key={c.id}
+      data-slug={c.slug}
       className="da-medaillon"
       onClick={() => onOuvrirChateau?.(c)}
     >
