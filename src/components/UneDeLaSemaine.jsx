@@ -6,7 +6,7 @@ import "../styles/une-semaine.css";
 export default function UneDeLaSemaine({ onOuvrirChateau }) {
   const { chateaux, loading, error } = useChateaux();
   const [ref, visible] = useScrollAnimation(0.2);
-  const selection = chateaux.filter((c) => c.estLaUne === true).slice(0, 4);
+  const selection = chateaux.filter((c) => !c.isDemoMock).slice(0, 4);
   if (selection.length === 0) return null;
 
   return (

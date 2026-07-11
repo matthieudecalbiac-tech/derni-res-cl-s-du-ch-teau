@@ -33,10 +33,11 @@ export default function PageResultats() {
       : null;
 
 
-  // Decision (B): la page resultats ne montre que les chateaux reels (estLaUne).
-  // Les mocks (id 1-6) peuplent la home pour la demo mais n'ont pas de vitrine
-  // routable, donc on les exclut du tunnel de recherche pour eviter tout cul-de-sac.
-  const reels = chateaux.filter((c) => c.estLaUne === true);
+  // Decision (B): la page resultats ne montre que les chateaux reels (!isDemoMock).
+  // Les mocks (stubs de demonstration) peuplent la home pour la demo mais n'ont pas
+  // de vitrine routable, donc on les exclut du tunnel de recherche pour eviter tout
+  // cul-de-sac.
+  const reels = chateaux.filter((c) => !c.isDemoMock);
 
   // Filtrage : par chateau precis si fourni, sinon par region, sinon tous les reels.
   // Puis on applique TOUJOURS le filtre invites (capacite).

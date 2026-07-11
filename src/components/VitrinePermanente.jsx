@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useChateaux } from "../hooks/useChateaux";
-import ChateauModal from "./ChateauModal";
+// import ChateauModal from "./ChateauModal"; // plus d'appelant (pièce 2 geste 2) — retrait complet en pièce 3
 import VitrineChateau from "./VitrineChateau";
 import TransitionPorte from "./TransitionPorte";
 import CarteChateaux from "./CarteChateaux";
@@ -118,9 +118,7 @@ export default function VitrinePermanente({ onClose }) {
         <TransitionPorte chateau={transitionChateau} onTermine={() => { setChateauSelectionne(transitionChateau); setTransitionChateau(null); }} />
       )}
       {(transitionChateau || chateauSelectionne) && (
-        (transitionChateau || chateauSelectionne).estLaUne === true
-          ? <VitrineChateau chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
-          : <ChateauModal chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
+        <VitrineChateau chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}
     </div>
   );

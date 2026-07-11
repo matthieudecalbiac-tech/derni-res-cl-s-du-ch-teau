@@ -17,11 +17,10 @@ export default function VitrineChateauRoute() {
   // Erreur Supabase → home
   if (error) return <Navigate to="/" replace />;
 
-  // Slug inconnu → home
+  // Slug inconnu, ou château non publié (le service filtre sur statut, donc
+  // getChateauBySlug renvoie null) → home. Toute demeure servie a sa vitrine,
+  // mise en avant (estLaUne) ou non.
   if (!chateau) return <Navigate to="/" replace />;
-
-  // Mocks id 1-6 : pas de vitrine premium pour α.1.5
-  if (!chateau.estLaUne) return <Navigate to="/" replace />;
 
   return (
     <VitrineChateau

@@ -8,7 +8,7 @@ import UneDeLaSemaine from "./components/UneDeLaSemaine";
 import HeureAuxDemeures from "./components/HeureAuxDemeures";
 import PiedPatrimoine from "./components/PiedPatrimoine";
 import Conciergerie from "./components/Services";
-import ChateauModal from "./components/ChateauModal";
+// import ChateauModal from "./components/ChateauModal"; // plus d'appelant dans App (pièce 2 geste 2) — retrait complet en pièce 3
 import VitrineChateau from "./components/VitrineChateau";
 import ClesEvenementiel from "./components/ClesEvenementiel";
 import APropos from "./components/APropos";
@@ -94,9 +94,7 @@ function App() {
         <DernieresCles onClose={() => setDernieresOuvert(false)} />
       )}
       {(transitionChateau || chateauSelectionne) && (
-        (transitionChateau || chateauSelectionne).estLaUne === true
-          ? <VitrineChateau chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
-          : <ChateauModal chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
+        <VitrineChateau chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}
       {transitionChateau && (
         <TransitionPorte

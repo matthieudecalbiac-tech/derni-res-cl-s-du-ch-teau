@@ -110,7 +110,7 @@ describe("getChateaux", () => {
     expect(chateaux).toEqual([]);
   });
 
-  it("excludeMocks=true : retourne seulement estLaUne=true", async () => {
+  it("excludeMocks=true : exclut les chateaux de demonstration", async () => {
     mockSupabaseSuccess([FIXTURE_BRIOTTIERES, FIXTURE_VAUX]);
     const chateaux = await getChateaux({ excludeMocks: true });
     expect(chateaux).toHaveLength(1);
