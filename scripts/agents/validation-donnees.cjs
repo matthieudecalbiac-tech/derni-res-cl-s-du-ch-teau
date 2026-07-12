@@ -1,5 +1,5 @@
 /**
- * Agent QA · Validation des données (src/data/chateaux.js)
+ * Agent QA · Validation des données (base Supabase — châteaux publiés)
  *
  * Niveau C exhaustif — 12 familles de vérifications :
  *   1. Champs obligatoires (id, nom, slug kebab-case, region, departement,
@@ -18,8 +18,14 @@
  *  11. Recomptage final des stats depuis details[]
  *  12. Écriture du bilan commun dans qa-reports/validation-donnees.json
  *
- * Variables d'env :
- *   - SKIP_IMAGE_CHECK=1 → saute les HEAD (environnement sans Internet)
+ * Source : la BASE Supabase (clé anon → RLS publie uniquement). L'agent valide
+ * désormais ce qu'un visiteur voit réellement, pas un fichier statique. Chaque
+ * ligne est remappée vers la forme React imbriquée via mapChateau (_mapping.js).
+ *
+ * Variables d'env (.env — patron smoke-test-supabase.cjs) :
+ *   - VITE_SUPABASE_URL      → URL du projet Supabase
+ *   - VITE_SUPABASE_ANON_KEY → clé publique (voit les publiés)
+ *   - SKIP_IMAGE_CHECK=1     → saute les HEAD (environnement sans Internet)
  *
  * Le process exit 0 si aucune erreur (warnings OK), 1 sinon.
  */
@@ -27,7 +33,8 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const https = require('https');
-const { chargerChateaux } = require('../lib/charger-chateaux.cjs');
+const { pathToFileURL } = require('node:url');
+const { createClient } = require('@supabase/supabase-js');
 
 const ROOT = path.join(__dirname, '..', '..');
 const ID = 'validation-donnees';
@@ -45,7 +52,7 @@ const stats = {
   imagesInaccessibles: 0,
 };
 
-// ── Table région → départements (minimale, couvre chateaux.js actuel) ──
+// ── Table région → départements (minimale, couvre les régions publiées) ──
 const REGIONS_DEPTS = {
   'Île-de-France': ['Seine-et-Marne'],
   'Hauts-de-France': ['Oise'],
@@ -153,9 +160,69 @@ function testerImage(url, timeoutMs = 3000) {
   });
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SOURCE DE VÉRITÉ : la base Supabase (anon → publiés uniquement).
+// Le mapper _mapping.js (module ESM pur, sans import) rétablit la forme
+// imbriquée attendue par les checks (coordonnees.{lat,lng}, proprietaires.{…},
+// chambres[], images[]). Import dynamique car l'agent tourne en CommonJS.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// SELECT avec auto-joins (miroir de chateauxService.SELECT_FULL) : 1 round-trip.
+const SELECT_FULL = `
+  *,
+  chambres(*),
+  chateau_timeline(*),
+  chateau_alentours(*),
+  chateau_amenities(*),
+  offres(*)
+`;
+
+function loadEnv(envPath) {
+  if (!fs.existsSync(envPath)) {
+    console.error(`✗ Fichier .env absent à ${envPath}`);
+    console.error('  Crée-le à partir de .env.example (VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY).');
+    process.exit(1);
+  }
+  const env = {};
+  fs.readFileSync(envPath, 'utf8').split(/\r?\n/).forEach((line) => {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) return;
+    const eq = trimmed.indexOf('=');
+    if (eq === -1) return;
+    env[trimmed.substring(0, eq).trim()] = trimmed.substring(eq + 1).trim();
+  });
+  return env;
+}
+
+// Lit les châteaux PUBLIÉS depuis la base (anon), puis mappe chaque ligne vers
+// la forme React imbriquée via mapChateau (import dynamique du module ESM).
+async function chargerChateauxDepuisBase() {
+  const env = loadEnv(path.join(ROOT, '.env'));
+  const url = env.VITE_SUPABASE_URL;
+  const key = env.VITE_SUPABASE_ANON_KEY;
+  if (!url || !key || key === 'A_REMPLIR_PAR_MATTHIEU') {
+    console.error('✗ VITE_SUPABASE_URL ou VITE_SUPABASE_ANON_KEY manquante / non remplie dans .env');
+    process.exit(1);
+  }
+
+  const supabase = createClient(url, key);
+  const { data, error } = await supabase
+    .from('chateaux')
+    .select(SELECT_FULL)
+    .eq('statut', 'publie')
+    .order('nom', { ascending: true });
+  if (error) throw new Error(`SELECT chateaux (publiés) : ${error.message}`);
+
+  const mapperUrl = pathToFileURL(path.join(ROOT, 'src', 'services', '_mapping.js')).href;
+  const { mapChateau } = await import(mapperUrl);
+
+  return (data ?? []).map(mapChateau);
+}
+
+
 // ── Validation principale ──
 async function valider() {
-  const chateaux = chargerChateaux();
+  const chateaux = await chargerChateauxDepuisBase();
   stats.chateauxTotal = chateaux.length;
 
   // ─ Unicité globale ─
@@ -220,9 +287,9 @@ async function valider() {
     const nomC = c.nom || c.slug || `id=${c.id}`;
     const emettre = (type, opts) => ajouter(type, { chateau: nomC, ...opts });
 
-    // Champs obligatoires
-    if (!Number.isInteger(c.id) || c.id <= 0)
-      emettre('erreur', { message: 'id manquant ou invalide', champ: 'id', valeurTrouvee: c.id });
+    // Champs obligatoires — id est désormais un UUID (string), plus un entier
+    if (typeof c.id !== 'string' || c.id.trim() === '')
+      emettre('erreur', { message: 'id manquant ou invalide (UUID attendu)', champ: 'id', valeurTrouvee: c.id });
     if (!chaineNonVide(c.nom)) emettre('erreur', { message: 'nom manquant', champ: 'nom' });
     if (!chaineNonVide(c.slug)) emettre('erreur', { message: 'slug manquant', champ: 'slug' });
     else if (!reKebab(c.slug))
@@ -514,7 +581,11 @@ async function valider() {
     console.log(`   ${stats.imagesVerifiees} image(s) vérifiée(s) · ${stats.imagesInaccessibles} inaccessible(s)`);
   }
 
-  process.exit(okGlobal ? 0 : 1);
+  // process.exitCode (pas process.exit) : le client Supabase garde des sockets
+  // keepalive (undici) ; un process.exit() immédiat provoque une assertion libuv
+  // sous Windows (src\win\async.c). On laisse l'event loop se vider, le code de
+  // sortie est déjà posé.
+  process.exitCode = okGlobal ? 0 : 1;
 }
 
 valider().catch((err) => {
