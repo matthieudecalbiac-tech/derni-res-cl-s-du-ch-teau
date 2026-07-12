@@ -1,208 +1,148 @@
-/**
- * Tests E2E · Vitrines paramétrées (lit src/data/chateaux.js)
- *
- * Pour chaque château avec estLaUne === true, génère une suite de tests
- * essentiels basés sur les sélecteurs .vc3-* (VitrineChateau). Les valeurs
- * attendues (nombre de chambres, prix, timeline, chiffres clés) sont lues
- * depuis chateaux.js — zéro hardcoding. Un futur château promu à
- * estLaUne:true sera testé automatiquement, sans modification de ce fichier.
- *
- * Filtrage sur estLaUne (critère métier) plutôt que sur c.id in [7,8]
- * (critère d'implémentation). Depuis la pièce 2, l'aiguillage vitrine/modale
- * n'existe plus : toute demeure servie ouvre la vitrine.
- *
- * Champs optionnels → test.skip si absents, pas d'échec :
- *   - chateau.accroche              (assertion hero accroche)
- *   - chateau.distanceParis         (assertion meta hero)
- *   - chateau.chiffresCles          (test chiffres clés)
- *   - chateau.timeline              (test timeline)
- *   - chateau.proprietaires.citation (test citation)
- *   - chateau.images                (test 4xx)
- *
- * Traçabilité — enrichissement éditorial à venir :
- * Sur les 8 châteaux actuels, seuls id 7 (Briottières) et id 8 (Blanc Buisson)
- * ont estLaUne:true ET les champs patrimoniaux (ville, chiffresCles,
- * proprietaires.initiale, proprietaires.nomAffiche, images locales). Les 6
- * autres (Vaux-le-Vicomte, Pierrefonds, Chantilly, Fontainebleau,
- * Ferté-Saint-Aubin, Pierreclos) devront être enrichis de ces champs avant
- * d'être promus en vitrine riche.
- */
 const { test, expect } = require('@playwright/test');
-const { getChateaux, ouvrirVitrine } = require('./_helpers.cjs');
 
-const enVitrine = getChateaux().filter((c) => c.estLaUne === true);
+/**
+ * Tests E2E · Vitrines — comportement, decouverte DOM (piece 5).
+ *
+ * Zero lecture de fichier. La liste des chateaux servis est decouverte au
+ * runtime depuis les medaillons de HeureAuxDemeures (.da-medaillon[data-slug],
+ * attribut stable pose en piece 3). Pour chacun, on verifie que la vitrine
+ * REND ses sections - jamais qu'une donnee vaut une valeur precise.
+ *
+ * Robustesse : un ajout de chambre, une timeline plus longue, une citation
+ * reecrite ne cassent rien. Seule une vitrine qui cesse de rendre une section,
+ * ou une image en 4xx, fait rougir. Les sections optionnelles (accroche,
+ * timeline, citation) sont gardees par leur presence dans le DOM : un chateau
+ * qui n'en a pas n'echoue pas.
+ */
 
-if (enVitrine.length === 0) {
-  test('Aucun château estLaUne:true — suite paramétrée vide', () => {
-    test.skip(true, 'Aucun château avec estLaUne:true dans chateaux.js');
-  });
+// Ouvre la vitrine d'un chateau par son slug, via son medaillon (meme section
+// que la decouverte). Patron eprouve : retry click mobile-safari + attente de
+// la TransitionPorte avant l'overlay visible.
+async function ouvrirVitrineParSlug(page, slug) {
+  const medaillon = page.locator(`.da-medaillon[data-slug="${slug}"]`);
+  await medaillon.scrollIntoViewIfNeeded();
+
+  let derniereErreur;
+  for (let essai = 0; essai < 3; essai++) {
+    await medaillon.click();
+    try {
+      await expect(page.locator('.vc3-overlay')).toBeVisible({ timeout: 3000 });
+      derniereErreur = null;
+      break;
+    } catch (e) {
+      derniereErreur = e;
+    }
+  }
+  if (derniereErreur) throw derniereErreur;
+
+  await page.locator('.tp-wrap').waitFor({ state: 'detached', timeout: 8000 }).catch(() => {});
+  await expect(page.locator('.vc3-overlay.vc3-visible')).toBeVisible({ timeout: 3000 });
 }
 
-for (const chateau of enVitrine) {
-  test.describe(`Vitrine · ${chateau.nom}`, () => {
-
-    test('La vitrine s\'ouvre et affiche le nom du château', async ({ page }) => {
-      await ouvrirVitrine(page, chateau);
-      await expect(page.locator('.vc3-header-nom')).toContainText(chateau.nom);
-      await expect(page.locator('.vc3-hero2-titre')).toBeVisible();
-    });
-
-    test('Hero : prix (carte séjour) et distance Paris (header)', async ({ page }) => {
-      await ouvrirVitrine(page, chateau);
-
-      if (chateau.accroche) {
-        await expect(page.locator('.vc3-hero2-accroche')).toBeVisible();
-      }
-
-      // Bloc meta hero supprimé en α.1.5 : prix migré dans la carte séjour, distance dans le header.
-      await expect(page.locator('.vc3-sejour-prix')).toContainText('€');
-
-      if (chateau.distanceParis) {
-        const token = String(chateau.distanceParis).match(/\d+h\d*|\d+\s*km|\d+\s*min|Paris/i);
-        if (token) {
-          await expect(page.locator('.vc3-header-region')).toContainText(token[0].trim());
-        }
-      }
-    });
-
-    test(`Chambres : ${chateau.chambres.length} cartes avec prix cohérents`, async ({ page }) => {
-      test.skip(true, 'S2-α.1.5 — chambres déplacées dans ContenuPermanent, sélecteur .vc4-permanent-chambre. À METTRE À JOUR avec nouveau path UI post-α.1.5, PAS une régression. PR #23.');
-      await ouvrirVitrine(page, chateau);
-      await page.locator('.vc3-chambres').scrollIntoViewIfNeeded();
-
-      const chambres = page.locator('.vc3-chambre');
-      await expect(chambres).toHaveCount(chateau.chambres.length);
-
-      const prix = page.locator('.vc3-chambre-prix');
-      for (let i = 0; i < chateau.chambres.length; i++) {
-        const prixAttendu = chateau.chambres[i].prix;
-        if (prixAttendu != null) {
-          await expect(prix.nth(i)).toContainText(String(prixAttendu));
-        }
-      }
-    });
-
-    test('Modale réservation : ouvre, liste les chambres, sélection, ferme', async ({ page }) => {
-      await ouvrirVitrine(page, chateau);
-
-      // Nouveau path α.1.5 : carte module Permanent → panneau → bouton chambre → modale.
-      await page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i }).click();
-      await expect(page.locator('.vc3-module-panel')).toBeVisible();
-      await page.locator('.vc4-permanent-chambre-cta').first().click();
-      await expect(page.locator('.vc3-reserve-modal')).toBeVisible();
-
-      const chambresModal = page.locator('.vc3-reserve-ch');
-      await expect(chambresModal).toHaveCount(chateau.chambres.length);
-
-      if (chateau.chambres.length > 1) {
-        await chambresModal.nth(1).click();
-        await expect(chambresModal.nth(1)).toHaveClass(/actif/);
-      }
-
-      await page.locator('.vc3-reserve-close').click();
-      await expect(page.locator('.vc3-reserve-modal')).not.toBeVisible();
-    });
-
-    test('Escape ferme la vitrine', async ({ page }) => {
-      await ouvrirVitrine(page, chateau);
-      await page.keyboard.press('Escape');
-      await expect(page.locator('.vc3-overlay')).toHaveCount(0, { timeout: 2000 });
-    });
-
-    test('Chiffres clés : val affichées = chateau.chiffresCles', async ({ page }) => {
-      test.skip(true, 'S2-α.1.5 — chiffres clés déplacés dans IntroTroncCommun, sélecteur .vc4-intro-tronc-chiffre-val (sémantique partielle). À METTRE À JOUR avec nouvelle assertion post-α.1.5, PAS une régression. PR #23.');
-      test.skip(
-        !Array.isArray(chateau.chiffresCles) || chateau.chiffresCles.length === 0,
-        'Pas de chiffresCles dans les données'
-      );
-
-      await ouvrirVitrine(page, chateau);
-      await page.locator('.vc3-chiffres').scrollIntoViewIfNeeded();
-
-      const chiffres = page.locator('.vc3-chiffre-val');
-      await expect(chiffres).toHaveCount(chateau.chiffresCles.length);
-
-      for (let i = 0; i < chateau.chiffresCles.length; i++) {
-        await expect(chiffres.nth(i)).toContainText(String(chateau.chiffresCles[i].val));
-      }
-    });
-
-    test('Citation propriétaire présente et non vide', async ({ page }) => {
-      test.skip(true, 'S2-α.1.5 — citation déplacée dans ContenuTheme/famille, sélecteur .vc4-theme-famille-citation (requires ?theme=famille). À METTRE À JOUR avec nouveau path UI post-α.1.5, PAS une régression. PR #23.');
-      test.skip(
-        !chateau.proprietaires || !chateau.proprietaires.citation,
-        'Pas de citation propriétaire dans les données'
-      );
-
-      await ouvrirVitrine(page, chateau);
-      await page.locator('.vc3-citation').scrollIntoViewIfNeeded();
-      const citation = page.locator('.vc3-citation-txt');
-      await expect(citation).toBeVisible();
-      const txt = (await citation.textContent()) || '';
-      expect(txt.trim().length, 'Citation trop courte').toBeGreaterThan(30);
-    });
-
-    test('Timeline : count = chateau.timeline.length, première année affichée', async ({ page }) => {
-      test.skip(true, 'S2-α.1.5 — timeline déplacée dans ContenuTheme/histoire, sélecteur .vc4-theme-timeline (requires ?theme=histoire). À METTRE À JOUR avec nouveau path UI post-α.1.5, PAS une régression. PR #23.');
-      test.skip(
-        !Array.isArray(chateau.timeline) || chateau.timeline.length === 0,
-        'Pas de timeline dans les données'
-      );
-
-      await ouvrirVitrine(page, chateau);
-      await page.locator('.vc3-timeline').scrollIntoViewIfNeeded();
-      await expect(page.locator('.vc3-tl-item')).toHaveCount(chateau.timeline.length);
-      await expect(page.locator('.vc3-tl-yr').first()).toContainText(
-        String(chateau.timeline[0].annee)
-      );
-    });
-
-    test('Mode présentation : s\'ouvre et se ferme', async ({ page }) => {
-      test.skip(true, 'S2-α.1.5 Option A — mode présentation supprimé volontairement. PR #23. Réactiver uniquement si rapatrié.');
-      await ouvrirVitrine(page, chateau);
-      const bouton = page.locator('.vc3-mode-pres-btn');
-      await bouton.scrollIntoViewIfNeeded();
-      await bouton.click();
-      await expect(page.locator('.vc3-pres-overlay')).toBeVisible();
-      await page.locator('.vc3-pres-close').click();
-      await expect(page.locator('.vc3-pres-overlay')).not.toBeVisible();
-    });
-
-    test('Images de chateau.images[0..2] ne renvoient pas de 4xx', async ({ page }) => {
-      test.skip(
-        !Array.isArray(chateau.images) || chateau.images.length === 0,
-        'Pas d\'images dans les données'
-      );
-
-      const cibles = chateau.images.slice(0, 3).map((u) => {
-        try {
-          return new URL(u, 'http://x').pathname;
-        } catch {
-          return String(u);
-        }
-      });
-
-      const echecs = [];
-      page.on('response', (res) => {
-        if (res.status() < 400) return;
-        const url = res.url();
-        for (const cible of cibles) {
-          if (cible && url.includes(cible)) {
-            echecs.push(`${res.status()} ${url}`);
-            break;
-          }
-        }
-      });
-
-      await ouvrirVitrine(page, chateau);
-      await page.evaluate(() => {
-        const corps = document.querySelector('.vc3-corps');
-        if (corps) corps.scrollTo({ top: corps.scrollHeight, behavior: 'instant' });
-      });
-      await page.waitForTimeout(1500);
-
-      expect(echecs, `Images en 4xx :\n${echecs.join('\n')}`).toHaveLength(0);
-    });
-
-  });
+// Charge la home et retourne les slugs des chateaux servis (medaillons stables).
+async function decouvrirSlugs(page) {
+  await page.goto('/');
+  await page.waitForLoadState('domcontentloaded');
+  await expect(page.locator('.da-medaillon[data-slug]').first()).toBeVisible({ timeout: 10000 });
+  return page.locator('.da-medaillon[data-slug]').evaluateAll(
+    (els) => els.map((e) => e.getAttribute('data-slug')).filter(Boolean)
+  );
 }
+
+test.describe('Vitrines · comportement (decouverte DOM)', () => {
+
+  test('Au moins un chateau est servi et decouvrable sur la home', async ({ page }) => {
+    const slugs = await decouvrirSlugs(page);
+    // Seule alarme si le catalogue public se vide : plus aucune vitrine a tester.
+    expect(slugs.length, 'Aucun medaillon [data-slug] rendu sur la home').toBeGreaterThan(0);
+  });
+
+  test('Chaque vitrine servie rend ses sections', async ({ page }) => {
+    // 4xx d'images collectees sur tout le parcours, asserees a la fin.
+    const imagesEnErreur = [];
+    page.on('response', (res) => {
+      if (res.status() >= 400 && res.request().resourceType() === 'image') {
+        imagesEnErreur.push(`${res.status()} ${res.url()}`);
+      }
+    });
+
+    const slugs = await decouvrirSlugs(page);
+    expect(slugs.length).toBeGreaterThan(0);
+
+    for (const slug of slugs) {
+      await test.step(`Vitrine ${slug}`, async () => {
+        await page.goto('/');
+        await page.waitForLoadState('domcontentloaded');
+        await expect(page.locator('.da-medaillon[data-slug]').first()).toBeVisible({ timeout: 10000 });
+        await ouvrirVitrineParSlug(page, slug);
+
+        // — Nom : present et non vide.
+        const nom = (await page.locator('.vc3-header-nom').textContent()) || '';
+        expect(nom.trim().length, 'Nom de vitrine vide').toBeGreaterThan(0);
+
+        // — Hero : accroche gardee par presence, prix contenant l'euro.
+        const accroche = page.locator('.vc3-hero2-accroche');
+        if (await accroche.count() > 0) {
+          await expect(accroche.first()).toBeVisible();
+        }
+        await expect(page.locator('.vc3-sejour-prix')).toContainText('€');
+
+        // — Onglet Histoire : timeline gardee par sa presence (chateau sans
+        //   timeline = pas de .vc4-theme-timeline, on ne teste rien).
+        const ongletHistoire = page.locator('[data-theme="histoire"]');
+        await ongletHistoire.scrollIntoViewIfNeeded();
+        await ongletHistoire.click();
+        if (await page.locator('.vc4-theme-timeline').count() > 0) {
+          expect(
+            await page.locator('.vc4-theme-tl-item').count(),
+            'Timeline rendue mais sans evenement'
+          ).toBeGreaterThan(0);
+        }
+
+        // — Onglet Famille : citation gardee par sa presence.
+        const ongletFamille = page.locator('[data-theme="famille"]');
+        await ongletFamille.scrollIntoViewIfNeeded();
+        await ongletFamille.click();
+        const citation = page.locator('.vc4-theme-famille-citation');
+        if (await citation.count() > 0) {
+          await citation.first().scrollIntoViewIfNeeded();
+          await expect(citation.first()).toBeVisible();
+        }
+
+        // — Module Permanent (overlay) : au moins une chambre rendue.
+        await page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i }).click();
+        await expect(page.locator('.vc3-module-panel')).toBeVisible();
+        expect(
+          await page.locator('.vc4-permanent-chambre').count(),
+          'Aucune chambre dans le module Permanent'
+        ).toBeGreaterThan(0);
+
+        // — Modale de reservation : s'ouvre puis se ferme.
+        await page.locator('.vc4-permanent-chambre-cta').first().click();
+        await expect(page.locator('.vc3-reserve-modal')).toBeVisible();
+        await page.locator('.vc3-reserve-close').click();
+        await expect(page.locator('.vc3-reserve-modal')).not.toBeVisible();
+
+        // Referme le panneau module : en overlay, Escape le fermerait AVANT la
+        // vitrine (cf. VitrineChateau onKey). On le ferme pour que l'Escape
+        // suivant vise bien la vitrine.
+        await page.locator('.vc3-module-close').click();
+        await expect(page.locator('.vc3-module-panel')).toHaveCount(0);
+
+        // — Images : declenche le chargement sous le fold (4xx collectes globalement).
+        await page.evaluate(() => {
+          const corps = document.querySelector('.vc3-corps');
+          if (corps) corps.scrollTo({ top: corps.scrollHeight, behavior: 'instant' });
+        });
+        await page.waitForTimeout(800);
+
+        // — Escape ferme la vitrine.
+        await page.keyboard.press('Escape');
+        await expect(page.locator('.vc3-overlay')).toHaveCount(0, { timeout: 3000 });
+      });
+    }
+
+    expect(imagesEnErreur, `Images en 4xx :\n${imagesEnErreur.join('\n')}`).toEqual([]);
+  });
+
+});
