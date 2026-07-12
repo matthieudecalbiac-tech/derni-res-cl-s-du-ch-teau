@@ -22,7 +22,9 @@
  * désormais ce qu'un visiteur voit réellement, pas un fichier statique. Chaque
  * ligne est remappée vers la forme React imbriquée via mapChateau (_mapping.js).
  *
- * Variables d'env (.env — patron smoke-test-supabase.cjs) :
+ * Clés Supabase : lues depuis process.env EN PRIORITÉ (CI : bloc env: de qa.yml),
+ * complétées depuis .env en secours local s'il existe. Jamais d'erreur si .env
+ * manque — on ne s'arrête que si les clés manquent vraiment (ni env, ni .env).
  *   - VITE_SUPABASE_URL      → URL du projet Supabase
  *   - VITE_SUPABASE_ANON_KEY → clé publique (voit les publiés)
  *   - SKIP_IMAGE_CHECK=1     → saute les HEAD (environnement sans Internet)
@@ -177,31 +179,30 @@ const SELECT_FULL = `
   offres(*)
 `;
 
-function loadEnv(envPath) {
-  if (!fs.existsSync(envPath)) {
-    console.error(`✗ Fichier .env absent à ${envPath}`);
-    console.error('  Crée-le à partir de .env.example (VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY).');
-    process.exit(1);
+// En CI, les clés arrivent par l'environnement (bloc env: de qa.yml).
+// En local, on complète depuis .env s'il existe. process.env prime toujours :
+// une variable déjà présente dans l'environnement n'est jamais écrasée.
+function chargerEnvSiPresent() {
+  const envPath = path.join(ROOT, '.env');
+  if (!fs.existsSync(envPath)) return; // CI : pas de .env, les clés sont déjà dans process.env
+  for (const ligne of fs.readFileSync(envPath, 'utf8').split(/\r?\n/)) {
+    const trimmed = ligne.trim();
+    if (!trimmed || trimmed.startsWith('#') || !trimmed.includes('=')) continue;
+    const i = ligne.indexOf('=');
+    const cle = ligne.slice(0, i).trim();
+    const val = ligne.slice(i + 1).trim();
+    if (!(cle in process.env)) process.env[cle] = val; // ne jamais écraser une var d'env existante
   }
-  const env = {};
-  fs.readFileSync(envPath, 'utf8').split(/\r?\n/).forEach((line) => {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) return;
-    const eq = trimmed.indexOf('=');
-    if (eq === -1) return;
-    env[trimmed.substring(0, eq).trim()] = trimmed.substring(eq + 1).trim();
-  });
-  return env;
 }
 
 // Lit les châteaux PUBLIÉS depuis la base (anon), puis mappe chaque ligne vers
 // la forme React imbriquée via mapChateau (import dynamique du module ESM).
 async function chargerChateauxDepuisBase() {
-  const env = loadEnv(path.join(ROOT, '.env'));
-  const url = env.VITE_SUPABASE_URL;
-  const key = env.VITE_SUPABASE_ANON_KEY;
+  chargerEnvSiPresent();
+  const url = process.env.VITE_SUPABASE_URL;
+  const key = process.env.VITE_SUPABASE_ANON_KEY;
   if (!url || !key || key === 'A_REMPLIR_PAR_MATTHIEU') {
-    console.error('✗ VITE_SUPABASE_URL ou VITE_SUPABASE_ANON_KEY manquante / non remplie dans .env');
+    console.error("✗ VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY absents (ni dans l'environnement, ni dans .env)");
     process.exit(1);
   }
 
