@@ -1,10 +1,11 @@
 // src/types/Chateau.js
 //
-// Schéma type unique pour les entrées de src/data/chateaux.js.
+// Schéma type unique d'un château, tel que produit par src/services/_mapping.js
+// à partir de la base Supabase (table chateaux + jointures).
 // Conçu en Chantier 2.1 (Phase A2) le 30 avril 2026.
 // Toute modification de ce schéma doit être accompagnée :
-//   1. d'une migration des entrées dans chateaux.js,
-//   2. d'une mise à jour de validateChateau() dans src/utils/,
+//   1. d'une migration du schéma Supabase (supabase/schema.sql + migrations/),
+//   2. d'une mise à jour du mapping src/services/_mapping.js,
 //   3. d'une note dans CLAUDE.md § Historique des chantiers.
 
 // ─── Sous-types ────────────────────────────────────────────────
@@ -87,7 +88,7 @@
 
 /**
  * Un château référencé sur Les Clés du Château.
- * Source unique : src/data/chateaux.js.
+ * Source : base Supabase (table chateaux), mappée par src/services/_mapping.js.
  *
  * @typedef {Object} Chateau
  *
