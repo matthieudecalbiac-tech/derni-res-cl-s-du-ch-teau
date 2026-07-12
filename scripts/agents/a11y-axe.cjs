@@ -38,7 +38,6 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { spawn } = require('child_process');
-const { getChateauxVitrine } = require('../lib/charger-chateaux.cjs');
 
 const ROOT = path.join(__dirname, '..', '..');
 const ID = 'a11y-axe';
@@ -107,31 +106,42 @@ async function lancerViteSiBesoin() {
 }
 
 // ── Helpers parcours ──
-function regexNom(nom) {
-  const e = String(nom).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(e, 'i');
-}
-
-async function ouvrirVitrineSurHome(page, chateau) {
+// Decouverte DOM : liste des chateaux servis, lue depuis les medaillons de la
+// home (.da-medaillon[data-slug], attribut stable pose en piece 3). Aucune
+// lecture de fichier, aucune cle : le navigateur charge la base via le bundle.
+async function decouvrirChateauxServis(page) {
   await page.goto(BASE_URL);
   await page.waitForLoadState('domcontentloaded');
-  const article = page.locator('.une-semaine-carte').filter({ hasText: regexNom(chateau.nom) });
-  const cta = article.locator('.une-semaine-cta');
-  await cta.scrollIntoViewIfNeeded();
+  await page.locator('.da-medaillon[data-slug]').first().waitFor({ state: 'visible', timeout: 10000 });
+  return page.locator('.da-medaillon[data-slug]').evaluateAll((els) =>
+    els.map((e) => ({
+      slug: e.getAttribute('data-slug'),
+      nom: e.querySelector('.da-nom')?.textContent?.trim() || '',
+    })).filter((c) => c.slug)
+  );
+}
 
-  let ouvert = false;
-  for (let i = 0; i < 3; i++) {
-    await cta.click();
+// Ouvre la vitrine par slug, via son medaillon (meme section que la decouverte).
+// Patron piece 5 : retry click + attente de la TransitionPorte avant l'overlay.
+async function ouvrirVitrineParSlug(page, slug) {
+  await page.goto(BASE_URL);
+  await page.waitForLoadState('domcontentloaded');
+  const medaillon = page.locator(`.da-medaillon[data-slug="${slug}"]`);
+  await medaillon.scrollIntoViewIfNeeded();
+
+  let derniereErreur;
+  for (let essai = 0; essai < 3; essai++) {
+    await medaillon.click();
     try {
-      await page.locator('.vc3-overlay').waitFor({ state: 'visible', timeout: 3000 });
-      ouvert = true;
+      await page.locator('.vc3-overlay').first().waitFor({ state: 'visible', timeout: 3000 });
+      derniereErreur = null;
       break;
-    } catch {}
+    } catch (e) { derniereErreur = e; }
   }
-  if (!ouvert) throw new Error(`Vitrine ${chateau.nom} : click CTA sans effet`);
+  if (derniereErreur) throw derniereErreur;
 
   await page.locator('.tp-wrap').waitFor({ state: 'detached', timeout: 8000 }).catch(() => {});
-  await page.locator('.vc3-overlay.vc3-visible').waitFor({ state: 'visible', timeout: 3000 });
+  await page.locator('.vc3-overlay.vc3-visible').first().waitFor({ state: 'visible', timeout: 3000 });
 }
 
 // ── Exécution axe sur la page courante ──
@@ -154,9 +164,9 @@ async function executerParcours(page, nav, chateaux, audits) {
   audits.push(await auditerPage(page, 'home', nav.id));
 
   for (const ch of chateaux) {
-    const slug = ch.slug || `id-${ch.id}`;
+    const slug = ch.slug;
 
-    await ouvrirVitrineSurHome(page, ch);
+    await ouvrirVitrineParSlug(page, slug);
     audits.push(await auditerPage(page, `vitrine-ouverte:${slug}`, nav.id));
 
     // Modale réservation
@@ -243,9 +253,21 @@ async function runNavigateur(nav, chateaux) {
 async function main() {
   const debut = Date.now();
 
-  const chateaux = getChateauxVitrine();
+  await lancerViteSiBesoin();
+
+  // Decouverte DOM des chateaux servis (une fois, via un navigateur jetable).
+  let chateaux;
+  {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      chateaux = await decouvrirChateauxServis(await browser.newPage());
+    } finally {
+      await browser.close().catch(() => {});
+    }
+  }
+
   if (chateaux.length === 0) {
-    console.warn('[a11y-axe] Aucun château estLaUne:true — agent skippé.');
+    console.warn('[a11y-axe] Aucune vitrine servie sur la home — agent skippé.');
     ecrireRapport({
       ok: true,
       dureeSec: 0,
@@ -254,12 +276,10 @@ async function main() {
         violationsCritical: 0, violationsSerious: 0, violationsModerate: 0, violationsMinor: 0,
         violationsUniques: 0, noeudsAffectes: 0, passes: 0, incomplete: 0,
       },
-      details: [{ type: 'info', message: 'Aucun château estLaUne:true dans chateaux.js' }],
+      details: [{ type: 'info', message: 'Aucune vitrine servie sur la home' }],
     });
     process.exit(0);
   }
-
-  await lancerViteSiBesoin();
 
   const navsActifs = NAVIGATEURS.filter((n) => !skipNavs.has(n.id));
   const tousAudits = [];
