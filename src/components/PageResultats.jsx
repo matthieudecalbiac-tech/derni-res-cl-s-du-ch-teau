@@ -63,7 +63,6 @@ export default function PageResultats() {
   return (
     <div className="app">
       <Header
-        onOuvrirEvenementiel={versHome}
         onOuvrirConciergerie={versHome}
         onOuvrirAPropos={versHome}
         onOuvrirVitrines={versHome}

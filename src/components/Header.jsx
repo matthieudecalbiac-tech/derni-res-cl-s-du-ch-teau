@@ -21,14 +21,6 @@ const MENU_ITEMS = [
     couleur: "default",
   },
   {
-    id: "evenementiel",
-    icone: "\u2726",
-    titre: "Les Cl\u00e9s de l\u2019\u00c9v\u00e9nementiel",
-    description: "Mariages, s\u00e9minaires, galas \u2014 louez un ch\u00e2teau pour vos \u00e9v\u00e9nements d\u2019exception.",
-    action: "evenementiel",
-    couleur: "default",
-  },
-  {
     id: "apropos",
     icone: "·",
     titre: "À propos",
@@ -59,7 +51,6 @@ export default function Header({
   onOuvrirVitrines,
   onOuvrirDernieresClefs,
   onOuvrirProprietaires,
-  onOuvrirEvenementiel,
 }) {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -85,7 +76,6 @@ export default function Header({
     if (action === "vitrines") onOuvrirVitrines?.();
     else if (action === "dernieres") onOuvrirDernieresClefs?.();
     else if (action === "apropos") onOuvrirAPropos?.();
-    else if (action === "evenementiel") onOuvrirEvenementiel?.();
     else if (action === "proprietaires") onOuvrirProprietaires?.();
     else if (action === "club") navigate(user ? "/club" : "/inscription");
     // 2. Fermer le menu APRES le fondu d'entree de la destination (~550ms),
