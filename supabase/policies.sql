@@ -613,6 +613,22 @@ GRANT INSERT                 ON public.migrations_log     TO authenticated;
 -- Sequences (pour les SERIAL si présents — pas le cas ici, mais idempotent)
 GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
 
+-- service_role : lecture des tables du seed pour scripts/generate-seed.cjs
+-- (dump base → seed). Le nouveau système de clés sb_* ne grante plus public
+-- automatiquement ; service_role avait été oublié ici, d'où un
+-- « permission denied » alors même que la clé bypasse la RLS (le GRANT est
+-- évalué AVANT la RLS). Périmètre minimal : SELECT sur les 9 tables dumpées.
+GRANT USAGE ON SCHEMA public TO service_role;
+GRANT SELECT ON public.modules            TO service_role;
+GRANT SELECT ON public.chateaux           TO service_role;
+GRANT SELECT ON public.chambres           TO service_role;
+GRANT SELECT ON public.chateau_amenities  TO service_role;
+GRANT SELECT ON public.chateau_timeline   TO service_role;
+GRANT SELECT ON public.chateau_alentours  TO service_role;
+GRANT SELECT ON public.chateau_modules    TO service_role;
+GRANT SELECT ON public.offres             TO service_role;
+GRANT SELECT ON public.migrations_log     TO service_role;
+
 -- Note : les RLS gèrent finement qui peut faire quoi sur quelles lignes.
 -- Ces GRANT autorisent juste Postgres à évaluer les policies.
 
