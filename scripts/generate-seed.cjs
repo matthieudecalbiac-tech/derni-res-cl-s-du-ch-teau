@@ -39,7 +39,7 @@
 const fs      = require("node:fs/promises");
 const fsSync  = require("node:fs");
 const path    = require("node:path");
-const { createClient } = require("@supabase/supabase-js");
+const { creerClientNode } = require("./lib/supabase-node.cjs");
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -183,7 +183,7 @@ async function main() {
     process.exit(1);
   }
 
-  const supabase = createClient(url, key);
+  const supabase = creerClientNode(url, key);
 
   const sections = [];
   const counts = {};

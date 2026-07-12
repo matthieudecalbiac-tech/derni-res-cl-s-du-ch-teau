@@ -36,7 +36,7 @@ const path = require('path');
 const http = require('http');
 const https = require('https');
 const { pathToFileURL } = require('node:url');
-const { createClient } = require('@supabase/supabase-js');
+const { creerClientNode } = require('../lib/supabase-node.cjs');
 
 const ROOT = path.join(__dirname, '..', '..');
 const ID = 'validation-donnees';
@@ -206,7 +206,7 @@ async function chargerChateauxDepuisBase() {
     process.exit(1);
   }
 
-  const supabase = createClient(url, key);
+  const supabase = creerClientNode(url, key);
   const { data, error } = await supabase
     .from('chateaux')
     .select(SELECT_FULL)
