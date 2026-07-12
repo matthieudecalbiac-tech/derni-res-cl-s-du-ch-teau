@@ -85,6 +85,9 @@ jobs:
           echo "✓ Vite dev server ready on :5174"
 
       - name: Agent validation données
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: node scripts/agents/validation-donnees.cjs
         continue-on-error: true
 
@@ -167,6 +170,8 @@ jobs:
       - name: QA fast complet (4 agents, 3 navigateurs — tentative mobile-safari)
         env:
           E2E_PROJECTS: chromium-desktop,webkit-desktop,mobile-safari
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run qa:fast
         continue-on-error: true
 
