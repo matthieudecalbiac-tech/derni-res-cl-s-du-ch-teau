@@ -2,7 +2,8 @@
 // Tests Vitest — chateauxService.js (S1-δ Phase 4.4)
 // ═══════════════════════════════════════════════════════════════════════════
 // Mock du client Supabase via vi.mock(). Helpers mockSupabaseSuccess /
-// Error pour éviter la verbosité du chaining .from().select().order().
+// Error pour éviter la verbosité du chaining
+// .from().select().eq().order().order().
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -30,26 +31,33 @@ import {
 // HELPERS — mock du chaining Supabase
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Exposé pour assérer les arguments du filtre de statut : le maillon `.eq()`
+// est ce qui tient les brouillons hors du cache public.
+let eqMock;
+
 function mockSupabaseSuccess(rows) {
-  supabase.from.mockReturnValue({
-    select: vi.fn().mockReturnValue({
-      order: vi.fn().mockReturnValue({
-        order: vi.fn().mockResolvedValue({
-          data: rows,
-          error: null,
-        }),
+  eqMock = vi.fn().mockReturnValue({
+    order: vi.fn().mockReturnValue({
+      order: vi.fn().mockResolvedValue({
+        data: rows,
+        error: null,
       }),
     }),
+  });
+  supabase.from.mockReturnValue({
+    select: vi.fn().mockReturnValue({ eq: eqMock }),
   });
 }
 
 function mockSupabaseError(message) {
   supabase.from.mockReturnValue({
     select: vi.fn().mockReturnValue({
-      order: vi.fn().mockReturnValue({
-        order: vi.fn().mockResolvedValue({
-          data: null,
-          error: { message, code: "TEST_ERROR" },
+      eq: vi.fn().mockReturnValue({
+        order: vi.fn().mockReturnValue({
+          order: vi.fn().mockResolvedValue({
+            data: null,
+            error: { message, code: "TEST_ERROR" },
+          }),
         }),
       }),
     }),
@@ -102,7 +110,7 @@ describe("getChateaux", () => {
     expect(chateaux).toEqual([]);
   });
 
-  it("excludeMocks=true : retourne seulement estLaUne=true", async () => {
+  it("excludeMocks=true : exclut les chateaux de demonstration", async () => {
     mockSupabaseSuccess([FIXTURE_BRIOTTIERES, FIXTURE_VAUX]);
     const chateaux = await getChateaux({ excludeMocks: true });
     expect(chateaux).toHaveLength(1);
@@ -114,6 +122,12 @@ describe("getChateaux", () => {
     mockSupabaseSuccess([FIXTURE_BRIOTTIERES, FIXTURE_VAUX]);
     const chateaux = await getChateaux();
     expect(chateaux).toHaveLength(2);
+  });
+
+  it("ne demande que les chateaux publies (les brouillons ne doivent jamais entrer dans le cache)", async () => {
+    mockSupabaseSuccess([]);
+    await getChateaux();
+    expect(eqMock).toHaveBeenCalledWith("statut", "publie");
   });
 });
 

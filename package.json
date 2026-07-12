@@ -17,7 +17,6 @@
     "qa:prod": "cross-env QA_TARGET=prod node scripts/qa-run.cjs --fast",
     "qa:baseline": "node scripts/qa-check-baseline.cjs",
     "qa:ci": "npm run qa:fast && node scripts/qa-check-baseline.cjs --strict",
-    "validate:chateaux": "node scripts/validate-chateaux.cjs",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest"
   },

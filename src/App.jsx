@@ -8,9 +8,7 @@ import UneDeLaSemaine from "./components/UneDeLaSemaine";
 import HeureAuxDemeures from "./components/HeureAuxDemeures";
 import PiedPatrimoine from "./components/PiedPatrimoine";
 import Conciergerie from "./components/Services";
-import ChateauModal from "./components/ChateauModal";
 import VitrineChateau from "./components/VitrineChateau";
-import ClesEvenementiel from "./components/ClesEvenementiel";
 import APropos from "./components/APropos";
 import VitrinePermanente from "./components/VitrinePermanente";
 import DernieresCles from "./components/DernieresCles";
@@ -42,7 +40,6 @@ import AuthCallback from "./components/auth/AuthCallback";
 
 function App() {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
-  const [evenementielOuvert, setEvenementielOuvert] = useState(false);
   const [conciergerieOuvert, setConciergerieOuvert] = useState(false);
   const [aProposOuvert, setAProposOuvert] = useState(false);
   const [vitrinesOuvert, setVitrinesOuvert] = useState(false);
@@ -63,7 +60,6 @@ function App() {
     <div className="app">
 
       <Header
-        onOuvrirEvenementiel={() => setEvenementielOuvert(true)}
         onOuvrirAPropos={() => setAProposOuvert(true)}
         onOuvrirVitrines={() => setVitrinesOuvert(true)}
         onOuvrirProprietaires={() => setProprietairesOuvert(true)}
@@ -94,9 +90,7 @@ function App() {
         <DernieresCles onClose={() => setDernieresOuvert(false)} />
       )}
       {(transitionChateau || chateauSelectionne) && (
-        (transitionChateau || chateauSelectionne).estLaUne === true
-          ? <VitrineChateau chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
-          : <ChateauModal chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
+        <VitrineChateau chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}
       {transitionChateau && (
         <TransitionPorte
@@ -116,9 +110,6 @@ function App() {
             navigate(url);
           }}
         />
-      )}
-      {evenementielOuvert && (
-        <ClesEvenementiel onClose={() => setEvenementielOuvert(false)} />
       )}
       {conciergerieOuvert && (
         <Conciergerie onClose={() => setConciergerieOuvert(false)} overlay={true} />

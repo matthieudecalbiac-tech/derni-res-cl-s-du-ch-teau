@@ -96,6 +96,22 @@ export async function getOffresClub() {
   return offres;
 }
 
+// Les slugs des chateaux ayant au moins une offre Dernieres Cles visible.
+// Sert l'overlay marketing, qui listait ces chateaux via un champ modules invente.
+export async function getSlugsAvecOffreDernieresCles() {
+  const { data, error } = await supabase
+    .from("offres")
+    .select("chateaux!inner(slug)")
+    .eq("module_id", MODULE_B_ID)
+    .eq("visible", true);
+
+  if (error) {
+    console.error("[offresService] getSlugsAvecOffreDernieresCles:", error);
+    throw error;
+  }
+  return new Set((data ?? []).map((r) => r.chateaux?.slug).filter(Boolean));
+}
+
 export async function getOffreParId(offreId) {
   if (!offreId) return null;
   const { data, error } = await supabase

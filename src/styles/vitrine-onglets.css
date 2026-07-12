@@ -43,6 +43,8 @@
 .vc4-offre-icone{width:52px;height:52px;flex-shrink:0;object-fit:contain;border-radius:50%;border:1px solid var(--vc4-or-soft);padding:11px;background:var(--vc4-bg)}
 .vc4-offre-corps{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0;padding-left:20px;border-left:1px solid var(--vc4-or-faint)}
 .vc4-offre-titre{font-family:'Playfair Display',serif;font-size:1.12rem;color:var(--vc4-ink);font-weight:400;letter-spacing:0.015em}
+/* Point d'un onglet : allume quand le module a au moins une offre reelle. */
+.vc4-offre-point{display:inline-block;width:7px;height:7px;margin-left:9px;border-radius:50%;background:var(--vc4-or);vertical-align:middle}
 .vc4-offre-sous{font-family:'Crimson Pro',serif;font-size:0.78rem;font-style:italic;color:var(--vc4-ink-soft);line-height:1.4}
 .vc4-offre-accroche{font-family:'Playfair Display',serif;font-size:0.95rem;color:#9A7223;margin-top:4px;letter-spacing:0.01em}
 .vc4-offre-fleche{flex-shrink:0;color:var(--vc4-or);font-size:1.15rem;transition:transform 0.3s,opacity 0.3s;opacity:0.65;align-self:center}

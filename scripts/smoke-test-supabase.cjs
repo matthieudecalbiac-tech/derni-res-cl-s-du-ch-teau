@@ -20,7 +20,7 @@
 
 const fs   = require("node:fs");
 const path = require("node:path");
-const { createClient } = require("@supabase/supabase-js");
+const { creerClientNode } = require("./lib/supabase-node.cjs");
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -96,7 +96,7 @@ async function main() {
   console.log(`  Key : ${key.substring(0, 16)}...${key.substring(key.length - 6)} (${key.length} chars)`);
   console.log("");
 
-  const supabase = createClient(url, key);
+  const supabase = creerClientNode(url, key);
 
   // ─── Test 1 : count chateaux ─────────────────────────────────────────────
   {

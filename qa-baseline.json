@@ -5,6 +5,14 @@
     "commentaire": "Baseline initiale après audit QA d'avril 2026. Les seuils reflètent la dette identifiée et documentée dans les commits feat(qa):* et fix(a11y):* de la branche feature/dashboard-generique. À réviser quand un chantier de résolution démarre : pass éditorial Tanguy (images + typographie), refonte tokens couleurs Tanguy, ou retrait du videoBackground Blanc Buisson.",
     "revisions": [
       {
+        "date": "2026-07-12",
+        "agent": "validation-donnees",
+        "metrique": "avertissements.max + actuel",
+        "ancien": "max=100 actuel=97",
+        "nouveau": "max=11 actuel=8",
+        "raison": "Piece 6 geste (c) : validation-donnees ne lit plus src/data/chateaux.js, il interroge la base avec la cle anon et ne valide donc que les chateaux publies (2 : Les Briottieres + Le Blanc Buisson), ce qu'un visiteur voit. L'ancien actuel=97 se decomposait en 78 apostrophes historiques + 19 avertissements des 6 mocks placeholder : les deux sources sont obsoletes ici. Les mocks (brouillon, isDemoMock) sortent du scope de validation (invisibles en anon) ; il ne reste que 8 apostrophes droites dans les donnees Briottieres. max resserre 100 -> 11 (8 mesures + 3 de marge) pour re-sensibiliser la porte : sous max=100, une derive editoriale jusqu'a 100 avertissements passait inapercue. erreurs inchange (max=0 actuel=0, l'agent produit toujours 0). Autres agents (a11y-axe, console-errors, playwright-e2e) non affectes : deja rebranches et recalibres au geste (a) / revision 2026-07-02."
+      },
+      {
         "date": "2026-07-02",
         "agent": "a11y-axe + console-errors",
         "metrique": "violationsCritical.max, violationsSerious.max, actuels recalibres",
@@ -110,9 +118,9 @@
         "dette": "Règle images >=2 (minimum produit, resserrée de >=3 le 2026-07-01). Tous les châteaux conformes → 0 erreur tolérée. Briottières a 2 images (retrait volontaire de la générique tropicale)."
       },
       "avertissements": {
-        "max": 100,
-        "actuel": 97,
-        "dette": "78 apostrophes droites historiques (narratifs editoriaux : histoire, description, timeline ; pass typographique en attente, scripts sed trop risques sans revue contextuelle) + 19 avertissements lies au pivot 'mocks placeholder' du 1er mai 2026 (Phase B Chantier 2.1) : textes courts, descriptions concises, 2-3 images au lieu de 4+. Les 19 nouveaux disparaitront automatiquement quand les vrais chateaux remplaceront les mocks (marqueur isDemoMock=true)."
+        "max": 11,
+        "actuel": 8,
+        "dette": "8 apostrophes droites dans les donnees Briottieres (les 2 publies valides ; les mocks brouillon ne sont plus valides). max=11 = 8 mesures + 3 de marge (tolere une apostrophe legitime, attrape une vraie derive)."
       }
     },
     "playwright-e2e": {

@@ -1,10 +1,11 @@
 // src/types/Chateau.js
 //
-// Schéma type unique pour les entrées de src/data/chateaux.js.
+// Schéma type unique d'un château, tel que produit par src/services/_mapping.js
+// à partir de la base Supabase (table chateaux + jointures).
 // Conçu en Chantier 2.1 (Phase A2) le 30 avril 2026.
 // Toute modification de ce schéma doit être accompagnée :
-//   1. d'une migration des entrées dans chateaux.js,
-//   2. d'une mise à jour de validateChateau() dans src/utils/,
+//   1. d'une migration du schéma Supabase (supabase/schema.sql + migrations/),
+//   2. d'une mise à jour du mapping src/services/_mapping.js,
 //   3. d'une note dans CLAUDE.md § Historique des chantiers.
 
 // ─── Sous-types ────────────────────────────────────────────────
@@ -87,7 +88,7 @@
 
 /**
  * Un château référencé sur Les Clés du Château.
- * Source unique : src/data/chateaux.js.
+ * Source : base Supabase (table chateaux), mappée par src/services/_mapping.js.
  *
  * @typedef {Object} Chateau
  *
@@ -113,8 +114,8 @@
  * @property {number} prixBarre — Prix de référence EUR (entier > 0)
  * @property {number} reduction — Pourcentage entier dans [0, 100]
  *
- * # Aiguillage vitrine
- * @property {boolean} [estLaUne] — Optionnel, défaut false. Si true → routing vers VitrineChateau (layout premium). Sinon → ChateauModal (layout standard). Cf. App.jsx:118
+ * # Mise en avant éditoriale
+ * @property {boolean} [estLaUne] — Optionnel, défaut false. Mise en avant éditoriale : ordonne l'affichage (les mis en avant en tête, cf. tri `est_la_une` dans chateauxService). N'aiguille plus le layout — toute demeure publiée a sa vitrine depuis la pièce 2.
  * @property {boolean} [isDemoMock] — Optionnel, défaut false. Marque un château comme « stub de démonstration » (contenu placeholder, pas de valeur éditoriale, à supprimer dès qu'un vrai château signe). Permet de filtrer les mocks programmatiquement (`chateaux.filter(c => !c.isDemoMock)`) et de les distinguer dans l'IDE et la CI. Les vrais châteaux n'ont PAS ce champ (pas `false` explicite, simplement absent).
  *
  * # Médias

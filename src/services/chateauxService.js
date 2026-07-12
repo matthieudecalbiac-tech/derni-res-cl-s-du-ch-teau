@@ -19,7 +19,7 @@
 //
 // SÉMANTIQUE excludeMocks
 //   - false (défaut) : retourne TOUS les châteaux (8 en Sprint S1)
-//   - true : retourne uniquement les châteaux estLaUne === true
+//   - true : exclut les châteaux de démonstration (isDemoMock)
 //     (= Briottières + Blanc Buisson en S1, plus en S2+)
 //
 // DETTE TECHNIQUE NOTÉE
@@ -82,17 +82,24 @@ async function _withFakeLatency() {
 }
 
 /**
- * Helper : un château est "mock" s'il n'est PAS estLaUne.
+ * Helper : un château est "mock" s'il porte isDemoMock (stub de démonstration).
  * Centralisé ici pour éviter le hardcoding `id===1||id===2||...`
  * @param {Object} chateau - Château au format React (mappé)
  * @returns {boolean}
  */
 function _isMock(chateau) {
-  return chateau?.estLaUne !== true;
+  return chateau?.isDemoMock === true;
 }
 
 /**
  * Round-trip Supabase + mapping.
+ *
+ * Le filtre `statut = 'publie'` est explicite : la RLS l'accorderait aussi aux
+ * brouillons d'un admin ou d'un châtelain, qui atterriraient alors dans le
+ * cache global — non indexé sur la session — puis seraient resservis à un
+ * visiteur anonyme pendant le reste du TTL. Le service dit ce qu'il veut ;
+ * la RLS reste le filet.
+ *
  * @returns {Promise<Object[]>} Tableau de châteaux mappés (format React).
  * @throws Si Supabase retourne une erreur.
  */
@@ -100,6 +107,7 @@ async function _fetchAllChateaux() {
   const { data, error } = await supabase
     .from("chateaux")
     .select(SELECT_FULL)
+    .eq("statut", "publie")
     .order("est_la_une", { ascending: false })
     .order("nom", { ascending: true });
 
@@ -138,8 +146,8 @@ async function _getAllCached() {
  * Retourne tous les châteaux (avec jointures complètes).
  *
  * @param {Object} [options]
- * @param {boolean} [options.excludeMocks=false] - Si true, ne retourne
- *   que les châteaux `estLaUne === true` (Briottières + Blanc Buisson en S1).
+ * @param {boolean} [options.excludeMocks=false] - Si true, exclut les châteaux
+ *   de démonstration (isDemoMock) — restent Briottières + Blanc Buisson en S1.
  * @returns {Promise<Object[]>}
  */
 export async function getChateaux({ excludeMocks = false } = {}) {

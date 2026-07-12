@@ -16,12 +16,12 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
   const [apercuChateau, setApercuChateau] = useState(null);
   const [photoZoom, setPhotoZoom] = useState(null);
 
-  // La carte ne montre que les chateaux reels (estLaUne) : seuls routables vers
+  // La carte ne montre que les chateaux reels (!isDemoMock) : seuls routables vers
   // une vraie vitrine. Puis filtre capacite (voyageurs herites de la barre).
   // Un seul tableau alimente la liste ET les marqueurs.
   const totalInvites = invites ? invites.adultes + invites.enfants : 0;
   const reels = (chateaux || [])
-    .filter((c) => c.estLaUne === true)
+    .filter((c) => !c.isDemoMock)
     .filter((c) => capaciteSuffisante(c, totalInvites));
 
   useEffect(() => {
