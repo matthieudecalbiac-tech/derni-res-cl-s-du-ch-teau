@@ -16,6 +16,10 @@ import {
   mapChateau,
   chateauToRow,
   DERIVES_NON_ECRITS,
+  chambreToRow,
+  timelineToRow,
+  alentourToRow,
+  amenityToRow,
   MODULE_B_ID,
 } from "../_mapping.js";
 import {
@@ -459,5 +463,154 @@ describe("chateauToRow (mapper inverse — colonnes chateaux)", () => {
     expect(row).toEqual({ nom: "X", slug: "x" });
     expect("region" in row).toBe(false);
     expect("coordonnees_lat" in row).toBe(false);
+  });
+});
+
+
+const pick = (obj, keys) =>
+  Object.fromEntries(keys.filter((k) => k in obj).map((k) => [k, obj[k]]));
+
+
+describe("chambreToRow (inverse fille — chambres)", () => {
+  const CHAMBRE_COLS = ["nom", "description", "superficie", "capacite", "prix_cents", "image", "equipements", "ordre"];
+
+  it("prix (euros) → prix_cents (entier)", () => {
+    const row = chambreToRow({ nom: "Suite", prix: 320, capacite: 2 });
+    expect(row.prix_cents).toBe(32000);
+  });
+
+  it("n'émet ni id ni chateau_id", () => {
+    const row = chambreToRow({ nom: "Suite", prix: 100, capacite: 2, id: "x", chateau_id: "y" });
+    expect("id" in row).toBe(false);
+    expect("chateau_id" in row).toBe(false);
+  });
+
+  it("ALLER-RETOUR : chambreToRow(mapChambre(row)) == colonnes gérées", () => {
+    const row0 = FIXTURE_BRIOTTIERES.chambres[0];
+    expect(chambreToRow(mapChambre(row0))).toEqual(pick(row0, CHAMBRE_COLS));
+  });
+
+  it("nom absent → throw", () => {
+    expect(() => chambreToRow({ prix: 100, capacite: 2 })).toThrow(/nom/);
+  });
+
+  it("prix <= 0 → throw (CHECK prix_cents > 0)", () => {
+    expect(() => chambreToRow({ nom: "X", prix: 0, capacite: 2 })).toThrow(/prix/);
+    expect(() => chambreToRow({ nom: "X", prix: -5, capacite: 2 })).toThrow(/prix/);
+  });
+
+  it("capacite hors [1,20] → throw", () => {
+    expect(() => chambreToRow({ nom: "X", prix: 100, capacite: 0 })).toThrow(/capacite/);
+    expect(() => chambreToRow({ nom: "X", prix: 100, capacite: 21 })).toThrow(/capacite/);
+    expect(() => chambreToRow({ nom: "X", prix: 100, capacite: 2.5 })).toThrow(/capacite/);
+  });
+});
+
+
+describe("timelineToRow (inverse fille — timeline)", () => {
+  it("ordre reconstruit depuis l'index", () => {
+    expect(timelineToRow({ annee: "1485", evenement: "E" }, 3).ordre).toBe(3);
+  });
+
+  it("ALLER-RETOUR : timelineToRow(mapTimelineItem(row), row.ordre) == colonnes gérées", () => {
+    const tl0 = FIXTURE_BRIOTTIERES.chateau_timeline[0]; // ordre 0
+    expect(timelineToRow(mapTimelineItem(tl0), tl0.ordre)).toEqual({
+      annee: tl0.annee,
+      evenement: tl0.evenement,
+      ordre: tl0.ordre,
+    });
+  });
+
+  it("annee absente → throw", () => {
+    expect(() => timelineToRow({ evenement: "E" }, 0)).toThrow(/annee/);
+  });
+
+  it("evenement absent → throw", () => {
+    expect(() => timelineToRow({ annee: "1485" }, 0)).toThrow(/evenement/);
+  });
+});
+
+
+describe("alentourToRow (inverse fille — alentours)", () => {
+  const ALENTOUR_COLS = ["nom", "distance", "type", "icone", "description", "ordre"];
+
+  it("ordre reconstruit depuis l'index", () => {
+    expect(alentourToRow({ nom: "X", type: "patrimoine" }, 2).ordre).toBe(2);
+  });
+
+  it("ALLER-RETOUR : alentourToRow(mapAlentour(row), row.ordre) == colonnes gérées", () => {
+    const al0 = FIXTURE_BRIOTTIERES.chateau_alentours[0]; // ordre 0
+    expect(alentourToRow(mapAlentour(al0), al0.ordre)).toEqual(pick(al0, ALENTOUR_COLS));
+  });
+
+  it("nom absent → throw", () => {
+    expect(() => alentourToRow({ type: "patrimoine" }, 0)).toThrow(/nom/);
+  });
+
+  it("type (enum) absent/vide → throw", () => {
+    expect(() => alentourToRow({ nom: "X" }, 0)).toThrow(/type/);
+    expect(() => alentourToRow({ nom: "X", type: "" }, 0)).toThrow(/type/);
+  });
+});
+
+
+describe("amenityToRow (ligne pivot COMPLÈTE — pas 4 booléens)", () => {
+  it("écrit une ligne pivot complète (type/nom/inclus/supplément/durée/ordre)", () => {
+    const row = amenityToRow(
+      { type: "service", nom: "Parking", description: "Cour intérieure", icone: "🚗", inclus: true },
+      0
+    );
+    expect(row).toEqual({
+      type: "service",
+      nom: "Parking",
+      inclus: true,
+      prix_supplement_cents: null,
+      duree_minutes: null,
+      ordre: 0,
+      description: "Cour intérieure",
+      icone: "🚗",
+    });
+  });
+
+  it("PAS de booléens parking/wifi/animaux — c'est une ligne, pas un flatten", () => {
+    const row = amenityToRow({ type: "service", nom: "Wi-Fi" }, 1);
+    expect("parking" in row).toBe(false);
+    expect("wifi" in row).toBe(false);
+    expect("animaux" in row).toBe(false);
+    expect("petitDejeuner" in row).toBe(false);
+    expect(row.nom).toBe("Wi-Fi");
+    expect(row.type).toBe("service");
+  });
+
+  it("inclus : défaut true si absent, false respecté si fourni", () => {
+    expect(amenityToRow({ type: "service", nom: "X" }, 0).inclus).toBe(true);
+    expect(amenityToRow({ type: "activite", nom: "X", inclus: false }, 0).inclus).toBe(false);
+  });
+
+  it("prixSupplement (euros) → prix_supplement_cents ; dureeMinutes passthrough", () => {
+    const row = amenityToRow(
+      { type: "activite", nom: "Dîner aux chandelles", inclus: false, prixSupplement: 85, dureeMinutes: 120 },
+      3
+    );
+    expect(row.prix_supplement_cents).toBe(8500);
+    expect(row.duree_minutes).toBe(120);
+    expect(row.inclus).toBe(false);
+    expect(row.ordre).toBe(3);
+  });
+
+  it("n'émet ni id ni chateau_id", () => {
+    const row = amenityToRow({ type: "service", nom: "X", id: "a", chateau_id: "b" }, 0);
+    expect("id" in row).toBe(false);
+    expect("chateau_id" in row).toBe(false);
+  });
+
+  it("type absent → throw ; nom absent → throw", () => {
+    expect(() => amenityToRow({ nom: "X" }, 0)).toThrow(/type/);
+    expect(() => amenityToRow({ type: "service" }, 0)).toThrow(/nom/);
+  });
+
+  it("prixSupplement < 0 → throw ; dureeMinutes <= 0 → throw", () => {
+    expect(() => amenityToRow({ type: "activite", nom: "X", prixSupplement: -1 }, 0)).toThrow(/prixSupplement/);
+    expect(() => amenityToRow({ type: "activite", nom: "X", dureeMinutes: 0 }, 0)).toThrow(/dureeMinutes/);
   });
 });
