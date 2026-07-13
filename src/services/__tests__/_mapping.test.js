@@ -14,6 +14,8 @@ import {
   flattenAmenities,
   applyOffreModuleB,
   mapChateau,
+  chateauToRow,
+  DERIVES_NON_ECRITS,
   MODULE_B_ID,
 } from "../_mapping.js";
 import {
@@ -323,5 +325,139 @@ describe("mapChateau (wrapper d'intégration)", () => {
     const result = mapChateau(FIXTURE_MINIMAL);
     expect(result.prixDepart).toBeNull();
     expect(result.chambres).toEqual([]);
+  });
+});
+
+
+describe("chateauToRow (mapper inverse — colonnes chateaux)", () => {
+  // Colonnes de `chateaux` que chateauToRow gère (exclut id/statut/amenities/
+  // dérivés/DB-managées). Sert à construire l'attendu de l'aller-retour.
+  const COLONNES_GEREES = [
+    "nom", "slug", "region", "departement", "ville", "accroche", "siecle", "style",
+    "distance_paris_label", "distance_paris", "urgence", "histoire", "description",
+    "region_narrative", "region_histoire", "chiffres_cles", "images",
+    "video_background_youtube_id", "est_la_une", "is_demo_mock", "hero_night_stars",
+    "couleur_theme", "accent_theme", "coordonnees_lat", "coordonnees_lng",
+    "prop_nom", "prop_depuis", "prop_initiale", "prop_nom_affiche", "prop_portrait",
+    "prop_citation", "prop_description",
+  ];
+  const pick = (obj, keys) =>
+    Object.fromEntries(keys.filter((k) => k in obj).map((k) => [k, obj[k]]));
+
+  it("renommages camelCase → snake_case", () => {
+    const row = chateauToRow({
+      nom: "X", slug: "x",
+      regionNarrative: "RN", regionHistoire: "RH",
+      videoBackground: "yt123",
+      estLaUne: true, isDemoMock: false, heroNightStars: true,
+      couleurTheme: "#111", accentTheme: "#222",
+    });
+    expect(row.region_narrative).toBe("RN");
+    expect(row.region_histoire).toBe("RH");
+    expect(row.video_background_youtube_id).toBe("yt123");
+    expect(row.est_la_une).toBe(true);
+    expect(row.is_demo_mock).toBe(false);
+    expect(row.hero_night_stars).toBe(true);
+    expect(row.couleur_theme).toBe("#111");
+    expect(row.accent_theme).toBe("#222");
+  });
+
+  it("coordonnees.{lat,lng} → coordonnees_lat / coordonnees_lng", () => {
+    const row = chateauToRow({ nom: "X", slug: "x", coordonnees: { lat: 47.68, lng: -0.53 } });
+    expect(row.coordonnees_lat).toBe(47.68);
+    expect(row.coordonnees_lng).toBe(-0.53);
+    expect("coordonnees" in row).toBe(false);
+  });
+
+  it("proprietaires.* → colonnes prop_*", () => {
+    const row = chateauToRow({
+      nom: "X", slug: "x",
+      proprietaires: {
+        nom: "Famille Y", depuis: "1900", initiale: "Y", nomAffiche: "de Y",
+        portrait: "/y.avif", citation: "Cit.", description: "Bio.",
+      },
+    });
+    expect(row.prop_nom).toBe("Famille Y");
+    expect(row.prop_depuis).toBe("1900");
+    expect(row.prop_initiale).toBe("Y");
+    expect(row.prop_nom_affiche).toBe("de Y");
+    expect(row.prop_portrait).toBe("/y.avif");
+    expect(row.prop_citation).toBe("Cit.");
+    expect(row.prop_description).toBe("Bio.");
+    expect("proprietaires" in row).toBe(false);
+  });
+
+  it("distance re-séparée : distanceParis → label, distanceParisMinutes → integer", () => {
+    const row = chateauToRow({ nom: "X", slug: "x", distanceParis: "2h15 de Paris", distanceParisMinutes: 135 });
+    expect(row.distance_paris_label).toBe("2h15 de Paris");
+    expect(row.distance_paris).toBe(135);
+  });
+
+  it("chiffresCles → chiffres_cles (jsonb passthrough) + images text[] passthrough", () => {
+    const cc = { ans: 7, hectares: 50 };
+    const imgs = ["/a.avif", "/b.avif"];
+    const row = chateauToRow({ nom: "X", slug: "x", chiffresCles: cc, images: imgs });
+    expect(row.chiffres_cles).toEqual(cc);
+    expect(row.images).toEqual(imgs);
+  });
+
+  it("ALLER-RETOUR fidèle : chateauToRow(mapChateau(BRIOTTIERES)) == colonnes gérées de la fixture", () => {
+    const row = chateauToRow(mapChateau(FIXTURE_BRIOTTIERES));
+    expect(row).toEqual(pick(FIXTURE_BRIOTTIERES, COLONNES_GEREES));
+  });
+
+  it("dérivés (prix/prixBarre/reduction/prixDepart/chambresRestantes) NON écrits", () => {
+    const row = chateauToRow(mapChateau(FIXTURE_BRIOTTIERES));
+    for (const derive of DERIVES_NON_ECRITS) {
+      expect(derive in row).toBe(false);
+    }
+    // Sécurité explicite : aucune colonne de prix ni de chambre dans le row.
+    expect("prix" in row).toBe(false);
+    expect("prix_cents" in row).toBe(false);
+  });
+
+  it("amenities (parking/wifi/animaux) NON écrits — hors périmètre 2b (pivot en 2d)", () => {
+    const row = chateauToRow(mapChateau(FIXTURE_BRIOTTIERES));
+    expect("parking" in row).toBe(false);
+    expect("wifi" in row).toBe(false);
+    expect("animaux" in row).toBe(false);
+    expect("petit_dejeuner" in row).toBe(false);
+  });
+
+  it("id / statut / DB-managées NON écrits", () => {
+    const row = chateauToRow(mapChateau(FIXTURE_BRIOTTIERES));
+    expect("id" in row).toBe(false);
+    expect("statut" in row).toBe(false);
+    expect("created_at" in row).toBe(false);
+  });
+
+  it("nom absent → throw", () => {
+    expect(() => chateauToRow({ slug: "x" })).toThrow(/nom/);
+  });
+
+  it("slug absent → throw", () => {
+    expect(() => chateauToRow({ nom: "X" })).toThrow(/slug/);
+  });
+
+  it("nom/slug vides (chaîne blanche) → throw", () => {
+    expect(() => chateauToRow({ nom: "  ", slug: "x" })).toThrow(/nom/);
+    expect(() => chateauToRow({ nom: "X", slug: "" })).toThrow(/slug/);
+  });
+
+  it("form null/invalide → throw", () => {
+    expect(() => chateauToRow(null)).toThrow();
+    expect(() => chateauToRow(undefined)).toThrow();
+  });
+
+  it("mode partiel : nom/slug non requis, seules les clés présentes deviennent colonnes", () => {
+    const row = chateauToRow({ accroche: "Nouvelle accroche" }, { partial: true });
+    expect(row).toEqual({ accroche: "Nouvelle accroche" });
+  });
+
+  it("émission partielle : une clé absente ne produit pas de colonne", () => {
+    const row = chateauToRow({ nom: "X", slug: "x" });
+    expect(row).toEqual({ nom: "X", slug: "x" });
+    expect("region" in row).toBe(false);
+    expect("coordonnees_lat" in row).toBe(false);
   });
 });

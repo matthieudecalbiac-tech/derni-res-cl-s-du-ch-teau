@@ -392,3 +392,130 @@ export function mapChateau(rowSupabase) {
     prixDepart,
   };
 }
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAPPER INVERSE — form React → row Supabase (colonnes de `chateaux` SEULES)
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// PÉRIMÈTRE (brique 2b) : le base-row `chateaux` uniquement. Les tables filles
+// (chambres, timeline, alentours, amenities, offres) ont chacune leur propre
+// inverse en 2d. Ici, on ne produit QUE des colonnes de la table `chateaux`.
+//
+// EXCLUSIONS EXPLICITES :
+//   - Dérivés (DERIVES_NON_ECRITS) : prix / prixBarre / reduction viennent de
+//     la table `offres` ; prixDepart est calculé ; chambresRestantes est null.
+//     Ce ne sont PAS des colonnes de `chateaux` → jamais écrits.
+//   - Amenities (parking/wifi/animaux/petitDejeuner) : source de vérité = pivot
+//     `chateau_amenities` (logique insert/delete), traitée en 2d. Non touchée.
+//   - DB-managées : id, created_at, updated_at, statut, nb_avis, note_sur_5,
+//     date_disponible → hors mapping (défauts base / gérées ailleurs).
+
+/** Champ React (plat) → colonne `chateaux` (snake_case). Seule source de colonnes. */
+const CHAMP_VERS_COLONNE = {
+  nom: "nom",
+  slug: "slug",
+  region: "region",
+  departement: "departement",
+  ville: "ville",
+  accroche: "accroche",
+  siecle: "siecle",
+  style: "style",
+  urgence: "urgence",
+  histoire: "histoire",
+  description: "description",
+  regionNarrative: "region_narrative",
+  regionHistoire: "region_histoire",
+  chiffresCles: "chiffres_cles",
+  images: "images",
+  videoBackground: "video_background_youtube_id",
+  estLaUne: "est_la_une",
+  isDemoMock: "is_demo_mock",
+  heroNightStars: "hero_night_stars",
+  couleurTheme: "couleur_theme",
+  accentTheme: "accent_theme",
+  // Re-séparation de la distance (mapChateauBase fusionne les deux colonnes).
+  distanceParis: "distance_paris_label",
+  distanceParisMinutes: "distance_paris",
+};
+
+/** Sous-champ `proprietaires.*` → colonne `prop_*`. */
+const PROP_VERS_COLONNE = {
+  nom: "prop_nom",
+  depuis: "prop_depuis",
+  initiale: "prop_initiale",
+  nomAffiche: "prop_nom_affiche",
+  portrait: "prop_portrait",
+  citation: "prop_citation",
+  description: "prop_description",
+};
+
+/**
+ * Champs présents dans l'objet React (sortie de mapChateau) mais qui NE SONT
+ * PAS des colonnes de `chateaux` — chateauToRow ne les écrit JAMAIS.
+ * Exportée pour être vérifiée par les tests (garde anti-régression).
+ */
+export const DERIVES_NON_ECRITS = [
+  "prix",         // → table offres (Module B)
+  "prixBarre",    // → table offres (Module B)
+  "reduction",    // → table offres (Module B)
+  "prixDepart",   // calculé depuis min(chambres.prix)
+  "chambresRestantes", // toujours null (RPC S2), pas de colonne
+];
+
+/**
+ * Inverse de mapChateau pour les colonnes de la table `chateaux` seulement.
+ * Transformation PURE (aucune écriture base).
+ *
+ * Comportement partiel : une colonne n'est produite que si sa clé est présente
+ * dans le form (détection par présence). Permet un UPDATE partiel ultérieur —
+ * un champ absent n'écrase pas la colonne existante.
+ *
+ * @param {Object} form - Objet château au format React (typiquement une sortie
+ *   de mapChateau éditée, ou les valeurs d'un formulaire admin).
+ * @param {Object} [options]
+ * @param {boolean} [options.partial=false] - Si false (défaut, "form complet") :
+ *   `nom` et `slug` sont requis (colonnes NOT NULL) → throw si absents/vides.
+ *   Si true (UPDATE ciblé) : cette validation est relâchée.
+ * @returns {Object} Row `chateaux` (snake_case) prête pour insert/update.
+ * @throws {Error} form invalide, ou nom/slug manquants en mode non-partiel.
+ */
+export function chateauToRow(form, { partial = false } = {}) {
+  if (!form || typeof form !== "object") {
+    throw new Error("chateauToRow : form manquant ou invalide.");
+  }
+
+  const present = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+
+  // nom + slug : identité NOT NULL de la table. Exigés pour un form complet.
+  if (!partial) {
+    if (typeof form.nom !== "string" || form.nom.trim() === "") {
+      throw new Error("chateauToRow : 'nom' est requis (colonne NOT NULL).");
+    }
+    if (typeof form.slug !== "string" || form.slug.trim() === "") {
+      throw new Error("chateauToRow : 'slug' est requis (colonne NOT NULL).");
+    }
+  }
+
+  const row = {};
+
+  // Champs plats — émis seulement si présents (support UPDATE partiel).
+  for (const [champ, colonne] of Object.entries(CHAMP_VERS_COLONNE)) {
+    if (present(form, champ)) row[colonne] = form[champ];
+  }
+
+  // coordonnees.{lat,lng} → coordonnees_lat / coordonnees_lng
+  if (present(form, "coordonnees") && form.coordonnees && typeof form.coordonnees === "object") {
+    if (present(form.coordonnees, "lat")) row.coordonnees_lat = form.coordonnees.lat;
+    if (present(form.coordonnees, "lng")) row.coordonnees_lng = form.coordonnees.lng;
+  }
+
+  // proprietaires.* → colonnes prop_*
+  if (present(form, "proprietaires") && form.proprietaires && typeof form.proprietaires === "object") {
+    for (const [sousChamp, colonne] of Object.entries(PROP_VERS_COLONNE)) {
+      if (present(form.proprietaires, sousChamp)) row[colonne] = form.proprietaires[sousChamp];
+    }
+  }
+
+  return row;
+}
