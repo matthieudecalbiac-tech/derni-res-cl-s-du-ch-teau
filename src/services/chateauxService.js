@@ -409,6 +409,18 @@ export async function saveChateauComplet(id, sections = {}) {
   if (error) {
     // Un non-admin déclenche le RAISE 42501 de la RPC → error non-null.
     console.error("[chateauxService] saveChateauComplet error:", error);
+
+    // 23503 = violation de FK : on tente de supprimer une chambre encore
+    // référencée par une réservation (FK RESTRICT). Message clair plutôt que
+    // l'erreur SQL brute.
+    const detail = `${error.message ?? ""} ${error.details ?? ""}`.toLowerCase();
+    if (error.code === "23503" && (detail.includes("reservation") || detail.includes("chambre_id"))) {
+      throw new Error(
+        "Impossible de supprimer une chambre : elle a des réservations. " +
+        "Retire d'abord la réservation, ou garde la chambre."
+      );
+    }
+
     throw new Error(`Failed to save chateau ${id}: ${error.message}`);
   }
 

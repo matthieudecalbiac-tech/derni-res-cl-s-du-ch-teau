@@ -342,6 +342,7 @@ describe("chateauToRow (mapper inverse — colonnes chateaux)", () => {
     "distance_paris_label", "distance_paris", "urgence", "histoire", "description",
     "region_narrative", "region_histoire", "chiffres_cles", "images",
     "video_background_youtube_id", "est_la_une", "is_demo_mock", "hero_night_stars",
+    "une_de_la_semaine", "ordre_home",
     "couleur_theme", "accent_theme", "coordonnees_lat", "coordonnees_lng",
     "prop_nom", "prop_depuis", "prop_initiale", "prop_nom_affiche", "prop_portrait",
     "prop_citation", "prop_description",
@@ -473,17 +474,22 @@ const pick = (obj, keys) =>
 
 
 describe("chambreToRow (inverse fille — chambres)", () => {
-  const CHAMBRE_COLS = ["nom", "description", "superficie", "capacite", "prix_cents", "image", "equipements", "ordre"];
+  const CHAMBRE_COLS = ["id", "nom", "description", "superficie", "capacite", "prix_cents", "image", "equipements", "ordre"];
 
   it("prix (euros) → prix_cents (entier)", () => {
     const row = chambreToRow({ nom: "Suite", prix: 320, capacite: 2 });
     expect(row.prix_cents).toBe(32000);
   });
 
-  it("n'émet ni id ni chateau_id", () => {
+  it("émet id si présent (diff), jamais chateau_id", () => {
     const row = chambreToRow({ nom: "Suite", prix: 100, capacite: 2, id: "x", chateau_id: "y" });
-    expect("id" in row).toBe(false);
+    expect(row.id).toBe("x");
     expect("chateau_id" in row).toBe(false);
+  });
+
+  it("n'émet pas id si absent (chambre nouvelle → INSERT)", () => {
+    const row = chambreToRow({ nom: "Suite", prix: 100, capacite: 2 });
+    expect("id" in row).toBe(false);
   });
 
   it("ALLER-RETOUR : chambreToRow(mapChambre(row)) == colonnes gérées", () => {

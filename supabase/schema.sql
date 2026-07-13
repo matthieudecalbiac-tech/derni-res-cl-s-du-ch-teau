@@ -186,6 +186,10 @@ CREATE TABLE IF NOT EXISTS public.chateaux (
   is_demo_mock                boolean      NOT NULL DEFAULT false,
   hero_night_stars            boolean      NOT NULL DEFAULT false,   -- opt-in étoiles overlay nuit (cf. fix/vitrine-night-mode-polish)
 
+  -- Mise en avant sur la home (contrôle admin — niveau 2, cf. migration 2026-07-13-mise-en-avant-home)
+  une_de_la_semaine           boolean      NOT NULL DEFAULT false,   -- vedette curatée section "Les clés à la une"
+  ordre_home                  integer,                               -- ordre section "Découvrez aussi" (null = fin de tri)
+
   -- Stats commerciales
   note_sur_5                  numeric(3,2),
   nb_avis                     integer      NOT NULL DEFAULT 0,
