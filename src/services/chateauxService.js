@@ -43,6 +43,7 @@ import {
   alentourToRow,
   amenityToRow,
 } from "./_mapping.js";
+import { cheminStorageDepuisUrl } from "../utils/storageUrl.js";
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -358,6 +359,8 @@ export async function getChateauAdminById(id) {
       .map(mapAmenity)
       .filter(Boolean)
       .sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0)),
+    // statut n'est pas mappé par mapChateau — on le surface pour le bouton Publier.
+    statut: data.statut,
   };
 }
 
@@ -509,4 +512,112 @@ export async function uploadImage(file) {
 
   const { data } = supabase.storage.from("chateaux-images").getPublicUrl(chemin);
   return data.publicUrl;
+}
+
+const STATUTS_VALIDES = ["brouillon", "publie", "archive"];
+
+/**
+ * ÉCRITURE ADMIN — change le statut de publication d'un château.
+ *
+ * Chemin distinct de saveChateauComplet : la RPC exclut volontairement `statut`
+ * de son SET (publier est une action séparée de l'édition du contenu). UPDATE
+ * mono-colonne, garde par la RLS `is_admin()` via la session admin.
+ *
+ * @param {string} id - UUID du château.
+ * @param {'brouillon'|'publie'|'archive'} statut - Nouveau statut.
+ * @returns {Promise<Object>} La ligne modifiée.
+ * @throws Si id/statut invalides, erreur Supabase, ou 0 ligne (refus RLS).
+ */
+export async function updateStatut(id, statut) {
+  if (!id) throw new Error("updateStatut : id requis.");
+  if (!STATUTS_VALIDES.includes(statut)) {
+    throw new Error(
+      `updateStatut : statut invalide "${statut}" (attendu : ${STATUTS_VALIDES.join(", ")}).`
+    );
+  }
+
+  const { data, error } = await supabase
+    .from("chateaux")
+    .update({ statut })
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    console.error("[chateauxService] updateStatut error:", error);
+    throw new Error(`Failed to update statut ${id}: ${error.message}`);
+  }
+  if (!data || data.length === 0) {
+    throw new Error(
+      `updateStatut : 0 ligne modifiée pour ${id}. ` +
+      `Refus RLS probable (session non-admin) ou id inexistant.`
+    );
+  }
+
+  invalidateCache();
+  return data[0];
+}
+
+/**
+ * SUPPRESSION ADMIN — supprime un château et nettoie ses images Storage.
+ *
+ * Ordre : d'abord les images du bucket (best-effort — des orphelins ne sont pas
+ * critiques, on ne bloque jamais la suppression pour ça), PUIS la ligne château
+ * (l'essentiel). Les tables filles partent en cascade FK (ON DELETE CASCADE).
+ *
+ * Seules les images du bucket chateaux-images sont retirées ; les chemins
+ * public/ et les URLs externes (unsplash) sont ignorés (cf. cheminStorageDepuisUrl).
+ *
+ * @param {string} id - UUID du château.
+ * @returns {Promise<true>}
+ * @throws Si id manquant, erreur DELETE, ou 0 ligne (refus RLS / id inexistant).
+ */
+export async function deleteChateau(id) {
+  if (!id) throw new Error("deleteChateau : id requis.");
+
+  // 1. Collecter les chemins Storage des images du château (best-effort).
+  let chemins = [];
+  try {
+    const chateau = await getChateauAdminById(id);
+    const urls = [
+      ...(chateau.images ?? []),
+      ...(chateau.chambres ?? []).map((c) => c.image),
+      chateau.proprietaires?.portrait,
+    ];
+    chemins = urls.map(cheminStorageDepuisUrl).filter(Boolean);
+  } catch (e) {
+    // Lecture échouée : on ne bloque pas la suppression du château pour autant.
+    console.error("[chateauxService] deleteChateau: lecture des images échouée:", e);
+  }
+
+  // 2. Retirer ces fichiers du bucket (best-effort — jamais bloquant).
+  if (chemins.length > 0) {
+    const { error: errStorage } = await supabase.storage
+      .from("chateaux-images")
+      .remove(chemins);
+    if (errStorage) {
+      console.error("[chateauxService] deleteChateau: nettoyage Storage échoué:", errStorage);
+      // On continue : le château doit partir même si des images subsistent.
+    }
+  }
+
+  // 3. Supprimer la ligne château — les filles partent en cascade FK.
+  const { data, error } = await supabase
+    .from("chateaux")
+    .delete()
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    console.error("[chateauxService] deleteChateau error:", error);
+    throw new Error(`Failed to delete chateau ${id}: ${error.message}`);
+  }
+  if (!data || data.length === 0) {
+    throw new Error(
+      `deleteChateau : 0 ligne supprimée pour ${id}. ` +
+      `Refus RLS probable (session non-admin) ou id inexistant.`
+    );
+  }
+
+  invalidateCache();
+  return true;
 }
