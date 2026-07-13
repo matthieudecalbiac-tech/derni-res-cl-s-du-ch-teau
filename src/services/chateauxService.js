@@ -34,7 +34,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { supabase } from "../lib/supabase.js";
-import { mapChateau } from "./_mapping.js";
+import { mapChateau, chateauToRow } from "./_mapping.js";
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -263,4 +263,51 @@ export async function getChateauxAdmin() {
   }
 
   return data ?? [];
+}
+
+/**
+ * ÉCRITURE ADMIN — met à jour un château (colonnes de la table `chateaux`).
+ *
+ * L'écriture part du client partagé `supabase` : en session admin, il porte le
+ * JWT de l'admin, ce qui active la RLS `is_admin()` (policy UPDATE). Sans
+ * session admin, la requête ne modifie aucune ligne (refus RLS silencieux).
+ *
+ * `champs` est transformé par chateauToRow en mode partiel : seules les clés
+ * présentes deviennent des colonnes (pas d'écrasement des autres), et nom/slug
+ * ne sont pas exigés (on modifie, on ne crée pas).
+ *
+ * @param {string} id - UUID du château à modifier.
+ * @param {Object} champs - Champs à modifier, format React partiel.
+ * @returns {Promise<Object>} La ligne `chateaux` modifiée (preuve de succès).
+ * @throws Si id manquant, erreur Supabase, ou 0 ligne modifiée (refus RLS / id inconnu).
+ */
+export async function updateChateau(id, champs) {
+  if (!id) throw new Error("updateChateau : id requis.");
+
+  const row = chateauToRow(champs, { partial: true });
+
+  const { data, error } = await supabase
+    .from("chateaux")
+    .update(row)
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    console.error("[chateauxService] updateChateau error:", error);
+    throw new Error(`Failed to update chateau ${id}: ${error.message}`);
+  }
+
+  // 0 ligne = pas d'erreur SQL mais rien de modifié : refus RLS silencieux
+  // (session non-admin) ou id inexistant. On le dit clairement.
+  if (!data || data.length === 0) {
+    throw new Error(
+      `updateChateau : 0 ligne modifiée pour ${id}. ` +
+      `Refus RLS probable (session non-admin) ou id inexistant.`
+    );
+  }
+
+  // Le cache public (getChateaux) doit oublier l'ancienne valeur.
+  invalidateCache();
+
+  return data[0];
 }
