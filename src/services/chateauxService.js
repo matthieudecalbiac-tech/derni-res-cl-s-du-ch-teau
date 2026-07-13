@@ -227,3 +227,40 @@ export async function getCompteurs({ excludeMocks = false } = {}) {
 export function invalidateCache() {
   _cache.clear();
 }
+
+/**
+ * Lecture ADMIN — liste de TOUS les châteaux, tous statuts confondus
+ * (brouillon, publie, archive), SANS cache.
+ *
+ * Volontairement distincte de getChateaux() :
+ *   - getChateaux() filtre .eq("statut","publie") et met en cache global. Ce
+ *     cache n'est PAS indexé sur la session ; y laisser entrer des brouillons
+ *     les resservirait à un visiteur anonyme pendant le TTL. On ne passe donc
+ *     jamais par lui ici.
+ *   - Requête directe, colonnes de liste seulement (pas de jointures), jamais
+ *     mise en cache. La RLS `is_admin()` autorise déjà un admin à voir tous les
+ *     statuts ; un non-admin ne verrait que les publiés (défense en profondeur),
+ *     l'écran étant de toute façon gardé par RequireRole admin.
+ *
+ * Retourne les lignes BRUTES Supabase (snake_case) — pas de mapChateau : une
+ * liste n'a pas besoin de la forme React imbriquée.
+ *
+ * @returns {Promise<Array<{
+ *   id: string, slug: string, nom: string, region: string,
+ *   statut: string, is_demo_mock: boolean, est_la_une: boolean
+ * }>>}
+ * @throws Si Supabase retourne une erreur.
+ */
+export async function getChateauxAdmin() {
+  const { data, error } = await supabase
+    .from("chateaux")
+    .select("id,slug,nom,region,statut,is_demo_mock,est_la_une")
+    .order("nom", { ascending: true });
+
+  if (error) {
+    console.error("[chateauxService] getChateauxAdmin error:", error);
+    throw new Error(`Failed to fetch chateaux (admin): ${error.message}`);
+  }
+
+  return data ?? [];
+}

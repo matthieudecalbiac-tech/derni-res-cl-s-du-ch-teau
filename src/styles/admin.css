@@ -123,3 +123,61 @@
   font-size: var(--t-md);
   color: var(--gris-fonce);
 }
+
+/* ── Tableau (liste châteaux — brique 2a) ── */
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--s-sm);
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+}
+
+.adm-table th {
+  text-align: left;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--gris-fonce);
+  border-bottom: 2px solid var(--or);
+  padding: 0.7rem 0.8rem;
+}
+
+.adm-table td {
+  border-bottom: 1px solid var(--creme-chaud);
+  padding: 0.7rem 0.8rem;
+}
+
+.adm-table tbody tr:hover td {
+  background: var(--lcc-creme);
+}
+
+/* ── Badge statut ── */
+.adm-badge {
+  display: inline-block;
+  font-size: var(--t-xs);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  color: var(--creme);
+}
+
+.adm-badge--publie {
+  background: var(--vert-lierre);
+}
+
+.adm-badge--brouillon {
+  background: var(--gris);
+}
+
+.adm-badge--archive {
+  background: var(--gris-fonce);
+}
+
+/* ── Message d'erreur ── */
+.adm-erreur {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--rouge-velours);
+}
