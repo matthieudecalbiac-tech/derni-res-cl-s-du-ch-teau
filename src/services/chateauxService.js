@@ -452,3 +452,61 @@ export async function createChateau(nom, slug) {
   invalidateCache();
   return data; // { id, statut: 'brouillon', ... défauts }
 }
+
+// Formats d'image acceptés → extension de fichier. Tout autre type est refusé.
+const EXT_PAR_MIME = {
+  "image/avif": "avif",
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+};
+const POIDS_MAX_IMAGE = 5 * 1024 * 1024; // 5 Mo
+
+// Slugifie le nom de fichier (accents, espaces, ponctuation → tirets).
+function _slugFichier(nom) {
+  return (
+    nom
+      .normalize("NFD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "image"
+  );
+}
+
+/**
+ * TÉLÉVERSEMENT ADMIN — envoie une image dans le bucket Storage chateaux-images
+ * et retourne son URL publique.
+ *
+ * Garde-fous : formats avif/jpg/png/webp seulement, 5 Mo max. Le chemin est
+ * unique (timestamp + nom slugifié) pour éviter les collisions. L'écriture
+ * dans le bucket est gardée par la policy Storage `is_admin()` (session admin).
+ *
+ * @param {File} file - Fichier image choisi dans un <input type="file">.
+ * @returns {Promise<string>} URL publique de l'image téléversée.
+ * @throws Si format non supporté, poids excédé, ou erreur Storage.
+ */
+export async function uploadImage(file) {
+  if (!file) throw new Error("uploadImage : aucun fichier fourni.");
+  if (!EXT_PAR_MIME[file.type]) {
+    throw new Error("Format non supporté : utilise avif, jpg, png ou webp.");
+  }
+  if (file.size > POIDS_MAX_IMAGE) {
+    throw new Error("Image trop lourde : 5 Mo maximum.");
+  }
+
+  const base = (file.name || "image").replace(/\.[^.]+$/, "");
+  const chemin = `chateaux/${Date.now()}-${_slugFichier(base)}.${EXT_PAR_MIME[file.type]}`;
+
+  const { error } = await supabase.storage
+    .from("chateaux-images")
+    .upload(chemin, file, { contentType: file.type });
+
+  if (error) {
+    console.error("[chateauxService] uploadImage error:", error);
+    throw new Error(`Échec du téléversement : ${error.message}`);
+  }
+
+  const { data } = supabase.storage.from("chateaux-images").getPublicUrl(chemin);
+  return data.publicUrl;
+}

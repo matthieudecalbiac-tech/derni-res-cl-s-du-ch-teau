@@ -417,3 +417,47 @@
   border-color: var(--or);
   background: var(--creme);
 }
+
+/* ── Téléversement d'image ── */
+.adm-upload {
+  display: flex;
+  align-items: center;
+  gap: var(--s-sm);
+  flex-wrap: wrap;
+  margin-bottom: 0.3rem;
+}
+
+.adm-upload-apercu {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 4px;
+  border: 1px solid var(--gris-clair);
+  background: var(--creme-chaud);
+}
+
+.adm-upload-btn {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  color: var(--bleu-nuit);
+  background: transparent;
+  border: 1px dashed var(--or-sombre);
+  border-radius: 4px;
+  padding: 0.4rem 0.9rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.adm-upload-btn:hover {
+  border-style: solid;
+  border-color: var(--or);
+  background: var(--creme);
+}
+
+.adm-upload-erreur {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--rouge-velours);
+}
