@@ -559,10 +559,12 @@ export function chateauToRow(form, { partial = false } = {}) {
 // MAPPERS INVERSES DES FILLES — form React → row Supabase (tables filles)
 // ─────────────────────────────────────────────────────────────────────────────
 //
-// Ne produisent JAMAIS `id` (gen_random_uuid côté base) ni `chateau_id` (posé
-// par la RPC d'écriture qui connaît le parent). L'`ordre` est reconstruit depuis
-// l'index du tableau pour timeline/alentours/amenities (leurs mappers de lecture
-// le perdent) ; chambreToRow le passe en direct (mapChambre le conserve).
+// Ne produisent pas `chateau_id` (posé par la RPC d'écriture qui connaît le
+// parent). `id` : timeline/alentours/amenities ne l'émettent jamais (REPLACE,
+// gen_random_uuid côté base) ; chambreToRow le transmet s'il est présent (le
+// diff des chambres a besoin d'identifier les existantes — cf. FK reservations).
+// L'`ordre` est reconstruit depuis l'index pour timeline/alentours/amenities
+// (leurs mappers de lecture le perdent) ; chambreToRow le passe en direct.
 
 const _present = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
 
@@ -572,7 +574,7 @@ const _present = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
  * capacite entière dans [1, 20].
  *
  * @param {Object} chambre - Chambre au format React (sortie mapChambre éditée).
- * @returns {Object} Row `chambres` (sans id ni chateau_id).
+ * @returns {Object} Row `chambres` — avec `id` si présent (pour le diff), sans chateau_id.
  * @throws {Error} si chambre invalide ou contrainte violée.
  */
 export function chambreToRow(chambre) {
@@ -599,6 +601,10 @@ export function chambreToRow(chambre) {
   if (_present(chambre, "image")) row.image = chambre.image;
   if (_present(chambre, "equipements")) row.equipements = chambre.equipements;
   if (_present(chambre, "ordre")) row.ordre = chambre.ordre;
+  // id transmis s'il est présent : prépare la stratégie DIFF (chambre existante
+  // = UPDATE par id ; chambre nouvelle = pas d'id = INSERT). Exception assumée
+  // vs les autres inverses (qui ne portent jamais id) — cf. FK reservations.
+  if (_present(chambre, "id")) row.id = chambre.id;
   return row;
 }
 
