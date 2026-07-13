@@ -268,6 +268,26 @@ describe("mapChateau (wrapper d'intégration)", () => {
     expect(out.chambresRestantes).toBeNull();
   });
 
+  it("Briottières : amenities[] exposé, trié par ordre, forme complète (+ rétrocompat booléens)", () => {
+    const out = mapChateau(FIXTURE_BRIOTTIERES);
+    expect(Array.isArray(out.amenities)).toBe(true);
+    expect(out.amenities).toHaveLength(4);
+    expect(out.amenities.map((a) => a.ordre)).toEqual([0, 1, 2, 3]);
+    for (const a of out.amenities) {
+      expect(a).toHaveProperty("type");
+      expect(a).toHaveProperty("nom");
+      expect(a).toHaveProperty("description");
+      expect(a).toHaveProperty("icone");
+      expect(a).toHaveProperty("image");
+      expect(a).toHaveProperty("inclus");
+    }
+    const diner = out.amenities.find((a) => a.nom === "Dîner aux chandelles");
+    expect(diner.image).toBe("/bri-diner.avif");
+    // rétrocompat : les 4 booléens flatten restent présents
+    expect(out.parking).toBe(true);
+    expect(out.wifi).toBe(true);
+  });
+
   it("Vaux : sans offre B → prixBarre/reduction null", () => {
     const out = mapChateau(FIXTURE_VAUX);
     expect(out.prixBarre).toBeNull();
@@ -573,6 +593,7 @@ describe("amenityToRow (ligne pivot COMPLÈTE — pas 4 booléens)", () => {
       inclus: true,
       prix_supplement_cents: null,
       duree_minutes: null,
+      image: null,
       ordre: 0,
       description: "Cour intérieure",
       icone: "🚗",
@@ -624,7 +645,7 @@ describe("amenityToRow (ligne pivot COMPLÈTE — pas 4 booléens)", () => {
 
 
 describe("mapAmenity <-> amenityToRow (aller-retour pivot amenity)", () => {
-  const AMENITY_COLS = ["type", "nom", "description", "icone", "inclus", "prix_supplement_cents", "duree_minutes", "ordre"];
+  const AMENITY_COLS = ["type", "nom", "description", "icone", "image", "inclus", "prix_supplement_cents", "duree_minutes", "ordre"];
 
   it("mapAmenity : cents → euros, inclus bool, forme React", () => {
     const am = FIXTURE_BRIOTTIERES.chateau_amenities[3]; // Dîner : supplement 8500, duree 120, inclus false
@@ -649,6 +670,16 @@ describe("mapAmenity <-> amenityToRow (aller-retour pivot amenity)", () => {
   it("ALLER-RETOUR amenity (service, supplément/durée null) : null préservé", () => {
     const am = FIXTURE_BRIOTTIERES.chateau_amenities[0]; // Parking : supplement/duree null, inclus true
     expect(amenityToRow(mapAmenity(am), am.ordre)).toEqual(pick(am, AMENITY_COLS));
+  });
+
+  it("mapAmenity : lit image (présent → valeur, absent → null)", () => {
+    expect(mapAmenity(FIXTURE_BRIOTTIERES.chateau_amenities[3]).image).toBe("/bri-diner.avif");
+    expect(mapAmenity({ type: "service", nom: "X" }).image).toBeNull();
+  });
+
+  it("amenityToRow : émet image (valeur transmise, null si absent)", () => {
+    expect(amenityToRow({ type: "service", nom: "X", image: "/y.avif" }, 0).image).toBe("/y.avif");
+    expect(amenityToRow({ type: "service", nom: "X" }, 0).image).toBeNull();
   });
 
   it("input null → null", () => {

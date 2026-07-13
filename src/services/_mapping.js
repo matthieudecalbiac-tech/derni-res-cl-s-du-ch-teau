@@ -201,6 +201,7 @@ export function mapAmenity(row) {
     nom: row.nom,
     description: nullable(row.description),
     icone: nullable(row.icone),
+    image: nullable(row.image),
     inclus: row.inclus === true,
     prixSupplement: centsToEuros(row.prix_supplement_cents),
     dureeMinutes: nullable(row.duree_minutes),
@@ -420,6 +421,12 @@ export function mapChateau(rowSupabase) {
       .sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
       .map(mapAlentour)
       .filter(Boolean),
+    // amenities[] complet (type/description/icone/image/inclus/supplément) EN PLUS
+    // des 4 booléens `...amenities` (flattenAmenities) gardés pour rétrocompat.
+    amenities: safeArray(rowSupabase.chateau_amenities)
+      .map(mapAmenity)
+      .filter(Boolean)
+      .sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0)),
     chambresRestantes: null,
     prixDepart,
   };
@@ -716,6 +723,7 @@ export function amenityToRow(item, index) {
     inclus,
     prix_supplement_cents: prixSupplementCents,
     duree_minutes: dureeMinutes,
+    image: item.image ?? null,
     ordre: index,
   };
   if (_present(item, "description")) row.description = item.description;
