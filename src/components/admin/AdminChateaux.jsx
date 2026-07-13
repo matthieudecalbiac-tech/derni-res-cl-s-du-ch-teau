@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { getChateauxAdmin } from "../../services/chateauxService";
 
 // Section admin — Châteaux (chantier admin, brique châteaux 2a : lecture seule).
@@ -57,6 +58,7 @@ export default function AdminChateaux() {
               <th>Région</th>
               <th>Statut</th>
               <th>Type</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -70,6 +72,9 @@ export default function AdminChateaux() {
                   </span>
                 </td>
                 <td>{c.is_demo_mock ? "Démo" : "Réel"}</td>
+                <td>
+                  <Link to={`/admin/chateaux/${c.id}`} className="adm-lien">Éditer</Link>
+                </td>
               </tr>
             ))}
           </tbody>

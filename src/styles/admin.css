@@ -181,3 +181,233 @@
   font-size: var(--t-sm);
   color: var(--rouge-velours);
 }
+
+/* ── Lien d'action (Éditer, retour) ── */
+.adm-lien {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--or-sombre);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: var(--transition);
+}
+
+.adm-lien:hover {
+  border-bottom-color: var(--or);
+}
+
+/* ── Formulaire d'édition (brique 4a) ── */
+.adm-page-tete {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-md);
+  margin-bottom: var(--s-md);
+}
+
+.adm-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-md);
+  max-width: 760px;
+}
+
+.adm-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-xs);
+  padding: var(--s-sm) 0;
+  border-top: 1px solid var(--creme-chaud);
+}
+
+.adm-section-titre {
+  font-family: var(--font-titre);
+  font-size: var(--t-md);
+  color: var(--bleu-nuit);
+  margin-bottom: var(--s-xs);
+}
+
+.adm-section-note {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--gris);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.adm-champ {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.adm-champ-label {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  color: var(--gris-fonce);
+}
+
+.adm-input,
+.adm-textarea {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+  background: var(--blanc-casse);
+  border: 1px solid var(--gris-clair);
+  border-radius: 4px;
+  padding: 0.5rem 0.7rem;
+  width: 100%;
+}
+
+.adm-input:focus,
+.adm-textarea:focus {
+  outline: none;
+  border-color: var(--or);
+}
+
+.adm-textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.adm-lecture-seule {
+  background: var(--creme-chaud);
+  color: var(--gris-fonce);
+  font-family: monospace;
+  font-size: var(--t-xs);
+}
+
+.adm-case {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+}
+
+/* ── Boutons ── */
+.adm-boutons {
+  display: flex;
+  align-items: center;
+  gap: var(--s-sm);
+  padding-top: var(--s-sm);
+}
+
+.adm-btn {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  letter-spacing: 0.04em;
+  padding: 0.6rem 1.4rem;
+  border-radius: 4px;
+  border: 1px solid var(--gris-clair);
+  background: transparent;
+  color: var(--bleu-nuit);
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.adm-btn:hover {
+  border-color: var(--bleu-nuit);
+}
+
+.adm-btn--primary {
+  background: var(--or);
+  border-color: var(--or);
+  color: var(--bleu-nuit);
+}
+
+.adm-btn--primary:hover {
+  background: var(--or-clair);
+  border-color: var(--or-clair);
+}
+
+.adm-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── Message de sauvegarde ── */
+.adm-msg {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  padding: 0.6rem 0.9rem;
+  border-radius: 4px;
+  background: var(--blanc-casse);
+  border-left: 3px solid var(--gris-clair);
+}
+
+.adm-msg--ok {
+  color: var(--vert-lierre);
+  border-left-color: var(--vert-lierre);
+}
+
+.adm-msg--erreur {
+  color: var(--rouge-velours);
+  border-left-color: var(--rouge-velours);
+}
+
+/* ── Sections filles : listes dynamiques (brique 4b) ── */
+.adm-fille {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-xs);
+  padding: var(--s-sm);
+  margin-bottom: var(--s-sm);
+  border: 1px solid var(--gris-clair);
+  border-radius: 6px;
+  background: var(--blanc-casse);
+}
+
+.adm-fille-tete {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--s-xs);
+}
+
+.adm-fille-num {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gris-fonce);
+}
+
+.adm-btn-suppr {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--rouge-velours);
+  background: transparent;
+  border: 1px solid var(--rouge-velours);
+  border-radius: 4px;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.adm-btn-suppr:hover {
+  background: var(--rouge-velours);
+  color: var(--creme);
+}
+
+.adm-btn-ajouter {
+  align-self: flex-start;
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+  background: transparent;
+  border: 1px dashed var(--or-sombre);
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.adm-btn-ajouter:hover {
+  border-style: solid;
+  border-color: var(--or);
+  background: var(--creme);
+}
