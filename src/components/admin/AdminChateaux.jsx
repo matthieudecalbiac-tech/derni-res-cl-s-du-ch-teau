@@ -38,7 +38,10 @@ export default function AdminChateaux() {
 
   return (
     <div className="adm-page">
-      <h1 className="adm-page-titre">Châteaux</h1>
+      <div className="adm-page-tete">
+        <h1 className="adm-page-titre">Châteaux</h1>
+        <Link to="/admin/chateaux/nouveau" className="adm-btn adm-btn--primary">+ Nouveau château</Link>
+      </div>
 
       {loading && <p className="adm-page-note">Chargement…</p>}
 

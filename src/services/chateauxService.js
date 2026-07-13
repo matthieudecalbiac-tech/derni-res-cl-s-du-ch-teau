@@ -412,3 +412,43 @@ export async function saveChateauComplet(id, sections = {}) {
   invalidateCache();
   return data ?? id;
 }
+
+/**
+ * CRÉATION ADMIN — insère une coquille de château (nom + slug, les 2 NOT NULL).
+ *
+ * INSERT mono-table (pas de RPC) : l'id est généré, statut prend son défaut
+ * 'brouillon', et toutes les autres colonnes leurs défauts. Le formulaire
+ * d'édition (getChateauAdminById + saveChateauComplet) prend ensuite le relais
+ * pour remplir le reste (base + filles).
+ *
+ * @param {string} nom - Nom du château (NOT NULL).
+ * @param {string} slug - Slug URL unique (NOT NULL UNIQUE).
+ * @returns {Promise<Object>} La ligne créée (id, statut='brouillon', défauts).
+ * @throws Si nom/slug manquants, slug déjà pris (23505), ou autre erreur.
+ */
+export async function createChateau(nom, slug) {
+  if (typeof nom !== "string" || nom.trim() === "") {
+    throw new Error("createChateau : le nom est requis.");
+  }
+  if (typeof slug !== "string" || slug.trim() === "") {
+    throw new Error("createChateau : le slug est requis.");
+  }
+
+  const { data, error } = await supabase
+    .from("chateaux")
+    .insert({ nom: nom.trim(), slug: slug.trim() })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("[chateauxService] createChateau error:", error);
+    if (error.code === "23505") {
+      // Violation d'unicité — le slug existe déjà.
+      throw new Error("Ce slug est déjà utilisé, choisis-en un autre.");
+    }
+    throw new Error(`Failed to create chateau: ${error.message}`);
+  }
+
+  invalidateCache();
+  return data; // { id, statut: 'brouillon', ... défauts }
+}
