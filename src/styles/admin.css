@@ -248,6 +248,12 @@
   color: var(--gris-fonce);
 }
 
+.adm-champ-aide {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--gris);
+}
+
 .adm-input,
 .adm-textarea {
   font-family: var(--font-ui);
