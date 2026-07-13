@@ -147,43 +147,89 @@ function ThemeLieu({ chateau }) {
   );
 }
 
+// Badge d'état d'un amenity : « Inclus » (or léger) ou « + X € » (or plein),
+// plus la durée en discret le cas échéant. Palette navy/or/crème uniquement.
+function AmenityBadges({ inclus, prixSupplement, dureeMinutes }) {
+  return (
+    <div className="vc4-theme-amenity-badges">
+      {inclus ? (
+        <span className="vc4-theme-amenity-badge vc4-theme-amenity-badge--inclus">Inclus</span>
+      ) : prixSupplement != null ? (
+        <span className="vc4-theme-amenity-badge vc4-theme-amenity-badge--sup">+ {prixSupplement} €</span>
+      ) : null}
+      {dureeMinutes != null && (
+        <span className="vc4-theme-amenity-duree">{dureeMinutes} min</span>
+      )}
+    </div>
+  );
+}
+
+// Format hybride : carte-photo si `image`, sinon ligne sobre (pas de bloc vide).
+function AmenityItem({ a }) {
+  const entete = (
+    <div className="vc4-theme-amenity-corps">
+      <h4 className="vc4-theme-amenity-nom">
+        {a.icone && <span className="vc4-theme-amenity-ico">{a.icone}</span>}
+        {a.nom}
+      </h4>
+      {a.description && <p className="vc4-theme-amenity-desc">{a.description}</p>}
+    </div>
+  );
+  const badges = (
+    <AmenityBadges inclus={a.inclus} prixSupplement={a.prixSupplement} dureeMinutes={a.dureeMinutes} />
+  );
+
+  if (a.image) {
+    return (
+      <article className="vc4-theme-amenity-carte">
+        <div
+          className="vc4-theme-amenity-photo"
+          style={{ backgroundImage: `url(${a.image})` }}
+        />
+        {entete}
+        {badges}
+      </article>
+    );
+  }
+  return (
+    <div className="vc4-theme-amenity-ligne">
+      {entete}
+      {badges}
+    </div>
+  );
+}
+
+// Une section (Services OU Activités) : masquée si vide.
+function AmenitySection({ eyebrow, titre, items }) {
+  if (items.length === 0) return null;
+  return (
+    <div className="vc4-theme-amenity-section">
+      <ThemeHeader eyebrow={eyebrow} titre={titre} />
+      <div className="vc4-theme-amenity-liste">
+        {items.map((a, i) => (
+          <AmenityItem key={i} a={a} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ThemeServices({ chateau }) {
-  const services = [];
-  (chateau.activites || []).forEach((a) => {
-    if (typeof a === "string") {
-      services.push({ ico: "⚜", nom: a });
-    } else if (a && a.nom) {
-      services.push({ ico: a.icone || "⚜", nom: a.nom });
-    }
-  });
-  if (chateau.petitDejeuner) services.push({ ico: "◆", nom: "Petit-déjeuner" });
-  if (chateau.parking) services.push({ ico: "◆", nom: "Parking privé" });
-  if (chateau.wifi) services.push({ ico: "◆", nom: "Wi-Fi" });
-  if (chateau.animaux) services.push({ ico: "◆", nom: "Animaux bienvenus" });
+  // Consomme chateau.amenities (exposé par mapChateau), déjà trié par ordre.
+  // Les 4 booléens flatten (petitDejeuner/parking/wifi/animaux) ne sont plus
+  // affichés ici : l'info détaillée vit désormais dans amenities.
+  const amenities = chateau.amenities || [];
+  const services = amenities.filter((a) => a.type === "service");
+  const activites = amenities.filter((a) => a.type === "activite");
 
-  // Déduplication par nom
-  const vus = new Set();
-  const uniques = services.filter((s) => {
-    if (vus.has(s.nom)) return false;
-    vus.add(s.nom);
-    return true;
-  });
-
-  if (uniques.length === 0) {
+  if (services.length === 0 && activites.length === 0) {
     return <p className="vc4-theme-vide">Services à présenter prochainement.</p>;
   }
 
   return (
     <>
-    <ThemeHeader eyebrow="L'art de recevoir" titre="Services & expériences" />
-    <div className="vc4-theme-services">
-      {uniques.map((s, i) => (
-        <div key={i} className="vc4-theme-service">
-          <span className="vc4-theme-service-ico">{s.ico}</span>
-          <span className="vc4-theme-service-nom">{s.nom}</span>
-        </div>
-      ))}
-    </div>
+      <AmenitySection eyebrow="L'art de recevoir" titre="Services" items={services} />
+      <AmenitySection eyebrow="Au domaine" titre="Activités & loisirs" items={activites} />
     </>
   );
 }

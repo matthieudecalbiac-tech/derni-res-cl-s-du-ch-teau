@@ -1029,6 +1029,122 @@
   text-transform: uppercase;
 }
 
+/* Services & activités (onglet Services — amenities détaillées, format hybride) */
+.vc4-theme-amenity-section { margin-bottom: 48px; }
+.vc4-theme-amenity-section:last-child { margin-bottom: 0; }
+
+.vc4-theme-amenity-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Carte avec photo (calquée sur .vc4-theme-chambre) */
+.vc4-theme-amenity-carte {
+  display: grid;
+  grid-template-columns: 240px 1fr auto;
+  gap: 20px;
+  align-items: center;
+  border: 1px solid var(--vc4-or-faint);
+  background: var(--vc4-surface);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.vc4-theme-amenity-carte:hover {
+  border-color: var(--vc4-or-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(7, 16, 30, 0.08);
+}
+.vc4-theme-amenity-photo {
+  width: 240px;
+  height: 170px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--vc4-placeholder);
+}
+.vc4-theme-amenity-carte .vc4-theme-amenity-corps { padding: 18px 8px; }
+
+/* Ligne sobre (sans photo) */
+.vc4-theme-amenity-ligne {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 20px;
+  align-items: center;
+  border: 1px solid var(--vc4-or-faint);
+  background: var(--vc4-surface);
+  border-radius: 4px;
+  padding: 16px 20px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.vc4-theme-amenity-ligne:hover {
+  border-color: var(--vc4-or-soft);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(7, 16, 30, 0.08);
+}
+
+/* Corps commun (nom + description) */
+.vc4-theme-amenity-nom {
+  font-family: "Playfair Display", serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--vc4-ink);
+  margin: 0 0 6px;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.vc4-theme-amenity-ico {
+  color: var(--vc4-or);
+  font-size: 15px;
+}
+.vc4-theme-amenity-desc {
+  font-family: "Crimson Pro", serif;
+  font-style: italic;
+  font-size: 13.5px;
+  color: var(--vc4-ink-soft);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Badges d'état (Inclus / supplément / durée) */
+.vc4-theme-amenity-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 18px;
+  text-align: right;
+}
+.vc4-theme-amenity-carte .vc4-theme-amenity-badges {
+  align-self: stretch;
+  border-left: 1px solid var(--vc4-or-faint);
+}
+.vc4-theme-amenity-badge {
+  font-family: "Crimson Pro", serif;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  border-radius: 3px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+.vc4-theme-amenity-badge--inclus {
+  color: var(--vc4-or);
+  background: var(--vc4-or-faint);
+  border: 1px solid var(--vc4-or-soft);
+}
+.vc4-theme-amenity-badge--sup {
+  color: var(--vc4-on-or);
+  background: var(--vc4-or);
+}
+.vc4-theme-amenity-duree {
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--vc4-ink-faint);
+}
+
 /* ═══ Responsive (mobile-first léger, polish complet en Sprint S5) ═══════════ */
 
 @media (max-width: 720px) {
@@ -1058,6 +1174,21 @@
   }
   .vc4-theme-chambre-photo { width: 100%; height: 180px; }
   .vc4-theme-chambre-prix { border-left: none; border-top: 1px solid var(--vc4-or-faint); padding: 12px; }
+  .vc4-theme-amenity-carte { grid-template-columns: 1fr; }
+  .vc4-theme-amenity-photo { width: 100%; height: 170px; }
+  .vc4-theme-amenity-carte .vc4-theme-amenity-badges {
+    border-left: none;
+    border-top: 1px solid var(--vc4-or-faint);
+    align-items: flex-start;
+    text-align: left;
+    padding: 12px 18px;
+  }
+  .vc4-theme-amenity-ligne { grid-template-columns: 1fr; }
+  .vc4-theme-amenity-ligne .vc4-theme-amenity-badges {
+    align-items: flex-start;
+    text-align: left;
+    padding: 8px 0 0;
+  }
 }
 
 /* ══ GALERIE PHOTOS (onglet Photos) ══ */
