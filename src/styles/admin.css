@@ -1,0 +1,125 @@
+/* ============================================================
+   Espace admin — châssis (chantier admin, brique 1)
+   Back-office sobre, DA LCC. Couleurs 100 % via les tokens
+   VIVANTS de global.css (--bleu-nuit, --bleu-carte, --or,
+   --creme…) — jamais de couleur en dur.
+   Préfixe de classe : adm-
+   ============================================================ */
+
+.adm-shell {
+  display: flex;
+  min-height: 100vh;
+  background: var(--creme);
+}
+
+/* ── Sidebar ── */
+.adm-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bleu-nuit);
+  color: var(--creme);
+  padding: var(--s-md) var(--s-sm);
+}
+
+.adm-sidebar-tete {
+  padding: 0 var(--s-xs) var(--s-md);
+  border-bottom: 1px solid var(--bleu-clair);
+}
+
+.adm-titre {
+  font-family: var(--font-titre);
+  font-size: var(--t-lg);
+  letter-spacing: 0.08em;
+  color: var(--or);
+}
+
+/* ── Navigation ── */
+.adm-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-xs);
+  margin-top: var(--s-md);
+  flex: 1;
+}
+
+.adm-nav-lien {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  letter-spacing: 0.04em;
+  color: var(--creme);
+  text-decoration: none;
+  padding: 0.6rem 0.8rem;
+  border-radius: 4px;
+  border-left: 3px solid transparent;
+  transition: var(--transition);
+}
+
+.adm-nav-lien:hover {
+  background: var(--bleu-carte);
+}
+
+.adm-nav-lien--actif {
+  background: var(--bleu-carte);
+  color: var(--or);
+  border-left-color: var(--or);
+}
+
+/* ── Pied sidebar : identité + déconnexion ── */
+.adm-sidebar-pied {
+  margin-top: auto;
+  padding-top: var(--s-md);
+  border-top: 1px solid var(--bleu-clair);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-xs);
+}
+
+.adm-connecte {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--gris-clair);
+}
+
+.adm-deconnexion {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--creme);
+  background: transparent;
+  border: 1px solid var(--or-sombre);
+  border-radius: 4px;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.adm-deconnexion:hover {
+  background: var(--or);
+  color: var(--bleu-nuit);
+  border-color: var(--or);
+}
+
+/* ── Contenu (Outlet) ── */
+.adm-contenu {
+  flex: 1;
+  padding: var(--s-lg);
+  background: var(--creme);
+  overflow-y: auto;
+}
+
+/* ── Coquilles de page (placeholders brique 1) ── */
+.adm-page-titre {
+  font-family: var(--font-titre);
+  font-size: var(--t-2xl);
+  color: var(--bleu-nuit);
+  margin-bottom: var(--s-sm);
+}
+
+.adm-page-note {
+  font-family: var(--font-editorial);
+  font-size: var(--t-md);
+  color: var(--gris-fonce);
+}
