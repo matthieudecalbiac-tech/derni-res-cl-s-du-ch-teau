@@ -22,7 +22,12 @@ import RequireRole from "./components/auth/RequireRole";
 import BookingFlowPlaceholder from "./components/placeholders/BookingFlowPlaceholder";
 import BookingConfirmationPlaceholder from "./components/placeholders/BookingConfirmationPlaceholder";
 import OwnerDashboardPlaceholder from "./components/placeholders/OwnerDashboardPlaceholder";
-import AdminDashboardPlaceholder from "./components/placeholders/AdminDashboardPlaceholder";
+// Chantier admin — brique 1 : châssis (layout + sidebar + sections placeholder).
+import AdminLayout from "./components/admin/AdminLayout";
+import AdminAccueil from "./components/admin/AdminAccueil";
+import AdminMessages from "./components/admin/AdminMessages";
+import AdminChateaux from "./components/admin/AdminChateaux";
+import AdminReservations from "./components/admin/AdminReservations";
 // Sprint S2-α.1.5 — route vitrine SEO /chateau/:slug?onglet=&theme=&offre=
 import VitrineChateauRoute from "./components/VitrineChateauRoute";
 import PageClub from "./components/club/PageClub";
@@ -135,15 +140,21 @@ function App() {
         }
       />
       <Route
-        path="/admin/dashboard"
+        path="/admin"
         element={
           <RequireAuth>
             <RequireRole role="admin">
-              <AdminDashboardPlaceholder />
+              <AdminLayout />
             </RequireRole>
           </RequireAuth>
         }
-      />
+      >
+        <Route index element={<AdminAccueil />} />
+        <Route path="messages" element={<AdminMessages />} />
+        <Route path="chateaux" element={<AdminChateaux />} />
+        <Route path="reservations" element={<AdminReservations />} />
+      </Route>
+      <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
       <Route path="/connexion" element={<Connexion />} />
       <Route path="/inscription" element={<Inscription />} />
       <Route path="/mot-de-passe-oublie" element={<MotDePasseOublie />} />
