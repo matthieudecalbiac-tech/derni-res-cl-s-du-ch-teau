@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { getChateauAdminById, saveChateauComplet } from "../../services/chateauxService";
+import BoutonTeleverser from "./BoutonTeleverser";
 
 // Édition d'un château (chantier admin, brique 4b : base + 4 tables filles).
 // Les filles (chambres/timeline/alentours/amenities) sont chargées en forme
@@ -151,7 +152,7 @@ function preparerBase(form) {
       citation: videOuNull(form.proprietaires.citation),
       description: videOuNull(form.proprietaires.description),
     },
-    images: form.images,
+    images: form.images.filter((im) => typeof im === "string" && im.trim() !== ""),
     chiffresCles: form.chiffresCles,
   };
 }
@@ -252,6 +253,13 @@ export default function AdminChateauEdition() {
   const ajouterFille = (section, vierge) =>
     setForm((f) => ({ ...f, [section]: [...f[section], vierge] }));
 
+  // Handlers galerie images[] (tableau de chaînes)
+  const majImage = (index, value) =>
+    setForm((f) => ({ ...f, images: f.images.map((im, i) => (i === index ? value : im)) }));
+  const supprimerImage = (index) =>
+    setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== index) }));
+  const ajouterImage = () => setForm((f) => ({ ...f, images: [...f.images, ""] }));
+
   const handleSave = async (e) => {
     e.preventDefault();
     const err = validerForm(form);
@@ -325,6 +333,10 @@ export default function AdminChateauEdition() {
           <Champ label="Initiale" value={form.proprietaires.initiale} onChange={setProp("initiale")} />
           <Champ label="Nom affiché" value={form.proprietaires.nomAffiche} onChange={setProp("nomAffiche")} />
           <Champ label="Portrait (chemin)" value={form.proprietaires.portrait} onChange={setProp("portrait")} />
+          <BoutonTeleverser
+            valeur={form.proprietaires.portrait}
+            onUpload={(url) => setForm((f) => ({ ...f, proprietaires: { ...f.proprietaires, portrait: url } }))}
+          />
           <ChampZone label="Citation" value={form.proprietaires.citation} onChange={setProp("citation")} rows={2} />
           <ChampZone label="Description" value={form.proprietaires.description} onChange={setProp("description")} rows={3} />
         </section>
@@ -357,6 +369,7 @@ export default function AdminChateauEdition() {
               <Champ label="Capacité (1-20)" type="number" value={c.capacite} onChange={(e) => majFille("chambres", i, "capacite", e.target.value)} />
               <Champ label="Superficie" value={c.superficie} onChange={(e) => majFille("chambres", i, "superficie", e.target.value)} />
               <Champ label="Image (URL)" value={c.image} onChange={(e) => majFille("chambres", i, "image", e.target.value)} />
+              <BoutonTeleverser valeur={c.image} onUpload={(url) => majFille("chambres", i, "image", url)} />
               <ChampZone label="Description" value={c.description} onChange={(e) => majFille("chambres", i, "description", e.target.value)} rows={2} />
               <label className="adm-champ">
                 <span className="adm-champ-label">Équipements (un par ligne)</span>
@@ -423,13 +436,25 @@ export default function AdminChateauEdition() {
           <button type="button" className="adm-btn-ajouter" onClick={() => ajouterFille("amenities", { type: "service", nom: "", description: "", icone: "", inclus: true, prixSupplement: null, dureeMinutes: null })}>+ Ajouter un équipement</button>
         </section>
 
-        {/* ── Images & chiffres clés (lecture seule — 4b conserve, édition fine plus tard) ── */}
+        {/* ── Galerie images (éditable, avec téléversement) ── */}
         <section className="adm-section">
-          <h2 className="adm-section-titre">Images & chiffres clés <span className="adm-section-note">(lecture seule)</span></h2>
-          <label className="adm-champ">
-            <span className="adm-champ-label">Images</span>
-            <textarea className="adm-textarea adm-lecture-seule" readOnly rows={4} value={JSON.stringify(form.images, null, 2)} />
-          </label>
+          <h2 className="adm-section-titre">Images (galerie)</h2>
+          {form.images.map((im, i) => (
+            <div className="adm-fille" key={i}>
+              <div className="adm-fille-tete">
+                <span className="adm-fille-num">Image {i + 1}</span>
+                <button type="button" className="adm-btn-suppr" onClick={() => supprimerImage(i)}>Supprimer</button>
+              </div>
+              <Champ label="URL / chemin" value={im} onChange={(e) => majImage(i, e.target.value)} />
+              <BoutonTeleverser valeur={im} onUpload={(url) => majImage(i, url)} />
+            </div>
+          ))}
+          <button type="button" className="adm-btn-ajouter" onClick={ajouterImage}>+ Ajouter une image</button>
+        </section>
+
+        {/* ── Chiffres clés (lecture seule) ── */}
+        <section className="adm-section">
+          <h2 className="adm-section-titre">Chiffres clés <span className="adm-section-note">(lecture seule)</span></h2>
           <label className="adm-champ">
             <span className="adm-champ-label">Chiffres clés</span>
             <textarea className="adm-textarea adm-lecture-seule" readOnly rows={3} value={JSON.stringify(form.chiffresCles, null, 2)} />
