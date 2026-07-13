@@ -55,6 +55,8 @@ export const FIXTURE_BRIOTTIERES = {
   est_la_une: true,
   is_demo_mock: false,
   hero_night_stars: false,
+  une_de_la_semaine: true,
+  ordre_home: 1,
   note_sur_5: null,
   nb_avis: 0,
   date_disponible: null,

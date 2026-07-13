@@ -95,6 +95,8 @@ function formFromChateau(c) {
     estLaUne: c.estLaUne === true,
     isDemoMock: c.isDemoMock === true,
     heroNightStars: c.heroNightStars === true,
+    uneDeLaSemaine: c.uneDeLaSemaine === true,
+    ordreHome: c.ordreHome ?? null,
     coordonnees: {
       lat: c.coordonnees?.lat ?? "",
       lng: c.coordonnees?.lng ?? "",
@@ -142,6 +144,8 @@ function preparerBase(form) {
     estLaUne: form.estLaUne === true,
     isDemoMock: form.isDemoMock === true,
     heroNightStars: form.heroNightStars === true,
+    uneDeLaSemaine: form.uneDeLaSemaine === true,
+    ordreHome: entierOuNull(form.ordreHome),
     coordonnees: {
       lat: nbOuNull(form.coordonnees.lat),
       lng: nbOuNull(form.coordonnees.lng),
@@ -467,8 +471,14 @@ export default function AdminChateauEdition() {
         <section className="adm-section">
           <h2 className="adm-section-titre">Mise en avant</h2>
           <ChampCase label="À la une (vitrine premium)" checked={form.estLaUne} onChange={setCheck("estLaUne")} />
+          <ChampCase label="Une de la semaine (vedette)" checked={form.uneDeLaSemaine} onChange={setCheck("uneDeLaSemaine")} />
           <ChampCase label="Château de démonstration" checked={form.isDemoMock} onChange={setCheck("isDemoMock")} />
           <ChampCase label="Étoiles overlay nuit" checked={form.heroNightStars} onChange={setCheck("heroNightStars")} />
+          <label className="adm-champ">
+            <span className="adm-champ-label">Ordre d'affichage (home)</span>
+            <input className="adm-input" type="number" value={form.ordreHome ?? ""} onChange={setChamp("ordreHome")} />
+            <span className="adm-champ-aide">Section « Découvrez aussi » : plus petit = affiché en premier ; vide = à la fin.</span>
+          </label>
         </section>
 
         {/* ── Chambres ── */}

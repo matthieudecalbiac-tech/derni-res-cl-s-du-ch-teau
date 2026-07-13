@@ -6,7 +6,10 @@ import "../styles/une-semaine.css";
 export default function UneDeLaSemaine({ onOuvrirChateau }) {
   const { chateaux, loading, error } = useChateaux();
   const [ref, visible] = useScrollAnimation(0.2);
-  const selection = chateaux.filter((c) => !c.isDemoMock).slice(0, 4);
+  // Vedettes curatées par l'admin (case "Une de la semaine"). Fallback si aucune
+  // n'est cochée : les publiés non-démo (4 premiers) — la section n'est jamais vide.
+  const vedettes = chateaux.filter((c) => c.uneDeLaSemaine && !c.isDemoMock);
+  const selection = vedettes.length > 0 ? vedettes : chateaux.filter((c) => !c.isDemoMock).slice(0, 4);
   if (selection.length === 0) return null;
 
   return (

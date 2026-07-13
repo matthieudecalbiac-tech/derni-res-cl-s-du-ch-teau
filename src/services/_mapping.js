@@ -104,6 +104,8 @@ export function mapChateauBase(row) {
     estLaUne: row.est_la_une === true,
     isDemoMock: row.is_demo_mock === true,
     heroNightStars: row.hero_night_stars === true,
+    uneDeLaSemaine: row.une_de_la_semaine === true,
+    ordreHome: nullable(row.ordre_home),
     couleurTheme: nullable(row.couleur_theme),
     accentTheme: nullable(row.accent_theme),
     coordonnees: {
@@ -462,6 +464,8 @@ const CHAMP_VERS_COLONNE = {
   estLaUne: "est_la_une",
   isDemoMock: "is_demo_mock",
   heroNightStars: "hero_night_stars",
+  uneDeLaSemaine: "une_de_la_semaine",
+  ordreHome: "ordre_home",
   couleurTheme: "couleur_theme",
   accentTheme: "accent_theme",
   // Re-séparation de la distance (mapChateauBase fusionne les deux colonnes).

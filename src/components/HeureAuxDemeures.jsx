@@ -3,21 +3,22 @@ import { useChateaux } from "../hooks/useChateaux";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import "../styles/heure-aux-demeures.css";
 
-const SLUGS = [
-  "les-briottieres",
-  "blanc-buisson",
-  "pierrefonds",
-  "chantilly",
-  "ferte-saint-aubin",
-  "vaux-le-vicomte",
-  "pierreclos",
-];
-
 export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres }) {
   const { chateaux } = useChateaux();
   const [ref, visible] = useScrollAnimation(0.15);
+  // Débranché de la liste SLUGS codée en dur : les publiés non-démo, triés par
+  // ordreHome ascendant (null/undefined à la fin), puis par nom.
   const demeures = useMemo(
-    () => SLUGS.map((s) => chateaux.find((c) => c.slug === s)).filter(Boolean),
+    () =>
+      chateaux
+        .filter((c) => !c.isDemoMock)
+        .slice()
+        .sort((a, b) => {
+          const oa = a.ordreHome ?? Infinity;
+          const ob = b.ordreHome ?? Infinity;
+          if (oa !== ob) return oa - ob;
+          return a.nom.localeCompare(b.nom);
+        }),
     [chateaux]
   );
   if (demeures.length === 0) return null;
