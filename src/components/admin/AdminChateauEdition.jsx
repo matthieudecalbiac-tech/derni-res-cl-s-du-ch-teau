@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
-import { getChateauAdminById, saveChateauComplet } from "../../services/chateauxService";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { getChateauAdminById, saveChateauComplet, updateStatut, deleteChateau } from "../../services/chateauxService";
+import { validerPublication } from "../../utils/validerPublication";
 import BoutonTeleverser from "./BoutonTeleverser";
+
+const LIBELLE_STATUT = { brouillon: "Brouillon", publie: "Publié", archive: "Archivé" };
 
 // Édition d'un château (chantier admin, brique 4b : base + 4 tables filles).
 // Les filles (chambres/timeline/alentours/amenities) sont chargées en forme
@@ -206,12 +209,20 @@ function validerForm(form) {
 
 export default function AdminChateauEdition() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [chateau, setChateau] = useState(null);
   const [form, setForm] = useState(null);
   const [loading, setLoading] = useState(true);
   const [erreur, setErreur] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState(null); // { ok, texte }
+  const [statut, setStatut] = useState(null); // 'brouillon' | 'publie' | 'archive'
+  const [publishing, setPublishing] = useState(false);
+  const [publishMsg, setPublishMsg] = useState(null); // { type: 'manques'|'ok'|'erreur', bloquants?, avertissements?, texte? }
+  const [confirmSuppr, setConfirmSuppr] = useState(false);
+  const [nomConfirm, setNomConfirm] = useState("");
+  const [suppr, setSuppr] = useState(false);
+  const [supprErreur, setSupprErreur] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -222,6 +233,7 @@ export default function AdminChateauEdition() {
         if (cancelled) return;
         setChateau(c);
         setForm(formFromChateau(c));
+        setStatut(c.statut);
       })
       .catch((e) => {
         if (!cancelled) setErreur(e.message || "Erreur de chargement");
@@ -285,6 +297,64 @@ export default function AdminChateauEdition() {
     }
   };
 
+  // Publier : valide la complétude côté client, refuse si bloquants, confirme
+  // si avertissements, puis passe le statut à 'publie'.
+  const handlePublier = async () => {
+    const { bloquants, avertissements } = validerPublication(form);
+    if (bloquants.length > 0) {
+      setPublishMsg({ type: "manques", bloquants, avertissements });
+      return;
+    }
+    if (avertissements.length > 0) {
+      const ok = window.confirm(
+        `${avertissements.length} avertissement(s) :\n\n` +
+        avertissements.join("\n") +
+        "\n\nPublier malgré ces avertissements ?"
+      );
+      if (!ok) {
+        setPublishMsg({ type: "manques", bloquants: [], avertissements });
+        return;
+      }
+    }
+    setPublishing(true);
+    setPublishMsg(null);
+    try {
+      await updateStatut(id, "publie");
+      setStatut("publie");
+      setPublishMsg({ type: "ok", texte: "Château publié." });
+    } catch (err) {
+      setPublishMsg({ type: "erreur", texte: err.message || "Échec de la publication." });
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const handleDepublier = async () => {
+    setPublishing(true);
+    setPublishMsg(null);
+    try {
+      await updateStatut(id, "brouillon");
+      setStatut("brouillon");
+      setPublishMsg({ type: "ok", texte: "Château repassé en brouillon." });
+    } catch (err) {
+      setPublishMsg({ type: "erreur", texte: err.message || "Échec de la dépublication." });
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const handleSupprimer = async () => {
+    setSuppr(true);
+    setSupprErreur(null);
+    try {
+      await deleteChateau(id);
+      navigate("/admin/chateaux");
+    } catch (err) {
+      setSupprErreur(err.message || "Échec de la suppression.");
+      setSuppr(false); // on reste sur place pour montrer l'erreur
+    }
+  };
+
   if (loading) return <div className="adm-page"><p className="adm-page-note">Chargement…</p></div>;
   if (erreur) return <div className="adm-page"><p className="adm-erreur">{erreur}</p></div>;
   if (!form) return null;
@@ -293,8 +363,54 @@ export default function AdminChateauEdition() {
     <div className="adm-page">
       <div className="adm-page-tete">
         <h1 className="adm-page-titre">Éditer — {chateau.nom}</h1>
-        <Link to="/admin/chateaux" className="adm-lien">← Retour à la liste</Link>
+        <div className="adm-tete-actions">
+          <span className={"adm-badge adm-badge--" + statut}>{LIBELLE_STATUT[statut] || statut}</span>
+          {statut === "brouillon" && (
+            <button type="button" className="adm-btn adm-btn--primary" onClick={handlePublier} disabled={publishing}>
+              {publishing ? "Publication…" : "Publier"}
+            </button>
+          )}
+          {statut === "publie" && (
+            <button type="button" className="adm-btn" onClick={handleDepublier} disabled={publishing}>
+              {publishing ? "…" : "Dépublier"}
+            </button>
+          )}
+          <Link to="/admin/chateaux" className="adm-lien">← Retour à la liste</Link>
+        </div>
       </div>
+
+      {publishMsg && publishMsg.type === "manques" && (
+        <div className="adm-manques">
+          {publishMsg.bloquants.length > 0 && (
+            <>
+              <p className="adm-manques-titre adm-manques-titre--bloquant">
+                Publication impossible — à corriger :
+              </p>
+              <ul className="adm-manques-liste">
+                {publishMsg.bloquants.map((m, i) => (
+                  <li key={i} className="adm-manque--bloquant">{m}</li>
+                ))}
+              </ul>
+            </>
+          )}
+          {publishMsg.avertissements.length > 0 && (
+            <>
+              <p className="adm-manques-titre adm-manques-titre--avert">Avertissements :</p>
+              <ul className="adm-manques-liste">
+                {publishMsg.avertissements.map((m, i) => (
+                  <li key={i} className="adm-manque--avert">{m}</li>
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
+      {publishMsg && publishMsg.type === "ok" && (
+        <p className="adm-msg adm-msg--ok">{publishMsg.texte}</p>
+      )}
+      {publishMsg && publishMsg.type === "erreur" && (
+        <p className="adm-msg adm-msg--erreur">{publishMsg.texte}</p>
+      )}
 
       <form className="adm-form" onSubmit={handleSave}>
         <section className="adm-section">
@@ -474,6 +590,56 @@ export default function AdminChateauEdition() {
           <Link to="/admin/chateaux" className="adm-btn">Annuler</Link>
         </div>
       </form>
+
+      <section className="adm-danger">
+        <h2 className="adm-danger-titre">Zone dangereuse</h2>
+        {!confirmSuppr ? (
+          <button
+            type="button"
+            className="adm-btn-danger"
+            onClick={() => { setConfirmSuppr(true); setNomConfirm(""); setSupprErreur(null); }}
+          >
+            Supprimer ce château
+          </button>
+        ) : (
+          <div className="adm-danger-confirm">
+            <p className="adm-danger-note">
+              Action irréversible. Les chambres, la chronologie, les alentours et les
+              équipements seront supprimés, et les images téléversées retirées du stockage.
+            </p>
+            <label className="adm-champ">
+              <span className="adm-champ-label">
+                Retape le nom exact pour confirmer : <strong>{chateau.nom}</strong>
+              </span>
+              <input
+                className="adm-input"
+                type="text"
+                value={nomConfirm}
+                onChange={(e) => setNomConfirm(e.target.value)}
+              />
+            </label>
+            {supprErreur && <p className="adm-msg adm-msg--erreur">{supprErreur}</p>}
+            <div className="adm-boutons">
+              <button
+                type="button"
+                className="adm-btn-danger"
+                onClick={handleSupprimer}
+                disabled={suppr || nomConfirm !== chateau.nom}
+              >
+                {suppr ? "Suppression…" : "Confirmer la suppression"}
+              </button>
+              <button
+                type="button"
+                className="adm-btn"
+                onClick={() => setConfirmSuppr(false)}
+                disabled={suppr}
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
     </div>
   );
 }

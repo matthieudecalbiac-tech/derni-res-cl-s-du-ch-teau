@@ -461,3 +461,115 @@
   font-size: var(--t-xs);
   color: var(--rouge-velours);
 }
+
+/* ── En-tête d'édition : statut + Publier ── */
+.adm-tete-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-sm);
+  flex-wrap: wrap;
+}
+
+/* ── Liste des manques de publication ── */
+.adm-manques {
+  margin-bottom: var(--s-md);
+  padding: var(--s-sm);
+  border: 1px solid var(--gris-clair);
+  border-radius: 6px;
+  background: var(--blanc-casse);
+}
+
+.adm-manques-titre {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  margin-bottom: var(--s-xs);
+}
+
+.adm-manques-titre--bloquant {
+  color: var(--rouge-velours);
+}
+
+.adm-manques-titre--avert {
+  color: var(--or-sombre);
+  margin-top: var(--s-sm);
+}
+
+.adm-manques-liste {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+}
+
+.adm-manque--bloquant {
+  color: var(--rouge-velours);
+  padding-left: 1rem;
+  border-left: 2px solid var(--rouge-velours);
+}
+
+.adm-manque--avert {
+  color: var(--or-sombre);
+  padding-left: 1rem;
+  border-left: 2px solid var(--or);
+}
+
+/* ── Zone dangereuse : suppression ── */
+.adm-danger {
+  margin-top: var(--s-lg);
+  padding: var(--s-md);
+  border: 1px solid var(--rouge-velours);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-sm);
+}
+
+.adm-danger-titre {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rouge-velours);
+}
+
+.adm-danger-note {
+  font-family: var(--font-editorial);
+  font-size: var(--t-sm);
+  color: var(--gris-fonce);
+}
+
+.adm-danger-confirm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-sm);
+}
+
+.adm-btn-danger {
+  align-self: flex-start;
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  letter-spacing: 0.04em;
+  color: var(--creme);
+  background: var(--rouge-velours);
+  border: 1px solid var(--rouge-velours);
+  border-radius: 4px;
+  padding: 0.6rem 1.4rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.adm-btn-danger:hover {
+  background: transparent;
+  color: var(--rouge-velours);
+}
+
+.adm-btn-danger:disabled {
+  opacity: 0.45;
+  cursor: default;
+  background: var(--rouge-velours);
+  color: var(--creme);
+}
