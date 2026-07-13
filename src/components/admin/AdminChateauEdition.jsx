@@ -379,6 +379,7 @@ export default function AdminChateauEdition() {
               {publishing ? "…" : "Dépublier"}
             </button>
           )}
+          <Link to={`/admin/chateaux/${id}/apercu`} className="adm-btn">Prévisualiser</Link>
           <Link to="/admin/chateaux" className="adm-lien">← Retour à la liste</Link>
         </div>
       </div>

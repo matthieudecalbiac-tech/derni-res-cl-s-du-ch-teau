@@ -573,3 +573,36 @@
   background: var(--rouge-velours);
   color: var(--creme);
 }
+
+/* ── Bandeau d'aperçu brouillon (flotte au-dessus de la vitrine) ── */
+.adm-apercu-bandeau {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-sm);
+  padding: 0.45rem var(--s-md);
+  background: var(--bleu-nuit);
+  color: var(--creme);
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  letter-spacing: 0.05em;
+}
+
+.adm-apercu-label {
+  text-transform: uppercase;
+}
+
+.adm-apercu-retour {
+  color: var(--or);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.adm-apercu-retour:hover {
+  text-decoration: underline;
+}

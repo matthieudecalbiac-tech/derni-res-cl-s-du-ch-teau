@@ -29,6 +29,7 @@ import AdminMessages from "./components/admin/AdminMessages";
 import AdminChateaux from "./components/admin/AdminChateaux";
 import AdminChateauNouveau from "./components/admin/AdminChateauNouveau";
 import AdminChateauEdition from "./components/admin/AdminChateauEdition";
+import AdminChateauApercu from "./components/admin/AdminChateauApercu";
 import AdminReservations from "./components/admin/AdminReservations";
 // Sprint S2-α.1.5 — route vitrine SEO /chateau/:slug?onglet=&theme=&offre=
 import VitrineChateauRoute from "./components/VitrineChateauRoute";
@@ -156,6 +157,7 @@ function App() {
         <Route path="chateaux" element={<AdminChateaux />} />
         <Route path="chateaux/nouveau" element={<AdminChateauNouveau />} />
         <Route path="chateaux/:id" element={<AdminChateauEdition />} />
+        <Route path="chateaux/:id/apercu" element={<AdminChateauApercu />} />
         <Route path="reservations" element={<AdminReservations />} />
       </Route>
       <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
