@@ -46,6 +46,12 @@ function centsToEuros(cents) {
   return Math.round(cents) / 100;
 }
 
+// Inverse de centsToEuros : euros (form) → cents (colonne base). null → null.
+function eurosToCents(euros) {
+  if (euros === null || euros === undefined) return null;
+  return Math.round(euros * 100);
+}
+
 function safeArray(maybeArr) {
   return Array.isArray(maybeArr) ? maybeArr : [];
 }
@@ -173,6 +179,30 @@ export function mapAlentour(row) {
     type: nullable(row.type),
     icone: nullable(row.icone),
     description: nullable(row.description),
+  };
+}
+
+
+/**
+ * Mappe une ligne pivot `chateau_amenities` vers le format React éditable.
+ * SYMÉTRIQUE de amenityToRow (écriture) — c'est ce mapper qui rend la section
+ * amenities round-trippable ; flattenAmenities, lui, est lossy (4 booléens).
+ * `prix_supplement_cents` (cents) → `prixSupplement` (euros, null si null — pas 0).
+ *
+ * @param {Object} row - Ligne `chateau_amenities`.
+ * @returns {Object|null} Amenity au format React, ou null si row null.
+ */
+export function mapAmenity(row) {
+  if (!row) return null;
+  return {
+    type: row.type,
+    nom: row.nom,
+    description: nullable(row.description),
+    icone: nullable(row.icone),
+    inclus: row.inclus === true,
+    prixSupplement: centsToEuros(row.prix_supplement_cents),
+    dureeMinutes: nullable(row.duree_minutes),
+    ordre: nullable(row.ordre),
   };
 }
 
@@ -517,5 +547,168 @@ export function chateauToRow(form, { partial = false } = {}) {
     }
   }
 
+  return row;
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAPPERS INVERSES DES FILLES — form React → row Supabase (tables filles)
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Ne produisent JAMAIS `id` (gen_random_uuid côté base) ni `chateau_id` (posé
+// par la RPC d'écriture qui connaît le parent). L'`ordre` est reconstruit depuis
+// l'index du tableau pour timeline/alentours/amenities (leurs mappers de lecture
+// le perdent) ; chambreToRow le passe en direct (mapChambre le conserve).
+
+const _present = (obj, key) => Object.prototype.hasOwnProperty.call(obj, key);
+
+/**
+ * Inverse de mapChambre. `prix` (euros) → `prix_cents`.
+ * Valide les colonnes NOT NULL / CHECK : nom présent, prix > 0 (prix_cents > 0),
+ * capacite entière dans [1, 20].
+ *
+ * @param {Object} chambre - Chambre au format React (sortie mapChambre éditée).
+ * @returns {Object} Row `chambres` (sans id ni chateau_id).
+ * @throws {Error} si chambre invalide ou contrainte violée.
+ */
+export function chambreToRow(chambre) {
+  if (!chambre || typeof chambre !== "object") {
+    throw new Error("chambreToRow : chambre manquante ou invalide.");
+  }
+  if (typeof chambre.nom !== "string" || chambre.nom.trim() === "") {
+    throw new Error("chambreToRow : 'nom' est requis (colonne NOT NULL).");
+  }
+  if (typeof chambre.prix !== "number" || !(chambre.prix > 0)) {
+    throw new Error("chambreToRow : 'prix' doit être un nombre > 0 (CHECK prix_cents > 0).");
+  }
+  if (!Number.isInteger(chambre.capacite) || chambre.capacite < 1 || chambre.capacite > 20) {
+    throw new Error("chambreToRow : 'capacite' doit être un entier dans [1, 20] (CHECK).");
+  }
+
+  const row = {
+    nom: chambre.nom,
+    prix_cents: eurosToCents(chambre.prix),
+    capacite: chambre.capacite,
+  };
+  if (_present(chambre, "description")) row.description = chambre.description;
+  if (_present(chambre, "superficie")) row.superficie = chambre.superficie;
+  if (_present(chambre, "image")) row.image = chambre.image;
+  if (_present(chambre, "equipements")) row.equipements = chambre.equipements;
+  if (_present(chambre, "ordre")) row.ordre = chambre.ordre;
+  return row;
+}
+
+/**
+ * Inverse de mapTimelineItem. `ordre` reconstruit depuis l'index (mapTimelineItem
+ * le perd). annee + evenement sont NOT NULL → validés présents.
+ *
+ * @param {Object} item - { annee, evenement } au format React.
+ * @param {number} index - Position dans le tableau → colonne `ordre`.
+ * @returns {Object} Row `chateau_timeline` (sans id ni chateau_id).
+ * @throws {Error} si annee ou evenement absent/vide.
+ */
+export function timelineToRow(item, index) {
+  if (!item || typeof item !== "object") {
+    throw new Error("timelineToRow : item manquant ou invalide.");
+  }
+  if (typeof item.annee !== "string" || item.annee.trim() === "") {
+    throw new Error("timelineToRow : 'annee' est requise (colonne NOT NULL).");
+  }
+  if (typeof item.evenement !== "string" || item.evenement.trim() === "") {
+    throw new Error("timelineToRow : 'evenement' est requis (colonne NOT NULL).");
+  }
+  return {
+    annee: item.annee,
+    evenement: item.evenement,
+    ordre: index,
+  };
+}
+
+/**
+ * Inverse de mapAlentour. `ordre` reconstruit depuis l'index. nom + type
+ * (enum alentour_type) sont NOT NULL → validés présents.
+ *
+ * @param {Object} item - { nom, distance, type, icone, description } format React.
+ * @param {number} index - Position dans le tableau → colonne `ordre`.
+ * @returns {Object} Row `chateau_alentours` (sans id ni chateau_id).
+ * @throws {Error} si nom ou type absent/vide.
+ */
+export function alentourToRow(item, index) {
+  if (!item || typeof item !== "object") {
+    throw new Error("alentourToRow : item manquant ou invalide.");
+  }
+  if (typeof item.nom !== "string" || item.nom.trim() === "") {
+    throw new Error("alentourToRow : 'nom' est requis (colonne NOT NULL).");
+  }
+  if (typeof item.type !== "string" || item.type.trim() === "") {
+    throw new Error("alentourToRow : 'type' est requis (enum alentour_type NOT NULL).");
+  }
+  const row = {
+    nom: item.nom,
+    type: item.type,
+    ordre: index,
+  };
+  if (_present(item, "distance")) row.distance = item.distance;
+  if (_present(item, "icone")) row.icone = item.icone;
+  if (_present(item, "description")) row.description = item.description;
+  return row;
+}
+
+/**
+ * Écrit une ligne pivot `chateau_amenities` COMPLÈTE — ce n'est PAS l'inverse
+ * du flatten booléen (flattenAmenities réduit la pivot à 4 booléens, perte
+ * irréversible). Ici on écrit une vraie ligne : type, nom, inclus, supplément…
+ *
+ * `prixSupplement` (euros, optionnel) → `prix_supplement_cents` (CHECK ≥ 0).
+ * `dureeMinutes` (optionnel) → `duree_minutes` (CHECK > 0). `inclus` défaut true.
+ * `ordre` depuis l'index.
+ *
+ * @param {Object} item - { type, nom, description, icone, inclus, prixSupplement, dureeMinutes }.
+ * @param {number} index - Position dans le tableau → colonne `ordre`.
+ * @returns {Object} Row `chateau_amenities` (sans id ni chateau_id).
+ * @throws {Error} si type/nom absent, prixSupplement < 0, ou dureeMinutes ≤ 0.
+ */
+export function amenityToRow(item, index) {
+  if (!item || typeof item !== "object") {
+    throw new Error("amenityToRow : item manquant ou invalide.");
+  }
+  if (typeof item.type !== "string" || item.type.trim() === "") {
+    throw new Error("amenityToRow : 'type' est requis (enum amenity_type NOT NULL).");
+  }
+  if (typeof item.nom !== "string" || item.nom.trim() === "") {
+    throw new Error("amenityToRow : 'nom' est requis (colonne NOT NULL).");
+  }
+
+  // inclus : défaut true si absent (colonne NOT NULL DEFAULT true).
+  const inclus = _present(item, "inclus") ? item.inclus === true : true;
+
+  // prix_supplement_cents : euros → cents, null si absent. CHECK ≥ 0.
+  let prixSupplementCents = null;
+  if (_present(item, "prixSupplement") && item.prixSupplement !== null && item.prixSupplement !== undefined) {
+    if (typeof item.prixSupplement !== "number" || item.prixSupplement < 0) {
+      throw new Error("amenityToRow : 'prixSupplement' doit être un nombre ≥ 0 (CHECK).");
+    }
+    prixSupplementCents = eurosToCents(item.prixSupplement);
+  }
+
+  // duree_minutes : entier > 0 ou null. CHECK > 0.
+  let dureeMinutes = null;
+  if (_present(item, "dureeMinutes") && item.dureeMinutes !== null && item.dureeMinutes !== undefined) {
+    if (!Number.isInteger(item.dureeMinutes) || item.dureeMinutes <= 0) {
+      throw new Error("amenityToRow : 'dureeMinutes' doit être un entier > 0 (CHECK).");
+    }
+    dureeMinutes = item.dureeMinutes;
+  }
+
+  const row = {
+    type: item.type,
+    nom: item.nom,
+    inclus,
+    prix_supplement_cents: prixSupplementCents,
+    duree_minutes: dureeMinutes,
+    ordre: index,
+  };
+  if (_present(item, "description")) row.description = item.description;
+  if (_present(item, "icone")) row.icone = item.icone;
   return row;
 }

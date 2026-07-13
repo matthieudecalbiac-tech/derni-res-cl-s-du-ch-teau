@@ -34,7 +34,15 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { supabase } from "../lib/supabase.js";
-import { mapChateau, chateauToRow } from "./_mapping.js";
+import {
+  mapChateau,
+  mapAmenity,
+  chateauToRow,
+  chambreToRow,
+  timelineToRow,
+  alentourToRow,
+  amenityToRow,
+} from "./_mapping.js";
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -310,4 +318,97 @@ export async function updateChateau(id, champs) {
   invalidateCache();
 
   return data[0];
+}
+
+/**
+ * LECTURE ADMIN par id — un château complet, brouillon compris, pour l'édition.
+ *
+ * Distinct de getChateauById (qui passe par le cache public filtré `publie` et
+ * ne verrait donc pas un brouillon). Ici : requête directe SELECT_FULL, sans
+ * cache, sans filtre statut. La RLS `is_admin()` sert tous les statuts.
+ *
+ * mapChateau aplatit les amenities en 4 booléens ; pour l'édition on remplace
+ * ces booléens par la LISTE pivot complète via mapAmenity (chambres / timeline /
+ * alentours viennent déjà de mapChateau en forme éditable).
+ *
+ * @param {string} id - UUID du château.
+ * @returns {Promise<Object>} Château format React + `amenities` (liste pivot).
+ * @throws Si id manquant, erreur Supabase, ou château introuvable.
+ */
+export async function getChateauAdminById(id) {
+  if (!id) throw new Error("getChateauAdminById : id requis.");
+
+  const { data, error } = await supabase
+    .from("chateaux")
+    .select(SELECT_FULL)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[chateauxService] getChateauAdminById error:", error);
+    throw new Error(`Failed to fetch chateau ${id} (admin): ${error.message}`);
+  }
+  if (!data) {
+    throw new Error(`getChateauAdminById : chateau ${id} introuvable.`);
+  }
+
+  return {
+    ...mapChateau(data),
+    amenities: (data.chateau_amenities ?? [])
+      .map(mapAmenity)
+      .filter(Boolean)
+      .sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0)),
+  };
+}
+
+/**
+ * ÉCRITURE ADMIN COMPLÈTE — un château + ses 4 filles en une transaction.
+ *
+ * Convertit chaque section (format React) en rows base via les mappers inverses,
+ * puis appelle la RPC `admin_upsert_chateau` (atomique, gardée is_admin côté
+ * base). Après succès, invalide le cache public.
+ *
+ * Contrat des sections filles (repris de la RPC) :
+ *   - absente / null = section PRÉSERVÉE (la RPC ne la touche pas)
+ *   - []             = section VIDÉE explicitement
+ *   - [ ... ]        = section REMPLACÉE par ce jeu
+ * Le formulaire envoie toujours l'état complet ; le contrat protège un oubli
+ * côté service (un null n'efface jamais une fille par accident).
+ *
+ * `base` est requis (chateauToRow non-partiel : nom + slug obligatoires).
+ *
+ * @param {string} id - UUID du château à modifier.
+ * @param {Object} sections - { base, chambres, timeline, alentours, amenities }.
+ * @returns {Promise<string>} L'id du château modifié.
+ * @throws Si id/base invalides, mapping fautif, ou erreur RPC (dont refus RLS 42501).
+ */
+export async function saveChateauComplet(id, sections = {}) {
+  if (!id) throw new Error("saveChateauComplet : id requis.");
+
+  const { base, chambres, timeline, alentours, amenities } = sections;
+
+  const p_base = chateauToRow(base, { partial: false });
+  // null = préserve (on n'envoie pas le tableau) ; [] = vide ; [...] = remplace.
+  const p_chambres  = chambres  != null ? chambres.map((c, i) => chambreToRow(c, i))   : null;
+  const p_timeline  = timeline  != null ? timeline.map((t, i) => timelineToRow(t, i))  : null;
+  const p_alentours = alentours != null ? alentours.map((a, i) => alentourToRow(a, i)) : null;
+  const p_amenities = amenities != null ? amenities.map((a, i) => amenityToRow(a, i))  : null;
+
+  const { data, error } = await supabase.rpc("admin_upsert_chateau", {
+    p_id: id,
+    p_base,
+    p_chambres,
+    p_timeline,
+    p_alentours,
+    p_amenities,
+  });
+
+  if (error) {
+    // Un non-admin déclenche le RAISE 42501 de la RPC → error non-null.
+    console.error("[chateauxService] saveChateauComplet error:", error);
+    throw new Error(`Failed to save chateau ${id}: ${error.message}`);
+  }
+
+  invalidateCache();
+  return data ?? id;
 }
