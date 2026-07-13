@@ -184,6 +184,30 @@ export function mapAlentour(row) {
 
 
 /**
+ * Mappe une ligne pivot `chateau_amenities` vers le format React éditable.
+ * SYMÉTRIQUE de amenityToRow (écriture) — c'est ce mapper qui rend la section
+ * amenities round-trippable ; flattenAmenities, lui, est lossy (4 booléens).
+ * `prix_supplement_cents` (cents) → `prixSupplement` (euros, null si null — pas 0).
+ *
+ * @param {Object} row - Ligne `chateau_amenities`.
+ * @returns {Object|null} Amenity au format React, ou null si row null.
+ */
+export function mapAmenity(row) {
+  if (!row) return null;
+  return {
+    type: row.type,
+    nom: row.nom,
+    description: nullable(row.description),
+    icone: nullable(row.icone),
+    inclus: row.inclus === true,
+    prixSupplement: centsToEuros(row.prix_supplement_cents),
+    dureeMinutes: nullable(row.duree_minutes),
+    ordre: nullable(row.ordre),
+  };
+}
+
+
+/**
  * Aplatit la table pivot `chateau_amenities` en booleans simples sur l'objet
  * château. Phase 4 : usage purement présentiel (le composant affiche
  * `parking ? "Parking inclus" : "—"`).

@@ -20,6 +20,7 @@ import {
   timelineToRow,
   alentourToRow,
   amenityToRow,
+  mapAmenity,
   MODULE_B_ID,
 } from "../_mapping.js";
 import {
@@ -612,5 +613,39 @@ describe("amenityToRow (ligne pivot COMPLÈTE — pas 4 booléens)", () => {
   it("prixSupplement < 0 → throw ; dureeMinutes <= 0 → throw", () => {
     expect(() => amenityToRow({ type: "activite", nom: "X", prixSupplement: -1 }, 0)).toThrow(/prixSupplement/);
     expect(() => amenityToRow({ type: "activite", nom: "X", dureeMinutes: 0 }, 0)).toThrow(/dureeMinutes/);
+  });
+});
+
+
+describe("mapAmenity <-> amenityToRow (aller-retour pivot amenity)", () => {
+  const AMENITY_COLS = ["type", "nom", "description", "icone", "inclus", "prix_supplement_cents", "duree_minutes", "ordre"];
+
+  it("mapAmenity : cents → euros, inclus bool, forme React", () => {
+    const am = FIXTURE_BRIOTTIERES.chateau_amenities[3]; // Dîner : supplement 8500, duree 120, inclus false
+    const out = mapAmenity(am);
+    expect(out.type).toBe("activite");
+    expect(out.nom).toBe("Dîner aux chandelles");
+    expect(out.prixSupplement).toBe(85);
+    expect(out.dureeMinutes).toBe(120);
+    expect(out.inclus).toBe(false);
+  });
+
+  it("prix_supplement_cents null → prixSupplement null (pas 0)", () => {
+    const out = mapAmenity({ type: "service", nom: "X", prix_supplement_cents: null });
+    expect(out.prixSupplement).toBeNull();
+  });
+
+  it("ALLER-RETOUR amenity (activité avec supplément) : amenityToRow(mapAmenity(row), ordre) == colonnes pivot", () => {
+    const am = FIXTURE_BRIOTTIERES.chateau_amenities[3];
+    expect(amenityToRow(mapAmenity(am), am.ordre)).toEqual(pick(am, AMENITY_COLS));
+  });
+
+  it("ALLER-RETOUR amenity (service, supplément/durée null) : null préservé", () => {
+    const am = FIXTURE_BRIOTTIERES.chateau_amenities[0]; // Parking : supplement/duree null, inclus true
+    expect(amenityToRow(mapAmenity(am), am.ordre)).toEqual(pick(am, AMENITY_COLS));
+  });
+
+  it("input null → null", () => {
+    expect(mapAmenity(null)).toBeNull();
   });
 });
