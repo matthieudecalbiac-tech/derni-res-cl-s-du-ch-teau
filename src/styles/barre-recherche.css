@@ -30,7 +30,8 @@
   margin: 10px 0 0 6px;
   background: transparent; border: none; cursor: pointer;
   font-family: 'Crimson Pro', serif; font-size: 0.84rem; letter-spacing: 0.06em;
-  color: #A8884E; transition: color 0.2s;
+  /* Or fonce (charte) : contraste AA sur creme (#A8884E echouait a 3.08:1). */
+  color: #8B6914; transition: color 0.2s;
 }
 .br-filtres-lien:hover { color: #C09840; }
 .br-filtres-lien-ico { color: #C09840; flex-shrink: 0; }
