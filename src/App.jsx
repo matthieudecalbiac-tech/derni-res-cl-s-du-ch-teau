@@ -4,6 +4,7 @@ import Header from "./components/Header";
 import Hero from "./components/Hero";
 import BandeauOffres from "./components/BandeauOffres";
 import BarreRecherche from "./components/BarreRecherche";
+import PastillesInspiration from "./components/PastillesInspiration";
 import UneDeLaSemaine from "./components/UneDeLaSemaine";
 import HeureAuxDemeures from "./components/HeureAuxDemeures";
 import PiedPatrimoine from "./components/PiedPatrimoine";
@@ -76,6 +77,7 @@ function App() {
       <main>
         <Hero />
         <BarreRecherche onEntrerChateau={(chateau, url) => setTransitionCarte({ chateau, url })} />
+        <PastillesInspiration />
         <BandeauOffres
           onOuvrirDernieres={() => setDernieresOuvert(true)}
           onOuvrirVitrines={() => setVitrinesOuvert(true)}

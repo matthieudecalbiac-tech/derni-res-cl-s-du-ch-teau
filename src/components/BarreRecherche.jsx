@@ -26,6 +26,13 @@ export default function BarreRecherche({ onEntrerChateau }) {
   const [invOuvert, setInvOuvert] = useState(false);
   const [invites, setInvites] = useState({ adultes: 2, enfants: 0 });
 
+  // Plus de filtres — placeholder pour l'instant. Y viendront les filtres
+  // d'EQUIPEMENTS (spa, piscine, velo, petit-dejeuner, restaurant... les memes
+  // que la carte), branches au futur chantier services/categories. Le filtre
+  // Siecle, lui, vit desormais dans les pastilles "Besoin d'inspiration" (bas du
+  // hero) qui routent vers /resultats?siecle (convention conservee).
+  const [filtresOuvert, setFiltresOuvert] = useState(false);
+
   // Carte interactive
   const [carteOuvert, setCarteOuvert] = useState(false);
 
@@ -36,6 +43,7 @@ export default function BarreRecherche({ onEntrerChateau }) {
   const ouvrir = (champ) => {
     setDestOuvert(champ === "dest");
     setDatesOuvert(champ === "dates");
+    setFiltresOuvert(champ === "filtres");
     setInvOuvert(champ === "invites");
     setCarteOuvert(champ === "carte");
   };
@@ -196,6 +204,31 @@ export default function BarreRecherche({ onEntrerChateau }) {
 
           <div className="br-sep" />
 
+          {/* PLUS DE FILTRES (panneau placeholder ; Siecle derive + autres en 2b) */}
+          <div className="br-champ br-champ--filtres">
+            <button
+              type="button"
+              className="br-champ-btn"
+              onClick={() => ouvrir("filtres")}
+              aria-expanded={filtresOuvert}
+            >
+              <svg className="br-ico" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <path d="M3 5.5h7.5M14 5.5H15M3 12.5h1M7.5 12.5H15" stroke="#C09840" strokeWidth="1.5" strokeLinecap="round"/>
+                <circle cx="12" cy="5.5" r="1.7" stroke="#C09840" strokeWidth="1.5"/>
+                <circle cx="5.5" cy="12.5" r="1.7" stroke="#C09840" strokeWidth="1.5"/>
+              </svg>
+              <span className="br-champ-txt">
+                <span className="br-label">Plus de filtres</span>
+                <span className="br-valeur">Ajouter</span>
+              </span>
+              <svg className={"br-chevron" + (filtresOuvert ? " br-chevron--ouvert" : "")} width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
+          <div className="br-sep" />
+
           {/* INVITES */}
           <div className="br-champ br-champ--invites">
             <button
@@ -222,7 +255,10 @@ export default function BarreRecherche({ onEntrerChateau }) {
 
           <div className="br-sep" />
 
-          {/* NAVIGUER SUR LA CARTE */}
+          {/* NAVIGUER SUR LA CARTE — TRANSITOIRE : ce champ « Explorer » sera retire
+              de la barre a l'arrivee du basculeur Carte/Liste (sous la carte
+              illustree), qui reprendra l'acces carte. Conserve ici pour ne pas
+              creer de trou d'acces entre-temps. Barre a 6 zones temporairement. */}
           <div className="br-champ br-champ--carte">
             <button
               type="button"
@@ -331,6 +367,15 @@ export default function BarreRecherche({ onEntrerChateau }) {
             >+</button>
           </div>
         </div>
+      </Modale>
+
+      {/* MODALE PLUS DE FILTRES — placeholder (2a). Le contenu reel (filtre Siecle
+          derive des donnees + autres) arrive en 2b. */}
+      {/* MODALE PLUS DE FILTRES — placeholder. Contenu a venir : filtres
+          d'equipements (spa, piscine, velo, petit-dejeuner, restaurant...),
+          branches au futur chantier services/categories. */}
+      <Modale ouvert={filtresOuvert} onClose={() => setFiltresOuvert(false)} titre="Filtres" largeur={520}>
+        <p className="br-filtres-vide">Filtres bientôt disponibles.</p>
       </Modale>
 
       {/* MODALE CARTE */}

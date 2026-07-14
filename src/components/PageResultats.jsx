@@ -12,6 +12,7 @@ export default function PageResultats() {
 
   const region = params.get("region");
   const chateauSlug = params.get("chateau");
+  const siecle = params.get("siecle");
   const invites = params.get("invites");
   const nbInvites = invites ? parseInt(invites, 10) : null;
 
@@ -47,12 +48,17 @@ export default function PageResultats() {
   } else if (region) {
     resultats = reels.filter((c) => c.region === region);
   }
+  // Filtre siecle EN PLUS des autres criteres (valeur brute, ex "XVIIe siecle").
+  if (siecle) {
+    resultats = resultats.filter((c) => c.siecle === siecle);
+  }
   resultats = resultats.filter((c) => capaciteSuffisante(c, nbInvites));
 
   // Sous-titre recapitulatif de la selection
   const recap = [
     region ? region : null,
     chateauSlug && resultats[0] ? resultats[0].nom : null,
+    siecle ? siecle : null,
     labelDates,
     invites ? `${invites} invites` : null,
   ].filter(Boolean).join(" · ");
