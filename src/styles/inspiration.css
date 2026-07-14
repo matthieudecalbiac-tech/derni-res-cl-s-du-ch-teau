@@ -1,0 +1,127 @@
+/* ============================================================
+   "Besoin d'inspiration" — pastilles sous la barre de recherche.
+   Fond creme continu ; l'animation d'entree porte sur le CONTENU
+   (.insp-inner), jamais sur la section (qui garde son fond creme
+   opaque) -> aucune bande navy possible.
+   Palette projet : navy #1A2D5A, or #C09840, creme.
+   ============================================================ */
+
+.insp {
+  background: var(--lcc-creme);
+  width: 100%;
+  padding: clamp(8px, 1.5vh, 18px) clamp(20px, 4vw, 48px) clamp(22px, 3.5vh, 46px);
+}
+
+.insp-inner {
+  max-width: 1480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  opacity: 0;
+  animation: inspFadeUp 1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation-delay: 1.7s;
+}
+@keyframes inspFadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.insp-eyebrow {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #A8884E;
+}
+
+.insp-pastilles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.insp-pastille {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #1A2D5A;
+  background: #FEFCF8;
+  border: 1px solid rgba(192, 152, 64, 0.35);
+  border-radius: 999px;
+  padding: 8px 15px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.insp-pastille:hover:not(:disabled) {
+  border-color: #C09840;
+  background: rgba(192, 152, 64, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(26, 45, 90, 0.08);
+}
+.insp-pastille-ico { color: #C09840; font-size: 1rem; }
+.insp-pastille-label { font-family: 'Playfair Display', serif; font-size: 0.88rem; }
+
+/* A venir : grise subtil + petit "bientot" discret (pas de badge criard).
+   Non-cliquable, mais l'utilisateur comprend que ca arrive. */
+.insp-pastille--bientot { opacity: 0.62; cursor: not-allowed; }
+.insp-pastille-bientot {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.62rem;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: #A8884E;
+  border: none;
+  padding: 0;
+  margin-left: 2px;
+}
+.insp-pastille-chevron { color: #A8884E; flex-shrink: 0; margin-left: 2px; }
+
+/* ── Modale Siecle ── */
+.insp-modale-sous {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  color: #6b7488;
+  margin: 0 0 16px;
+  text-align: center;
+}
+.insp-modale-pastilles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+.insp-siecle-choix {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.95rem;
+  color: #1A2D5A;
+  background: transparent;
+  border: 1px solid rgba(192, 152, 64, 0.4);
+  border-radius: 999px;
+  padding: 10px 22px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s;
+}
+.insp-siecle-choix:hover {
+  background: #1A2D5A;
+  border-color: #1A2D5A;
+  color: #FAF6EE;
+  transform: translateY(-1px);
+}
+.insp-modale-vide {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  color: #A8884E;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .insp-inner { opacity: 1; animation: none; }
+}
+@media (max-width: 600px) {
+  .insp-pastille { padding: 10px 18px; }
+  .insp-pastille-label { font-size: 0.9rem; }
+}
