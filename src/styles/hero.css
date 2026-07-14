@@ -68,9 +68,9 @@
   width: auto;
   height: auto;
   max-width: 100%;
-  /* Plafond relatif genereux (equilibre la colonne gauche, DA) ; contain garde
-     le ratio, l'image reste dans sa colonne droite (.hero-illus). */
-  max-height: clamp(320px, 58vh, 620px);
+  /* Carte genereuse (DA) : plus imposante a droite. Ratio preserve (contain).
+     Reste dans la limite du sans-scroll (le hero fait 100vh). */
+  max-height: clamp(340px, 60vh, 700px);
   object-fit: contain;
   background: transparent !important;
   display: block;

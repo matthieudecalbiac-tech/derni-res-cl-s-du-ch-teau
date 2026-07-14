@@ -39,20 +39,21 @@
 .insp-pastilles {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 14px;
+  justify-content: flex-start;
+  gap: 10px;
 }
 
 .insp-pastille {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   color: #1A2D5A;
   background: #FEFCF8;
   border: 1px solid rgba(192, 152, 64, 0.35);
   border-radius: 999px;
-  padding: 12px 24px;
+  padding: 8px 15px;
   cursor: pointer;
+  white-space: nowrap;
   transition: border-color 0.2s, background 0.2s, transform 0.2s, box-shadow 0.2s;
 }
 .insp-pastille:hover:not(:disabled) {
@@ -62,19 +63,23 @@
   box-shadow: 0 8px 22px rgba(26, 45, 90, 0.08);
 }
 .insp-pastille-ico { color: #C09840; font-size: 1rem; }
-.insp-pastille-label { font-family: 'Playfair Display', serif; font-size: 0.98rem; }
+.insp-pastille-label { font-family: 'Playfair Display', serif; font-size: 0.88rem; }
 
-.insp-pastille--bientot { opacity: 0.5; cursor: not-allowed; }
+/* A venir : grise subtil + petit "bientot" discret (pas de badge criard).
+   Non-cliquable, mais l'utilisateur comprend que ca arrive. */
+.insp-pastille--bientot { opacity: 0.62; cursor: not-allowed; }
 .insp-pastille-bientot {
   font-family: 'Crimson Pro', serif;
-  font-size: 0.6rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: 0.62rem;
+  font-style: italic;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
   color: #A8884E;
-  border: 1px solid rgba(192, 152, 64, 0.3);
-  border-radius: 4px;
-  padding: 2px 7px;
+  border: none;
+  padding: 0;
+  margin-left: 2px;
 }
+.insp-pastille-chevron { color: #A8884E; flex-shrink: 0; margin-left: 2px; }
 
 /* ── Modale Siecle ── */
 .insp-modale-sous {

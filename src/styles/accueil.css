@@ -1,0 +1,95 @@
+/* ============================================================
+   Accueil (DA) : grille 2 colonnes fusionnee.
+   Gauche  : slogan -> barre -> pastilles.
+   Droite  : carte illustree -> toggle Carte/Liste (centres).
+   Le hero remplit ~100vh (header inclus) -> la section suivante reste sous
+   la ligne de flottaison. Fond creme continu pleine largeur.
+   ============================================================ */
+
+.accueil-hero {
+  background: var(--lcc-creme);
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;               /* bloc centre verticalement -> air au-dessus du slogan */
+  padding: calc(var(--lcc-header-h, 105px) + clamp(10px, 2vh, 34px)) 0 clamp(16px, 2.5vh, 40px);
+}
+
+.accueil-hero-inner {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 48px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  column-gap: clamp(24px, 3vw, 48px);
+  align-items: center; /* colonne gauche centree face a la carte -> slogan redescendu, moins de vide en bas */
+}
+
+/* ── Colonne gauche : slogan, barre, pastilles ── */
+.acc-gauche {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(18px, 3vh, 44px);
+  min-width: 0;
+  position: relative;
+}
+
+/* Filigrane embleme-horloge derriere le slogan. */
+.acc-slogan { position: relative; }
+.acc-slogan > * { position: relative; z-index: 1; }
+.acc-slogan::before {
+  content: "";
+  position: absolute;
+  left: -6%; top: 46%; transform: translateY(-50%);
+  width: 40vh; height: 40vh; max-width: 460px; max-height: 460px;
+  background: url('/embleme-horloge.png') center / contain no-repeat;
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Colonne droite : carte (haut) + toggle (bas), CENTRES ── */
+.acc-droite {
+  display: flex;
+  flex-direction: column;
+  align-items: center;               /* toggle centre sous la carte (pas colle a droite) */
+  gap: clamp(14px, 2.4vh, 26px);
+  min-width: 0;
+}
+.acc-carte {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* ── Neutralise les enveloppes pleine largeur des composants dans les colonnes ── */
+/* La barre (4 zones) reste DANS la colonne gauche, ne touche pas la carte. */
+.acc-gauche > .barre-recherche,
+.acc-gauche > .insp,
+.acc-droite > .tcl {
+  width: auto;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+.acc-gauche .br-inner { max-width: none; margin: 0; }
+.acc-gauche .insp-inner { max-width: none; margin: 0; align-items: flex-start; }
+.acc-droite .tcl-row { max-width: none; margin: 0; justify-content: center; }
+
+/* ── Responsive : une colonne empilee ── */
+@media (max-width: 900px) {
+  .accueil-hero {
+    min-height: auto;
+    align-items: stretch;
+    padding: calc(var(--lcc-header-h, 105px) + 16px) 0 28px;
+  }
+  .accueil-hero-inner {
+    grid-template-columns: 1fr;
+    row-gap: 20px;
+  }
+  .acc-gauche > .barre-recherche { width: 100%; max-width: none; }
+  .acc-gauche .insp-inner { align-items: center; }
+  .acc-slogan::before { display: none; }
+}

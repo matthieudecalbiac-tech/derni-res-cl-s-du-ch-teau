@@ -4,7 +4,9 @@ import Header from "./components/Header";
 import Hero from "./components/Hero";
 import BandeauOffres from "./components/BandeauOffres";
 import BarreRecherche from "./components/BarreRecherche";
+import ToggleCarteListe from "./components/ToggleCarteListe";
 import PastillesInspiration from "./components/PastillesInspiration";
+import "./styles/accueil.css";
 import UneDeLaSemaine from "./components/UneDeLaSemaine";
 import HeureAuxDemeures from "./components/HeureAuxDemeures";
 import PiedPatrimoine from "./components/PiedPatrimoine";
@@ -75,9 +77,24 @@ function App() {
         onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
       />
       <main>
-        <Hero />
-        <BarreRecherche onEntrerChateau={(chateau, url) => setTransitionCarte({ chateau, url })} />
-        <PastillesInspiration />
+        {/* Accueil (DA) : grille 2 colonnes.
+            Gauche : slogan -> barre -> pastilles (serres verticalement).
+            Droite : carte illustree -> toggle Carte/Liste. */}
+        <section className="accueil-hero">
+          <div className="accueil-hero-inner">
+            <div className="acc-gauche">
+              <Hero />
+              <BarreRecherche />
+              <PastillesInspiration />
+            </div>
+            <div className="acc-droite">
+              <div className="acc-carte">
+                <img src="/homedessin14-detouree.png" alt="Carte des châteaux depuis Paris" className="hero-illus-img" />
+              </div>
+              <ToggleCarteListe onEntrerChateau={(chateau, url) => setTransitionCarte({ chateau, url })} />
+            </div>
+          </div>
+        </section>
         <BandeauOffres
           onOuvrirDernieres={() => setDernieresOuvert(true)}
           onOuvrirVitrines={() => setVitrinesOuvert(true)}
