@@ -14,9 +14,8 @@ function Hero() {
             <span className="hero-orn-lys">⚜</span>
             <span className="hero-orn-l" />
           </div>
-          <h1 className="hero-titre">Paris ouvre la route<br />des châteaux</h1>
+          <h1 className="hero-titre">Votre route vers l’exception des châteaux de France</h1>
           <div className="hero-sep" />
-          <p className="hero-accroche">Des échappées élégantes dans les châteaux de France, un réseau d'exception, vivez l'expérience du patrimoine.</p>
         </div>
         <div className="hero-illus">
           <img src="/homedessin14-detouree.png" alt="Carte des châteaux depuis Paris" className="hero-illus-img" />
