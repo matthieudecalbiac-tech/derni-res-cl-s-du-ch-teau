@@ -715,7 +715,7 @@
 .vc4-theme-apercu-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center}
 @media(max-width:900px){.vc4-theme-apercu-grid{grid-template-columns:1fr;gap:32px}}
 
-.vc4-theme-titre--xl{font-size:clamp(2.4rem,4vw,3.4rem);line-height:1.05;margin-bottom:0}
+.vc4-theme-titre--xl{font-size:clamp(2.9rem,5vw,4.2rem);font-weight:600;line-height:1.03;margin-bottom:0}
 .vc4-theme-orn{display:flex;align-items:center;gap:14px;margin:20px 0 24px}
 .vc4-theme-orn-l{flex:0 0 60px;height:1px;background:linear-gradient(to right,var(--vc4-or),transparent)}
 .vc4-theme-orn-lys{color:var(--vc4-or);font-size:0.9rem}
@@ -1029,6 +1029,155 @@
   text-transform: uppercase;
 }
 
+/* Services & activités (onglet Services) — 2 sections côte à côte, vignettes carrées */
+.vc4-theme-amenity-cols {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+.vc4-theme-amenity-section {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.vc4-theme-amenity-grille {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+/* Vignette carrée cliquable */
+.vc4-theme-amenity-tuile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0;
+  border: 1px solid var(--vc4-or-faint);
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--vc4-surface);
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+.vc4-theme-amenity-tuile:hover {
+  border-color: var(--vc4-or-soft);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(7, 16, 30, 0.14);
+}
+.vc4-theme-amenity-tuile:focus-visible {
+  outline: 2px solid var(--vc4-or);
+  outline-offset: 2px;
+}
+
+/* Placeholder (sans photo) : grande icône centrée sous l'overlay */
+.vc4-theme-amenity-tuile-ico {
+  position: absolute;
+  inset: 0 0 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: var(--vc4-or-soft);
+}
+
+/* Overlay dégradé bas pour la lisibilité du nom + description */
+.vc4-theme-amenity-tuile-overlay {
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding: 30px 14px 12px;
+  background: linear-gradient(to top, rgba(7, 16, 30, 0.85), rgba(7, 16, 30, 0.35) 55%, transparent);
+}
+.vc4-theme-amenity-tuile--photo .vc4-theme-amenity-tuile-overlay {
+  padding-top: 42px;
+}
+.vc4-theme-amenity-tuile-nom {
+  display: block;
+  font-family: "Playfair Display", serif;
+  font-size: 15px;
+  line-height: 1.2;
+  color: var(--vc4-bg);
+  margin-bottom: 4px;
+}
+.vc4-theme-amenity-tuile-desc {
+  display: block;
+  font-family: "Crimson Pro", serif;
+  font-style: italic;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--vc4-bg);
+  opacity: 0.82;
+}
+
+/* Modale de détail d'un amenity */
+.vc4-theme-amenity-modale-photo {
+  width: 100%;
+  height: 220px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--vc4-placeholder);
+  border-radius: 6px;
+  margin-bottom: 18px;
+}
+.vc4-theme-amenity-modale-nom {
+  font-family: "Playfair Display", serif;
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--vc4-ink);
+  margin: 0 0 12px;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.vc4-theme-amenity-modale-ico {
+  color: var(--vc4-or);
+  font-size: 18px;
+}
+.vc4-theme-amenity-modale-desc {
+  font-family: "Crimson Pro", serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--vc4-ink-soft);
+  margin: 14px 0 0;
+}
+
+/* Badges d'état (Inclus / supplément / durée) — vignette + modale */
+.vc4-theme-amenity-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.vc4-theme-amenity-badge {
+  font-family: "Crimson Pro", serif;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  border-radius: 3px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+.vc4-theme-amenity-badge--inclus {
+  color: var(--vc4-or);
+  background: var(--vc4-or-faint);
+  border: 1px solid var(--vc4-or-soft);
+}
+.vc4-theme-amenity-badge--sup {
+  color: var(--vc4-on-or);
+  background: var(--vc4-or);
+}
+.vc4-theme-amenity-duree {
+  font-family: "Crimson Pro", serif;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--vc4-ink-faint);
+}
+
 /* ═══ Responsive (mobile-first léger, polish complet en Sprint S5) ═══════════ */
 
 @media (max-width: 720px) {
@@ -1058,6 +1207,9 @@
   }
   .vc4-theme-chambre-photo { width: 100%; height: 180px; }
   .vc4-theme-chambre-prix { border-left: none; border-top: 1px solid var(--vc4-or-faint); padding: 12px; }
+  .vc4-theme-amenity-cols { flex-direction: column; gap: 0; }
+  .vc4-theme-amenity-section { margin-bottom: 40px; }
+  .vc4-theme-amenity-section:last-child { margin-bottom: 0; }
 }
 
 /* ══ GALERIE PHOTOS (onglet Photos) ══ */

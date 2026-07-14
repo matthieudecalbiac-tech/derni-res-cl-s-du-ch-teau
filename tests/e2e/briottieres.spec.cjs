@@ -16,41 +16,26 @@
 const { test, expect } = require('@playwright/test');
 
 async function ouvrirBriottieres(page) {
-  await page.goto('/');
+  // Accès par URL directe (voie SEO /chateau/:slug) : robuste au choix éditorial
+  // de vedette « à la une », contrairement à l'ouverture depuis la home. Même
+  // composant VitrineChateau (mode route) → mêmes sélecteurs .vc3-*. Pas de
+  // TransitionPorte en accès direct : l'overlay démarre visible.
+  await page.goto('/chateau/les-briottieres');
   await page.waitForLoadState('domcontentloaded');
-  const article = page.locator('.une-semaine-carte').filter({ hasText: /Briotti[èe]res/i });
-  await expect(article).toBeVisible();
-  const cta = article.locator('.une-semaine-cta');
-  await cta.scrollIntoViewIfNeeded();
-
-  // Mobile-safari rate occasionellement le premier click ; on réessaie jusqu'à
-  // voir l'overlay monter (TransitionPorte joue ~3.5s par-dessus avant de se retirer).
-  let derniereErreur;
-  for (let essai = 0; essai < 3; essai++) {
-    await cta.click();
-    try {
-      await expect(page.locator('.vc3-overlay')).toBeVisible({ timeout: 3000 });
-      derniereErreur = null;
-      break;
-    } catch (e) {
-      derniereErreur = e;
-    }
-  }
-  if (derniereErreur) throw derniereErreur;
-
-  await page.locator('.tp-wrap').waitFor({ state: 'detached', timeout: 8000 }).catch(() => {});
-  await expect(page.locator('.vc3-overlay.vc3-visible')).toBeVisible({ timeout: 3000 });
+  await expect(page.locator('.vc3-overlay.vc3-visible')).toBeVisible({ timeout: 8000 });
 }
 
 test.describe('Vitrine Briottières · parcours critiques', () => {
 
-  test('La home charge et propose Briottières dans « La Une »', async ({ page }) => {
+  test('La home rend la section « à la une » (≥1 vedette, sans présumer laquelle)', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     await expect(page).toHaveTitle(/./);
-    const article = page.locator('.une-semaine-carte').filter({ hasText: /Briotti[èe]res/i });
-    await expect(article).toBeVisible();
-    await expect(article).toContainText(/Briotti[èe]res/i);
+    // La vedette « une de la semaine » est un choix éditorial libre : on teste que
+    // la section rend au moins une carte, jamais QUEL château y figure.
+    const cartes = page.locator('.une-semaine-carte');
+    await expect(cartes.first()).toBeVisible();
+    expect(await cartes.count()).toBeGreaterThan(0);
   });
 
   test('On peut ouvrir la vitrine Briottières', async ({ page }) => {
@@ -90,11 +75,12 @@ test.describe('Vitrine Briottières · parcours critiques', () => {
   test('Modal de réservation s\'ouvre, sélectionne et se ferme', async ({ page }) => {
     await ouvrirBriottieres(page);
 
-    // Nouveau path α.1.5 : le CTA header ne fait plus que scroll+focus. La modale
-    // réserve s'ouvre via carte module Permanent → panneau → bouton chambre.
-    await page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i }).click();
-    await expect(page.locator('.vc3-module-panel')).toBeVisible();
-    await page.locator('.vc4-permanent-chambre-cta').first().click();
+    // Route mode : le module Permanent est rendu inline (.vc3-module-inline), pas
+    // d'overlay .vc3-module-panel (celui-ci n'existe qu'en mode modal depuis la
+    // home). On clique directement le CTA d'une chambre.
+    const cta = page.locator('.vc4-permanent-chambre-cta').first();
+    await cta.scrollIntoViewIfNeeded();
+    await cta.click();
     await expect(page.locator('.vc3-reserve-modal')).toBeVisible();
 
     const chambresModal = page.locator('.vc3-reserve-ch');

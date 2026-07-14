@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { construireGalerie } from "../../services/galerieService";
+import Modale from "../Modale";
 
 function tronquer(texte, max) {
   if (!texte) return "";
@@ -147,43 +148,115 @@ function ThemeLieu({ chateau }) {
   );
 }
 
+// Badge d'état d'un amenity : « Inclus » (or léger) ou « + X € » (or plein),
+// plus la durée en discret le cas échéant. Palette navy/or/crème uniquement.
+function AmenityBadges({ inclus, prixSupplement, dureeMinutes }) {
+  return (
+    <div className="vc4-theme-amenity-badges">
+      {inclus ? (
+        <span className="vc4-theme-amenity-badge vc4-theme-amenity-badge--inclus">Inclus</span>
+      ) : prixSupplement != null ? (
+        <span className="vc4-theme-amenity-badge vc4-theme-amenity-badge--sup">+ {prixSupplement} €</span>
+      ) : null}
+      {dureeMinutes != null && (
+        <span className="vc4-theme-amenity-duree">{dureeMinutes} min</span>
+      )}
+    </div>
+  );
+}
+
+// Vignette carrée cliquable : photo en fond (ou placeholder + icône), overlay
+// dégradé pour la lisibilité, nom + description courte tronquée. Bouton pour
+// l'accessibilité clavier ; ouvre la modale de détail au clic/Entrée.
+function AmenityTuile({ a, onOpen }) {
+  const avecPhoto = Boolean(a.image);
+  return (
+    <button
+      type="button"
+      className={`vc4-theme-amenity-tuile${avecPhoto ? " vc4-theme-amenity-tuile--photo" : ""}`}
+      style={avecPhoto ? { backgroundImage: `url(${a.image})` } : undefined}
+      onClick={() => onOpen(a)}
+      aria-label={`${a.nom} — voir le détail`}
+    >
+      {!avecPhoto && (
+        <span className="vc4-theme-amenity-tuile-ico" aria-hidden="true">{a.icone || "⚜"}</span>
+      )}
+      <span className="vc4-theme-amenity-tuile-overlay">
+        <span className="vc4-theme-amenity-tuile-nom">{a.nom}</span>
+        {a.description && (
+          <span className="vc4-theme-amenity-tuile-desc">{tronquer(a.description, 70)}</span>
+        )}
+      </span>
+    </button>
+  );
+}
+
+// Une section (Services OU Activités) : masquée si vide. Grille de vignettes.
+function AmenitySection({ eyebrow, titre, items, onOpen }) {
+  if (items.length === 0) return null;
+  return (
+    <div className="vc4-theme-amenity-section">
+      <ThemeHeader eyebrow={eyebrow} titre={titre} />
+      <div className="vc4-theme-amenity-grille">
+        {items.map((a, i) => (
+          <AmenityTuile key={i} a={a} onOpen={onOpen} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Modale de détail (réutilise le primitif Modale : portal, scroll-lock, Échap,
+// clic-fond, focus-trap, role=dialog/aria-modal). Sans titre → pas d'en-tête logo.
+function AmenityModale({ amenity, onClose }) {
+  return (
+    <Modale ouvert={Boolean(amenity)} onClose={onClose} largeur={520}>
+      {amenity && (
+        <div className="vc4-theme-amenity-modale">
+          {amenity.image && (
+            <div
+              className="vc4-theme-amenity-modale-photo"
+              style={{ backgroundImage: `url(${amenity.image})` }}
+            />
+          )}
+          <h3 className="vc4-theme-amenity-modale-nom">
+            {amenity.icone && <span className="vc4-theme-amenity-modale-ico">{amenity.icone}</span>}
+            {amenity.nom}
+          </h3>
+          <AmenityBadges
+            inclus={amenity.inclus}
+            prixSupplement={amenity.prixSupplement}
+            dureeMinutes={amenity.dureeMinutes}
+          />
+          {amenity.description && (
+            <p className="vc4-theme-amenity-modale-desc">{amenity.description}</p>
+          )}
+        </div>
+      )}
+    </Modale>
+  );
+}
+
 function ThemeServices({ chateau }) {
-  const services = [];
-  (chateau.activites || []).forEach((a) => {
-    if (typeof a === "string") {
-      services.push({ ico: "⚜", nom: a });
-    } else if (a && a.nom) {
-      services.push({ ico: a.icone || "⚜", nom: a.nom });
-    }
-  });
-  if (chateau.petitDejeuner) services.push({ ico: "◆", nom: "Petit-déjeuner" });
-  if (chateau.parking) services.push({ ico: "◆", nom: "Parking privé" });
-  if (chateau.wifi) services.push({ ico: "◆", nom: "Wi-Fi" });
-  if (chateau.animaux) services.push({ ico: "◆", nom: "Animaux bienvenus" });
+  // Consomme chateau.amenities (exposé par mapChateau), déjà trié par ordre.
+  // Les 4 booléens flatten (petitDejeuner/parking/wifi/animaux) ne sont plus
+  // affichés ici : l'info détaillée vit désormais dans amenities.
+  const amenities = chateau.amenities || [];
+  const services = amenities.filter((a) => a.type === "service");
+  const activites = amenities.filter((a) => a.type === "activite");
+  const [selection, setSelection] = useState(null);
 
-  // Déduplication par nom
-  const vus = new Set();
-  const uniques = services.filter((s) => {
-    if (vus.has(s.nom)) return false;
-    vus.add(s.nom);
-    return true;
-  });
-
-  if (uniques.length === 0) {
+  if (services.length === 0 && activites.length === 0) {
     return <p className="vc4-theme-vide">Services à présenter prochainement.</p>;
   }
 
   return (
     <>
-    <ThemeHeader eyebrow="L'art de recevoir" titre="Services & expériences" />
-    <div className="vc4-theme-services">
-      {uniques.map((s, i) => (
-        <div key={i} className="vc4-theme-service">
-          <span className="vc4-theme-service-ico">{s.ico}</span>
-          <span className="vc4-theme-service-nom">{s.nom}</span>
-        </div>
-      ))}
-    </div>
+      <div className="vc4-theme-amenity-cols">
+        <AmenitySection eyebrow="L'art de recevoir" titre="Services" items={services} onOpen={setSelection} />
+        <AmenitySection eyebrow="Au domaine" titre="Activités & loisirs" items={activites} onOpen={setSelection} />
+      </div>
+      <AmenityModale amenity={selection} onClose={() => setSelection(null)} />
     </>
   );
 }

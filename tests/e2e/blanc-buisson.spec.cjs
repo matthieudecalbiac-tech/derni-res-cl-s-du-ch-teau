@@ -12,40 +12,23 @@
 const { test, expect } = require('@playwright/test');
 
 async function ouvrirBlancBuisson(page) {
-  await page.goto('/');
+  // Accès par URL directe (voie SEO /chateau/:slug) : robuste au choix éditorial
+  // de vedette. Même composant VitrineChateau (mode route) → mêmes sélecteurs.
+  await page.goto('/chateau/blanc-buisson');
   await page.waitForLoadState('domcontentloaded');
-  const article = page.locator('.une-semaine-carte').filter({ hasText: /Blanc Buisson/i });
-  await expect(article).toBeVisible();
-  const cta = article.locator('.une-semaine-cta');
-  await cta.scrollIntoViewIfNeeded();
-
-  // Mobile-safari rate occasionellement le premier click ; on réessaie jusqu'à
-  // voir l'overlay monter (TransitionPorte joue ~3.5s par-dessus avant de se retirer).
-  let derniereErreur;
-  for (let essai = 0; essai < 3; essai++) {
-    await cta.click();
-    try {
-      await expect(page.locator('.vc3-overlay')).toBeVisible({ timeout: 3000 });
-      derniereErreur = null;
-      break;
-    } catch (e) {
-      derniereErreur = e;
-    }
-  }
-  if (derniereErreur) throw derniereErreur;
-
-  await page.locator('.tp-wrap').waitFor({ state: 'detached', timeout: 8000 }).catch(() => {});
-  await expect(page.locator('.vc3-overlay.vc3-visible')).toBeVisible({ timeout: 3000 });
+  await expect(page.locator('.vc3-overlay.vc3-visible')).toBeVisible({ timeout: 8000 });
 }
 
 test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
 
-  test('La home charge et propose Blanc Buisson dans « La Une »', async ({ page }) => {
+  test('La home rend la section « à la une » (≥1 vedette, sans présumer laquelle)', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    const article = page.locator('.une-semaine-carte').filter({ hasText: /Blanc Buisson/i });
-    await expect(article).toBeVisible();
-    await expect(article).toContainText(/Blanc Buisson/i);
+    // Vedette = choix éditorial libre : on teste que la section rend au moins une
+    // carte, jamais QUEL château y figure.
+    const cartes = page.locator('.une-semaine-carte');
+    await expect(cartes.first()).toBeVisible();
+    expect(await cartes.count()).toBeGreaterThan(0);
   });
 
   test('La vitrine Blanc Buisson s\'ouvre', async ({ page }) => {
@@ -82,10 +65,10 @@ test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
 
   test('Modal de réservation propose les 2 hébergements', async ({ page }) => {
     await ouvrirBlancBuisson(page);
-    // Nouveau path α.1.5 : carte module Permanent → panneau → bouton chambre → modale.
-    await page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i }).click();
-    await expect(page.locator('.vc3-module-panel')).toBeVisible();
-    await page.locator('.vc4-permanent-chambre-cta').first().click();
+    // Route mode : module Permanent inline, pas d'overlay .vc3-module-panel.
+    const cta = page.locator('.vc4-permanent-chambre-cta').first();
+    await cta.scrollIntoViewIfNeeded();
+    await cta.click();
     await expect(page.locator('.vc3-reserve-modal')).toBeVisible();
     await expect(page.locator('.vc3-reserve-ch')).toHaveCount(2);
     await page.locator('.vc3-reserve-close').click();

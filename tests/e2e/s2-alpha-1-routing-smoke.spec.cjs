@@ -65,9 +65,11 @@ test.describe('S2-α.1 · routing smoke + non-régression', () => {
   test('Régression : ouvrir un château depuis la home fonctionne toujours', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    const article = page.locator('.une-semaine-carte').filter({ hasText: /Briotti[èe]res/i });
-    await expect(article).toBeVisible();
-    const cta = article.locator('.une-semaine-cta');
+    // Générique : la vedette « à la une » est un choix éditorial libre. On teste
+    // le MÉCANISME (une carte vedette ouvre une vitrine), pas QUEL château.
+    const carte = page.locator('.une-semaine-carte').first();
+    await expect(carte).toBeVisible();
+    const cta = carte.locator('.une-semaine-cta');
     await cta.scrollIntoViewIfNeeded();
     let ouvert = false;
     for (let i = 0; i < 3; i++) {

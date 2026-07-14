@@ -122,10 +122,10 @@ export const FIXTURE_BRIOTTIERES = {
   ],
 
   chateau_amenities: [
-    { id: "am-bri-1", chateau_id: UUID_BRIOTTIERES, type: "service", nom: "Parking", description: "Cour intérieure", icone: "🚗", inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 0 },
-    { id: "am-bri-2", chateau_id: UUID_BRIOTTIERES, type: "service", nom: "Wi-Fi", description: "Haut débit", icone: "📶", inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 1 },
-    { id: "am-bri-3", chateau_id: UUID_BRIOTTIERES, type: "service", nom: "Animaux acceptés", description: "Sur demande", icone: "🐕", inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 2 },
-    { id: "am-bri-4", chateau_id: UUID_BRIOTTIERES, type: "activite", nom: "Dîner aux chandelles", description: "Table d'hôtes familiale", icone: "◆", inclus: false, prix_supplement_cents: 8500, duree_minutes: 120, ordre: 3 },
+    { id: "am-bri-1", chateau_id: UUID_BRIOTTIERES, type: "service", nom: "Parking", description: "Cour intérieure", icone: "🚗", image: null, inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 0 },
+    { id: "am-bri-2", chateau_id: UUID_BRIOTTIERES, type: "service", nom: "Wi-Fi", description: "Haut débit", icone: "📶", image: null, inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 1 },
+    { id: "am-bri-3", chateau_id: UUID_BRIOTTIERES, type: "service", nom: "Animaux acceptés", description: "Sur demande", icone: "🐕", image: null, inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 2 },
+    { id: "am-bri-4", chateau_id: UUID_BRIOTTIERES, type: "activite", nom: "Dîner aux chandelles", description: "Table d'hôtes familiale", icone: "◆", image: "/bri-diner.avif", inclus: false, prix_supplement_cents: 8500, duree_minutes: 120, ordre: 3 },
   ],
 
   offres: [

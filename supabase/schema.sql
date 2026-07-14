@@ -295,6 +295,7 @@ CREATE TABLE IF NOT EXISTS public.chateau_amenities (
   nom                      text          NOT NULL,
   description              text,
   icone                    text,
+  image                    text,
   inclus                   boolean       NOT NULL DEFAULT true,
   prix_supplement_cents    integer,
   duree_minutes            integer,

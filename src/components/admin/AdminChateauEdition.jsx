@@ -555,12 +555,14 @@ export default function AdminChateauEdition() {
               <Champ label="Nom" value={a.nom} onChange={(e) => majFille("amenities", i, "nom", e.target.value)} />
               <ChampZone label="Description" value={a.description} onChange={(e) => majFille("amenities", i, "description", e.target.value)} rows={2} />
               <Champ label="Icône" value={a.icone} onChange={(e) => majFille("amenities", i, "icone", e.target.value)} />
+              <Champ label="Image (URL)" value={a.image ?? ""} onChange={(e) => majFille("amenities", i, "image", e.target.value)} />
+              <BoutonTeleverser valeur={a.image} onUpload={(url) => majFille("amenities", i, "image", url)} />
               <ChampCase label="Inclus dans le prix" checked={a.inclus === true} onChange={(e) => majFille("amenities", i, "inclus", e.target.checked)} />
               <Champ label="Supplément (€, optionnel)" type="number" value={a.prixSupplement} onChange={(e) => majFille("amenities", i, "prixSupplement", e.target.value)} />
               <Champ label="Durée (minutes, optionnel)" type="number" value={a.dureeMinutes} onChange={(e) => majFille("amenities", i, "dureeMinutes", e.target.value)} />
             </div>
           ))}
-          <button type="button" className="adm-btn-ajouter" onClick={() => ajouterFille("amenities", { type: "service", nom: "", description: "", icone: "", inclus: true, prixSupplement: null, dureeMinutes: null })}>+ Ajouter un équipement</button>
+          <button type="button" className="adm-btn-ajouter" onClick={() => ajouterFille("amenities", { type: "service", nom: "", description: "", icone: "", image: "", inclus: true, prixSupplement: null, dureeMinutes: null })}>+ Ajouter un équipement</button>
         </section>
 
         {/* ── Galerie images (éditable, avec téléversement) ── */}
