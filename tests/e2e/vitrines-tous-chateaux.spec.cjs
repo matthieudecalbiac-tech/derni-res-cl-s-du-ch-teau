@@ -58,6 +58,12 @@ test.describe('Vitrines · comportement (decouverte DOM)', () => {
   });
 
   test('Chaque vitrine servie rend ses sections', async ({ page }) => {
+    // Sweep O(nombre de chateaux publies) : ouvre CHAQUE vitrine avec parcours
+    // complet. Le catalogue public grandit (nouveaux partenaires) → le budget doit
+    // suivre. test.slow() triple le timeout (30s -> 90s) plutot qu'un timeout fixe
+    // qui casserait au prochain chateau ajoute.
+    test.slow();
+
     // 4xx d'images collectees sur tout le parcours, asserees a la fin.
     const imagesEnErreur = [];
     page.on('response', (res) => {
