@@ -14,6 +14,17 @@ const LIBELLE_STATUT = { brouillon: "Brouillon", publie: "Publié", archive: "Ar
 // Valeurs fermées des enums Postgres (cf. schema.sql).
 const ALENTOUR_TYPES = ["patrimoine", "gastronomie", "nature", "spirituel", "sport", "village", "culture", "histoire"];
 const AMENITY_TYPES = ["service", "activite"];
+// Categorie editoriale (liste fermee, nullable) — libelles lisibles cote UI,
+// value = slug persiste (miroir du CHECK base + amenityToRow). Cf. migration
+// 2026-07-15-amenity-categorie.
+const AMENITY_CATEGORIES = [
+  { value: "bien_etre", label: "Bien-être & détente" },
+  { value: "gastronomie", label: "Gastronomie" },
+  { value: "sport", label: "Sport & plein air" },
+  { value: "nature", label: "Nature" },
+  { value: "culture", label: "Culture & patrimoine" },
+  { value: "famille", label: "Famille" },
+];
 
 // ── Helpers de normalisation (module-level, réutilisés base + filles) ──
 const estVide = (v) => typeof v === "string" && v.trim() === "";
@@ -57,13 +68,22 @@ function ChampCase({ label, checked, onChange }) {
   );
 }
 
-function ChampSelect({ label, value, onChange, options }) {
+// options : soit un tableau de chaines (value === label, retrocompat), soit un
+// tableau de paires { value, label } (libelles lisibles). optionVide : ajoute
+// une option vide en tete (value "") — true => libelle "— Aucune —", ou passer
+// une chaine pour un libelle custom. Sert aux champs nullable (categorie).
+function ChampSelect({ label, value, onChange, options, optionVide }) {
+  const items = options.map((o) =>
+    typeof o === "string" ? { value: o, label: o } : o
+  );
+  const labelVide = typeof optionVide === "string" ? optionVide : "— Aucune —";
   return (
     <label className="adm-champ">
       <span className="adm-champ-label">{label}</span>
       <select className="adm-input" value={value} onChange={onChange}>
-        {options.map((o) => (
-          <option key={o} value={o}>{o}</option>
+        {optionVide && <option value="">{labelVide}</option>}
+        {items.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
         ))}
       </select>
     </label>
@@ -552,6 +572,7 @@ export default function AdminChateauEdition() {
                 <button type="button" className="adm-btn-suppr" onClick={() => supprimerFille("amenities", i)}>Supprimer</button>
               </div>
               <ChampSelect label="Type" value={a.type} onChange={(e) => majFille("amenities", i, "type", e.target.value)} options={AMENITY_TYPES} />
+              <ChampSelect label="Catégorie" value={a.categorie ?? ""} options={AMENITY_CATEGORIES} optionVide onChange={(e) => majFille("amenities", i, "categorie", e.target.value)} />
               <Champ label="Nom" value={a.nom} onChange={(e) => majFille("amenities", i, "nom", e.target.value)} />
               <ChampZone label="Description" value={a.description} onChange={(e) => majFille("amenities", i, "description", e.target.value)} rows={2} />
               <Champ label="Icône" value={a.icone} onChange={(e) => majFille("amenities", i, "icone", e.target.value)} />
@@ -562,7 +583,7 @@ export default function AdminChateauEdition() {
               <Champ label="Durée (minutes, optionnel)" type="number" value={a.dureeMinutes} onChange={(e) => majFille("amenities", i, "dureeMinutes", e.target.value)} />
             </div>
           ))}
-          <button type="button" className="adm-btn-ajouter" onClick={() => ajouterFille("amenities", { type: "service", nom: "", description: "", icone: "", image: "", inclus: true, prixSupplement: null, dureeMinutes: null })}>+ Ajouter un équipement</button>
+          <button type="button" className="adm-btn-ajouter" onClick={() => ajouterFille("amenities", { type: "service", categorie: "", nom: "", description: "", icone: "", image: "", inclus: true, prixSupplement: null, dureeMinutes: null })}>+ Ajouter un équipement</button>
         </section>
 
         {/* ── Galerie images (éditable, avec téléversement) ── */}
