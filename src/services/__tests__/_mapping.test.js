@@ -589,6 +589,7 @@ describe("amenityToRow (ligne pivot COMPLÈTE — pas 4 booléens)", () => {
     );
     expect(row).toEqual({
       type: "service",
+      categorie: null,
       nom: "Parking",
       inclus: true,
       prix_supplement_cents: null,
@@ -645,7 +646,7 @@ describe("amenityToRow (ligne pivot COMPLÈTE — pas 4 booléens)", () => {
 
 
 describe("mapAmenity <-> amenityToRow (aller-retour pivot amenity)", () => {
-  const AMENITY_COLS = ["type", "nom", "description", "icone", "image", "inclus", "prix_supplement_cents", "duree_minutes", "ordre"];
+  const AMENITY_COLS = ["type", "categorie", "nom", "description", "icone", "image", "inclus", "prix_supplement_cents", "duree_minutes", "ordre"];
 
   it("mapAmenity : cents → euros, inclus bool, forme React", () => {
     const am = FIXTURE_BRIOTTIERES.chateau_amenities[3]; // Dîner : supplement 8500, duree 120, inclus false
@@ -680,6 +681,20 @@ describe("mapAmenity <-> amenityToRow (aller-retour pivot amenity)", () => {
   it("amenityToRow : émet image (valeur transmise, null si absent)", () => {
     expect(amenityToRow({ type: "service", nom: "X", image: "/y.avif" }, 0).image).toBe("/y.avif");
     expect(amenityToRow({ type: "service", nom: "X" }, 0).image).toBeNull();
+  });
+
+  it("mapAmenity : lit categorie (présent → valeur, absent → null)", () => {
+    expect(mapAmenity(FIXTURE_BRIOTTIERES.chateau_amenities[3]).categorie).toBe("gastronomie");
+    expect(mapAmenity(FIXTURE_BRIOTTIERES.chateau_amenities[0]).categorie).toBeNull(); // Parking : pratique, pas de catégorie
+    expect(mapAmenity({ type: "service", nom: "X", categorie: "bien_etre" }).categorie).toBe("bien_etre");
+    expect(mapAmenity({ type: "service", nom: "X" }).categorie).toBeNull();
+  });
+
+  it("amenityToRow : émet categorie NORMALISÉE — '' → null (piège CHECK blindé), undefined → null, valeur préservée", () => {
+    expect(amenityToRow({ type: "service", nom: "X", categorie: "bien_etre" }, 0).categorie).toBe("bien_etre");
+    expect(amenityToRow({ type: "service", nom: "X", categorie: "" }, 0).categorie).toBeNull();
+    expect(amenityToRow({ type: "service", nom: "X" }, 0).categorie).toBeNull();
+    expect(amenityToRow({ type: "service", nom: "X", categorie: null }, 0).categorie).toBeNull();
   });
 
   it("input null → null", () => {

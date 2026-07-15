@@ -292,6 +292,7 @@ CREATE TABLE IF NOT EXISTS public.chateau_amenities (
   id                       uuid          PRIMARY KEY DEFAULT gen_random_uuid(),
   chateau_id               uuid          NOT NULL REFERENCES public.chateaux(id) ON DELETE CASCADE,
   type                     amenity_type  NOT NULL,
+  categorie                text,
   nom                      text          NOT NULL,
   description              text,
   icone                    text,
@@ -304,13 +305,17 @@ CREATE TABLE IF NOT EXISTS public.chateau_amenities (
   updated_at               timestamptz   NOT NULL DEFAULT NOW(),
 
   CONSTRAINT amenities_supplement_valide CHECK (prix_supplement_cents IS NULL OR prix_supplement_cents >= 0),
-  CONSTRAINT amenities_duree_valide      CHECK (duree_minutes IS NULL OR duree_minutes > 0)
+  CONSTRAINT amenities_duree_valide      CHECK (duree_minutes IS NULL OR duree_minutes > 0),
+  CONSTRAINT chateau_amenities_categorie_check CHECK (categorie IS NULL OR categorie IN
+    ('bien_etre', 'gastronomie', 'sport', 'nature', 'culture', 'famille'))
 );
 
 COMMENT ON TABLE  public.chateau_amenities IS
   'Services (spa, parking, jardin) et activités (dîner, balade) d''un château — fusionnés via type enum.';
 COMMENT ON COLUMN public.chateau_amenities.type IS
   'service = équipement always-on, activite = expérience ponctuelle réservable séparément.';
+COMMENT ON COLUMN public.chateau_amenities.categorie IS
+  'Catégorie éditoriale (liste fermée de 6, une seule, nullable) pour les filtres par expérience : bien_etre, gastronomie, sport, nature, culture, famille. DISTINCTE de `type` (service/activite) qu''elle traverse. NULL pour les services purement pratiques (wifi, recharge, animaux).';
 COMMENT ON COLUMN public.chateau_amenities.inclus IS
   'true = inclus dans le prix de la nuit. false = supplément (cf. prix_supplement_cents).';
 COMMENT ON COLUMN public.chateau_amenities.prix_supplement_cents IS

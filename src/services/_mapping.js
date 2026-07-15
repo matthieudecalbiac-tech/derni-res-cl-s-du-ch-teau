@@ -198,6 +198,7 @@ export function mapAmenity(row) {
   if (!row) return null;
   return {
     type: row.type,
+    categorie: nullable(row.categorie),
     nom: row.nom,
     description: nullable(row.description),
     icone: nullable(row.icone),
@@ -719,6 +720,10 @@ export function amenityToRow(item, index) {
 
   const row = {
     type: item.type,
+    // categorie : NORMALISE, jamais "" (violerait le CHECK). Pas de throw —
+    // le mapper normalise, il ne juge pas (le CHECK base + le select form +
+    // le NULLIF de la RPC sont les filets). "" / undefined / null -> null.
+    categorie: item.categorie || null,
     nom: item.nom,
     inclus,
     prix_supplement_cents: prixSupplementCents,
