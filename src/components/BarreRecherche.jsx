@@ -5,6 +5,7 @@ import { getRegionsAvecChateaux } from "../utils/regions";
 import { formatDate } from "../utils/dates";
 import Modale from "./Modale";
 import CalendrierPlage from "./CalendrierPlage";
+import PanneauFiltres from "./PanneauFiltres";
 import "../styles/barre-recherche.css";
 
 // Barre a 5 zones (Destination | Dates | Plus de filtres | Invites | Trouver).
@@ -28,12 +29,13 @@ export default function BarreRecherche() {
   const [invOuvert, setInvOuvert] = useState(false);
   const [invites, setInvites] = useState({ adultes: 2, enfants: 0 });
 
-  // Plus de filtres — placeholder pour l'instant. Y viendront les filtres
-  // d'EQUIPEMENTS (spa, piscine, velo, petit-dejeuner, restaurant... les memes
-  // que la carte), branches au futur chantier services/categories. Le filtre
-  // Siecle, lui, vit desormais dans les pastilles "Besoin d'inspiration" (bas du
-  // hero) qui routent vers /resultats?siecle (convention conservee).
+  // Plus de filtres — panneau multi-criteres (categories + equipements). L'etat
+  // de selection est remonte par PanneauFiltres via onChange puis injecte dans
+  // l'URL par lancerRecherche. Le filtre Siecle, lui, vit dans les pastilles
+  // "Besoin d'inspiration" (bas du hero) qui routent vers /resultats?siecle.
   const [filtresOuvert, setFiltresOuvert] = useState(false);
+  const [filtres, setFiltres] = useState({ equipements: [] });
+  const nbFiltres = filtres.equipements.length;
 
   const regions = getRegionsAvecChateaux(chateaux);
 
@@ -123,7 +125,18 @@ export default function BarreRecherche() {
       p.set("arrivee", toISODate(dateArrivee));
       p.set("depart", toISODate(dateDepart));
     }
+    // Filtres du panneau : equipements uniquement (valeurs jointes par virgule,
+    // aucun param si vide). Le param ?categorie reste emis par la pastille
+    // "Espace detente", plus par ce panneau.
+    if (filtres.equipements.length > 0) p.set("equipement", filtres.equipements.join(","));
     navigate(`/resultats?${p.toString()}`);
+  };
+
+  // Depuis le panneau "+ Filtres" : "Voir les chateaux" ferme la modale ET lance
+  // la recherche (la modale masque le CTA "Trouver", il faut rendre le geste ici).
+  const validerFiltres = () => {
+    setFiltresOuvert(false);
+    lancerRecherche();
   };
 
   return (
@@ -207,14 +220,14 @@ export default function BarreRecherche() {
         </div>
 
         {/* Petit bouton "Filtres" (sorti de la barre pour l'alleger) : ouvre le
-            meme panneau Filtres. Agira sur la recherche (futurs filtres equipements). */}
+            panneau Filtres. Son libelle reflete le nombre de criteres actifs. */}
         <button type="button" className="br-filtres-lien" onClick={() => ouvrir("filtres")} aria-expanded={filtresOuvert}>
           <svg className="br-filtres-lien-ico" width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
             <path d="M3 5.5h7.5M14 5.5H15M3 12.5h1M7.5 12.5H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
             <circle cx="12" cy="5.5" r="1.7" stroke="currentColor" strokeWidth="1.5"/>
             <circle cx="5.5" cy="12.5" r="1.7" stroke="currentColor" strokeWidth="1.5"/>
           </svg>
-          Filtres
+          {nbFiltres > 0 ? `${nbFiltres} filtre${nbFiltres > 1 ? "s" : ""}` : "Filtres"}
         </button>
       </div>
 
@@ -308,11 +321,10 @@ export default function BarreRecherche() {
         </div>
       </Modale>
 
-      {/* MODALE PLUS DE FILTRES — placeholder. Contenu a venir : filtres
-          d'equipements (spa, piscine, velo, petit-dejeuner, restaurant...),
-          branches au futur chantier services/categories. */}
+      {/* MODALE PLUS DE FILTRES — panneau multi-criteres (categories + equipements).
+          La selection remonte via onChange et alimente lancerRecherche (URL). */}
       <Modale ouvert={filtresOuvert} onClose={() => setFiltresOuvert(false)} titre="Filtres" largeur={520}>
-        <p className="br-filtres-vide">Filtres bientôt disponibles.</p>
+        <PanneauFiltres onChange={setFiltres} onValider={validerFiltres} />
       </Modale>
     </div>
   );

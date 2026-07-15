@@ -1,8 +1,10 @@
+import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { prixAffiche } from "../utils/derivePrix";
 import { capaciteSuffisante } from "../utils/capacite";
 import { libelleCategorie } from "../utils/categories";
+import { getEquipements } from "../services/chateauxService";
 import Header from "./Header";
 import "../styles/page-resultats.css";
 
@@ -15,9 +17,27 @@ export default function PageResultats() {
   const departement = params.get("departement");
   const chateauSlug = params.get("chateau");
   const siecle = params.get("siecle");
-  const categorie = params.get("categorie");
   const invites = params.get("invites");
   const nbInvites = invites ? parseInt(invites, 10) : null;
+
+  // Filtres multi-valeurs (panneau "+ Filtres") : 1 param par source, valeurs
+  // separees par virgule. Liste d'un element -> retrocompatible (?categorie=bien_etre).
+  const parseListe = (v) => (v ? v.split(",").map((s) => s.trim()).filter(Boolean) : []);
+  const categories = parseListe(params.get("categorie"));
+  const equipements = parseListe(params.get("equipement"));
+
+  // Referentiel equipements : UNIQUEMENT pour afficher les libelles ("Sauna" et
+  // non "sauna") dans le recap. Le FILTRE travaille sur les slugs des services
+  // (c.amenities), independamment de ce chargement.
+  const [equipRef, setEquipRef] = useState([]);
+  useEffect(() => {
+    let cancelled = false;
+    getEquipements()
+      .then((liste) => { if (!cancelled) setEquipRef(liste); })
+      .catch((e) => console.error("[PageResultats] getEquipements:", e));
+    return () => { cancelled = true; };
+  }, []);
+  const libelleEquipement = (slug) => equipRef.find((e) => e.slug === slug)?.libelle ?? slug;
 
   const arrivee = params.get("arrivee");
   const depart = params.get("depart");
@@ -57,12 +77,24 @@ export default function PageResultats() {
   if (siecle) {
     resultats = resultats.filter((c) => c.siecle === siecle);
   }
-  // Filtre categorie de service (ex "bien_etre" -> "Espace detente") : le chateau
-  // matche s'il porte AU MOINS un service de cette categorie. Cumulatif comme siecle.
-  if (categorie) {
+  // Categories = OU : le chateau matche s'il porte au moins un service dont la
+  // categorie est parmi celles cochees (cocher bien-etre + gastronomie ELARGIT
+  // l'inspiration). Liste d'un element -> equivaut a l'egalite stricte d'avant.
+  if (categories.length > 0) {
     resultats = resultats.filter((c) =>
-      (c.amenities ?? []).some((a) => a.categorie === categorie)
+      (c.amenities ?? []).some((a) => categories.includes(a.categorie))
     );
+  }
+  // Equipements = ET : le chateau doit porter TOUS les equipements coches (cocher
+  // piscine + sauna EXIGE les deux), peu importe via un ou plusieurs de ses
+  // services -> on teste l'union des equipements de tous ses services.
+  if (equipements.length > 0) {
+    resultats = resultats.filter((c) => {
+      const slugsChateau = new Set(
+        (c.amenities ?? []).flatMap((a) => (a.equipements ?? []).map((e) => e.slug))
+      );
+      return equipements.every((slug) => slugsChateau.has(slug));
+    });
   }
   resultats = resultats.filter((c) => capaciteSuffisante(c, nbInvites));
 
@@ -72,7 +104,8 @@ export default function PageResultats() {
     region ? region : null,
     chateauSlug && resultats[0] ? resultats[0].nom : null,
     siecle ? siecle : null,
-    categorie ? libelleCategorie(categorie) : null,
+    categories.length ? categories.map(libelleCategorie).join(", ") : null,
+    equipements.length ? equipements.map(libelleEquipement).join(", ") : null,
     labelDates,
     invites ? `${invites} invites` : null,
   ].filter(Boolean).join(" · ");

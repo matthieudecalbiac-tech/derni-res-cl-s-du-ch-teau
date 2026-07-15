@@ -103,15 +103,6 @@
 /* ── Champ Dates (bouton declencheur de la modale calendrier) ── */
 .br-champ--dates { padding: 0; }
 
-.br-filtres-vide {
-  padding: 28px 22px;
-  text-align: center;
-  font-family: 'Crimson Pro', serif;
-  font-style: italic;
-  color: #A8884E;
-  font-size: 0.95rem;
-  margin: 0;
-}
 
 /* ── Champ Invites (steppers adultes / enfants) ── */
 .br-champ--invites { padding: 0; }

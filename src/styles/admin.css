@@ -284,61 +284,9 @@
   font-size: var(--t-xs);
 }
 
-.adm-case {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-ui);
-  font-size: var(--t-sm);
-  color: var(--bleu-nuit);
-}
-
-/* ── Équipements (sélection N-N, repliée + groupée) ── */
-.adm-equip-resume {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.7rem;
-  width: 100%;
-  text-align: left;
-  background: var(--blanc-casse);
-  border: 1px solid var(--gris-clair);
-  border-radius: 4px;
-  padding: 0.5rem 0.7rem;
-  cursor: pointer;
-  font-family: var(--font-ui);
-  font-size: var(--t-sm);
-}
-.adm-equip-resume:focus-visible { outline: none; border-color: var(--or); }
-.adm-equip-liste { color: var(--bleu-nuit); }
-.adm-equip-vide { color: var(--gris); font-style: italic; }
-.adm-equip-chevron { color: var(--or); flex-shrink: 0; }
-
-.adm-equip-panneau {
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  margin-top: 0.5rem;
-  padding: 0.7rem;
-  border: 1px solid var(--gris-clair);
-  border-radius: 4px;
-  background: var(--creme-chaud);
-}
-.adm-equip-groupe { border: none; margin: 0; padding: 0; }
-.adm-equip-groupe-titre {
-  font-family: var(--font-ui);
-  font-size: var(--t-xs);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--or-fonce, #8B6914);
-  padding: 0 0 0.35rem;
-}
-/* Grille compacte : plusieurs cases par ligne, pas une par ligne. */
-.adm-equip-grille {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 0.3rem 0.8rem;
-}
+/* .adm-case et .adm-equip-* ont migre vers les composants generiques extraits
+   (src/components/ChampCase + ChampEquipements, CSS champ-case.css /
+   champ-equipements.css) pour etre consommables hors admin. */
 
 /* ── Boutons ── */
 .adm-boutons {
