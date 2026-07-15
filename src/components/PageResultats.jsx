@@ -11,6 +11,7 @@ export default function PageResultats() {
   const { chateaux, loading } = useChateaux();
 
   const region = params.get("region");
+  const departement = params.get("departement");
   const chateauSlug = params.get("chateau");
   const siecle = params.get("siecle");
   const invites = params.get("invites");
@@ -40,11 +41,13 @@ export default function PageResultats() {
   // cul-de-sac.
   const reels = chateaux.filter((c) => !c.isDemoMock);
 
-  // Filtrage : par chateau precis si fourni, sinon par region, sinon tous les reels.
-  // Puis on applique TOUJOURS le filtre invites (capacite).
+  // Filtrage : par chateau precis si fourni, sinon par departement, sinon par
+  // region, sinon tous les reels. Puis on applique TOUJOURS le filtre invites.
   let resultats = reels;
   if (chateauSlug) {
     resultats = reels.filter((c) => c.slug === chateauSlug);
+  } else if (departement) {
+    resultats = reels.filter((c) => c.departement === departement);
   } else if (region) {
     resultats = reels.filter((c) => c.region === region);
   }
@@ -56,6 +59,7 @@ export default function PageResultats() {
 
   // Sous-titre recapitulatif de la selection
   const recap = [
+    departement ? departement : null,
     region ? region : null,
     chateauSlug && resultats[0] ? resultats[0].nom : null,
     siecle ? siecle : null,
