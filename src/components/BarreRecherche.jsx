@@ -34,8 +34,8 @@ export default function BarreRecherche() {
   // l'URL par lancerRecherche. Le filtre Siecle, lui, vit dans les pastilles
   // "Besoin d'inspiration" (bas du hero) qui routent vers /resultats?siecle.
   const [filtresOuvert, setFiltresOuvert] = useState(false);
-  const [filtres, setFiltres] = useState({ categories: [], equipements: [] });
-  const nbFiltres = filtres.categories.length + filtres.equipements.length;
+  const [filtres, setFiltres] = useState({ equipements: [] });
+  const nbFiltres = filtres.equipements.length;
 
   const regions = getRegionsAvecChateaux(chateaux);
 
@@ -125,12 +125,18 @@ export default function BarreRecherche() {
       p.set("arrivee", toISODate(dateArrivee));
       p.set("depart", toISODate(dateDepart));
     }
-    // Filtres multi-valeurs : 1 param par source, valeurs jointes par virgule.
-    // Liste vide -> aucun param (jamais de valeur vide dans l'URL). Une seule
-    // valeur -> "categorie=bien_etre", retrocompatible avec la pastille detente.
-    if (filtres.categories.length > 0) p.set("categorie", filtres.categories.join(","));
+    // Filtres du panneau : equipements uniquement (valeurs jointes par virgule,
+    // aucun param si vide). Le param ?categorie reste emis par la pastille
+    // "Espace detente", plus par ce panneau.
     if (filtres.equipements.length > 0) p.set("equipement", filtres.equipements.join(","));
     navigate(`/resultats?${p.toString()}`);
+  };
+
+  // Depuis le panneau "+ Filtres" : "Voir les chateaux" ferme la modale ET lance
+  // la recherche (la modale masque le CTA "Trouver", il faut rendre le geste ici).
+  const validerFiltres = () => {
+    setFiltresOuvert(false);
+    lancerRecherche();
   };
 
   return (
@@ -318,7 +324,7 @@ export default function BarreRecherche() {
       {/* MODALE PLUS DE FILTRES — panneau multi-criteres (categories + equipements).
           La selection remonte via onChange et alimente lancerRecherche (URL). */}
       <Modale ouvert={filtresOuvert} onClose={() => setFiltresOuvert(false)} titre="Filtres" largeur={520}>
-        <PanneauFiltres onChange={setFiltres} />
+        <PanneauFiltres onChange={setFiltres} onValider={validerFiltres} />
       </Modale>
     </div>
   );

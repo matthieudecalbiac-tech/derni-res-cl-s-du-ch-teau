@@ -1,27 +1,24 @@
 import { useState, useEffect } from "react";
-import { CATEGORIES } from "../utils/categories";
 import { getEquipements } from "../services/chateauxService";
-import ChampEquipements from "./ChampEquipements";
-import ChampCase from "./ChampCase";
+import GrilleEquipements from "./GrilleEquipements";
 import "../styles/panneau-filtres.css";
 
 // Panneau "+ Filtres" — contenu de la <Modale titre="Filtres"> de BarreRecherche.
-// DEUX sources : (1) categories (les 6 de CATEGORIES, cases multi-selection),
-// (2) equipements (referentiel charge ici une fois, passe au ChampEquipements
-// extrait qui reste presentationnel). `animaux` volontairement HORS perimetre :
-// c.animaux est derive par heuristique de nom (flattenAmenities) avec faux negatif
-// prouve ("Chiens acceptes") -> un filtre qui masque des chateaux eligibles serait
-// pire qu'absent. A traiter en chantier de donnees separe.
+// UNE seule source : les equipements ("Sur place"), affiches TOUT DEPLIE, groupes
+// par famille (les intertitres font le travail de la categorie sans la demander).
+// Les categories ne sont PAS proposees ici : exposer "Bien-etre & detente" ET les
+// equipements Piscine/Sauna/... qui SONT le bien-etre laissait l'utilisateur sans
+// savoir lequel choisir. Le filtre par categorie reste la pastille "Espace detente"
+// (entree d'inspiration, autre usage, autre endroit).
 //
-// Etat de selection LOCAL. Le panneau ne navigue pas et ne construit pas d'URL :
-// il expose sa selection au parent via onChange({ categories, equipements }).
-// Le passage a l'URL est la brique 3 (cablage BarreRecherche).
-export default function PanneauFiltres({ onChange }) {
-  const [categories, setCategories] = useState([]); // slugs
+// Le referentiel est charge ici une fois et passe a GrilleEquipements (qui reste
+// presentationnel). Etat de selection LOCAL. Le panneau ne navigue pas : il expose
+// sa selection via onChange({ equipements }) et une intention via onValider().
+export default function PanneauFiltres({ onChange, onValider }) {
   const [equipements, setEquipements] = useState([]); // slugs
   const [referentiel, setReferentiel] = useState([]); // [{slug,libelle,ordre}]
 
-  // Referentiel equipements : chargement unique au montage (comme l'admin).
+  // Referentiel equipements : chargement unique au montage.
   useEffect(() => {
     let cancelled = false;
     getEquipements()
@@ -30,52 +27,24 @@ export default function PanneauFiltres({ onChange }) {
     return () => { cancelled = true; };
   }, []);
 
-  const emettre = (cats, equips) => onChange?.({ categories: cats, equipements: equips });
-
-  const toggleCategorie = (slug) => {
-    const next = categories.includes(slug)
-      ? categories.filter((s) => s !== slug)
-      : [...categories, slug];
-    setCategories(next);
-    emettre(next, equipements);
-  };
-
   const toggleEquipement = (slug) => {
     const next = equipements.includes(slug)
       ? equipements.filter((s) => s !== slug)
       : [...equipements, slug];
     setEquipements(next);
-    emettre(categories, next);
+    onChange?.({ equipements: next });
   };
 
   const toutEffacer = () => {
-    setCategories([]);
     setEquipements([]);
-    emettre([], []);
+    onChange?.({ equipements: [] });
   };
-
-  const vide = categories.length === 0 && equipements.length === 0;
 
   return (
     <div className="pf">
-      {/* 1. Categories — multi-selection sur les 6 valeurs fermees. */}
       <div className="pf-section">
-        <p className="pf-section-titre">Catégories</p>
-        <div className="pf-cases">
-          {CATEGORIES.map((c) => (
-            <ChampCase
-              key={c.value}
-              label={c.label}
-              checked={categories.includes(c.value)}
-              onChange={() => toggleCategorie(c.value)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* 2. Equipements — le ChampEquipements extrait (il porte son propre label). */}
-      <div className="pf-section">
-        <ChampEquipements
+        <p className="pf-section-titre">Sur place</p>
+        <GrilleEquipements
           referentiel={referentiel}
           selection={equipements}
           onToggle={toggleEquipement}
@@ -83,8 +52,16 @@ export default function PanneauFiltres({ onChange }) {
       </div>
 
       <div className="pf-actions">
-        <button type="button" className="pf-effacer" onClick={toutEffacer} disabled={vide}>
+        <button
+          type="button"
+          className="pf-effacer"
+          onClick={toutEffacer}
+          disabled={equipements.length === 0}
+        >
           Tout effacer
+        </button>
+        <button type="button" className="pf-valider" onClick={onValider}>
+          Voir les châteaux
         </button>
       </div>
     </div>
