@@ -32,6 +32,11 @@
   font-family: 'Crimson Pro', serif; font-size: 0.84rem; letter-spacing: 0.06em;
   /* Or fonce (charte) : contraste AA sur creme (#A8884E echouait a 3.08:1). */
   color: #8B6914; transition: color 0.2s;
+  /* Entree animee EN DERNIER : apres les pastilles (1.7s). Fond transparent sur
+     la section creme -> pas de bande navy (contrairement a .barre-recherche, cf. :145). */
+  opacity: 0;
+  animation: barreFadeUp 1.1s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  animation-delay: 1.90s;
 }
 .br-filtres-lien:hover { color: #C09840; }
 .br-filtres-lien-ico { color: #C09840; flex-shrink: 0; }
@@ -155,4 +160,5 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .br-carte { opacity: 1; animation: none; }
+  .br-filtres-lien { opacity: 1; animation: none; }
 }
