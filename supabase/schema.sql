@@ -325,6 +325,35 @@ COMMENT ON COLUMN public.chateau_amenities.duree_minutes IS
 
 
 -- ───────────────────────────────────────────────────────────────────────────
+-- 5.3.1 — equipements (référentiel filtrable) + amenity_equipements (liaison N-N)
+-- ───────────────────────────────────────────────────────────────────────────
+-- Troisième niveau de qualification d'un service, après `type` et `categorie` :
+-- les équipements filtrables, en relation N-N. Référentiel enrichissable par
+-- simple INSERT (pas de migration). Seed des 21 : cf. migration + seed.sql.
+
+CREATE TABLE IF NOT EXISTS public.equipements (
+  slug    text    PRIMARY KEY,
+  libelle text    NOT NULL,
+  ordre   integer NOT NULL DEFAULT 0
+);
+
+COMMENT ON TABLE public.equipements IS
+  'Référentiel d''équipements filtrables (piscine, sauna, tennis...). Enrichissable par simple INSERT (pas de migration). `ordre` groupe par catégorie pour l''affichage.';
+
+CREATE TABLE IF NOT EXISTS public.amenity_equipements (
+  amenity_id      uuid NOT NULL REFERENCES public.chateau_amenities(id) ON DELETE CASCADE,
+  equipement_slug text NOT NULL REFERENCES public.equipements(slug),
+  PRIMARY KEY (amenity_id, equipement_slug)
+);
+
+COMMENT ON TABLE public.amenity_equipements IS
+  'Liaison N-N entre un service (chateau_amenities) et ses équipements filtrables. ON DELETE CASCADE côté amenity : la réécriture REPLACE du bloc 5 de la RPC purge les liaisons automatiquement.';
+
+CREATE INDEX IF NOT EXISTS idx_amenity_equipements_slug
+  ON public.amenity_equipements (equipement_slug);
+
+
+-- ───────────────────────────────────────────────────────────────────────────
 -- 5.4 — chateau_timeline
 -- ───────────────────────────────────────────────────────────────────────────
 

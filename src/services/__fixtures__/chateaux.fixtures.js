@@ -122,10 +122,10 @@ export const FIXTURE_BRIOTTIERES = {
   ],
 
   chateau_amenities: [
-    { id: "am-bri-1", chateau_id: UUID_BRIOTTIERES, type: "service", categorie: null, nom: "Parking", description: "Cour intérieure", icone: "🚗", image: null, inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 0 },
-    { id: "am-bri-2", chateau_id: UUID_BRIOTTIERES, type: "service", categorie: null, nom: "Wi-Fi", description: "Haut débit", icone: "📶", image: null, inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 1 },
-    { id: "am-bri-3", chateau_id: UUID_BRIOTTIERES, type: "service", categorie: null, nom: "Animaux acceptés", description: "Sur demande", icone: "🐕", image: null, inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 2 },
-    { id: "am-bri-4", chateau_id: UUID_BRIOTTIERES, type: "activite", categorie: "gastronomie", nom: "Dîner aux chandelles", description: "Table d'hôtes familiale", icone: "◆", image: "/bri-diner.avif", inclus: false, prix_supplement_cents: 8500, duree_minutes: 120, ordre: 3 },
+    { id: "am-bri-1", chateau_id: UUID_BRIOTTIERES, type: "service", categorie: null, nom: "Parking", description: "Cour intérieure", icone: "🚗", image: null, inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 0, amenity_equipements: [] },
+    { id: "am-bri-2", chateau_id: UUID_BRIOTTIERES, type: "service", categorie: null, nom: "Wi-Fi", description: "Haut débit", icone: "📶", image: null, inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 1, amenity_equipements: [] },
+    { id: "am-bri-3", chateau_id: UUID_BRIOTTIERES, type: "service", categorie: null, nom: "Animaux acceptés", description: "Sur demande", icone: "🐕", image: null, inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 2, amenity_equipements: [] },
+    { id: "am-bri-4", chateau_id: UUID_BRIOTTIERES, type: "activite", categorie: "gastronomie", nom: "Dîner aux chandelles", description: "Table d'hôtes familiale", icone: "◆", image: "/bri-diner.avif", inclus: false, prix_supplement_cents: 8500, duree_minutes: 120, ordre: 3, amenity_equipements: [{ equipement_slug: "table_hotes", equipements: { slug: "table_hotes", libelle: "Table d'hôtes", ordre: 100 } }] },
   ],
 
   offres: [
