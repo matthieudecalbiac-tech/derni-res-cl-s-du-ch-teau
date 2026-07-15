@@ -1,0 +1,10 @@
+/* Case a cocher generique. Copie verbatim de l'ancienne .adm-case (admin.css) :
+   memes tokens globaux (global.css) -> rendu identique en admin comme hors admin. */
+.champ-case {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+}

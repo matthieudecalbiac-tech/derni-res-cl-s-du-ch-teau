@@ -4,6 +4,8 @@ import { getChateauAdminById, saveChateauComplet, updateStatut, deleteChateau, g
 import { validerPublication } from "../../utils/validerPublication";
 import { CATEGORIES as AMENITY_CATEGORIES } from "../../utils/categories";
 import BoutonTeleverser from "./BoutonTeleverser";
+import ChampCase from "../ChampCase";
+import ChampEquipements from "../ChampEquipements";
 
 const LIBELLE_STATUT = { brouillon: "Brouillon", publie: "Publié", archive: "Archivé" };
 
@@ -52,15 +54,6 @@ function ChampZone({ label, value, onChange, rows = 4 }) {
   );
 }
 
-function ChampCase({ label, checked, onChange }) {
-  return (
-    <label className="adm-case">
-      <input type="checkbox" checked={checked} onChange={onChange} />
-      <span>{label}</span>
-    </label>
-  );
-}
-
 // options : soit un tableau de chaines (value === label, retrocompat), soit un
 // tableau de paires { value, label } (libelles lisibles). optionVide : ajoute
 // une option vide en tete (value "") — true => libelle "— Aucune —", ou passer
@@ -80,81 +73,6 @@ function ChampSelect({ label, value, onChange, options, optionVide }) {
         ))}
       </select>
     </label>
-  );
-}
-
-// Familles d'equipements, deduites de la tranche d'ordre du referentiel
-// (Math.floor(ordre/100)) : 0 bien-etre, 1 gastronomie, 2 sport, 3 nature,
-// 4 culture, 5 famille. On DEDUIT les groupes (pas de colonne `famille` en
-// base — cf. seed groupe par ces memes tranches). L'ordre de ce tableau EST
-// l'ordre d'affichage des groupes.
-const FAMILLES = [
-  "Bien-être",
-  "Gastronomie",
-  "Sport & plein air",
-  "Nature",
-  "Culture & patrimoine",
-  "Famille",
-];
-
-// Selection d'equipements (N-N) pour UN service : resume replie (libelles
-// coches, nommes) + panneau deplie des 6 groupes en grille compacte. `ouvert`
-// est local a chaque instance -> plusieurs services peuvent etre deplies en meme
-// temps. `selection` = tableau de slugs ; `referentiel` = [{slug,libelle,ordre}]
-// deja trie par ordre (getEquipements). onToggle(slug) bascule l'appartenance.
-function ChampEquipements({ referentiel, selection, onToggle }) {
-  const [ouvert, setOuvert] = useState(false);
-  const coches = new Set(selection);
-
-  // Resume : libelles coches, dans l'ordre du referentiel (lecture stable).
-  const resume = referentiel
-    .filter((r) => coches.has(r.slug))
-    .map((r) => r.libelle)
-    .join(", ");
-
-  // Groupes par famille (tranche d'ordre). Groupe vide (aucun equipement dans
-  // cette tranche) masque.
-  const groupes = FAMILLES
-    .map((nom, i) => ({
-      nom,
-      items: referentiel.filter((r) => Math.floor((r.ordre ?? 0) / 100) === i),
-    }))
-    .filter((g) => g.items.length > 0);
-
-  return (
-    <div className="adm-champ adm-equip">
-      <span className="adm-champ-label">Équipements</span>
-      <button
-        type="button"
-        className="adm-equip-resume"
-        onClick={() => setOuvert((o) => !o)}
-        aria-expanded={ouvert}
-      >
-        <span className={resume ? "adm-equip-liste" : "adm-equip-vide"}>
-          {resume || "Aucun équipement"}
-        </span>
-        <span className="adm-equip-chevron" aria-hidden="true">{ouvert ? "▾" : "▸"}</span>
-      </button>
-      {ouvert && (
-        <div className="adm-equip-panneau">
-          {groupes.map((g) => (
-            <fieldset className="adm-equip-groupe" key={g.nom}>
-              <legend className="adm-equip-groupe-titre">{g.nom}</legend>
-              <div className="adm-equip-grille">
-                {g.items.map((r) => (
-                  <ChampCase
-                    key={r.slug}
-                    label={r.libelle}
-                    checked={coches.has(r.slug)}
-                    onChange={() => onToggle(r.slug)}
-                  />
-                ))}
-              </div>
-            </fieldset>
-          ))}
-        </div>
-      )}
-    </div>
   );
 }
 
