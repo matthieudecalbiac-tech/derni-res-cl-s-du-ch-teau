@@ -1,0 +1,54 @@
+/* Panneau "+ Filtres" (contenu de la Modale Filtres de la barre). Classes
+   neutres .pf-*, coherentes avec la barre (eyebrow Crimson or, fond modale
+   #FEFCF8). Le selecteur d'equipements apporte ses propres classes
+   (.champ-equip*) ; les cases categories, .champ-case. Ici : la mise en page. */
+
+.pf {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.pf-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Intertitre de section : eyebrow discret, or fonce AA sur le fond modale creme. */
+.pf-section-titre {
+  margin: 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8B6914;
+}
+
+/* Cases categories : grille compacte, plusieurs par ligne. */
+.pf-cases {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 8px 16px;
+}
+
+.pf-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 12px;
+  border-top: 1px solid rgba(192, 152, 64, 0.15);
+}
+
+/* "Tout effacer" : lien discret, meme teinte que le bouton Filtres de la barre. */
+.pf-effacer {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.84rem;
+  letter-spacing: 0.06em;
+  color: #8B6914;
+  transition: color 0.2s;
+}
+.pf-effacer:hover:not(:disabled) { color: #C09840; }
+.pf-effacer:disabled { opacity: 0.4; cursor: not-allowed; }
