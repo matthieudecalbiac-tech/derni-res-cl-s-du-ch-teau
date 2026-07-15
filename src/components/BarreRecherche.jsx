@@ -16,7 +16,7 @@ export default function BarreRecherche() {
 
   // Destination
   const [destOuvert, setDestOuvert] = useState(false);
-  const [selection, setSelection] = useState(null); // { type: "region"|"chateau", region, chateau? }
+  const [selection, setSelection] = useState(null); // { type: "region"|"departement", region, departement? }
 
   // Dates (calendrier de plage)
   const [datesOuvert, setDatesOuvert] = useState(false);
@@ -73,8 +73,8 @@ export default function BarreRecherche() {
   };
 
   const labelDestination = selection
-    ? selection.type === "chateau"
-      ? selection.chateau.nom
+    ? selection.type === "departement"
+      ? selection.departement
       : selection.region
     : "Où rêvez-vous d’aller ?";
 
@@ -95,8 +95,8 @@ export default function BarreRecherche() {
     setSelection({ type: "region", region });
     setDestOuvert(false);
   };
-  const choisirChateau = (region, chateau) => {
-    setSelection({ type: "chateau", region, chateau });
+  const choisirDepartement = (region, departement) => {
+    setSelection({ type: "departement", region, departement });
     setDestOuvert(false);
   };
 
@@ -110,8 +110,8 @@ export default function BarreRecherche() {
 
   const lancerRecherche = () => {
     const p = new URLSearchParams();
-    if (selection?.type === "chateau" && selection.chateau?.slug) {
-      p.set("chateau", selection.chateau.slug);
+    if (selection?.type === "departement") {
+      p.set("departement", selection.departement);
     } else if (selection?.type === "region") {
       p.set("region", selection.region);
     }
@@ -233,19 +233,21 @@ export default function BarreRecherche() {
               >
                 {r.region}
               </button>
-              <ul className="br-dest-chateaux">
-                {r.chateaux.map((c) => (
-                  <li key={c.id}>
-                    <button
-                      type="button"
-                      className="br-dest-chateau"
-                      onClick={() => choisirChateau(r.region, c)}
-                    >
-                      {c.nom}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              {r.departements.length > 0 && (
+                <ul className="br-dest-departements">
+                  {r.departements.map((d) => (
+                    <li key={d}>
+                      <button
+                        type="button"
+                        className="br-dest-departement"
+                        onClick={() => choisirDepartement(r.region, d)}
+                      >
+                        {d}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ))}
         </div>

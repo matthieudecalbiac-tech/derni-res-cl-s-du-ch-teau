@@ -75,21 +75,25 @@
   padding: 14px 22px; font-family: 'Crimson Pro', serif; font-style: italic;
   color: #A8884E; font-size: 0.9rem; margin: 0;
 }
-.br-dest-region { padding: 6px 0; }
+.br-dest-region { padding: 8px 0 10px; }
 .br-dest-region + .br-dest-region { border-top: 1px solid rgba(192,152,64,0.12); }
+/* Region = niveau primaire : Playfair, gras, navy, prominent. */
 .br-dest-region-titre {
   display: block; width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;
-  padding: 8px 22px 6px; font-family: 'Crimson Pro', serif; font-size: 0.66rem;
-  letter-spacing: 0.16em; text-transform: uppercase; color: #C09840; transition: color 0.18s;
+  padding: 10px 22px 6px; font-family: 'Playfair Display', serif; font-size: 1.02rem;
+  font-weight: 700; color: #1A2D5A; transition: color 0.18s;
 }
-.br-dest-region-titre:hover { color: #1A2D5A; }
-.br-dest-chateaux { list-style: none; margin: 0; padding: 0; }
-.br-dest-chateau {
+.br-dest-region-titre:hover { color: #C09840; }
+/* Departements = niveau secondaire : Cormorant, plus petit, discret, indente. */
+.br-dest-departements { list-style: none; margin: 0; padding: 0; }
+.br-dest-departement {
   display: block; width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;
-  padding: 8px 22px 8px 34px; font-family: 'Playfair Display', serif; font-size: 0.95rem;
-  color: #1A2D5A; transition: background 0.18s;
+  padding: 5px 22px 5px 38px; font-family: 'Cormorant Garamond', serif; font-size: 0.94rem;
+  /* Or fonce (charte) : contraste AA sur le fond modale #FEFCF8 (#A8884E echouait a 3.25:1, #8B6914 = 4.96:1).
+     Les departements restent discrets (Cormorant plus petit) mais accessibles. */
+  font-weight: 500; color: #8B6914; transition: background 0.18s, color 0.18s;
 }
-.br-dest-chateau:hover { background: rgba(192,152,64,0.10); }
+.br-dest-departement:hover { background: rgba(192,152,64,0.10); color: #1A2D5A; }
 
 /* ── Champ Dates (bouton declencheur de la modale calendrier) ── */
 .br-champ--dates { padding: 0; }
