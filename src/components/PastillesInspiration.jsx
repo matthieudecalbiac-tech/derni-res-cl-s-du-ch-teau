@@ -36,10 +36,11 @@ const IcoDetente = () => (
   </svg>
 );
 
+// Histoire / Distance restent des placeholders (donnees pas encore structurees).
+// Espace detente est desormais FONCTIONNEL (cf. bouton dedie ci-dessous).
 const PLACEHOLDERS = [
   { cle: "histoire", label: "Histoire des lieux", Ico: IcoHistoire },
   { cle: "distance", label: "Distance de chez vous", Ico: IcoDistance },
-  { cle: "detente", label: "Espace détente", Ico: IcoDetente },
 ];
 
 export default function PastillesInspiration() {
@@ -84,6 +85,16 @@ export default function PastillesInspiration() {
               <span className="insp-pastille-bientot">Bientôt</span>
             </button>
           ))}
+
+          {/* Espace detente : FONCTIONNEL, valeur fixe -> route directe (pas de modale). */}
+          <button
+            type="button"
+            className="insp-pastille"
+            onClick={() => navigate("/resultats?categorie=bien_etre")}
+          >
+            <IcoDetente />
+            <span className="insp-pastille-label">Espace détente</span>
+          </button>
         </div>
       </div>
 

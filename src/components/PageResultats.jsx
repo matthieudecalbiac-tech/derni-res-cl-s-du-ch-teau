@@ -2,6 +2,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { prixAffiche } from "../utils/derivePrix";
 import { capaciteSuffisante } from "../utils/capacite";
+import { libelleCategorie } from "../utils/categories";
 import Header from "./Header";
 import "../styles/page-resultats.css";
 
@@ -14,6 +15,7 @@ export default function PageResultats() {
   const departement = params.get("departement");
   const chateauSlug = params.get("chateau");
   const siecle = params.get("siecle");
+  const categorie = params.get("categorie");
   const invites = params.get("invites");
   const nbInvites = invites ? parseInt(invites, 10) : null;
 
@@ -55,6 +57,13 @@ export default function PageResultats() {
   if (siecle) {
     resultats = resultats.filter((c) => c.siecle === siecle);
   }
+  // Filtre categorie de service (ex "bien_etre" -> "Espace detente") : le chateau
+  // matche s'il porte AU MOINS un service de cette categorie. Cumulatif comme siecle.
+  if (categorie) {
+    resultats = resultats.filter((c) =>
+      (c.amenities ?? []).some((a) => a.categorie === categorie)
+    );
+  }
   resultats = resultats.filter((c) => capaciteSuffisante(c, nbInvites));
 
   // Sous-titre recapitulatif de la selection
@@ -63,6 +72,7 @@ export default function PageResultats() {
     region ? region : null,
     chateauSlug && resultats[0] ? resultats[0].nom : null,
     siecle ? siecle : null,
+    categorie ? libelleCategorie(categorie) : null,
     labelDates,
     invites ? `${invites} invites` : null,
   ].filter(Boolean).join(" · ");
