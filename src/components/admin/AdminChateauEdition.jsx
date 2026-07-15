@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { getChateauAdminById, saveChateauComplet, updateStatut, deleteChateau, getEquipements } from "../../services/chateauxService";
 import { validerPublication } from "../../utils/validerPublication";
+import { CATEGORIES as AMENITY_CATEGORIES } from "../../utils/categories";
 import BoutonTeleverser from "./BoutonTeleverser";
 
 const LIBELLE_STATUT = { brouillon: "Brouillon", publie: "Publié", archive: "Archivé" };
@@ -14,17 +15,9 @@ const LIBELLE_STATUT = { brouillon: "Brouillon", publie: "Publié", archive: "Ar
 // Valeurs fermées des enums Postgres (cf. schema.sql).
 const ALENTOUR_TYPES = ["patrimoine", "gastronomie", "nature", "spirituel", "sport", "village", "culture", "histoire"];
 const AMENITY_TYPES = ["service", "activite"];
-// Categorie editoriale (liste fermee, nullable) — libelles lisibles cote UI,
-// value = slug persiste (miroir du CHECK base + amenityToRow). Cf. migration
-// 2026-07-15-amenity-categorie.
-const AMENITY_CATEGORIES = [
-  { value: "bien_etre", label: "Bien-être & détente" },
-  { value: "gastronomie", label: "Gastronomie" },
-  { value: "sport", label: "Sport & plein air" },
-  { value: "nature", label: "Nature" },
-  { value: "culture", label: "Culture & patrimoine" },
-  { value: "famille", label: "Famille" },
-];
+// Categorie editoriale (liste fermee, nullable) : le referentiel vit desormais
+// dans src/utils/categories.js (source unique admin + front). Importe ci-dessus
+// et aliase AMENITY_CATEGORIES pour le select ChampSelect ({value,label}).
 
 // ── Helpers de normalisation (module-level, réutilisés base + filles) ──
 const estVide = (v) => typeof v === "string" && v.trim() === "";
