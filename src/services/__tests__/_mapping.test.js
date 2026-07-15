@@ -596,6 +596,7 @@ describe("amenityToRow (ligne pivot COMPLÈTE — pas 4 booléens)", () => {
       duree_minutes: null,
       image: null,
       ordre: 0,
+      equipements: [],
       description: "Cour intérieure",
       icone: "🚗",
     });
@@ -646,6 +647,9 @@ describe("amenityToRow (ligne pivot COMPLÈTE — pas 4 booléens)", () => {
 
 
 describe("mapAmenity <-> amenityToRow (aller-retour pivot amenity)", () => {
+  // Colonnes PLATES de chateau_amenities. `equipements` n'y figure PAS : c'est
+  // une liaison N-N (jonction amenity_equipements), pas une colonne — les
+  // aller-retours l'asserent donc a part (payload slugs vs embedding DB).
   const AMENITY_COLS = ["type", "categorie", "nom", "description", "icone", "image", "inclus", "prix_supplement_cents", "duree_minutes", "ordre"];
 
   it("mapAmenity : cents → euros, inclus bool, forme React", () => {
@@ -663,14 +667,20 @@ describe("mapAmenity <-> amenityToRow (aller-retour pivot amenity)", () => {
     expect(out.prixSupplement).toBeNull();
   });
 
-  it("ALLER-RETOUR amenity (activité avec supplément) : amenityToRow(mapAmenity(row), ordre) == colonnes pivot", () => {
+  it("ALLER-RETOUR amenity (activité avec supplément) : amenityToRow(mapAmenity(row), ordre) == colonnes pivot + equipements en slugs", () => {
     const am = FIXTURE_BRIOTTIERES.chateau_amenities[3];
-    expect(amenityToRow(mapAmenity(am), am.ordre)).toEqual(pick(am, AMENITY_COLS));
+    expect(amenityToRow(mapAmenity(am), am.ordre)).toEqual({
+      ...pick(am, AMENITY_COLS),
+      equipements: ["table_hotes"], // liaison DB -> slugs pour la RPC
+    });
   });
 
-  it("ALLER-RETOUR amenity (service, supplément/durée null) : null préservé", () => {
-    const am = FIXTURE_BRIOTTIERES.chateau_amenities[0]; // Parking : supplement/duree null, inclus true
-    expect(amenityToRow(mapAmenity(am), am.ordre)).toEqual(pick(am, AMENITY_COLS));
+  it("ALLER-RETOUR amenity (service, supplément/durée null) : null préservé + equipements []", () => {
+    const am = FIXTURE_BRIOTTIERES.chateau_amenities[0]; // Parking : supplement/duree null, inclus true, pas d'equipement
+    expect(amenityToRow(mapAmenity(am), am.ordre)).toEqual({
+      ...pick(am, AMENITY_COLS),
+      equipements: [],
+    });
   });
 
   it("mapAmenity : lit image (présent → valeur, absent → null)", () => {
@@ -695,6 +705,39 @@ describe("mapAmenity <-> amenityToRow (aller-retour pivot amenity)", () => {
     expect(amenityToRow({ type: "service", nom: "X", categorie: "" }, 0).categorie).toBeNull();
     expect(amenityToRow({ type: "service", nom: "X" }, 0).categorie).toBeNull();
     expect(amenityToRow({ type: "service", nom: "X", categorie: null }, 0).categorie).toBeNull();
+  });
+
+  it("mapAmenity : aplatit les equipements en [{slug,libelle}] trié par ordre ; liaison vide → []", () => {
+    // Dîner : 1 equipement (table_hotes)
+    expect(mapAmenity(FIXTURE_BRIOTTIERES.chateau_amenities[3]).equipements).toEqual([
+      { slug: "table_hotes", libelle: "Table d'hôtes" },
+    ]);
+    // Parking : liaison vide → []
+    expect(mapAmenity(FIXTURE_BRIOTTIERES.chateau_amenities[0]).equipements).toEqual([]);
+    // Liaison absente (pas de clé amenity_equipements) → [] (jamais null)
+    expect(mapAmenity({ type: "service", nom: "X" }).equipements).toEqual([]);
+    // Tri par ordre : sauna (20) avant piscine (10) en entrée -> réordonné
+    const multi = {
+      type: "activite", nom: "Bien-être",
+      amenity_equipements: [
+        { equipement_slug: "sauna", equipements: { slug: "sauna", libelle: "Sauna", ordre: 20 } },
+        { equipement_slug: "piscine", equipements: { slug: "piscine", libelle: "Piscine", ordre: 10 } },
+      ],
+    };
+    expect(mapAmenity(multi).equipements.map((e) => e.slug)).toEqual(["piscine", "sauna"]);
+  });
+
+  it("amenityToRow : émet equipements en SLUGS ; accepte objets {slug} OU slugs ; absent/vide → []", () => {
+    // objets {slug} (forme mapAmenity)
+    expect(amenityToRow({ type: "service", nom: "X", equipements: [{ slug: "piscine" }, { slug: "sauna" }] }, 0).equipements)
+      .toEqual(["piscine", "sauna"]);
+    // slugs bruts
+    expect(amenityToRow({ type: "service", nom: "X", equipements: ["tennis", "velos"] }, 0).equipements)
+      .toEqual(["tennis", "velos"]);
+    // absent → []
+    expect(amenityToRow({ type: "service", nom: "X" }, 0).equipements).toEqual([]);
+    // vide → []
+    expect(amenityToRow({ type: "service", nom: "X", equipements: [] }, 0).equipements).toEqual([]);
   });
 
   it("input null → null", () => {

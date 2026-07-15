@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { getChateauAdminById, saveChateauComplet, updateStatut, deleteChateau } from "../../services/chateauxService";
+import { getChateauAdminById, saveChateauComplet, updateStatut, deleteChateau, getEquipements } from "../../services/chateauxService";
 import { validerPublication } from "../../utils/validerPublication";
 import BoutonTeleverser from "./BoutonTeleverser";
 
@@ -90,6 +90,81 @@ function ChampSelect({ label, value, onChange, options, optionVide }) {
   );
 }
 
+// Familles d'equipements, deduites de la tranche d'ordre du referentiel
+// (Math.floor(ordre/100)) : 0 bien-etre, 1 gastronomie, 2 sport, 3 nature,
+// 4 culture, 5 famille. On DEDUIT les groupes (pas de colonne `famille` en
+// base — cf. seed groupe par ces memes tranches). L'ordre de ce tableau EST
+// l'ordre d'affichage des groupes.
+const FAMILLES = [
+  "Bien-être",
+  "Gastronomie",
+  "Sport & plein air",
+  "Nature",
+  "Culture & patrimoine",
+  "Famille",
+];
+
+// Selection d'equipements (N-N) pour UN service : resume replie (libelles
+// coches, nommes) + panneau deplie des 6 groupes en grille compacte. `ouvert`
+// est local a chaque instance -> plusieurs services peuvent etre deplies en meme
+// temps. `selection` = tableau de slugs ; `referentiel` = [{slug,libelle,ordre}]
+// deja trie par ordre (getEquipements). onToggle(slug) bascule l'appartenance.
+function ChampEquipements({ referentiel, selection, onToggle }) {
+  const [ouvert, setOuvert] = useState(false);
+  const coches = new Set(selection);
+
+  // Resume : libelles coches, dans l'ordre du referentiel (lecture stable).
+  const resume = referentiel
+    .filter((r) => coches.has(r.slug))
+    .map((r) => r.libelle)
+    .join(", ");
+
+  // Groupes par famille (tranche d'ordre). Groupe vide (aucun equipement dans
+  // cette tranche) masque.
+  const groupes = FAMILLES
+    .map((nom, i) => ({
+      nom,
+      items: referentiel.filter((r) => Math.floor((r.ordre ?? 0) / 100) === i),
+    }))
+    .filter((g) => g.items.length > 0);
+
+  return (
+    <div className="adm-champ adm-equip">
+      <span className="adm-champ-label">Équipements</span>
+      <button
+        type="button"
+        className="adm-equip-resume"
+        onClick={() => setOuvert((o) => !o)}
+        aria-expanded={ouvert}
+      >
+        <span className={resume ? "adm-equip-liste" : "adm-equip-vide"}>
+          {resume || "Aucun équipement"}
+        </span>
+        <span className="adm-equip-chevron" aria-hidden="true">{ouvert ? "▾" : "▸"}</span>
+      </button>
+      {ouvert && (
+        <div className="adm-equip-panneau">
+          {groupes.map((g) => (
+            <fieldset className="adm-equip-groupe" key={g.nom}>
+              <legend className="adm-equip-groupe-titre">{g.nom}</legend>
+              <div className="adm-equip-grille">
+                {g.items.map((r) => (
+                  <ChampCase
+                    key={r.slug}
+                    label={r.libelle}
+                    checked={coches.has(r.slug)}
+                    onChange={() => onToggle(r.slug)}
+                  />
+                ))}
+              </div>
+            </fieldset>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Initialise le state depuis le château chargé (base + filles) ──
 function formFromChateau(c) {
   return {
@@ -136,7 +211,15 @@ function formFromChateau(c) {
     chambres: (c.chambres ?? []).map((x) => ({ ...x, equipements: [...(x.equipements ?? [])] })),
     timeline: (c.timeline ?? []).map((x) => ({ ...x })),
     alentours: (c.alentours ?? []).map((x) => ({ ...x })),
-    amenities: (c.amenities ?? []).map((x) => ({ ...x })),
+    // equipements : normalise en SLUGS des le chargement (mapAmenity donne des
+    // objets {slug,libelle}) -> le form manipule des slugs, le referentiel fournit
+    // les libelles a l'affichage. Toggle et amenityToRow travaillent sur des slugs.
+    amenities: (c.amenities ?? []).map((x) => ({
+      ...x,
+      equipements: (x.equipements ?? [])
+        .map((e) => (typeof e === "string" ? e : e?.slug))
+        .filter(Boolean),
+    })),
   };
 }
 
@@ -245,6 +328,9 @@ export default function AdminChateauEdition() {
   const [publishMsg, setPublishMsg] = useState(null); // { type: 'manques'|'ok'|'erreur', bloquants?, avertissements?, texte? }
   const [confirmSuppr, setConfirmSuppr] = useState(false);
   const [nomConfirm, setNomConfirm] = useState("");
+  // Referentiel d'equipements (slug, libelle, ordre), charge UNE fois au montage
+  // (pas par amenity) et partage a toutes les cases ChampEquipements.
+  const [equipementsRef, setEquipementsRef] = useState([]);
   const [suppr, setSuppr] = useState(false);
   const [supprErreur, setSupprErreur] = useState(null);
 
@@ -270,6 +356,15 @@ export default function AdminChateauEdition() {
     };
   }, [id]);
 
+  // Referentiel equipements : chargement unique au montage (independant de l'id).
+  useEffect(() => {
+    let cancelled = false;
+    getEquipements()
+      .then((liste) => { if (!cancelled) setEquipementsRef(liste); })
+      .catch((e) => console.error("[AdminChateauEdition] getEquipements:", e));
+    return () => { cancelled = true; };
+  }, []);
+
   // Handlers base
   const setChamp = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
   const setCheck = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.checked }));
@@ -288,6 +383,21 @@ export default function AdminChateauEdition() {
     setForm((f) => ({ ...f, [section]: f[section].filter((_, i) => i !== index) }));
   const ajouterFille = (section, vierge) =>
     setForm((f) => ({ ...f, [section]: [...f[section], vierge] }));
+
+  // Bascule un equipement (slug) sur l'amenity d'index i : ajoute s'il manque,
+  // retire sinon. Le form stocke des slugs (cf. formFromChateau normalisation).
+  const toggleEquipement = (index, slug) =>
+    setForm((f) => ({
+      ...f,
+      amenities: f.amenities.map((a, i) => {
+        if (i !== index) return a;
+        const cur = a.equipements ?? [];
+        const equipements = cur.includes(slug)
+          ? cur.filter((s) => s !== slug)
+          : [...cur, slug];
+        return { ...a, equipements };
+      }),
+    }));
 
   // Handlers galerie images[] (tableau de chaînes)
   const majImage = (index, value) =>
@@ -581,9 +691,10 @@ export default function AdminChateauEdition() {
               <ChampCase label="Inclus dans le prix" checked={a.inclus === true} onChange={(e) => majFille("amenities", i, "inclus", e.target.checked)} />
               <Champ label="Supplément (€, optionnel)" type="number" value={a.prixSupplement} onChange={(e) => majFille("amenities", i, "prixSupplement", e.target.value)} />
               <Champ label="Durée (minutes, optionnel)" type="number" value={a.dureeMinutes} onChange={(e) => majFille("amenities", i, "dureeMinutes", e.target.value)} />
+              <ChampEquipements referentiel={equipementsRef} selection={a.equipements ?? []} onToggle={(slug) => toggleEquipement(i, slug)} />
             </div>
           ))}
-          <button type="button" className="adm-btn-ajouter" onClick={() => ajouterFille("amenities", { type: "service", categorie: "", nom: "", description: "", icone: "", image: "", inclus: true, prixSupplement: null, dureeMinutes: null })}>+ Ajouter un équipement</button>
+          <button type="button" className="adm-btn-ajouter" onClick={() => ajouterFille("amenities", { type: "service", categorie: "", nom: "", description: "", icone: "", image: "", inclus: true, prixSupplement: null, dureeMinutes: null, equipements: [] })}>+ Ajouter un équipement</button>
         </section>
 
         {/* ── Galerie images (éditable, avec téléversement) ── */}

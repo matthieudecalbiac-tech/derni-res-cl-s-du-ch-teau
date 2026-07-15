@@ -59,7 +59,7 @@ const SELECT_FULL = `
   chambres(*),
   chateau_timeline(*),
   chateau_alentours(*),
-  chateau_amenities(*),
+  chateau_amenities(*, amenity_equipements(equipement_slug, equipements(slug, libelle, ordre))),
   offres(*)
 `;
 
@@ -362,6 +362,27 @@ export async function getChateauAdminById(id) {
     // statut n'est pas mappé par mapChateau — on le surface pour le bouton Publier.
     statut: data.statut,
   };
+}
+
+/**
+ * LECTURE du référentiel d'équipements filtrables (slug, libelle, ordre).
+ * Trié par `ordre` (groupé par catégorie côté seed). Sert aux cases du
+ * formulaire admin ET aux filtres (home + carte).
+ *
+ * @returns {Promise<Array<{slug: string, libelle: string, ordre: number}>>}
+ * @throws Si erreur Supabase.
+ */
+export async function getEquipements() {
+  const { data, error } = await supabase
+    .from("equipements")
+    .select("slug, libelle, ordre")
+    .order("ordre", { ascending: true });
+
+  if (error) {
+    console.error("[chateauxService] getEquipements error:", error);
+    throw new Error(`Failed to fetch equipements: ${error.message}`);
+  }
+  return data ?? [];
 }
 
 /**

@@ -136,6 +136,8 @@ ALTER TABLE public.reservations       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.disponibilites     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.audit_log          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.migrations_log     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.equipements         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.amenity_equipements ENABLE ROW LEVEL SECURITY;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -320,6 +322,45 @@ CREATE POLICY chateau_amenities_update_chatelain_admin ON public.chateau_ameniti
 
 DROP POLICY IF EXISTS chateau_amenities_delete_admin ON public.chateau_amenities;
 CREATE POLICY chateau_amenities_delete_admin ON public.chateau_amenities
+  FOR DELETE USING (public.is_admin());
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 6.3.1 — equipements (référentiel) + amenity_equipements (liaison N-N)
+-- ───────────────────────────────────────────────────────────────────────────
+-- Calque chateau_amenities : SELECT public, écritures admin-only. Le chemin
+-- d'écriture normal est la RPC admin_upsert_chateau (SECURITY DEFINER, bypass
+-- RLS) ; les policies admin sont de la défense en profondeur.
+
+DROP POLICY IF EXISTS equipements_select_public ON public.equipements;
+CREATE POLICY equipements_select_public ON public.equipements
+  FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS equipements_insert_admin ON public.equipements;
+CREATE POLICY equipements_insert_admin ON public.equipements
+  FOR INSERT WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS equipements_update_admin ON public.equipements;
+CREATE POLICY equipements_update_admin ON public.equipements
+  FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS equipements_delete_admin ON public.equipements;
+CREATE POLICY equipements_delete_admin ON public.equipements
+  FOR DELETE USING (public.is_admin());
+
+DROP POLICY IF EXISTS amenity_equipements_select_public ON public.amenity_equipements;
+CREATE POLICY amenity_equipements_select_public ON public.amenity_equipements
+  FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS amenity_equipements_insert_admin ON public.amenity_equipements;
+CREATE POLICY amenity_equipements_insert_admin ON public.amenity_equipements
+  FOR INSERT WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS amenity_equipements_update_admin ON public.amenity_equipements;
+CREATE POLICY amenity_equipements_update_admin ON public.amenity_equipements
+  FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS amenity_equipements_delete_admin ON public.amenity_equipements;
+CREATE POLICY amenity_equipements_delete_admin ON public.amenity_equipements
   FOR DELETE USING (public.is_admin());
 
 -- ───────────────────────────────────────────────────────────────────────────
@@ -581,6 +622,8 @@ GRANT SELECT ON public.chambres           TO anon, authenticated;
 GRANT SELECT ON public.chateau_amenities  TO anon, authenticated;
 GRANT SELECT ON public.chateau_timeline   TO anon, authenticated;
 GRANT SELECT ON public.chateau_alentours  TO anon, authenticated;
+GRANT SELECT ON public.equipements         TO anon, authenticated;
+GRANT SELECT ON public.amenity_equipements TO anon, authenticated;
 GRANT SELECT ON public.modules            TO anon, authenticated;
 GRANT SELECT ON public.disponibilites     TO anon, authenticated;
 

@@ -207,6 +207,14 @@ export function mapAmenity(row) {
     prixSupplement: centsToEuros(row.prix_supplement_cents),
     dureeMinutes: nullable(row.duree_minutes),
     ordre: nullable(row.ordre),
+    // equipements filtrables (liaison N-N). Embedding PostgREST :
+    // amenity_equipements[].equipements = { slug, libelle, ordre }.
+    // Aplati en [{ slug, libelle }] trie par ordre. Liaison absente/vide -> [].
+    equipements: safeArray(row.amenity_equipements)
+      .map((lien) => lien?.equipements)
+      .filter(Boolean)
+      .sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
+      .map((eq) => ({ slug: eq.slug, libelle: eq.libelle })),
   };
 }
 
@@ -730,6 +738,12 @@ export function amenityToRow(item, index) {
     duree_minutes: dureeMinutes,
     image: item.image ?? null,
     ordre: index,
+    // equipements : tableau de SLUGS pour la RPC (e->'equipements'). Accepte en
+    // entree des slugs bruts OU des objets { slug } (forme mapAmenity) — normalise
+    // en slugs. Absent/vide -> []. Pas de throw : la FK equipement_slug est le filet.
+    equipements: safeArray(item.equipements)
+      .map((eq) => (typeof eq === "string" ? eq : eq?.slug))
+      .filter(Boolean),
   };
   if (_present(item, "description")) row.description = item.description;
   if (_present(item, "icone")) row.icone = item.icone;
