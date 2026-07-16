@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { formatDate } from "../utils/dates";
@@ -19,10 +19,18 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
   // La carte ne montre que les chateaux reels (!isDemoMock) : seuls routables vers
   // une vraie vitrine. Puis filtre capacite (voyageurs herites de la barre).
   // Un seul tableau alimente la liste ET les marqueurs.
+  // Memoise : reference stable tant que les entrees (chateaux, capacite) ne
+  // changent pas -> l'effet marqueurs peut en dependre EXPLICITEMENT sans se
+  // reconstruire a chaque rendu. Les futurs filtres (equipements) s'ajouteront
+  // ici : reels change -> les marqueurs se reposent.
   const totalInvites = invites ? invites.adultes + invites.enfants : 0;
-  const reels = (chateaux || [])
-    .filter((c) => !c.isDemoMock)
-    .filter((c) => capaciteSuffisante(c, totalInvites));
+  const reels = useMemo(
+    () =>
+      (chateaux || [])
+        .filter((c) => !c.isDemoMock)
+        .filter((c) => capaciteSuffisante(c, totalInvites)),
+    [chateaux, totalInvites]
+  );
 
   useEffect(() => {
     if (!conteneurRef.current || carteRef.current) return;
@@ -72,7 +80,12 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
       carte.remove();
       carteRef.current = null;
     };
-  }, [chateaux, onVoirChateau, apercuChateau]);
+    // Depend de la liste FILTREE (reels), pas de `chateaux` brut ni de la
+    // reference instable `onVoirChateau` (non utilisee dans cet effet) : un
+    // useCallback pose un jour sur onVoirChateau ne pourrait plus casser le
+    // filtrage en silence. `apercuChateau` reste : le conteneur .ci-carte
+    // monte/demonte avec la bascule apercu, la carte doit se (re)creer.
+  }, [reels, apercuChateau]);
 
   // Sens vignette -> pastille : au survol d'une vignette (survolId), surligne la
   // pastille correspondante. Les pastilles portent data-id ; querySelector no-op
