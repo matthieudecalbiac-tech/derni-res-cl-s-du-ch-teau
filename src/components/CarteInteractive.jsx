@@ -4,7 +4,9 @@ import "leaflet/dist/leaflet.css";
 import { formatDate } from "../utils/dates";
 import { prixAffiche } from "../utils/derivePrix";
 import { capaciteSuffisante } from "../utils/capacite";
+import { getEquipements } from "../services/chateauxService";
 import CalendrierPlage from "./CalendrierPlage";
+import GrilleEquipements from "./GrilleEquipements";
 import "../styles/carte-interactive.css";
 
 export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, etapeDate, onSelectDate, onResetDates, invites, setInvites, onVoirChateau }) {
@@ -15,6 +17,25 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
   const [voyOuvert, setVoyOuvert] = useState(false);
   const [apercuChateau, setApercuChateau] = useState(null);
   const [photoZoom, setPhotoZoom] = useState(null);
+
+  // Filtre "Sur place" (equipements) — etat LOCAL, meme grain que dates/invites.
+  const [equipOuvert, setEquipOuvert] = useState(false);
+  const [equipements, setEquipements] = useState([]); // slugs coches
+  const [equipRef, setEquipRef] = useState([]); // referentiel [{slug,libelle,ordre}]
+
+  // Referentiel equipements : chargement unique au montage.
+  useEffect(() => {
+    let cancelled = false;
+    getEquipements()
+      .then((liste) => { if (!cancelled) setEquipRef(liste); })
+      .catch((e) => console.error("[CarteInteractive] getEquipements:", e));
+    return () => { cancelled = true; };
+  }, []);
+
+  const toggleEquipement = (slug) =>
+    setEquipements((cur) =>
+      cur.includes(slug) ? cur.filter((s) => s !== slug) : [...cur, slug]
+    );
 
   // La carte ne montre que les chateaux reels (!isDemoMock) : seuls routables vers
   // une vraie vitrine. Puis filtre capacite (voyageurs herites de la barre).
@@ -111,14 +132,6 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
     }
     return parts.join(" · ");
   };
-
-  // Filtres services : illustratifs, desactives. Aucun champ service booleen
-  // n'existe encore sur les chateaux (equipements en texte libre uniquement).
-  // Actives quand la donnee structuree existera. Affiches pour la vision produit.
-  // "Animaux bienvenus" retire : c.animaux est une heuristique de nom a faux
-  // negatif ("Chiens acceptes" ne matche pas) -> pas de filtre trompeur (meme
-  // decision que le panneau "+ Filtres"). Chantier de donnees separe.
-  const servicesBientot = ["Spa", "Piscine", "Table d’hôtes", "Parc & jardins"];
 
   const labelDatesFiltre = () => {
     if (dateArrivee && dateDepart) return `${formatDate(dateArrivee)} → ${formatDate(dateDepart)}`;
@@ -307,18 +320,32 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
           )}
         </div>
 
-        <div className="ci-filtre-services">
-          {servicesBientot.map((s) => (
-            <button key={s} type="button" className="ci-filtre-service" disabled title="Bientôt disponible">
-              {s}
-            </button>
-          ))}
-          <button type="button" className="ci-filtre-service ci-filtre-plus" disabled title="Bientôt disponible">
-            Plus de filtres
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-              <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* Filtre "Sur place" (equipements) : bouton + popover, meme pattern que
+            dates/voyageurs. La grille (GrilleEquipements) est trop large pour la
+            barre -> dropdown. Reutilise le composant partage, aucune duplication. */}
+        <div className="ci-filtre-equip">
+          <button
+            type="button"
+            className="ci-filtre-btn"
+            onClick={() => setEquipOuvert((o) => !o)}
+            aria-expanded={equipOuvert}
+          >
+            <svg className="ci-filtre-ico" width="16" height="16" viewBox="0 0 18 18" fill="none">
+              <path d="M3 5.5h7.5M14 5.5H15M3 12.5h1M7.5 12.5H15" stroke="#C09840" strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="12" cy="5.5" r="1.7" stroke="#C09840" strokeWidth="1.5"/>
+              <circle cx="5.5" cy="12.5" r="1.7" stroke="#C09840" strokeWidth="1.5"/>
             </svg>
+            Sur place{equipements.length > 0 ? ` · ${equipements.length}` : ""}
           </button>
+          {equipOuvert && (
+            <div className="ci-equip-pop">
+              <GrilleEquipements
+                referentiel={equipRef}
+                selection={equipements}
+                onToggle={toggleEquipement}
+              />
+            </div>
+          )}
         </div>
       </div>
 
