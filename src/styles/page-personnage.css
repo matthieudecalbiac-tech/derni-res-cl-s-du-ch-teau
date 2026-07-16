@@ -1,10 +1,9 @@
-/* /personnage/:slug — fiche personnage. Registre CRÈME ILLUSTRÉ (l'univers).
-   Le VIDE fait la page : axe vertical centré, beaucoup d'air, pas de grille ni
-   de cartes. Le sombre vient des PHOTOS de châteaux (contraste sur la crème).
-   La page est portée par le texte (pas de photo du personnage).
-
-   Préfixe pp-. Couleurs = charte UNIQUEMENT (aucune couleur nouvelle),
-   aliasées en variables page-locales pour la lisibilité. */
+/* /personnage/:slug — fiche personnage. Registre CRÈME ILLUSTRÉ.
+   DEUX COLONNES séparées par un filet vertical or (1px, pleine hauteur) : gauche
+   = l'individu (nom + bio, alignés à GAUCHE, en haut) ; droite = les demeures
+   (photos 4/3 + nature + nom + texte, centrés). Le sombre vient des photos.
+   Pas de photo du personnage. Préfixe pp-. Couleurs charte uniquement, aliasées
+   en variables page-locales. */
 
 .pp {
   --pp-navy: #07101E;
@@ -14,7 +13,7 @@
 
   min-height: 100vh;
   background: var(--pp-creme);
-  padding: clamp(3.5rem, 11vh, 8rem) clamp(1.25rem, 5vw, 3rem) clamp(4rem, 12vh, 9rem);
+  padding: clamp(3rem, 9vh, 6.5rem) clamp(1.25rem, 5vw, 3rem) clamp(3rem, 8vh, 5.5rem);
 }
 
 /* Placeholder de chargement : même crème, évite tout flash (body navy global). */
@@ -24,71 +23,58 @@
 }
 
 .pp-inner {
-  max-width: 940px;
+  max-width: 1040px;
   margin: 0 auto;
 }
 
-/* ── 1. LE NOM — le seul élément qui crie. Playfair, très grand, centré. ── */
+/* ── LA GRILLE — 3 pistes : individu | filet 1px | demeures. ── */
+.pp-grille {
+  display: grid;
+  grid-template-columns: 0.85fr 1px 1.15fr;
+  column-gap: clamp(2rem, 5vw, 4rem);
+  align-items: stretch; /* le filet prend la pleine hauteur du bloc */
+}
+
+/* Filet vertical or (étiré pleine hauteur par align-items: stretch). */
+.pp-filet {
+  background: var(--pp-or);
+}
+
+/* ── COLONNE GAUCHE — l'individu. Nom + bio EN HAUT, alignés à gauche. ──
+   Pas de centrage vertical : le nom ouvre, il n'attend pas au milieu du vide. */
 .pp-nom {
   margin: 0;
-  text-align: center;
+  text-align: left;
   font-family: "Playfair Display", serif;
   font-weight: 600;
-  font-size: clamp(2.75rem, 8vw, 5.5rem);
-  line-height: 1.05;
-  letter-spacing: -0.01em;
+  font-size: clamp(2.1rem, 5vw, 3.4rem);
+  line-height: 1.1;
+  letter-spacing: -0.005em;
   color: var(--pp-navy);
   text-wrap: balance;
 }
 
-/* ── 2. LA BIOGRAPHIE — colonne étroite (~65 car.), centrée dans la page mais
-   texte aligné à GAUCHE : un bord gauche droit donne à l'œil un point de retour
-   fixe à chaque ligne (vrai dès 3 lignes, et les bios le seront). L'axe
-   symétrique tient via margin auto sur la colonne. ── */
 .pp-bio {
-  max-width: 34em; /* ~65 caractères en Cormorant */
-  margin: clamp(1.75rem, 4vh, 2.75rem) auto 0;
+  margin: clamp(1.25rem, 3vh, 2rem) 0 0;
+  max-width: 34em;
   text-align: left;
-  font-family: "Cormorant Garamond", serif;
-  font-size: clamp(1.2rem, 2.4vw, 1.45rem);
-  line-height: 1.7;
+  font-family: "Crimson Pro", serif;
+  font-weight: 400;
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem);
+  line-height: 1.75;
   color: var(--pp-soft);
 }
 
-/* ── 3. SÉPARATEUR — fleur de lys (asset de la modale Filtres) + traits or. ── */
-.pp-sep {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25rem;
-  margin: clamp(2.75rem, 7vh, 4.5rem) auto;
-}
-.pp-sep-trait {
-  height: 1px;
-  width: clamp(48px, 12vw, 110px);
-  background: linear-gradient(90deg, transparent, var(--pp-or));
-}
-.pp-sep-trait:last-child {
-  background: linear-gradient(90deg, var(--pp-or), transparent);
-}
-.pp-sep-lys {
-  height: 46px;
-  width: auto;
-  display: block;
-  flex-shrink: 0;
-  background: transparent; /* neutralise le fond navy global de img{} */
-}
-
-/* ── 4. LES DEMEURES — empilées, pas de grille ni de cartes. ── */
+/* ── COLONNE DROITE — les demeures. En-tête (LES/LA DEMEURE·S) or, puis par
+   château : photo, nature, nom, texte. ── */
 .pp-demeures-titre {
-  margin: 0 0 clamp(2rem, 5vh, 3.25rem);
+  margin: 0 0 clamp(1.75rem, 4vh, 2.5rem);
   text-align: center;
   font-family: var(--font-ui);
   font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.28em;
-  color: var(--pp-soft);
-  opacity: 0.75;
+  letter-spacing: 0.3em;
+  color: var(--pp-or);
 }
 
 .pp-liste {
@@ -97,7 +83,7 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: clamp(3.5rem, 9vh, 6rem);
+  gap: clamp(2.5rem, 6vh, 4rem);
 }
 
 .pp-demeure-lien {
@@ -106,9 +92,9 @@
   color: inherit;
 }
 
-/* La photo apporte le sombre : élément à fort contraste sur la crème. */
+/* La photo apporte le sombre. Format ~4/3 (pas 16/9). */
 .pp-demeure-photo {
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 4 / 3;
   width: 100%;
   background-color: var(--creme-chaud, #ede0c4); /* fallback si image absente */
   background-size: cover;
@@ -120,12 +106,13 @@
   filter: brightness(1.04);
 }
 
+/* Nature du lien (par château) : « a habité » n'est pas « a fait l'histoire ». */
 .pp-demeure-nature {
   display: block;
-  margin: clamp(1.1rem, 2.5vh, 1.6rem) 0 0.4rem;
+  margin: clamp(1rem, 2.2vh, 1.4rem) 0 0.35rem;
   text-align: center;
   font-family: var(--font-ui);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
   color: var(--pp-or);
@@ -136,7 +123,7 @@
   text-align: center;
   font-family: "Playfair Display", serif;
   font-weight: 500;
-  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
   line-height: 1.15;
   color: var(--pp-navy);
   transition: color 0.3s ease;
@@ -147,11 +134,49 @@
 
 .pp-demeure-texte {
   max-width: 34em;
-  margin: 0.85rem auto 0;
+  margin: 0.7rem auto 0;
   text-align: center;
   font-family: "Cormorant Garamond", serif;
   font-style: italic;
-  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
   line-height: 1.6;
   color: var(--pp-soft);
+}
+
+/* ── BAS DE PAGE — ornement fleur de lys centré + deux traits or. ── */
+.pp-orn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin: clamp(3rem, 8vh, 5rem) auto 0;
+}
+.pp-orn-trait {
+  height: 1px;
+  width: clamp(48px, 12vw, 110px);
+  background: linear-gradient(90deg, transparent, var(--pp-or));
+}
+.pp-orn-trait:last-child {
+  background: linear-gradient(90deg, var(--pp-or), transparent);
+}
+.pp-orn-lys {
+  height: 46px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+  background: transparent; /* neutralise le fond navy global de img{} */
+}
+
+/* ── MOBILE — une colonne, filet masqué, photo sous la bio. ── */
+@media (max-width: 640px) {
+  .pp-grille {
+    grid-template-columns: 1fr;
+    gap: clamp(2.5rem, 8vh, 3.5rem);
+  }
+  .pp-filet {
+    display: none;
+  }
+  .pp-nom {
+    font-size: clamp(2rem, 9vw, 2.8rem);
+  }
 }

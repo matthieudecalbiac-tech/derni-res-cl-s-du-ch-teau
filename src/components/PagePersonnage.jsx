@@ -3,20 +3,20 @@ import { usePersonnage } from "../hooks/useChateaux";
 import { libelleNature } from "../utils/personnages";
 import "../styles/page-personnage.css";
 
-// Route /personnage/:slug — fiche d'un personnage/événement.
+// Route /personnage/:slug — fiche personnage. Registre CRÈME ILLUSTRÉ.
 //
-// Registre CRÈME ILLUSTRÉ (l'univers), PAS le sombre cinématographique (la
-// demeure) : une personne n'est pas une demeure. Le contraste sombre vient des
-// PHOTOS de châteaux en bas de page — il se fait tout seul. La page est portée
-// par le TEXTE (pas de photo du personnage : décision droits d'image) et par le
-// VIDE : pas de grille, pas de cartes, beaucoup d'air, un axe vertical centré.
+// DEUX COLONNES séparées par un filet vertical or : à GAUCHE l'individu (nom +
+// bio, alignés à gauche), à DROITE les demeures (photos + nature + nom + texte).
+// Pas de photo du personnage (droits d'image) : la page est portée par le texte.
 //
-// Structure : nom (le seul élément qui crie) → biographie (colonne étroite) →
-// séparateur fleur de lys → les demeures (photo + nature + texte, empilées).
+// Sans bio (12/13 aujourd'hui) : le nom reste EN HAUT, aligné à gauche — un
+// manuscrit qui attend sa suite. Pas de centrage vertical : un nom centré dans
+// le vide prétendrait que le vide est un choix. C'est temporaire (bios à écrire).
 //
-// La NATURE descend sur CHAQUE demeure (pas sous le nom) : un personnage peut
-// porter deux natures selon le château (UNIQUE chateau/personnage/nature). Même
-// clé React = id+nature pour la même raison.
+// La NATURE descend sur CHAQUE demeure (pas seulement l'en-tête « Les demeures »)
+// : « a habité » n'est pas « a fait l'histoire », et un même château peut être
+// lié 2× au personnage avec deux natures → sans elle, indistinguable. D'où aussi
+// key = id+nature.
 export default function PagePersonnage() {
   const { slug } = useParams();
   const { personnage, loading, error } = usePersonnage(slug);
@@ -29,37 +29,48 @@ export default function PagePersonnage() {
   // Un personnage sans château publié ne raconte rien → home.
   if (personnage.chateaux.length === 0) return <Navigate to="/" replace />;
 
+  const titreDemeures = personnage.chateaux.length > 1 ? "Les demeures" : "La demeure";
+
   return (
     <div className="pp">
       <div className="pp-inner">
-        <h1 className="pp-nom">{personnage.nom}</h1>
+        <div className="pp-grille">
+          {/* Colonne gauche — l'individu (nom + bio, en haut, à gauche). */}
+          <div className="pp-individu">
+            <h1 className="pp-nom">{personnage.nom}</h1>
+            {personnage.biographie && <p className="pp-bio">{personnage.biographie}</p>}
+          </div>
 
-        {personnage.biographie && <p className="pp-bio">{personnage.biographie}</p>}
+          {/* Filet vertical or, pleine hauteur du bloc. */}
+          <div className="pp-filet" aria-hidden="true" />
 
-        <div className="pp-sep" aria-hidden="true">
-          <span className="pp-sep-trait" />
-          <img src="/FDL-transparent.png" alt="" className="pp-sep-lys" />
-          <span className="pp-sep-trait" />
+          {/* Colonne droite — les demeures. */}
+          <div className="pp-demeures">
+            <h2 className="pp-demeures-titre">{titreDemeures}</h2>
+            <ul className="pp-liste">
+              {personnage.chateaux.map((c) => (
+                <li key={`${c.id}-${c.nature}`} className="pp-demeure">
+                  <Link to={`/chateau/${c.slug}`} className="pp-demeure-lien">
+                    <div
+                      className="pp-demeure-photo"
+                      style={c.images?.[0] ? { backgroundImage: `url('${c.images[0]}')` } : undefined}
+                    />
+                    <span className="pp-demeure-nature">{libelleNature(c.nature)}</span>
+                    <h3 className="pp-demeure-nom">{c.nom}</h3>
+                    {c.texte && <p className="pp-demeure-texte">{c.texte}</p>}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
-        <section className="pp-demeures">
-          <h2 className="pp-demeures-titre">Les demeures</h2>
-          <ul className="pp-liste">
-            {personnage.chateaux.map((c) => (
-              <li key={`${c.id}-${c.nature}`} className="pp-demeure">
-                <Link to={`/chateau/${c.slug}`} className="pp-demeure-lien">
-                  <div
-                    className="pp-demeure-photo"
-                    style={c.images?.[0] ? { backgroundImage: `url('${c.images[0]}')` } : undefined}
-                  />
-                  <span className="pp-demeure-nature">{libelleNature(c.nature)}</span>
-                  <h3 className="pp-demeure-nom">{c.nom}</h3>
-                  {c.texte && <p className="pp-demeure-texte">{c.texte}</p>}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {/* Bas de page — ornement fleur de lys centré + deux traits or. */}
+        <div className="pp-orn" aria-hidden="true">
+          <span className="pp-orn-trait" />
+          <img src="/FDL-transparent.png" alt="" className="pp-orn-lys" />
+          <span className="pp-orn-trait" />
+        </div>
       </div>
     </div>
   );
