@@ -47,7 +47,7 @@
 .br-champ-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow: hidden; }
 .br-label {
   font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.14em;
-  text-transform: uppercase; color: #A8884E;
+  text-transform: uppercase; color: #8B6914; /* or fonce : contraste AA (4.96:1) sur fond clair */
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .br-valeur { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #1A2D5A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

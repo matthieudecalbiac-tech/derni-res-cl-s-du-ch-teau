@@ -39,7 +39,7 @@
 .vc3-header-centre{display:flex;flex-direction:column;align-items:center;gap:2px}
 .vc3-header-lys{color:var(--or);font-size:0.85rem}
 .vc3-header-nom{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--vc3-ink);letter-spacing:0.04em}
-.vc3-header-region{font-family:'Crimson Pro',serif;font-size:0.7rem;color:var(--or55);letter-spacing:0.1em}
+.vc3-header-region{font-family:'Crimson Pro',serif;font-size:0.7rem;color:#8B6914;letter-spacing:0.1em}
 .vc3-header-cta{padding:9px 22px;background:var(--or);border:none;font-family:'Crimson Pro',serif;font-size:0.78rem;letter-spacing:0.1em;color:var(--vc3-on-or);cursor:pointer;transition:all 0.25s;font-weight:500}
 .vc3-header-cta:hover{background:var(--or-c);transform:translateY(-1px)}
 
@@ -103,7 +103,7 @@
 .vc3-reserve-close:hover{color:var(--vc3-ink)}
 .vc3-reserve-lys{color:var(--or);font-size:1.1rem;text-align:center;margin-bottom:12px}
 .vc3-reserve-titre{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--vc3-ink);text-align:center;margin-bottom:6px;font-weight:400}
-.vc3-reserve-sub{font-size:0.8rem;font-style:italic;color:var(--or55);text-align:center;margin-bottom:18px;font-family:'Crimson Pro',serif}
+.vc3-reserve-sub{font-size:0.8rem;font-style:italic;color:#8B6914;text-align:center;margin-bottom:18px;font-family:'Crimson Pro',serif}
 .vc3-reserve-sep{height:1px;background:var(--or15);margin-bottom:18px}
 .vc3-reserve-chs{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
 .vc3-reserve-ch{display:flex;justify-content:space-between;padding:11px 14px;background:var(--or05);border:1px solid var(--or10);font-family:'Crimson Pro',serif;font-size:0.9rem;color:var(--vc3-ink-55);cursor:pointer;transition:all 0.2s}
@@ -113,9 +113,9 @@
 .vc3-reserve-field{display:flex;flex-direction:column;gap:5px}
 .vc3-reserve-field--full{grid-column:1 / -1}
 .vc3-reserve-field--full input[readonly]{cursor:default;color:var(--vc3-ink-55)}
-.vc3-reserve-field label{font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--vc3-ink-30);font-family:'Crimson Pro',serif}
+.vc3-reserve-field label{font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--vc3-ink-40);font-family:'Crimson Pro',serif}
 .vc3-reserve-field input{background:var(--vc3-ink-04);border:1px solid var(--or15);padding:9px 12px;color:var(--vc3-ink);font-family:'Crimson Pro',serif;font-size:0.88rem;outline:none;transition:border-color 0.2s}
 .vc3-reserve-field input:focus{border-color:var(--or)}
 .vc3-reserve-btn{width:100%;padding:13px;background:var(--or);border:none;font-family:'Crimson Pro',serif;font-size:0.85rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--vc3-on-or);cursor:pointer;transition:all 0.25s;font-weight:500;margin-bottom:12px}
 .vc3-reserve-btn:hover{background:var(--or-c)}
-.vc3-reserve-fond{font-size:0.72rem;font-style:italic;color:var(--or55);text-align:center;font-family:'Crimson Pro',serif}
+.vc3-reserve-fond{font-size:0.72rem;font-style:italic;color:#8B6914;text-align:center;font-family:'Crimson Pro',serif}
