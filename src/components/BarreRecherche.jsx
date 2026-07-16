@@ -318,7 +318,7 @@ export default function BarreRecherche() {
       {/* MODALE PLUS DE FILTRES — panneau multi-criteres (categories + equipements).
           La selection remonte via onChange et alimente lancerRecherche (URL). */}
       <Modale ouvert={filtresOuvert} onClose={() => setFiltresOuvert(false)} titre="Filtres" largeur={520}>
-        <PanneauFiltres onChange={setFiltres} onFermer={() => setFiltresOuvert(false)} />
+        <PanneauFiltres selection={filtres.equipements} onChange={setFiltres} onFermer={() => setFiltresOuvert(false)} />
       </Modale>
     </div>
   );
