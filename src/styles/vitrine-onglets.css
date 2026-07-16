@@ -7,6 +7,8 @@
 :root {
   --vc4-bg: #FAF6EE;
   --vc4-surface: #F3ECDC;
+  --vc4-or-sur-surface: #7A5A10;  /* or foncé lisible sur --vc4-surface (#F3ECDC).
+                                     #8B6914 n'y fait que 4.32:1, sous AA. */
   --vc4-surface-accent: #EDE3CE;
   --vc4-placeholder: #E8E0D0;
   --vc4-ink: #1A2D5A;
@@ -46,12 +48,10 @@
 /* Point d'un onglet : allume quand le module a au moins une offre reelle. */
 .vc4-offre-point{display:inline-block;width:7px;height:7px;margin-left:9px;border-radius:50%;background:var(--vc4-or);vertical-align:middle}
 .vc4-offre-sous{font-family:'Crimson Pro',serif;font-size:0.78rem;font-style:italic;color:var(--vc4-ink-soft);line-height:1.4}
-/* #8B6914 n'est PAS AA universel : le contraste depend du FOND. Ici, sur le creme
-   fonce des cartes d'offre (#f3ecdc), il ne fait que 4.32:1 (< 4.5 AA) ; sur les
-   cremes clairs (#fefcf8 / #faf6ee) il passe (~4.8-4.96). Conserve tel quel : on
-   n'ajoute pas un 6e or a la palette pour gagner 0.18. Regle : verifier le
-   contraste contre le fond REEL, ne pas supposer que #8B6914 = AA partout. */
-.vc4-offre-accroche{font-family:'Playfair Display',serif;font-size:0.95rem;color:#8B6914;margin-top:4px;letter-spacing:0.01em}
+/* Or de SURFACE : #8B6914 (l'or a11y) n'est PAS AA sur --vc4-surface (4.32:1) — le
+   contraste depend du FOND. D'ou --vc4-or-sur-surface, pendant logique du token de
+   surface (la vitrine a un or de page ET un or de surface). */
+.vc4-offre-accroche{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--vc4-or-sur-surface);margin-top:4px;letter-spacing:0.01em}
 .vc4-offre-fleche{flex-shrink:0;color:var(--vc4-or);font-size:1.15rem;transition:transform 0.3s,opacity 0.3s;opacity:0.65;align-self:center}
 .vc4-offre-card:hover .vc4-offre-fleche{transform:translateX(5px);opacity:1}
 
