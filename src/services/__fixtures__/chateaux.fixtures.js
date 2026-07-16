@@ -315,3 +315,39 @@ export const MODULE_IDS = {
   B: UUID_MODULE_B,
   C: UUID_MODULE_C,
 };
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FIXTURE_PERSONNAGE_FICHE — row `personnages` + embed INVERSE (mapPersonnageFiche)
+// ─────────────────────────────────────────────────────────────────────────────
+// Modélise ce que renvoie PostgREST APRÈS chateaux!inner + RLS : les châteaux
+// non-publiés sont déjà absents (jetés à la source). Reste à tester côté mapper :
+//   - le tri par ordre (les liaisons sont fournies DÉSORDONNÉES : 1 avant 0) ;
+//   - le filtre client is_demo_mock (un mock PUBLIÉ est présent — la RLS ne le
+//     couvre pas — et doit être exclu par mapPersonnageFiche).
+export const FIXTURE_PERSONNAGE_FICHE = {
+  id: "pg-sand",
+  nom: "George Sand",
+  slug: "george-sand",
+  chateau_personnages: [
+    {
+      nature: "a_habite",
+      texte: "Séjour tardif au Blanc Buisson.",
+      ordre: 1,
+      chateaux: { id: "ch-bb", slug: "blanc-buisson", nom: "Le Blanc Buisson", region: "Normandie", accroche: "Manoir clos de douves.", images: ["/bb-1.avif"], is_demo_mock: false },
+    },
+    {
+      nature: "a_habite",
+      texte: "Premiers séjours aux Briottières.",
+      ordre: 0,
+      chateaux: { id: "ch-bri", slug: "les-briottieres", nom: "Les Briottières", region: "Pays de la Loire", accroche: "Demeure de famille en Anjou.", images: ["/bri-1.avif"], is_demo_mock: false },
+    },
+    {
+      // Mock PUBLIÉ (is_demo_mock true) → doit être filtré par le mapper.
+      nature: "evenement",
+      texte: "Ne doit pas apparaître (mock).",
+      ordre: 2,
+      chateaux: { id: "ch-mock", slug: "vaux-le-vicomte", nom: "Vaux (démo)", region: "Île-de-France", accroche: "Stub de démonstration.", images: [], is_demo_mock: true },
+    },
+  ],
+};

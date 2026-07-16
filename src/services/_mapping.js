@@ -484,6 +484,52 @@ export function mapChateau(rowSupabase) {
 }
 
 
+/**
+ * Mappe une row `personnages` + embed INVERSE vers la fiche publique
+ * { id, nom, slug, chateaux: [...] }. Sens inverse de mapPersonnage : ici on lit
+ * les CHÂTEAUX D'UN personnage (pour /personnage/:slug), pas les personnages
+ * d'un château.
+ *
+ * Embed attendu :
+ *   personnages(id, nom, slug,
+ *     chateau_personnages(nature, texte, ordre,
+ *       chateaux!inner(id, slug, nom, region, accroche, images, is_demo_mock)))
+ *
+ * Chaque château rattaché = mapChateauBase(cp.chateaux) (tolère le select
+ * partiel — colonnes absentes → null) enrichi de { nature, texte } de la LIAISON.
+ * Trié par `ordre`.
+ *
+ * Filtres :
+ *   - statut='publie' : déjà appliqué par la RLS `chateaux_select_public` (elle
+ *     s'applique aussi aux tables imbriquées) ; `chateaux!inner` jette en plus
+ *     les liaisons orphelines côté SQL → rien à filtrer ici sur le statut.
+ *   - is_demo_mock : filtré ICI (côté client), comme les autres lectures
+ *     publiques (cf. PageResultats) — la RLS ne le couvre pas.
+ *
+ * @param {Object} row - Row `personnages` avec chateau_personnages[] embarqué.
+ * @returns {Object|null} { id, nom, slug, chateaux } ou null si row null.
+ */
+export function mapPersonnageFiche(row) {
+  if (!row) return null;
+  const chateaux = safeArray(row.chateau_personnages)
+    .slice()
+    .sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0))
+    .map((cp) => {
+      const base = mapChateauBase(cp?.chateaux);
+      if (!base) return null;            // liaison sans château (défensif)
+      if (base.isDemoMock) return null;  // mock exclu du public (RLS ne le couvre pas)
+      return { ...base, nature: cp.nature, texte: nullable(cp.texte) };
+    })
+    .filter(Boolean);
+  return {
+    id: row.id,
+    nom: row.nom,
+    slug: row.slug,
+    chateaux,
+  };
+}
+
+
 // ─────────────────────────────────────────────────────────────────────────────
 // MAPPER INVERSE — form React → row Supabase (colonnes de `chateaux` SEULES)
 // ─────────────────────────────────────────────────────────────────────────────

@@ -37,6 +37,7 @@ import { supabase } from "../lib/supabase.js";
 import {
   mapChateau,
   mapAmenity,
+  mapPersonnageFiche,
   chateauToRow,
   chambreToRow,
   timelineToRow,
@@ -64,6 +65,17 @@ const SELECT_FULL = `
   chateau_amenities(*, amenity_equipements(equipement_slug, equipements(slug, libelle, ordre))),
   offres(*),
   chateau_personnages(nature, texte, ordre, personnages(id, nom, slug))
+`;
+
+// SELECT pour la fiche publique /personnage/:slug — sens INVERSE (les châteaux
+// d'un personnage). chateaux!inner : une liaison vers un château non-publié est
+// JETÉE à la source (la RLS filtre statut='publie', !inner évite la ligne
+// fantôme chateaux:null). Colonnes minimales d'une carte (pas de prix : la fiche
+// dit "où", pas "combien" → pas d'embed chambres/offres).
+const SELECT_PERSONNAGE_FICHE = `
+  id, nom, slug,
+  chateau_personnages(nature, texte, ordre,
+    chateaux!inner(id, slug, nom, region, accroche, images, is_demo_mock))
 `;
 
 
@@ -192,6 +204,37 @@ export async function getChateauBySlug(slug) {
   await _withFakeLatency();
   const all = await _getAllCached();
   return all.find((c) => c.slug === slug) ?? null;
+}
+
+/**
+ * LECTURE PUBLIQUE — un personnage par slug + les châteaux (publiés) rattachés,
+ * pour la fiche /personnage/:slug. Sens INVERSE de getChateauBySlug (les
+ * châteaux d'un personnage, pas les personnages d'un château).
+ *
+ * Requête DIRECTE (pas de cache — il n'existe pas de cache personnages) via
+ * `.maybeSingle()`. Slug inconnu → `null` (contrat de getChateauBySlug, PAS le
+ * throw de getChateauAdminById). L'embed `chateaux!inner` + la RLS publique
+ * filtrent les non-publiés ; mapPersonnageFiche exclut ensuite les mocks.
+ *
+ * @param {string} slug - Slug du personnage (ex: "george-sand").
+ * @returns {Promise<Object|null>} { id, nom, slug, chateaux: [...] } ou null.
+ * @throws Si erreur Supabase (un "non trouvé" donne null, pas une erreur).
+ */
+export async function getPersonnageBySlug(slug) {
+  if (!slug) return null;
+  await _withFakeLatency();
+
+  const { data, error } = await supabase
+    .from("personnages")
+    .select(SELECT_PERSONNAGE_FICHE)
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[chateauxService] getPersonnageBySlug error:", error);
+    throw new Error(`Failed to fetch personnage ${slug}: ${error.message}`);
+  }
+  return mapPersonnageFiche(data);
 }
 
 /**

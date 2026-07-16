@@ -18,12 +18,14 @@ import {
   getChateaux,
   getChateauById,
   getChateauBySlug,
+  getPersonnageBySlug,
   getCompteurs,
   invalidateCache,
 } from "../chateauxService.js";
 import {
   FIXTURE_BRIOTTIERES,
   FIXTURE_VAUX,
+  FIXTURE_PERSONNAGE_FICHE,
 } from "../__fixtures__/chateaux.fixtures.js";
 
 
@@ -59,6 +61,18 @@ function mockSupabaseError(message) {
             error: { message, code: "TEST_ERROR" },
           }),
         }),
+      }),
+    }),
+  });
+}
+
+// Chaîne .select().eq().maybeSingle() de getPersonnageBySlug (lecture directe,
+// pas de cache). `data` null modélise un slug inconnu.
+function mockPersonnageQuery(row, error = null) {
+  supabase.from.mockReturnValue({
+    select: vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({ data: row, error }),
       }),
     }),
   });
@@ -177,6 +191,44 @@ describe("getChateauBySlug", () => {
     mockSupabaseSuccess([FIXTURE_BRIOTTIERES]);
     const chateau = await getChateauBySlug("inexistant");
     expect(chateau).toBeNull();
+  });
+});
+
+
+describe("getPersonnageBySlug", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    invalidateCache();
+  });
+
+  it("slug existant : retourne le personnage + châteaux mappés (mock exclu)", async () => {
+    mockPersonnageQuery(FIXTURE_PERSONNAGE_FICHE);
+    const p = await getPersonnageBySlug("george-sand");
+
+    expect(supabase.from).toHaveBeenCalledWith("personnages");
+    expect(p).not.toBeNull();
+    expect(p.nom).toBe("George Sand");
+    // 2 châteaux réels, triés par ordre, mock filtré.
+    expect(p.chateaux.map((c) => c.slug)).toEqual(["les-briottieres", "blanc-buisson"]);
+  });
+
+  it("slug inconnu (maybeSingle → data null) : retourne null (pas de throw)", async () => {
+    mockPersonnageQuery(null);
+    expect(await getPersonnageBySlug("inexistant")).toBeNull();
+  });
+
+  it("slug null/undefined : retourne null sans round-trip Supabase", async () => {
+    expect(await getPersonnageBySlug(null)).toBeNull();
+    expect(await getPersonnageBySlug(undefined)).toBeNull();
+    expect(await getPersonnageBySlug("")).toBeNull();
+    expect(supabase.from).not.toHaveBeenCalled();
+  });
+
+  it("erreur Supabase : throw avec message", async () => {
+    mockPersonnageQuery(null, { message: "Connection refused", code: "TEST_ERROR" });
+    await expect(getPersonnageBySlug("george-sand")).rejects.toThrow(
+      "Failed to fetch personnage george-sand: Connection refused"
+    );
   });
 });
 

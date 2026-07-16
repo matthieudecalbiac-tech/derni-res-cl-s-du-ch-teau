@@ -38,6 +38,7 @@ import AdminReservations from "./components/admin/AdminReservations";
 import VitrineChateauRoute from "./components/VitrineChateauRoute";
 import PageClub from "./components/club/PageClub";
 import PageResultats from "./components/PageResultats";
+import PagePersonnage from "./components/PagePersonnage";
 
 // Sprint S2-α.2 — pages auth magic link (remplace AuthCallbackPlaceholder)
 import Connexion from "./components/auth/Connexion";
@@ -187,6 +188,7 @@ function App() {
       <Route path="/completer-profil" element={<CompleterProfil />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/chateau/:slug" element={<VitrineChateauRoute />} />
+      <Route path="/personnage/:slug" element={<PagePersonnage />} />
       <Route path="/resultats" element={<PageResultats />} />
       <Route path="*" element={homeEtOverlays} />
     </Routes>

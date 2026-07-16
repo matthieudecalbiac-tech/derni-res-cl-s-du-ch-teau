@@ -23,12 +23,14 @@ import {
   mapAmenity,
   mapPersonnage,
   personnageToRow,
+  mapPersonnageFiche,
   MODULE_B_ID,
 } from "../_mapping.js";
 import {
   FIXTURE_BRIOTTIERES,
   FIXTURE_VAUX,
   FIXTURE_MINIMAL,
+  FIXTURE_PERSONNAGE_FICHE,
   MODULE_IDS,
 } from "../__fixtures__/chateaux.fixtures.js";
 
@@ -883,5 +885,65 @@ describe("mapChateau — section personnages (intégration)", () => {
 
   it("MINIMAL (aucune jointure) → personnages [] (zéro crash)", () => {
     expect(mapChateau(FIXTURE_MINIMAL).personnages).toEqual([]);
+  });
+});
+
+
+describe("mapPersonnageFiche (fiche publique — sens inverse)", () => {
+  it("nominal : { id, nom, slug } + châteaux triés par ordre, mock exclu", () => {
+    const out = mapPersonnageFiche(FIXTURE_PERSONNAGE_FICHE);
+    expect(out.id).toBe("pg-sand");
+    expect(out.nom).toBe("George Sand");
+    expect(out.slug).toBe("george-sand");
+    // 2 châteaux réels (le mock is_demo_mock est filtré), triés par ordre (0 avant 1).
+    expect(out.chateaux.map((c) => c.slug)).toEqual(["les-briottieres", "blanc-buisson"]);
+  });
+
+  it("chaque château = mapChateauBase (camelCase) + nature + texte de la liaison", () => {
+    const bri = mapPersonnageFiche(FIXTURE_PERSONNAGE_FICHE).chateaux[0];
+    expect(bri.nom).toBe("Les Briottières");
+    expect(bri.region).toBe("Pays de la Loire");
+    expect(bri.accroche).toBe("Demeure de famille en Anjou.");
+    expect(bri.images).toEqual(["/bri-1.avif"]);
+    expect(bri.isDemoMock).toBe(false);
+    // Champs de la LIAISON greffés :
+    expect(bri.nature).toBe("a_habite");
+    expect(bri.texte).toBe("Premiers séjours aux Briottières.");
+  });
+
+  it("filtre is_demo_mock : le mock publié n'apparaît jamais (RLS ne le couvre pas)", () => {
+    const out = mapPersonnageFiche(FIXTURE_PERSONNAGE_FICHE);
+    expect(out.chateaux.some((c) => c.slug === "vaux-le-vicomte")).toBe(false);
+    expect(out.chateaux).toHaveLength(2);
+  });
+
+  it("liaison sans château (défensif, chateaux null) → ignorée, pas de crash", () => {
+    const out = mapPersonnageFiche({
+      id: "p", nom: "N", slug: "n",
+      chateau_personnages: [
+        { nature: "a_habite", texte: "x", ordre: 0, chateaux: null },
+        { nature: "a_habite", texte: "ok", ordre: 1, chateaux: { id: "c", slug: "s", nom: "Vrai", region: "R", accroche: "A", images: [], is_demo_mock: false } },
+      ],
+    });
+    expect(out.chateaux.map((c) => c.slug)).toEqual(["s"]);
+  });
+
+  it("texte null → null préservé", () => {
+    const out = mapPersonnageFiche({
+      id: "p", nom: "N", slug: "n",
+      chateau_personnages: [
+        { nature: "evenement", texte: null, ordre: 0, chateaux: { id: "c", slug: "s", nom: "V", region: null, accroche: null, images: [], is_demo_mock: false } },
+      ],
+    });
+    expect(out.chateaux[0].texte).toBeNull();
+  });
+
+  it("aucune liaison (chateau_personnages absent ou []) → chateaux []", () => {
+    expect(mapPersonnageFiche({ id: "p", nom: "N", slug: "n", chateau_personnages: [] }).chateaux).toEqual([]);
+    expect(mapPersonnageFiche({ id: "p", nom: "N", slug: "n" }).chateaux).toEqual([]);
+  });
+
+  it("input null → null", () => {
+    expect(mapPersonnageFiche(null)).toBeNull();
   });
 });
