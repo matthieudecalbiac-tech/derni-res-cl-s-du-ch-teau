@@ -41,11 +41,14 @@
   text-wrap: balance;
 }
 
-/* ── 2. LA BIOGRAPHIE — colonne étroite (~65 car.), centrée. On la lit. ── */
+/* ── 2. LA BIOGRAPHIE — colonne étroite (~65 car.), centrée dans la page mais
+   texte aligné à GAUCHE : un bord gauche droit donne à l'œil un point de retour
+   fixe à chaque ligne (vrai dès 3 lignes, et les bios le seront). L'axe
+   symétrique tient via margin auto sur la colonne. ── */
 .pp-bio {
   max-width: 34em; /* ~65 caractères en Cormorant */
   margin: clamp(1.75rem, 4vh, 2.75rem) auto 0;
-  text-align: center;
+  text-align: left;
   font-family: "Cormorant Garamond", serif;
   font-size: clamp(1.2rem, 2.4vw, 1.45rem);
   line-height: 1.7;
