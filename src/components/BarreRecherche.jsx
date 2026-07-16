@@ -78,7 +78,8 @@ export default function BarreRecherche() {
     ? selection.type === "departement"
       ? selection.departement
       : selection.region
-    : "Où rêvez-vous d’aller ?";
+    // Placeholder court (un seul mot, tient sans ellipse) + vocabulaire de la modale.
+    : "Région";
 
   const labelDates = () => {
     if (dateArrivee && dateDepart) return `${formatDate(dateArrivee)} → ${formatDate(dateDepart)}`;
