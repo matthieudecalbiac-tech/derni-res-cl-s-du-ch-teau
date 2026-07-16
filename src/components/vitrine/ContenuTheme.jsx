@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { construireGalerie } from "../../services/galerieService";
+import { libelleNature } from "../../utils/personnages";
 import Modale from "../Modale";
 
 function tronquer(texte, max) {
@@ -65,6 +67,23 @@ function ThemeHistoire({ chateau }) {
               <span className="vc4-theme-tl-dot" />
               <span className="vc4-theme-tl-annee">{item.annee}</span>
               <p className="vc4-theme-tl-evt">{item.evenement}</p>
+            </div>
+          ))}
+        </div>
+      )}
+      {/* Histoire des lieux : ceux qui ont marqué ce château. Nom = lien vers
+          la fiche /personnage/:slug. À plat, dans l'ordre de saisie. Masqué si
+          vide (comme la timeline). key = id+nature (un personnage peut être lié
+          2× avec des natures différentes). */}
+      {chateau.personnages?.length > 0 && (
+        <div className="vc4-theme-personnages">
+          {chateau.personnages.map((p) => (
+            <div key={`${p.id}-${p.nature}`} className="vc4-theme-perso">
+              <div className="vc4-theme-perso-head">
+                <Link className="vc4-theme-perso-nom" to={`/personnage/${p.slug}`}>{p.nom}</Link>
+                <span className="vc4-theme-perso-nature">{libelleNature(p.nature)}</span>
+              </div>
+              {p.texte && <p className="vc4-theme-perso-texte">{p.texte}</p>}
             </div>
           ))}
         </div>
