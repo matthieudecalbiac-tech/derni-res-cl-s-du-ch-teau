@@ -22,6 +22,8 @@
 //   prévue en S2 (lecture disponibilites + reservations).
 // ═══════════════════════════════════════════════════════════════════════════
 
+import { slugify } from "../utils/slug.js";
+
 /**
  * UUID du Module B (Les Dernières Clés) dans le seed S1-γ.
  * Détermine quelles offres alimentent prixBarre/reduction côté React.
@@ -220,6 +222,40 @@ export function mapAmenity(row) {
 
 
 /**
+ * Mappe une ligne pivot `chateau_personnages` (embed PostgREST avec le
+ * personnage lié) vers le format React éditable. SYMÉTRIQUE de personnageToRow.
+ *
+ * Embed attendu : chateau_personnages(nature, texte, ordre, personnages(id, nom, slug)).
+ * `personnages` est un objet (relation to-one), pas un tableau — on l'aplatit
+ * sur la ligne : { id, nom, slug } viennent du référentiel partagé ; { nature,
+ * texte, ordre } de la liaison (différents d'un château à l'autre).
+ *
+ * `id` = id du PERSONNAGE (référentiel), pas de la liaison : c'est la cible de
+ * /personnage/:slug et la clé d'affichage. (Un même personnage peut être lié 2×
+ * au même château avec des natures différentes — unique (chateau, personnage,
+ * nature) ; deux entrées porteraient alors le même `id`. Sans objet ici, la clé
+ * React devra composer id+nature côté 2d.)
+ *
+ * @param {Object} row - Ligne `chateau_personnages` avec `personnages` embarqué.
+ * @returns {Object|null} { id, nom, slug, nature, texte, ordre }, ou null si row
+ *   ou personnage lié absent (liaison orpheline — improbable, FK RESTRICT).
+ */
+export function mapPersonnage(row) {
+  if (!row) return null;
+  const p = row.personnages;
+  if (!p) return null;
+  return {
+    id: p.id,
+    nom: p.nom,
+    slug: p.slug,
+    nature: row.nature,
+    texte: nullable(row.texte),
+    ordre: nullable(row.ordre),
+  };
+}
+
+
+/**
  * Aplatit la table pivot `chateau_amenities` en booleans simples sur l'objet
  * château. Phase 4 : usage purement présentiel (le composant affiche
  * `parking ? "Parking inclus" : "—"`).
@@ -390,7 +426,8 @@ export function mapOffre(row, moduleNom, chateauSlug = null) {
  *   supabase
  *     .from('chateaux')
  *     .select('*, chambres(*), chateau_timeline(*), chateau_alentours(*),
- *              chateau_amenities(*), offres(*)')
+ *              chateau_amenities(*), offres(*),
+ *              chateau_personnages(nature, texte, ordre, personnages(id, nom, slug))')
  *
  * @param {Object} rowSupabase - Row chateaux + jointures.
  * @returns {Object|null} Objet château au format React, ou null.
@@ -434,6 +471,11 @@ export function mapChateau(rowSupabase) {
     // des 4 booléens `...amenities` (flattenAmenities) gardés pour rétrocompat.
     amenities: safeArray(rowSupabase.chateau_amenities)
       .map(mapAmenity)
+      .filter(Boolean)
+      .sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0)),
+    // personnages/événements (Histoire des lieux) — liaison aplatie + triée par ordre.
+    personnages: safeArray(rowSupabase.chateau_personnages)
+      .map(mapPersonnage)
       .filter(Boolean)
       .sort((a, b) => (a.ordre ?? 0) - (b.ordre ?? 0)),
     chambresRestantes: null,
@@ -747,5 +789,51 @@ export function amenityToRow(item, index) {
   };
   if (_present(item, "description")) row.description = item.description;
   if (_present(item, "icone")) row.icone = item.icone;
+  return row;
+}
+
+/**
+ * Inverse de mapPersonnage → une entrée du payload `p_personnages` (bloc 6 de la
+ * RPC admin_upsert_chateau). Produit { nom, slug, nature, texte?, ordre }.
+ *
+ * Le slug est TOUJOURS (re)calculé depuis le nom via slugify (source unique
+ * src/utils/slug.js) — jamais lu depuis l'entrée. Un slug calculé ailleurs
+ * divergerait de celui qui a créé les lignes en base ; la RPC ne slugifie pas,
+ * elle JOIN sur ce slug (get-or-create côté base).
+ *
+ * `ordre` reconstruit depuis l'index (comme timeline/alentours/amenities, dont
+ * les mappers de lecture le perdent). `nature` NOT NULL (CHECK côté base) →
+ * validée présente ; on ne juge PAS la valeur (le CHECK est le filet, cf.
+ * alentourToRow.type). `texte` optionnel. N'émet ni `id` (personnage résolu par
+ * slug) ni `chateau_id` (posé par la RPC qui connaît le parent).
+ *
+ * @param {Object} item - { nom, nature, texte } format React (sortie mapPersonnage éditée).
+ * @param {number} index - Position dans le tableau → colonne `ordre`.
+ * @returns {Object} Entrée payload { nom, slug, nature, texte?, ordre }.
+ * @throws {Error} si nom absent/vide, slug calculé vide, ou nature absente/vide.
+ */
+export function personnageToRow(item, index) {
+  if (!item || typeof item !== "object") {
+    throw new Error("personnageToRow : item manquant ou invalide.");
+  }
+  if (typeof item.nom !== "string" || item.nom.trim() === "") {
+    throw new Error("personnageToRow : 'nom' est requis (colonne NOT NULL).");
+  }
+  const slug = slugify(item.nom);
+  if (slug === "") {
+    throw new Error(
+      "personnageToRow : le nom ne produit aucun slug (aucun caractère alphanumérique)."
+    );
+  }
+  if (typeof item.nature !== "string" || item.nature.trim() === "") {
+    throw new Error("personnageToRow : 'nature' est requise (CHECK nature NOT NULL).");
+  }
+  const row = {
+    nom: item.nom,
+    slug,
+    nature: item.nature,
+    ordre: index,
+  };
+  if (_present(item, "texte")) row.texte = item.texte;
   return row;
 }

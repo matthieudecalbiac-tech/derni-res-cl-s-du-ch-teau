@@ -42,6 +42,7 @@ import {
   timelineToRow,
   alentourToRow,
   amenityToRow,
+  personnageToRow,
 } from "./_mapping.js";
 import { cheminStorageDepuisUrl } from "../utils/storageUrl.js";
 import { slugify } from "../utils/slug.js";
@@ -61,7 +62,8 @@ const SELECT_FULL = `
   chateau_timeline(*),
   chateau_alentours(*),
   chateau_amenities(*, amenity_equipements(equipement_slug, equipements(slug, libelle, ordre))),
-  offres(*)
+  offres(*),
+  chateau_personnages(nature, texte, ordre, personnages(id, nom, slug))
 `;
 
 
@@ -403,21 +405,22 @@ export async function getEquipements() {
  * `base` est requis (chateauToRow non-partiel : nom + slug obligatoires).
  *
  * @param {string} id - UUID du château à modifier.
- * @param {Object} sections - { base, chambres, timeline, alentours, amenities }.
+ * @param {Object} sections - { base, chambres, timeline, alentours, amenities, personnages }.
  * @returns {Promise<string>} L'id du château modifié.
  * @throws Si id/base invalides, mapping fautif, ou erreur RPC (dont refus RLS 42501).
  */
 export async function saveChateauComplet(id, sections = {}) {
   if (!id) throw new Error("saveChateauComplet : id requis.");
 
-  const { base, chambres, timeline, alentours, amenities } = sections;
+  const { base, chambres, timeline, alentours, amenities, personnages } = sections;
 
   const p_base = chateauToRow(base, { partial: false });
   // null = préserve (on n'envoie pas le tableau) ; [] = vide ; [...] = remplace.
-  const p_chambres  = chambres  != null ? chambres.map((c, i) => chambreToRow(c, i))   : null;
-  const p_timeline  = timeline  != null ? timeline.map((t, i) => timelineToRow(t, i))  : null;
-  const p_alentours = alentours != null ? alentours.map((a, i) => alentourToRow(a, i)) : null;
-  const p_amenities = amenities != null ? amenities.map((a, i) => amenityToRow(a, i))  : null;
+  const p_chambres    = chambres    != null ? chambres.map((c, i) => chambreToRow(c, i))     : null;
+  const p_timeline    = timeline    != null ? timeline.map((t, i) => timelineToRow(t, i))    : null;
+  const p_alentours   = alentours   != null ? alentours.map((a, i) => alentourToRow(a, i))   : null;
+  const p_amenities   = amenities   != null ? amenities.map((a, i) => amenityToRow(a, i))    : null;
+  const p_personnages = personnages != null ? personnages.map((p, i) => personnageToRow(p, i)) : null;
 
   const { data, error } = await supabase.rpc("admin_upsert_chateau", {
     p_id: id,
@@ -426,6 +429,7 @@ export async function saveChateauComplet(id, sections = {}) {
     p_timeline,
     p_alentours,
     p_amenities,
+    p_personnages,
   });
 
   if (error) {

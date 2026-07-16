@@ -21,6 +21,8 @@ import {
   alentourToRow,
   amenityToRow,
   mapAmenity,
+  mapPersonnage,
+  personnageToRow,
   MODULE_B_ID,
 } from "../_mapping.js";
 import {
@@ -742,5 +744,144 @@ describe("mapAmenity <-> amenityToRow (aller-retour pivot amenity)", () => {
 
   it("input null → null", () => {
     expect(mapAmenity(null)).toBeNull();
+  });
+});
+
+
+describe("mapPersonnage (lecture liaison chateau_personnages)", () => {
+  it("nominal — aplatit personnages(id,nom,slug) + nature/texte/ordre de la liaison", () => {
+    const cp = FIXTURE_BRIOTTIERES.chateau_personnages[0];
+    expect(mapPersonnage(cp)).toEqual({
+      id: "pg-sand",
+      nom: "George Sand",
+      slug: "george-sand",
+      nature: "a_habite",
+      texte: "A séjourné aux Briottières.",
+      ordre: 0,
+    });
+  });
+
+  it("`id` exposé = id du PERSONNAGE (référentiel), pas de la liaison", () => {
+    // La liaison n'a pas d'id dans l'embed ; l'id vient de personnages(id,...).
+    expect(mapPersonnage(FIXTURE_BRIOTTIERES.chateau_personnages[1]).id).toBe("pg-chopin");
+  });
+
+  it("texte null → null préservé (pas de coercition)", () => {
+    const out = mapPersonnage({ nature: "evenement", texte: null, ordre: 2, personnages: { id: "p", nom: "N", slug: "n" } });
+    expect(out.texte).toBeNull();
+  });
+
+  it("input null → null", () => {
+    expect(mapPersonnage(null)).toBeNull();
+  });
+
+  it("personnage lié absent (liaison orpheline) → null", () => {
+    expect(mapPersonnage({ nature: "a_habite", texte: "x", ordre: 0 })).toBeNull();
+    expect(mapPersonnage({ nature: "a_habite", personnages: null })).toBeNull();
+  });
+});
+
+
+describe("personnageToRow (inverse — payload p_personnages RPC)", () => {
+  it("nominal — produit { nom, slug, nature, texte, ordre }", () => {
+    const row = personnageToRow(
+      { nom: "George Sand", nature: "a_habite", texte: "A séjourné." },
+      0
+    );
+    expect(row).toEqual({
+      nom: "George Sand",
+      slug: "george-sand",
+      nature: "a_habite",
+      texte: "A séjourné.",
+      ordre: 0,
+    });
+  });
+
+  it("slug TOUJOURS recalculé depuis nom — une clé slug de l'entrée est ignorée", () => {
+    const row = personnageToRow(
+      { nom: "Étienne II d'Aligre", slug: "slug-bidon-ignore", nature: "fait_histoire" },
+      0
+    );
+    expect(row.slug).toBe("etienne-ii-d-aligre");
+  });
+
+  it("ordre reconstruit depuis l'index", () => {
+    expect(personnageToRow({ nom: "X", nature: "a_habite" }, 4).ordre).toBe(4);
+  });
+
+  it("n'émet ni id ni chateau_id (personnage résolu par slug, parent posé par la RPC)", () => {
+    const row = personnageToRow({ nom: "X", nature: "a_habite", id: "pg-x", chateau_id: "ch-y" }, 0);
+    expect("id" in row).toBe(false);
+    expect("chateau_id" in row).toBe(false);
+  });
+
+  it("texte absent → non émis (clé absente, pas null)", () => {
+    const row = personnageToRow({ nom: "X", nature: "evenement" }, 0);
+    expect("texte" in row).toBe(false);
+  });
+
+  it("texte null explicite → émis tel quel (colonne nullable)", () => {
+    const row = personnageToRow({ nom: "X", nature: "evenement", texte: null }, 0);
+    expect(row.texte).toBeNull();
+  });
+
+  it("nom absent/vide → throw", () => {
+    expect(() => personnageToRow({ nature: "a_habite" }, 0)).toThrow(/nom/);
+    expect(() => personnageToRow({ nom: "  ", nature: "a_habite" }, 0)).toThrow(/nom/);
+  });
+
+  it("nature absente/vide → throw (CHECK NOT NULL)", () => {
+    expect(() => personnageToRow({ nom: "X" }, 0)).toThrow(/nature/);
+    expect(() => personnageToRow({ nom: "X", nature: "" }, 0)).toThrow(/nature/);
+  });
+
+  it("nom sans alphanumérique (slug calculé vide) → throw", () => {
+    expect(() => personnageToRow({ nom: "—’!", nature: "a_habite" }, 0)).toThrow(/slug/);
+  });
+
+  it("item null/invalide → throw", () => {
+    expect(() => personnageToRow(null, 0)).toThrow();
+    expect(() => personnageToRow(undefined, 0)).toThrow();
+  });
+});
+
+
+describe("mapPersonnage <-> personnageToRow (aller-retour)", () => {
+  it("ALLER-RETOUR : personnageToRow(mapPersonnage(row), row.ordre) == payload {nom,slug,nature,texte,ordre}", () => {
+    const cp0 = FIXTURE_BRIOTTIERES.chateau_personnages[0];
+    expect(personnageToRow(mapPersonnage(cp0), cp0.ordre)).toEqual({
+      nom: cp0.personnages.nom,
+      slug: cp0.personnages.slug,
+      nature: cp0.nature,
+      texte: cp0.texte,
+      ordre: cp0.ordre,
+    });
+  });
+
+  it("ALLER-RETOUR sur les 2 entrées Briottières (nom → slug stable)", () => {
+    FIXTURE_BRIOTTIERES.chateau_personnages.forEach((cp, i) => {
+      const back = personnageToRow(mapPersonnage(cp), i);
+      expect(back.slug).toBe(cp.personnages.slug);
+      expect(back.nature).toBe(cp.nature);
+    });
+  });
+});
+
+
+describe("mapChateau — section personnages (intégration)", () => {
+  it("Briottières : personnages[] exposé, aplati, trié par ordre", () => {
+    const out = mapChateau(FIXTURE_BRIOTTIERES);
+    expect(out.personnages).toEqual([
+      { id: "pg-sand", nom: "George Sand", slug: "george-sand", nature: "a_habite", texte: "A séjourné aux Briottières.", ordre: 0 },
+      { id: "pg-chopin", nom: "Chopin", slug: "chopin", nature: "a_habite", texte: "A séjourné aux Briottières.", ordre: 1 },
+    ]);
+  });
+
+  it("Vaux (liaison vide) → personnages []", () => {
+    expect(mapChateau(FIXTURE_VAUX).personnages).toEqual([]);
+  });
+
+  it("MINIMAL (aucune jointure) → personnages [] (zéro crash)", () => {
+    expect(mapChateau(FIXTURE_MINIMAL).personnages).toEqual([]);
   });
 });

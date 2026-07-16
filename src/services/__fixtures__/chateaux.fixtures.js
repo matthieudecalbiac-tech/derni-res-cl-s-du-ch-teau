@@ -149,6 +149,12 @@ export const FIXTURE_BRIOTTIERES = {
       ordre: 0,
     },
   ],
+
+  // Histoire des lieux — embed PostgREST : personnages(id, nom, slug) sur la liaison.
+  chateau_personnages: [
+    { nature: "a_habite", texte: "A séjourné aux Briottières.", ordre: 0, personnages: { id: "pg-sand", nom: "George Sand", slug: "george-sand" } },
+    { nature: "a_habite", texte: "A séjourné aux Briottières.", ordre: 1, personnages: { id: "pg-chopin", nom: "Chopin", slug: "chopin" } },
+  ],
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -246,6 +252,9 @@ export const FIXTURE_VAUX = {
       ordre: 0,
     },
   ],
+
+  // Sans personnage rattaché — teste le chemin liaison vide.
+  chateau_personnages: [],
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -297,6 +306,7 @@ export const FIXTURE_MINIMAL = {
   chateau_alentours: [],
   chateau_amenities: [],
   offres: [],
+  chateau_personnages: [],
 };
 
 // Constantes module exposées pour les tests applyOffreModuleB.
