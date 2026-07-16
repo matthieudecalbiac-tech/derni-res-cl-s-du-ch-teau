@@ -12,13 +12,14 @@ import "../styles/panneau-filtres.css";
 // (entree d'inspiration, autre usage, autre endroit).
 //
 // Le referentiel est charge ici une fois et passe a GrilleEquipements (qui reste
-// presentationnel). Etat de selection LOCAL. Le panneau ne navigue PAS et ne lance
-// PAS la recherche : il expose sa selection via onChange({ equipements }) et
-// "Valider" ne fait que FERMER la modale (onFermer). La recherche part du bouton
+// presentationnel). Composant CONTROLE : la selection courante arrive en prop
+// `selection` (source unique = l'etat de BarreRecherche), PAS un etat local qui
+// repartirait de zero a chaque ouverture de la modale. Le panneau ne navigue PAS
+// et ne lance PAS la recherche : il remonte les changements via onChange({ equipements })
+// et "Valider" ne fait que FERMER la modale (onFermer). La recherche part du bouton
 // "Trouver votre chateau" de la barre, qui embarque dates + invites + destination
 // + filtres en une fois.
-export default function PanneauFiltres({ onChange, onFermer }) {
-  const [equipements, setEquipements] = useState([]); // slugs
+export default function PanneauFiltres({ selection = [], onChange, onFermer }) {
   const [referentiel, setReferentiel] = useState([]); // [{slug,libelle,ordre}]
 
   // Referentiel equipements : chargement unique au montage.
@@ -30,18 +31,16 @@ export default function PanneauFiltres({ onChange, onFermer }) {
     return () => { cancelled = true; };
   }, []);
 
+  // Toggle a partir de la selection RECUE (pas d'etat local) : on calcule le
+  // prochain jeu et on le remonte. Le parent le persiste et le redescend en prop.
   const toggleEquipement = (slug) => {
-    const next = equipements.includes(slug)
-      ? equipements.filter((s) => s !== slug)
-      : [...equipements, slug];
-    setEquipements(next);
+    const next = selection.includes(slug)
+      ? selection.filter((s) => s !== slug)
+      : [...selection, slug];
     onChange?.({ equipements: next });
   };
 
-  const toutEffacer = () => {
-    setEquipements([]);
-    onChange?.({ equipements: [] });
-  };
+  const toutEffacer = () => onChange?.({ equipements: [] });
 
   return (
     <div className="pf">
@@ -49,7 +48,7 @@ export default function PanneauFiltres({ onChange, onFermer }) {
         <p className="pf-section-titre">Sur place</p>
         <GrilleEquipements
           referentiel={referentiel}
-          selection={equipements}
+          selection={selection}
           onToggle={toggleEquipement}
         />
       </div>
@@ -59,7 +58,7 @@ export default function PanneauFiltres({ onChange, onFermer }) {
           type="button"
           className="pf-effacer"
           onClick={toutEffacer}
-          disabled={equipements.length === 0}
+          disabled={selection.length === 0}
         >
           Tout effacer
         </button>
