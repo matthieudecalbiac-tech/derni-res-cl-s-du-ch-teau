@@ -78,7 +78,8 @@ export default function BarreRecherche() {
     ? selection.type === "departement"
       ? selection.departement
       : selection.region
-    : "Où rêvez-vous d’aller ?";
+    // Placeholder court (un seul mot, tient sans ellipse) + vocabulaire de la modale.
+    : "Région";
 
   const labelDates = () => {
     if (dateArrivee && dateDepart) return `${formatDate(dateArrivee)} → ${formatDate(dateDepart)}`;
@@ -130,13 +131,6 @@ export default function BarreRecherche() {
     // "Espace detente", plus par ce panneau.
     if (filtres.equipements.length > 0) p.set("equipement", filtres.equipements.join(","));
     navigate(`/resultats?${p.toString()}`);
-  };
-
-  // Depuis le panneau "+ Filtres" : "Voir les chateaux" ferme la modale ET lance
-  // la recherche (la modale masque le CTA "Trouver", il faut rendre le geste ici).
-  const validerFiltres = () => {
-    setFiltresOuvert(false);
-    lancerRecherche();
   };
 
   return (
@@ -216,7 +210,7 @@ export default function BarreRecherche() {
             </button>
           </div>
 
-          <button className="br-cta" onClick={lancerRecherche} disabled={!selection}>Trouver votre château <span className="br-cta-fl">→</span></button>
+          <button className="br-cta" onClick={lancerRecherche}>Trouver votre château <span className="br-cta-fl">→</span></button>
         </div>
 
         {/* Petit bouton "Filtres" (sorti de la barre pour l'alleger) : ouvre le
@@ -324,7 +318,7 @@ export default function BarreRecherche() {
       {/* MODALE PLUS DE FILTRES — panneau multi-criteres (categories + equipements).
           La selection remonte via onChange et alimente lancerRecherche (URL). */}
       <Modale ouvert={filtresOuvert} onClose={() => setFiltresOuvert(false)} titre="Filtres" largeur={520}>
-        <PanneauFiltres onChange={setFiltres} onValider={validerFiltres} />
+        <PanneauFiltres onChange={setFiltres} onFermer={() => setFiltresOuvert(false)} />
       </Modale>
     </div>
   );

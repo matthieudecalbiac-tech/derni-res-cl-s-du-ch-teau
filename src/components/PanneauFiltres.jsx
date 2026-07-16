@@ -12,9 +12,12 @@ import "../styles/panneau-filtres.css";
 // (entree d'inspiration, autre usage, autre endroit).
 //
 // Le referentiel est charge ici une fois et passe a GrilleEquipements (qui reste
-// presentationnel). Etat de selection LOCAL. Le panneau ne navigue pas : il expose
-// sa selection via onChange({ equipements }) et une intention via onValider().
-export default function PanneauFiltres({ onChange, onValider }) {
+// presentationnel). Etat de selection LOCAL. Le panneau ne navigue PAS et ne lance
+// PAS la recherche : il expose sa selection via onChange({ equipements }) et
+// "Valider" ne fait que FERMER la modale (onFermer). La recherche part du bouton
+// "Trouver votre chateau" de la barre, qui embarque dates + invites + destination
+// + filtres en une fois.
+export default function PanneauFiltres({ onChange, onFermer }) {
   const [equipements, setEquipements] = useState([]); // slugs
   const [referentiel, setReferentiel] = useState([]); // [{slug,libelle,ordre}]
 
@@ -60,8 +63,8 @@ export default function PanneauFiltres({ onChange, onValider }) {
         >
           Tout effacer
         </button>
-        <button type="button" className="pf-valider" onClick={onValider}>
-          Voir les châteaux
+        <button type="button" className="pf-valider" onClick={onFermer}>
+          Valider
         </button>
       </div>
     </div>
