@@ -24,6 +24,7 @@ import {
   mapPersonnage,
   personnageToRow,
   mapPersonnageFiche,
+  mapCataloguePersonnages,
   MODULE_B_ID,
 } from "../_mapping.js";
 import {
@@ -955,5 +956,71 @@ describe("mapPersonnageFiche (fiche publique — sens inverse)", () => {
 
   it("input null → null", () => {
     expect(mapPersonnageFiche(null)).toBeNull();
+  });
+});
+
+
+describe("mapCataloguePersonnages (catalogue /histoire, groupé par nature)", () => {
+  // Rows côté personnages : chaque liaison porte { nature, chateaux:{is_demo_mock} }.
+  // (chateaux!inner a déjà retiré les liaisons vers non-publiés côté SQL.)
+  const ROWS = [
+    // George Sand : a_habite (réel) + fait_histoire (réel) → DEUX groupes.
+    { id: "pg-sand", nom: "George Sand", slug: "george-sand", chateau_personnages: [
+      { nature: "a_habite", chateaux: { is_demo_mock: false } },
+      { nature: "fait_histoire", chateaux: { is_demo_mock: false } },
+    ]},
+    // Chopin : a_habite sur DEUX châteaux réels → dédup → une seule fois.
+    { id: "pg-chopin", nom: "Chopin", slug: "chopin", chateau_personnages: [
+      { nature: "a_habite", chateaux: { is_demo_mock: false } },
+      { nature: "a_habite", chateaux: { is_demo_mock: false } },
+    ]},
+    // Balzac : a_habite mais SEULEMENT sur un mock → exclu partout.
+    { id: "pg-balzac", nom: "Balzac", slug: "balzac", chateau_personnages: [
+      { nature: "a_habite", chateaux: { is_demo_mock: true } },
+    ]},
+    // Famille d'Aligre : histoire_famille (réel).
+    { id: "pg-aligre", nom: "Famille d'Aligre", slug: "famille-d-aligre", chateau_personnages: [
+      { nature: "histoire_famille", chateaux: { is_demo_mock: false } },
+    ]},
+    // Sans liaison survivante (tous non-publiés → embed vide) → absent.
+    { id: "pg-vide", nom: "Zzz Oublié", slug: "zzz-oublie", chateau_personnages: [] },
+  ];
+
+  it("groupes dans l'ordre de NATURES, groupes vides omis", () => {
+    const g = mapCataloguePersonnages(ROWS);
+    // evenement vide → omis ; ordre NATURES = fait_histoire, a_habite, histoire_famille
+    expect(g.map((x) => x.nature)).toEqual(["fait_histoire", "a_habite", "histoire_famille"]);
+  });
+
+  it("un personnage à deux natures apparaît dans les DEUX groupes", () => {
+    const g = mapCataloguePersonnages(ROWS);
+    const noms = (nat) => g.find((x) => x.nature === nat).personnages.map((p) => p.nom);
+    expect(noms("fait_histoire")).toContain("George Sand");
+    expect(noms("a_habite")).toContain("George Sand");
+  });
+
+  it("dédup DANS un groupe par id + tri alphabétique FR", () => {
+    const g = mapCataloguePersonnages(ROWS);
+    // a_habite : Chopin (dédupé de 2→1) + George Sand, triés alpha.
+    expect(g.find((x) => x.nature === "a_habite").personnages.map((p) => p.nom))
+      .toEqual(["Chopin", "George Sand"]);
+  });
+
+  it("mock exclu (Balzac) et personnage sans liaison exclu (Zzz)", () => {
+    const g = mapCataloguePersonnages(ROWS);
+    const tous = g.flatMap((x) => x.personnages.map((p) => p.slug));
+    expect(tous).not.toContain("balzac");
+    expect(tous).not.toContain("zzz-oublie");
+  });
+
+  it("chaque entrée = { id, nom, slug } minimal", () => {
+    const g = mapCataloguePersonnages(ROWS);
+    expect(g.find((x) => x.nature === "histoire_famille").personnages[0])
+      .toEqual({ id: "pg-aligre", nom: "Famille d'Aligre", slug: "famille-d-aligre" });
+  });
+
+  it("input null / [] → [] (pas de crash)", () => {
+    expect(mapCataloguePersonnages(null)).toEqual([]);
+    expect(mapCataloguePersonnages([])).toEqual([]);
   });
 });

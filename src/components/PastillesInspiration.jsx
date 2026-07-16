@@ -36,10 +36,9 @@ const IcoDetente = () => (
   </svg>
 );
 
-// Histoire / Distance restent des placeholders (donnees pas encore structurees).
-// Espace detente est desormais FONCTIONNEL (cf. bouton dedie ci-dessous).
+// Distance reste un placeholder (donnees pas encore structurees). Siecle,
+// Histoire des lieux et Espace detente sont FONCTIONNELS (boutons dedies).
 const PLACEHOLDERS = [
-  { cle: "histoire", label: "Histoire des lieux", Ico: IcoHistoire },
   { cle: "distance", label: "Distance de chez vous", Ico: IcoDistance },
 ];
 
@@ -70,6 +69,16 @@ export default function PastillesInspiration() {
             <svg className="insp-pastille-chevron" width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path d="M3.5 5.5 7 9l3.5-3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
+          </button>
+
+          {/* Histoire des lieux : FONCTIONNEL, route directe vers le catalogue. */}
+          <button
+            type="button"
+            className="insp-pastille"
+            onClick={() => navigate("/histoire")}
+          >
+            <IcoHistoire />
+            <span className="insp-pastille-label">Histoire des lieux</span>
           </button>
 
           {PLACEHOLDERS.map(({ cle, label, Ico }) => (

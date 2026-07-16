@@ -38,6 +38,7 @@ import {
   mapChateau,
   mapAmenity,
   mapPersonnageFiche,
+  mapCataloguePersonnages,
   chateauToRow,
   chambreToRow,
   timelineToRow,
@@ -76,6 +77,15 @@ const SELECT_PERSONNAGE_FICHE = `
   id, nom, slug, biographie,
   chateau_personnages(nature, texte, ordre,
     chateaux!inner(id, slug, nom, region, accroche, images, is_demo_mock))
+`;
+
+// SELECT pour le catalogue /histoire — tous les personnages + la NATURE de leurs
+// liaisons vers châteaux publiés (chateaux!inner). Colonnes minimales : le
+// mapper ne garde que id/nom/slug + la nature pour grouper. is_demo_mock remonté
+// pour le filtre client (la RLS ne le couvre pas).
+const SELECT_CATALOGUE = `
+  id, nom, slug,
+  chateau_personnages(nature, chateaux!inner(is_demo_mock))
 `;
 
 
@@ -235,6 +245,29 @@ export async function getPersonnageBySlug(slug) {
     throw new Error(`Failed to fetch personnage ${slug}: ${error.message}`);
   }
   return mapPersonnageFiche(data);
+}
+
+/**
+ * LECTURE PUBLIQUE — le catalogue /histoire : tous les personnages/événements
+ * groupés par nature (le PLURIEL de getPersonnageBySlug). Requête côté
+ * personnages, alignée sur la fiche ; groupement + dédup + tri dans le mapper.
+ *
+ * @returns {Promise<Array<{nature: string, personnages: Array<{id, nom, slug}>}>>}
+ * @throws Si erreur Supabase.
+ */
+export async function getCataloguePersonnages() {
+  await _withFakeLatency();
+
+  const { data, error } = await supabase
+    .from("personnages")
+    .select(SELECT_CATALOGUE)
+    .order("nom", { ascending: true });
+
+  if (error) {
+    console.error("[chateauxService] getCataloguePersonnages error:", error);
+    throw new Error(`Failed to fetch catalogue personnages: ${error.message}`);
+  }
+  return mapCataloguePersonnages(data);
 }
 
 /**
