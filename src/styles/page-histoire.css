@@ -1,8 +1,7 @@
 /* /histoire — le catalogue "Histoire des lieux". Registre CRÈME ILLUSTRÉ,
    COHÉRENT avec page-personnage.css (mêmes tokens, hover or, ornement fleur de
-   lys). Mais ICI : intime et délicat, pas monumental. C'est un INDEX qu'on
-   feuillette, pas une plaque commémorative — noms alignés à gauche dans une
-   colonne étroite, tailles réduites, un seul ornement, rythme resserré.
+   lys). Chaque groupe est une CARTE encadrée, façon page de catalogue ancien :
+   le cadre donne le bord que l'œil cherche et permet de RECENTRER les noms.
 
    Préfixe ph-. Couleurs = charte UNIQUEMENT, aliasées en variables page-locales
    (mêmes valeurs que pp-). */
@@ -37,7 +36,7 @@
   margin: 0 auto;
 }
 
-/* ── 1. LE TITRE — Playfair, réduit : il ne doit plus écraser la page. ── */
+/* ── EN-TÊTE (inchangé) — titre Playfair réduit, phrase, ornement fleur de lys. ── */
 .ph-titre {
   margin: 0;
   text-align: center;
@@ -50,7 +49,6 @@
   text-wrap: balance;
 }
 
-/* ── 2. LA PHRASE — invitation, pas index. Colonne étroite centrée. ── */
 .ph-phrase {
   max-width: 30em;
   margin: clamp(1rem, 2.5vh, 1.5rem) auto 0;
@@ -61,7 +59,6 @@
   color: var(--ph-soft);
 }
 
-/* ── ORNEMENT — fleur de lys UNE seule fois, sous le titre (comme la fiche). ── */
 .ph-orn {
   display: flex;
   align-items: center;
@@ -85,27 +82,55 @@
   background: transparent; /* neutralise le fond navy global de img{} */
 }
 
-/* ── LES GROUPES — colonne étroite centrée (l'index se lit à gauche). ── */
-.ph-groupe {
-  max-width: 30em;
-  margin: 0 auto;
+/* ── LA GRILLE — 2 colonnes (4 natures = deux lignes de deux, rien n'orpheline).
+   Cartes de même ligne à HAUTEUR ÉGALE (grid stretch par défaut). ── */
+.ph-grille {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(1.25rem, 3vw, 2rem);
 }
 
-/* Filet fin entre les groupes (pas de fleur de lys : trop de décor pour treize
-   noms). Or de la charte, très discret. Avant chaque groupe sauf le premier. */
-.ph-filet {
-  height: 1px;
-  width: 100%;
-  margin: clamp(1.5rem, 4vh, 2.4rem) 0;
-  background: var(--ph-or);
-  opacity: 0.25;
+/* ── LA CARTE — fin liseré or, fond crème un peu plus clair, coins ornés. ── */
+.ph-carte {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(1.5rem, 2.6vw, 2.1rem) clamp(1.25rem, 2.2vw, 1.9rem) clamp(1.6rem, 2.8vw, 2.2rem);
+  border: 1px solid var(--ph-or);
+  border-radius: 2px; /* angles adoucis */
+  /* Crème légèrement plus clair que la page : voile blanc sur le fond crème
+     (pas une couleur nouvelle). */
+  background: rgba(255, 255, 255, 0.5);
 }
 
-/* Titre de groupe : or + capitales espacées (traitement "LES DEMEURES"), taille
-   réduite, aligné à gauche comme les noms qu'il coiffe. */
-.ph-groupe-titre {
-  margin: 0 0 clamp(0.7rem, 2vh, 1rem);
-  text-align: left;
+/* Coins ornés — 4 équerres or en retrait (cadre gravé intérieur, "accolade").
+   card::before/::after = coins hauts ; le span .ph-carte-coins::before/::after
+   = coins bas (2 pseudo-éléments par élément → il en faut un second). */
+.ph-carte-coins {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.ph-carte::before,
+.ph-carte::after,
+.ph-carte-coins::before,
+.ph-carte-coins::after {
+  content: "";
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--ph-or);
+}
+.ph-carte::before { top: 6px; left: 6px; border-right: none; border-bottom: none; }
+.ph-carte::after  { top: 6px; right: 6px; border-left: none; border-bottom: none; }
+.ph-carte-coins::before { bottom: 6px; left: 6px; border-right: none; border-top: none; }
+.ph-carte-coins::after  { bottom: 6px; right: 6px; border-left: none; border-top: none; }
+
+/* Titre de groupe : or, capitales espacées, petit, CENTRÉ (il vit dans le cadre). */
+.ph-carte-titre {
+  margin: 0;
+  text-align: center;
   font-family: var(--font-ui);
   font-size: 0.68rem;
   text-transform: uppercase;
@@ -113,16 +138,23 @@
   color: var(--ph-or);
 }
 
-/* ── LES NOMS — index aligné à gauche, Crimson Pro, discret. Ils crient déjà
-   sur leur fiche : ici ils se parcourent. ── */
+/* Court filet or centré : sous le titre, et en écho en bas de carte. */
+.ph-carte-filet {
+  width: 40px;
+  height: 1px;
+  background: var(--ph-or);
+  margin-top: clamp(0.7rem, 1.6vh, 1rem);
+}
+
+/* ── LES NOMS — centrés dans le cadre, Crimson Pro, aérés, navy, hover or. ── */
 .ph-liste {
   list-style: none;
-  margin: 0;
+  margin: clamp(0.7rem, 1.6vh, 1rem) 0 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: clamp(0.25rem, 0.9vh, 0.45rem);
+  align-items: center;
+  gap: clamp(0.3rem, 1vh, 0.5rem);
 }
 
 .ph-nom {
@@ -130,11 +162,18 @@
   font-weight: 400;
   font-size: 1.15rem;
   line-height: 1.5;
-  text-align: left;
+  text-align: center;
   color: var(--ph-navy);
   text-decoration: none;
   transition: color 0.3s ease;
 }
 .ph-nom:hover {
   color: var(--ph-or);
+}
+
+/* ── MOBILE — une colonne, les cartes s'empilent. ── */
+@media (max-width: 640px) {
+  .ph-grille {
+    grid-template-columns: 1fr;
+  }
 }

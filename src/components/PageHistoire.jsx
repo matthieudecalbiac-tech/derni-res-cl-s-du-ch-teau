@@ -12,9 +12,10 @@ import "../styles/page-histoire.css";
 // pas à l'univers → pas de navy ici. Le vide et le texte font la page ; les noms
 // se lisent comme un générique de film (une colonne centrée, aérée).
 //
-// Intime, pas monumental : un index qu'on feuillette. Noms alignés à gauche
-// (colonne étroite centrée), Crimson Pro discret, un seul ornement fleur de lys
-// sous le titre (comme la fiche), filet fin entre les groupes.
+// Chaque groupe est une CARTE encadrée (façon page de catalogue ancien) : liseré
+// or, coins ornés, noms recentrés dans le cadre. Grille 2 colonnes (4 natures =
+// deux lignes de deux), cartes de même hauteur. En-tête inchangé (titre Playfair,
+// phrase, ornement fleur de lys). Le cadre remplace les filets entre groupes.
 export default function PageHistoire() {
   const { groupes, loading, error } = useCataloguePersonnages();
 
@@ -41,19 +42,23 @@ export default function PageHistoire() {
           <span className="ph-orn-trait" />
         </div>
 
-        {groupes.map((g, i) => (
-          <section className="ph-groupe" key={g.nature}>
-            {i > 0 && <div className="ph-filet" aria-hidden="true" />}
-            <h2 className="ph-groupe-titre">{libelleNature(g.nature)}</h2>
-            <ul className="ph-liste">
-              {g.personnages.map((p) => (
-                <li key={p.id}>
-                  <Link to={`/personnage/${p.slug}`} className="ph-nom">{p.nom}</Link>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
+        <div className="ph-grille">
+          {groupes.map((g) => (
+            <article className="ph-carte" key={g.nature}>
+              <span className="ph-carte-coins" aria-hidden="true" />
+              <h2 className="ph-carte-titre">{libelleNature(g.nature)}</h2>
+              <span className="ph-carte-filet" aria-hidden="true" />
+              <ul className="ph-liste">
+                {g.personnages.map((p) => (
+                  <li key={p.id}>
+                    <Link to={`/personnage/${p.slug}`} className="ph-nom">{p.nom}</Link>
+                  </li>
+                ))}
+              </ul>
+              <span className="ph-carte-filet" aria-hidden="true" />
+            </article>
+          ))}
+        </div>
       </div>
     </div>
   );
