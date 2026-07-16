@@ -1,0 +1,179 @@
+/* /histoire — le catalogue "Histoire des lieux". Registre CRÈME ILLUSTRÉ,
+   COHÉRENT avec page-personnage.css (mêmes tokens, hover or, ornement fleur de
+   lys). Chaque groupe est une CARTE encadrée, façon page de catalogue ancien :
+   le cadre donne le bord que l'œil cherche et permet de RECENTRER les noms.
+
+   Préfixe ph-. Couleurs = charte UNIQUEMENT, aliasées en variables page-locales
+   (mêmes valeurs que pp-). */
+
+.ph {
+  --ph-navy: #07101E;
+  --ph-or: var(--or, #C09840);
+  --ph-creme: var(--lcc-creme, #FAF6EE);
+  --ph-soft: #4A4640;
+
+  min-height: 100vh;
+  background: var(--ph-creme);
+  padding: clamp(2.5rem, 7vh, 5rem) clamp(1.25rem, 5vw, 3rem) clamp(3rem, 8vh, 5.5rem);
+}
+
+/* Placeholder de chargement : même crème, évite tout flash (body navy global). */
+.ph-chargement {
+  min-height: 100vh;
+  background: var(--lcc-creme, #FAF6EE);
+}
+
+/* État error / vide : message sobre sur crème (jamais le navy hérité). */
+.ph-etat {
+  text-align: center;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  color: var(--ph-soft);
+}
+
+.ph-inner {
+  max-width: 940px;
+  margin: 0 auto;
+}
+
+/* ── EN-TÊTE (inchangé) — titre Playfair réduit, phrase, ornement fleur de lys. ── */
+.ph-titre {
+  margin: 0;
+  text-align: center;
+  font-family: "Playfair Display", serif;
+  font-weight: 600;
+  font-size: clamp(1.9rem, 4.5vw, 2.9rem);
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  color: var(--ph-navy);
+  text-wrap: balance;
+}
+
+.ph-phrase {
+  max-width: 30em;
+  margin: clamp(1rem, 2.5vh, 1.5rem) auto 0;
+  text-align: center;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  line-height: 1.6;
+  color: var(--ph-soft);
+}
+
+.ph-orn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  margin: clamp(1.75rem, 4.5vh, 2.75rem) auto clamp(2rem, 5vh, 3rem);
+}
+.ph-orn-trait {
+  height: 1px;
+  width: clamp(40px, 10vw, 90px);
+  background: linear-gradient(90deg, transparent, var(--ph-or));
+}
+.ph-orn-trait:last-child {
+  background: linear-gradient(90deg, var(--ph-or), transparent);
+}
+.ph-orn-lys {
+  height: 40px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+  background: transparent; /* neutralise le fond navy global de img{} */
+}
+
+/* ── LA GRILLE — 2 colonnes (4 natures = deux lignes de deux, rien n'orpheline).
+   Cartes de même ligne à HAUTEUR ÉGALE (grid stretch par défaut). ── */
+.ph-grille {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(1.25rem, 3vw, 2rem);
+}
+
+/* ── LA CARTE — fin liseré or, fond crème un peu plus clair, coins ornés. ── */
+.ph-carte {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(1.5rem, 2.6vw, 2.1rem) clamp(1.25rem, 2.2vw, 1.9rem) clamp(1.6rem, 2.8vw, 2.2rem);
+  border: 1px solid var(--ph-or);
+  border-radius: 2px; /* angles adoucis */
+  /* Crème légèrement plus clair que la page : voile blanc sur le fond crème
+     (pas une couleur nouvelle). */
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Coins ornés — 4 équerres or en retrait (cadre gravé intérieur, "accolade").
+   card::before/::after = coins hauts ; le span .ph-carte-coins::before/::after
+   = coins bas (2 pseudo-éléments par élément → il en faut un second). */
+.ph-carte-coins {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.ph-carte::before,
+.ph-carte::after,
+.ph-carte-coins::before,
+.ph-carte-coins::after {
+  content: "";
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--ph-or);
+}
+.ph-carte::before { top: 6px; left: 6px; border-right: none; border-bottom: none; }
+.ph-carte::after  { top: 6px; right: 6px; border-left: none; border-bottom: none; }
+.ph-carte-coins::before { bottom: 6px; left: 6px; border-right: none; border-top: none; }
+.ph-carte-coins::after  { bottom: 6px; right: 6px; border-left: none; border-top: none; }
+
+/* Titre de groupe : or, capitales espacées, petit, CENTRÉ (il vit dans le cadre). */
+.ph-carte-titre {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.26em;
+  color: var(--ph-or);
+}
+
+/* Court filet or centré : sous le titre, et en écho en bas de carte. */
+.ph-carte-filet {
+  width: 40px;
+  height: 1px;
+  background: var(--ph-or);
+  margin-top: clamp(0.7rem, 1.6vh, 1rem);
+}
+
+/* ── LES NOMS — centrés dans le cadre, Crimson Pro, aérés, navy, hover or. ── */
+.ph-liste {
+  list-style: none;
+  margin: clamp(0.7rem, 1.6vh, 1rem) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.3rem, 1vh, 0.5rem);
+}
+
+.ph-nom {
+  font-family: "Crimson Pro", serif;
+  font-weight: 400;
+  font-size: 1.15rem;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--ph-navy);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.ph-nom:hover {
+  color: var(--ph-or);
+}
+
+/* ── MOBILE — une colonne, les cartes s'empilent. ── */
+@media (max-width: 640px) {
+  .ph-grille {
+    grid-template-columns: 1fr;
+  }
+}
