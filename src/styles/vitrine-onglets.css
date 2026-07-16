@@ -183,7 +183,7 @@
 .vc4-permanent-chambre-meta {
   font-family: "Crimson Pro", serif;
   font-size: 12px;
-  color: var(--vc4-or-soft);
+  color: var(--vc4-or-sur-surface); /* #d4ba7e echouait a 1.6:1 sur --vc4-surface */
   letter-spacing: 0.05em;
   margin: 0 0 12px;
 }
