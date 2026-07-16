@@ -25,6 +25,13 @@
 -- affect row a second time) -> on DEDUP par slug (DISTINCT ON) AVANT l'upsert.
 -- ============================================================
 
+-- DROP + CREATE enveloppes dans une transaction : le DDL est transactionnel en
+-- PostgreSQL. Sans ce BEGIN/COMMIT, si le DROP passe et que le CREATE echoue
+-- (typo, dependance...), admin_upsert_chateau DISPARAIT et plus aucune sauvegarde
+-- admin de chateau n'est possible. Avec la transaction, un CREATE en echec
+-- ROLLBACK le DROP -> l'ancienne fonction 6-param reste en place, intacte.
+BEGIN;
+
 -- Ancienne signature 6-parametres : a supprimer avant de recreer en 7-parametres.
 DROP FUNCTION IF EXISTS public.admin_upsert_chateau(uuid, jsonb, jsonb, jsonb, jsonb, jsonb);
 
@@ -273,8 +280,11 @@ $$;
 COMMENT ON FUNCTION public.admin_upsert_chateau(uuid, jsonb, jsonb, jsonb, jsonb, jsonb, jsonb) IS
   'Ecriture transactionnelle admin d''un chateau. Base = update partiel (34 colonnes). Chambres = DIFF (upsert par id + delete des retirees, preserve les reservations). timeline/alentours = REPLACE. amenities = REPLACE + liaison N-N equipements (CTE uuid pre-genere). personnages = get-or-create par slug (slug calcule en JS, dedup DISTINCT ON avant upsert) + REPLACE de la liaison chateau_personnages. Garde is_admin(). SECURITY DEFINER + search_path fige.';
 
+COMMIT;
+
 -- ============================================================
 -- VERIFICATIONS (lecture seule ; le Dashboard n'affiche que le DERNIER resultat).
+-- Hors transaction : elles ne participent pas a l'atomicite du DROP/CREATE.
 -- ============================================================
 
 -- (A) La fonction existe en UNE seule version, a 7 parametres (pas de surcharge)
