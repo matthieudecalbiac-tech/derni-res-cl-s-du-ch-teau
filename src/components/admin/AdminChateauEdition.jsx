@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { getChateauAdminById, saveChateauComplet, updateStatut, deleteChateau, getEquipements } from "../../services/chateauxService";
+import { getChateauAdminById, saveChateauComplet, updateStatut, deleteChateau, getEquipements, getPersonnages } from "../../services/chateauxService";
 import { validerPublication } from "../../utils/validerPublication";
 import { CATEGORIES as AMENITY_CATEGORIES } from "../../utils/categories";
+import { NATURES } from "../../utils/personnages";
 import BoutonTeleverser from "./BoutonTeleverser";
 import ChampCase from "../ChampCase";
 import ChampEquipements from "../ChampEquipements";
+import ChampPersonnage from "../ChampPersonnage";
 
 const LIBELLE_STATUT = { brouillon: "Brouillon", publie: "Publié", archive: "Archivé" };
 
@@ -131,6 +133,14 @@ function formFromChateau(c) {
         .map((e) => (typeof e === "string" ? e : e?.slug))
         .filter(Boolean),
     })),
+    // Histoire des lieux : on ne garde que ce que le form édite (nom/nature/texte).
+    // id/slug/ordre viennent de la lecture mais ne repartent pas (slug recalculé,
+    // ordre = index à l'envoi via personnageToRow).
+    personnages: (c.personnages ?? []).map((x) => ({
+      nom: x.nom ?? "",
+      nature: x.nature ?? NATURES[0].value,
+      texte: x.texte ?? "",
+    })),
   };
 }
 
@@ -190,6 +200,12 @@ const preparerAmenity = (a) => ({
   prixSupplement: nbOuNull(a.prixSupplement),
   dureeMinutes: entierOuNull(a.dureeMinutes),
 });
+// texte : vide -> null (colonne nullable) ; nom/nature validés en amont.
+const preparerPersonnage = (p) => ({
+  nom: p.nom,
+  nature: p.nature,
+  texte: videOuNull(p.texte),
+});
 
 // ── Validation form (message clair avant que la RPC ne rejette) ──
 function validerForm(form) {
@@ -222,6 +238,10 @@ function validerForm(form) {
       if (!(dm !== null && dm > 0)) return `Équipement ${i + 1} : la durée doit être un entier > 0.`;
     }
   }
+  for (const [i, p] of form.personnages.entries()) {
+    if (estVide(p.nom)) return `Histoire des lieux ${i + 1} : choisis ou crée un personnage.`;
+    if (estVide(p.nature)) return `Histoire des lieux ${i + 1} : la nature du lien est requise.`;
+  }
   return null;
 }
 
@@ -242,6 +262,9 @@ export default function AdminChateauEdition() {
   // Referentiel d'equipements (slug, libelle, ordre), charge UNE fois au montage
   // (pas par amenity) et partage a toutes les cases ChampEquipements.
   const [equipementsRef, setEquipementsRef] = useState([]);
+  // Referentiel des personnages (id, nom, slug), charge UNE fois au montage,
+  // partage au sélecteur avec recherche de chaque rangee "Histoire des lieux".
+  const [personnagesRef, setPersonnagesRef] = useState([]);
   const [suppr, setSuppr] = useState(false);
   const [supprErreur, setSupprErreur] = useState(null);
 
@@ -273,6 +296,15 @@ export default function AdminChateauEdition() {
     getEquipements()
       .then((liste) => { if (!cancelled) setEquipementsRef(liste); })
       .catch((e) => console.error("[AdminChateauEdition] getEquipements:", e));
+    return () => { cancelled = true; };
+  }, []);
+
+  // Referentiel personnages : chargement unique au montage (independant de l'id).
+  useEffect(() => {
+    let cancelled = false;
+    getPersonnages()
+      .then((liste) => { if (!cancelled) setPersonnagesRef(liste); })
+      .catch((e) => console.error("[AdminChateauEdition] getPersonnages:", e));
     return () => { cancelled = true; };
   }, []);
 
@@ -333,6 +365,7 @@ export default function AdminChateauEdition() {
         timeline: form.timeline,
         alentours: form.alentours,
         amenities: form.amenities.map(preparerAmenity),
+        personnages: form.personnages.map(preparerPersonnage),
       });
       setSaveMsg({ ok: true, texte: "Modifications enregistrées." });
     } catch (err) {
@@ -606,6 +639,27 @@ export default function AdminChateauEdition() {
             </div>
           ))}
           <button type="button" className="adm-btn-ajouter" onClick={() => ajouterFille("amenities", { type: "service", categorie: "", nom: "", description: "", icone: "", image: "", inclus: true, prixSupplement: null, dureeMinutes: null, equipements: [] })}>+ Ajouter un équipement</button>
+        </section>
+
+        {/* ── Histoire des lieux (personnages & événements) ── */}
+        <section className="adm-section">
+          <h2 className="adm-section-titre">Histoire des lieux</h2>
+          {form.personnages.map((p, i) => (
+            <div className="adm-fille" key={i}>
+              <div className="adm-fille-tete">
+                <span className="adm-fille-num">Personnage {i + 1}</span>
+                <button type="button" className="adm-btn-suppr" onClick={() => supprimerFille("personnages", i)}>Supprimer</button>
+              </div>
+              <ChampPersonnage
+                referentiel={personnagesRef}
+                valeur={p.nom}
+                onChoisir={(nom) => majFille("personnages", i, "nom", nom)}
+              />
+              <ChampSelect label="Nature du lien" value={p.nature} options={NATURES} onChange={(e) => majFille("personnages", i, "nature", e.target.value)} />
+              <ChampZone label="Lien éditorial (optionnel)" value={p.texte} onChange={(e) => majFille("personnages", i, "texte", e.target.value)} rows={3} />
+            </div>
+          ))}
+          <button type="button" className="adm-btn-ajouter" onClick={() => ajouterFille("personnages", { nom: "", nature: NATURES[0].value, texte: "" })}>+ Ajouter un personnage</button>
         </section>
 
         {/* ── Galerie images (éditable, avec téléversement) ── */}

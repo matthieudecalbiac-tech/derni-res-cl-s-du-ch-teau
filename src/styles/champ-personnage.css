@@ -1,0 +1,81 @@
+/* Combobox de sélection d'un personnage (recherche + création explicite).
+   Mêmes tokens globaux (global.css) que .champ-equip -> rendu homogène avec le
+   reste de l'admin. Dropdown en position absolue au-dessus du contenu suivant. */
+
+.champ-perso {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  position: relative;
+}
+
+.champ-perso-label {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  color: var(--gris-fonce);
+}
+
+.champ-perso-input {
+  width: 100%;
+  background: var(--blanc-casse);
+  border: 1px solid var(--gris-clair);
+  border-radius: 4px;
+  padding: 0.5rem 0.7rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+}
+.champ-perso-input:focus-visible { outline: none; border-color: var(--or); }
+
+/* ── Dropdown des suggestions ── */
+.champ-perso-liste {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin: 0.2rem 0 0;
+  padding: 0.25rem;
+  list-style: none;
+  max-height: 14rem;
+  overflow-y: auto;
+  background: var(--blanc-casse);
+  border: 1px solid var(--gris-clair);
+  border-radius: 4px;
+  box-shadow: 0 4px 14px rgba(7, 16, 30, 0.12);
+}
+
+.champ-perso-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0.45rem 0.6rem;
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+}
+.champ-perso-option:hover,
+.champ-perso-option:focus-visible {
+  background: var(--creme-chaud);
+  outline: none;
+}
+
+/* Ligne "Créer «X»" : distincte des correspondances existantes. */
+.champ-perso-creer {
+  color: var(--or-fonce, #8B6914);
+  font-style: italic;
+  border-top: 1px solid var(--gris-clair);
+  border-radius: 0;
+}
+
+.champ-perso-vide {
+  padding: 0.45rem 0.6rem;
+  color: var(--gris);
+  font-style: italic;
+  font-size: var(--t-sm);
+}
