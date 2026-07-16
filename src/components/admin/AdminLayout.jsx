@@ -11,6 +11,7 @@ const LIENS = [
   { to: "/admin", label: "Accueil", end: true },
   { to: "/admin/messages", label: "Messages" },
   { to: "/admin/chateaux", label: "Châteaux" },
+  { to: "/admin/personnages", label: "Personnages" },
   { to: "/admin/reservations", label: "Réservations" },
 ];
 

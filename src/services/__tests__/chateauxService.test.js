@@ -19,6 +19,9 @@ import {
   getChateauById,
   getChateauBySlug,
   getPersonnageBySlug,
+  getPersonnagesAdmin,
+  updatePersonnage,
+  deletePersonnage,
   getCompteurs,
   invalidateCache,
 } from "../chateauxService.js";
@@ -229,6 +232,115 @@ describe("getPersonnageBySlug", () => {
     await expect(getPersonnageBySlug("george-sand")).rejects.toThrow(
       "Failed to fetch personnage george-sand: Connection refused"
     );
+  });
+});
+
+
+// Chaîne .from().select().order() de getPersonnagesAdmin.
+function mockSelectOrder(rows, error = null) {
+  supabase.from.mockReturnValue({
+    select: vi.fn().mockReturnValue({
+      order: vi.fn().mockResolvedValue({ data: rows, error }),
+    }),
+  });
+}
+// Chaîne .from().update().eq().select() ; retourne le mock update pour asserter le payload.
+function mockUpdate(result) {
+  const updateMock = vi.fn().mockReturnValue({
+    eq: vi.fn().mockReturnValue({
+      select: vi.fn().mockResolvedValue(result),
+    }),
+  });
+  supabase.from.mockReturnValue({ update: updateMock });
+  return updateMock;
+}
+// Chaîne .from().delete().eq().select().
+function mockDelete(result) {
+  supabase.from.mockReturnValue({
+    delete: vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockResolvedValue(result),
+      }),
+    }),
+  });
+}
+
+
+describe("getPersonnagesAdmin", () => {
+  beforeEach(() => { vi.clearAllMocks(); invalidateCache(); });
+
+  it("mappe l'embed count → nbChateaux", async () => {
+    mockSelectOrder([
+      { id: "p1", nom: "George Sand", slug: "george-sand", biographie: "Bio.", chateau_personnages: [{ count: 2 }] },
+      { id: "p2", nom: "Chopin", slug: "chopin", biographie: null, chateau_personnages: [] },
+    ]);
+    const liste = await getPersonnagesAdmin();
+    expect(supabase.from).toHaveBeenCalledWith("personnages");
+    expect(liste[0]).toEqual({ id: "p1", nom: "George Sand", slug: "george-sand", biographie: "Bio.", nbChateaux: 2 });
+    // embed vide → nbChateaux 0
+    expect(liste[1].nbChateaux).toBe(0);
+  });
+
+  it("erreur Supabase : throw", async () => {
+    mockSelectOrder(null, { message: "boom", code: "TEST_ERROR" });
+    await expect(getPersonnagesAdmin()).rejects.toThrow("Failed to fetch personnages (admin): boom");
+  });
+});
+
+
+describe("updatePersonnage", () => {
+  beforeEach(() => { vi.clearAllMocks(); invalidateCache(); });
+
+  it("recalcule le slug depuis le nom + normalise biographie vide → null", async () => {
+    const updateMock = mockUpdate({ data: [{ id: "p1" }], error: null });
+    await updatePersonnage("p1", { nom: "Étienne II d'Aligre", biographie: "   " });
+    expect(updateMock).toHaveBeenCalledWith({
+      nom: "Étienne II d'Aligre",
+      slug: "etienne-ii-d-aligre",
+      biographie: null,
+    });
+  });
+
+  it("collision slug (23505) : message clair, pas d'erreur Postgres brute", async () => {
+    mockUpdate({ data: null, error: { code: "23505", message: "duplicate key" } });
+    await expect(updatePersonnage("p1", { nom: "Jean Gabin" })).rejects.toThrow(
+      /slug \(jean-gabin\) déjà utilisé/
+    );
+  });
+
+  it("nom vide → throw sans round-trip", async () => {
+    await expect(updatePersonnage("p1", { nom: "  " })).rejects.toThrow(/nom est requis/i);
+    expect(supabase.from).not.toHaveBeenCalled();
+  });
+
+  it("0 ligne modifiée (refus RLS / id inconnu) → throw", async () => {
+    mockUpdate({ data: [], error: null });
+    await expect(updatePersonnage("p1", { nom: "X" })).rejects.toThrow(/0 ligne modifiée/);
+  });
+
+  it("id manquant → throw sans round-trip", async () => {
+    await expect(updatePersonnage(null, { nom: "X" })).rejects.toThrow(/id requis/);
+    expect(supabase.from).not.toHaveBeenCalled();
+  });
+});
+
+
+describe("deletePersonnage", () => {
+  beforeEach(() => { vi.clearAllMocks(); invalidateCache(); });
+
+  it("rattaché (23503) : message clair, pas d'erreur Postgres brute", async () => {
+    mockDelete({ data: null, error: { code: "23503", message: "FK violation" } });
+    await expect(deletePersonnage("p1")).rejects.toThrow(/rattaché à un ou plusieurs châteaux/);
+  });
+
+  it("succès → true", async () => {
+    mockDelete({ data: [{ id: "p1" }], error: null });
+    expect(await deletePersonnage("p1")).toBe(true);
+  });
+
+  it("0 ligne supprimée (refus RLS / id inconnu) → throw", async () => {
+    mockDelete({ data: [], error: null });
+    await expect(deletePersonnage("p1")).rejects.toThrow(/0 ligne supprimée/);
   });
 });
 
