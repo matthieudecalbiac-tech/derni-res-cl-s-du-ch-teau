@@ -4,6 +4,7 @@ import {
   getChateauBySlug,
   getChateauById as getChateauByIdService,
   getPersonnageBySlug,
+  getCataloguePersonnages,
 } from "../services/chateauxService";
 
 /**
@@ -125,6 +126,44 @@ export function usePersonnage(slug) {
   }, [slug]);
 
   return { personnage, loading, error };
+}
+
+/**
+ * Récupère le catalogue /histoire : tous les personnages groupés par nature.
+ * Miroir de usePersonnage (pluriel). Sans argument (lecture globale).
+ *
+ * @returns {{ groupes: Array, loading: boolean, error: Error|null }}
+ */
+export function useCataloguePersonnages() {
+  const [groupes, setGroupes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    getCataloguePersonnages()
+      .then((data) => {
+        if (!cancelled) {
+          setGroupes(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { groupes, loading, error };
 }
 
 /**
