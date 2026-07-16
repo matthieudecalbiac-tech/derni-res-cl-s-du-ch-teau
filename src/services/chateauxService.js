@@ -44,6 +44,7 @@ import {
   amenityToRow,
 } from "./_mapping.js";
 import { cheminStorageDepuisUrl } from "../utils/storageUrl.js";
+import { slugify } from "../utils/slug.js";
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -498,16 +499,11 @@ const EXT_PAR_MIME = {
 };
 const POIDS_MAX_IMAGE = 5 * 1024 * 1024; // 5 Mo
 
-// Slugifie le nom de fichier (accents, espaces, ponctuation → tirets).
+// Slugifie le nom de fichier (via la slugify partagee) + fallback "image" si vide.
+// La ligne apostrophe->espace de slugify est redondante ici ([^a-z0-9]+ la captait
+// deja) -> resultat identique a l'ancienne copie locale (verifie sur noms accentues).
 function _slugFichier(nom) {
-  return (
-    nom
-      .normalize("NFD")
-      .replace(/\p{Diacritic}/gu, "")
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "") || "image"
-  );
+  return slugify(nom) || "image";
 }
 
 /**

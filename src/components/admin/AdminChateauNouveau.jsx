@@ -1,24 +1,13 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { createChateau } from "../../services/chateauxService";
+import { slugify } from "../../utils/slug";
 
 // Création d'une coquille de château (chantier admin, brique createChateau).
 // Deux champs : nom + slug. Le slug s'auto-génère depuis le nom TANT QUE l'admin
 // ne l'a pas modifié à la main (flag `slugTouche`). createChateau insère la
 // ligne, puis on redirige vers le formulaire d'édition existant pour le reste.
-
-// Slugifie une chaîne française : décompose les accents (é→e, ç→c…), retire les
-// diacritiques via la propriété Unicode \p{Diacritic}, apostrophes et
-// caractères spéciaux → tirets, minuscules.
-function slugify(str) {
-  return str
-    .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "")    // retire les accents combinants
-    .toLowerCase()
-    .replace(/['’]/g, " ")             // apostrophes → séparateur
-    .replace(/[^a-z0-9]+/g, "-")       // espaces, ponctuation, reste → tiret
-    .replace(/^-+|-+$/g, "");          // pas de tiret en tête / fin
-}
+// slugify : source unique dans src/utils/slug.js.
 
 export default function AdminChateauNouveau() {
   const navigate = useNavigate();
