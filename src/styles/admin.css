@@ -394,6 +394,35 @@
   color: var(--creme);
 }
 
+/* Actions de rangée (↑ ↓ Supprimer) regroupées à droite de la tête de fille. */
+.adm-fille-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+/* Flèches de réordonnancement. Désactivées aux extrémités (première/dernière). */
+.adm-btn-ordre {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  line-height: 1;
+  color: var(--or-fonce, #8B6914);
+  background: transparent;
+  border: 1px solid var(--gris-clair);
+  border-radius: 4px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.adm-btn-ordre:hover:not(:disabled) {
+  border-color: var(--or);
+  color: var(--or);
+}
+.adm-btn-ordre:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 .adm-btn-ajouter {
   align-self: flex-start;
   font-family: var(--font-ui);
