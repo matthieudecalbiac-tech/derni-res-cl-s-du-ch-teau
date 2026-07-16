@@ -73,7 +73,7 @@ const SELECT_FULL = `
 // fantôme chateaux:null). Colonnes minimales d'une carte (pas de prix : la fiche
 // dit "où", pas "combien" → pas d'embed chambres/offres).
 const SELECT_PERSONNAGE_FICHE = `
-  id, nom, slug,
+  id, nom, slug, biographie,
   chateau_personnages(nature, texte, ordre,
     chateaux!inner(id, slug, nom, region, accroche, images, is_demo_mock))
 `;
@@ -445,7 +445,7 @@ export async function getEquipements() {
 export async function getPersonnages() {
   const { data, error } = await supabase
     .from("personnages")
-    .select("id, nom, slug")
+    .select("id, nom, slug, biographie")
     .order("nom", { ascending: true });
 
   if (error) {
@@ -453,6 +453,162 @@ export async function getPersonnages() {
     throw new Error(`Failed to fetch personnages: ${error.message}`);
   }
   return data ?? [];
+}
+
+// Mappe une row admin personnage (avec embed count) → forme écran.
+// PostgREST rend le count agrégé sous chateau_personnages: [{ count: N }].
+// nbChateaux = nombre de liaisons (TOUS statuts confondus : le FK RESTRICT
+// bloque la suppression dès qu'une liaison existe, publiée ou non).
+function _mapPersonnageAdmin(row) {
+  return {
+    id: row.id,
+    nom: row.nom,
+    slug: row.slug,
+    biographie: row.biographie ?? null,
+    nbChateaux: row.chateau_personnages?.[0]?.count ?? 0,
+  };
+}
+
+/**
+ * LECTURE ADMIN — liste des personnages + nombre de châteaux rattachés (une
+ * requête, via l'embed count PostgREST). Ce compte pilote l'activation du bouton
+ * Supprimer (FK RESTRICT : un personnage rattaché ne se supprime pas).
+ *
+ * @returns {Promise<Array<{id, nom, slug, biographie, nbChateaux}>>}
+ * @throws Si erreur Supabase.
+ */
+export async function getPersonnagesAdmin() {
+  const { data, error } = await supabase
+    .from("personnages")
+    .select("id, nom, slug, biographie, chateau_personnages(count)")
+    .order("nom", { ascending: true });
+
+  if (error) {
+    console.error("[chateauxService] getPersonnagesAdmin error:", error);
+    throw new Error(`Failed to fetch personnages (admin): ${error.message}`);
+  }
+  return (data ?? []).map(_mapPersonnageAdmin);
+}
+
+/**
+ * LECTURE ADMIN par id — un personnage + son nombre de liaisons, pour l'écran
+ * d'édition. Throw si introuvable (patron getChateauAdminById).
+ *
+ * @param {string} id - UUID du personnage.
+ * @returns {Promise<{id, nom, slug, biographie, nbChateaux}>}
+ * @throws Si id manquant, erreur Supabase, ou personnage introuvable.
+ */
+export async function getPersonnageAdminById(id) {
+  if (!id) throw new Error("getPersonnageAdminById : id requis.");
+
+  const { data, error } = await supabase
+    .from("personnages")
+    .select("id, nom, slug, biographie, chateau_personnages(count)")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[chateauxService] getPersonnageAdminById error:", error);
+    throw new Error(`Failed to fetch personnage ${id} (admin): ${error.message}`);
+  }
+  if (!data) throw new Error(`getPersonnageAdminById : personnage ${id} introuvable.`);
+  return _mapPersonnageAdmin(data);
+}
+
+/**
+ * ÉCRITURE ADMIN — met à jour un personnage (nom + biographie). UPDATE direct
+ * (pas la RPC : la RPC fait ON CONFLICT DO NOTHING pour ne pas renommer un
+ * personnage partagé depuis une fiche château — cet écran référentiel dédié EST
+ * le bon endroit pour renommer, via un UPDATE gardé is_admin()).
+ *
+ * Le slug est RECALCULÉ depuis le nom via slugify (source unique) — jamais lu ni
+ * saisi ailleurs. Changer le nom change donc l'URL publique /personnage/:slug.
+ * Si le nouveau slug collisionne (UNIQUE), la base lève 23505 → message clair
+ * (jamais une erreur Postgres brute à l'écran).
+ *
+ * @param {string} id - UUID du personnage.
+ * @param {{nom: string, biographie?: string}} champs
+ * @returns {Promise<Object>} La ligne modifiée.
+ * @throws Si id/nom invalides, slug vide, collision slug (23505), refus RLS (0 ligne).
+ */
+export async function updatePersonnage(id, { nom, biographie } = {}) {
+  if (!id) throw new Error("updatePersonnage : id requis.");
+  if (typeof nom !== "string" || nom.trim() === "") {
+    throw new Error("Le nom est requis.");
+  }
+  const slug = slugify(nom);
+  if (slug === "") {
+    throw new Error("Ce nom ne produit aucun slug (aucun caractère alphanumérique).");
+  }
+  // biographie : vide/espaces → null (colonne nullable, cohérent avec la lecture).
+  const bio = typeof biographie === "string" && biographie.trim() !== "" ? biographie : null;
+
+  const { data, error } = await supabase
+    .from("personnages")
+    .update({ nom: nom.trim(), slug, biographie: bio })
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    console.error("[chateauxService] updatePersonnage error:", error);
+    if (error.code === "23505") {
+      throw new Error(
+        `Le nom « ${nom.trim()} » produit un slug (${slug}) déjà utilisé par un autre personnage. Choisis un nom distinct.`
+      );
+    }
+    throw new Error(`Failed to update personnage ${id}: ${error.message}`);
+  }
+  if (!data || data.length === 0) {
+    throw new Error(
+      `updatePersonnage : 0 ligne modifiée pour ${id}. ` +
+      `Refus RLS probable (session non-admin) ou id inexistant.`
+    );
+  }
+
+  // Le nom du personnage apparaît dans le cache public (embed château → personnages).
+  invalidateCache();
+  return data[0];
+}
+
+/**
+ * SUPPRESSION ADMIN — supprime un personnage du référentiel.
+ *
+ * FK RESTRICT (chateau_personnages.personnage_id) : un personnage encore rattaché
+ * à un château lève 23503. L'écran désactive le bouton en amont (via nbChateaux),
+ * mais on catche 23503 comme filet (course possible) → message clair.
+ *
+ * @param {string} id - UUID du personnage.
+ * @returns {Promise<true>}
+ * @throws Si id manquant, personnage rattaché (23503), refus RLS (0 ligne), ou erreur.
+ */
+export async function deletePersonnage(id) {
+  if (!id) throw new Error("deletePersonnage : id requis.");
+
+  const { data, error } = await supabase
+    .from("personnages")
+    .delete()
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    console.error("[chateauxService] deletePersonnage error:", error);
+    if (error.code === "23503") {
+      throw new Error(
+        "Ce personnage est rattaché à un ou plusieurs châteaux et ne peut pas être supprimé. " +
+        "Retire-le d'abord de leurs fiches (section « Histoire des lieux »)."
+      );
+    }
+    throw new Error(`Failed to delete personnage ${id}: ${error.message}`);
+  }
+  if (!data || data.length === 0) {
+    throw new Error(
+      `deletePersonnage : 0 ligne supprimée pour ${id}. ` +
+      `Refus RLS probable (session non-admin) ou id inexistant.`
+    );
+  }
+
+  invalidateCache();
+  return true;
 }
 
 /**

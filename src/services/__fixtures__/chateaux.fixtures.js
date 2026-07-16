@@ -329,6 +329,7 @@ export const FIXTURE_PERSONNAGE_FICHE = {
   id: "pg-sand",
   nom: "George Sand",
   slug: "george-sand",
+  biographie: "Romancière française (1804-1876), figure majeure du romantisme.",
   chateau_personnages: [
     {
       nature: "a_habite",

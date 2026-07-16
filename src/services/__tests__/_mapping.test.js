@@ -943,6 +943,16 @@ describe("mapPersonnageFiche (fiche publique — sens inverse)", () => {
     expect(mapPersonnageFiche({ id: "p", nom: "N", slug: "n" }).chateaux).toEqual([]);
   });
 
+  it("expose la biographie du personnage (référentiel, top-level)", () => {
+    const out = mapPersonnageFiche(FIXTURE_PERSONNAGE_FICHE);
+    expect(out.biographie).toBe("Romancière française (1804-1876), figure majeure du romantisme.");
+  });
+
+  it("biographie absente/null → null (pas de crash)", () => {
+    const out = mapPersonnageFiche({ id: "p", nom: "N", slug: "n", chateau_personnages: [] });
+    expect(out.biographie).toBeNull();
+  });
+
   it("input null → null", () => {
     expect(mapPersonnageFiche(null)).toBeNull();
   });

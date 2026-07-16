@@ -507,7 +507,7 @@ export function mapChateau(rowSupabase) {
  *     publiques (cf. PageResultats) — la RLS ne le couvre pas.
  *
  * @param {Object} row - Row `personnages` avec chateau_personnages[] embarqué.
- * @returns {Object|null} { id, nom, slug, chateaux } ou null si row null.
+ * @returns {Object|null} { id, nom, slug, biographie, chateaux } ou null si row null.
  */
 export function mapPersonnageFiche(row) {
   if (!row) return null;
@@ -525,6 +525,7 @@ export function mapPersonnageFiche(row) {
     id: row.id,
     nom: row.nom,
     slug: row.slug,
+    biographie: nullable(row.biographie),
     chateaux,
   };
 }

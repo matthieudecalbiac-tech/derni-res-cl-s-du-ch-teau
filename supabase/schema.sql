@@ -410,12 +410,15 @@ CREATE TABLE IF NOT EXISTS public.personnages (
   id         uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
   nom        text        NOT NULL,
   slug       text        NOT NULL UNIQUE,                    -- pour /personnage/:slug
+  biographie text,                                           -- bio du personnage (référentiel, vraie partout)
   created_at timestamptz NOT NULL DEFAULT NOW(),
   updated_at timestamptz NOT NULL DEFAULT NOW()
 );
 
 COMMENT ON TABLE public.personnages IS
   'Référentiel des entités rattachées aux châteaux (le nom vit ici, réutilisable). Porte aussi des ÉVÉNEMENTS ("École de jeunes filles"), pas seulement des personnes : la nature du lien (chateau_personnages.nature) les distingue. Minimal : ni portrait ni dates (à ajouter si besoin).';
+COMMENT ON COLUMN public.personnages.biographie IS
+  'Biographie du personnage (ou description de l''événement). Appartient au PERSONNAGE : vraie partout, indépendante du château. À ne pas confondre avec chateau_personnages.texte (le LIEN avec un château donné, différent selon le château). text nullable, sans limite de longueur (pattern éditorial chateaux). Cf. migration 2026-07-16-personnage-biographie.';
 
 CREATE TABLE IF NOT EXISTS public.chateau_personnages (
   id            uuid        PRIMARY KEY DEFAULT gen_random_uuid(),   -- surrogate, pas de PK composite
