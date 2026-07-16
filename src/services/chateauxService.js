@@ -73,7 +73,7 @@ const SELECT_FULL = `
 // fantôme chateaux:null). Colonnes minimales d'une carte (pas de prix : la fiche
 // dit "où", pas "combien" → pas d'embed chambres/offres).
 const SELECT_PERSONNAGE_FICHE = `
-  id, nom, slug,
+  id, nom, slug, biographie,
   chateau_personnages(nature, texte, ordre,
     chateaux!inner(id, slug, nom, region, accroche, images, is_demo_mock))
 `;
@@ -445,7 +445,7 @@ export async function getEquipements() {
 export async function getPersonnages() {
   const { data, error } = await supabase
     .from("personnages")
-    .select("id, nom, slug")
+    .select("id, nom, slug, biographie")
     .order("nom", { ascending: true });
 
   if (error) {
