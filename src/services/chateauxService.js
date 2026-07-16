@@ -389,6 +389,30 @@ export async function getEquipements() {
 }
 
 /**
+ * LECTURE du référentiel des personnages (id, nom, slug), trié par nom.
+ * Alimente le sélecteur avec recherche du sous-formulaire "Histoire des lieux"
+ * (ChampPersonnage) : l'admin choisit un personnage existant plutôt que de
+ * retaper son nom — c'est le garde-fou contre les doublons de catalogue (le slug
+ * étant recalculé depuis le nom, une frappe libre avec typo créerait un autre
+ * personnage). SELECT public (RLS anon/authenticated).
+ *
+ * @returns {Promise<Array<{id: string, nom: string, slug: string}>>}
+ * @throws Si erreur Supabase.
+ */
+export async function getPersonnages() {
+  const { data, error } = await supabase
+    .from("personnages")
+    .select("id, nom, slug")
+    .order("nom", { ascending: true });
+
+  if (error) {
+    console.error("[chateauxService] getPersonnages error:", error);
+    throw new Error(`Failed to fetch personnages: ${error.message}`);
+  }
+  return data ?? [];
+}
+
+/**
  * ÉCRITURE ADMIN COMPLÈTE — un château + ses 4 filles en une transaction.
  *
  * Convertit chaque section (format React) en rows base via les mappers inverses,
