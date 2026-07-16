@@ -107,6 +107,15 @@
   font-family: 'Crimson Pro', serif; font-size: 0.85rem; font-style: italic;
   color: #A8884E; margin: 0;
 }
+/* Sortie sobre : desserre le critere equipements sans que l'utilisateur cherche. */
+.ci-liste-vide-action {
+  margin-top: 14px;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.4); border-radius: 22px;
+  padding: 8px 18px; cursor: pointer;
+  font-family: 'Crimson Pro', serif; font-size: 0.82rem; letter-spacing: 0.04em;
+  color: #1A2D5A; transition: border-color 0.18s, background 0.18s;
+}
+.ci-liste-vide-action:hover { border-color: #C09840; background: #FAF5EA; }
 
 @media (max-width: 860px) {
   .ci-split { grid-template-columns: 1fr; height: auto; }

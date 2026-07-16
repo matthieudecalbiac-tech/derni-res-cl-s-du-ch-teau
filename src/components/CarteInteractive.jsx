@@ -363,12 +363,36 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
         {reels.length === 0 && (
           <div className="ci-liste-vide">
             <span className="ci-liste-vide-lys">⚜</span>
-            <p className="ci-liste-vide-txt">
-              Aucune demeure ne peut accueillir {totalInvites} voyageurs pour l’instant.
-            </p>
-            <p className="ci-liste-vide-sous">
-              Notre réseau s’agrandit — réduisez le nombre de voyageurs ou revenez bientôt.
-            </p>
+            {equipements.length > 0 ? (
+              // Des equipements sont coches : c'est le critere que l'utilisateur
+              // vient d'ajouter -> on en parle, et on offre la sortie (les retirer).
+              <>
+                <p className="ci-liste-vide-txt">
+                  Aucune demeure ne réunit ces prestations pour l’instant.
+                </p>
+                <p className="ci-liste-vide-sous">
+                  Notre réseau s’agrandit — allégez votre choix pour élargir la recherche.
+                </p>
+                <button
+                  type="button"
+                  className="ci-liste-vide-action"
+                  onClick={() => setEquipements([])}
+                >
+                  Retirer les prestations
+                </button>
+              </>
+            ) : (
+              // Aucun equipement coche : la cause ne peut etre que la capacite.
+              // Message d'origine, inchange (la sortie est le stepper voyageurs).
+              <>
+                <p className="ci-liste-vide-txt">
+                  Aucune demeure ne peut accueillir {totalInvites} voyageurs pour l’instant.
+                </p>
+                <p className="ci-liste-vide-sous">
+                  Notre réseau s’agrandit — réduisez le nombre de voyageurs ou revenez bientôt.
+                </p>
+              </>
+            )}
           </div>
         )}
         {reels.map((c) => {
