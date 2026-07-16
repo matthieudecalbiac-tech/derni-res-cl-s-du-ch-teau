@@ -326,6 +326,22 @@ export default function AdminChateauEdition() {
     setForm((f) => ({ ...f, [section]: f[section].filter((_, i) => i !== index) }));
   const ajouterFille = (section, vierge) =>
     setForm((f) => ({ ...f, [section]: [...f[section], vierge] }));
+  // Déplace une rangée d'une position (delta -1 = ↑, +1 = ↓) en l'échangeant
+  // avec sa voisine. Générique comme les autres handlers filles : timeline et
+  // alentours ont le même besoin latent — brancher les flèches ailleurs ne
+  // demandera pas de réécrire ce helper. No-op si la cible sort des bornes
+  // (garde en plus des boutons désactivés). L'ordre en base = l'index du tableau
+  // (personnageToRow pose ordre = index, la RPC REPLACE réinsère dans cet ordre)
+  // → réordonner le state suffit, rien à changer côté service ni RPC.
+  const deplacerFille = (section, index, delta) =>
+    setForm((f) => {
+      const arr = f[section];
+      const cible = index + delta;
+      if (cible < 0 || cible >= arr.length) return f;
+      const copie = [...arr];
+      [copie[index], copie[cible]] = [copie[cible], copie[index]];
+      return { ...f, [section]: copie };
+    });
 
   // Bascule un equipement (slug) sur l'amenity d'index i : ajoute s'il manque,
   // retire sinon. Le form stocke des slugs (cf. formFromChateau normalisation).
@@ -648,7 +664,11 @@ export default function AdminChateauEdition() {
             <div className="adm-fille" key={i}>
               <div className="adm-fille-tete">
                 <span className="adm-fille-num">Personnage {i + 1}</span>
-                <button type="button" className="adm-btn-suppr" onClick={() => supprimerFille("personnages", i)}>Supprimer</button>
+                <div className="adm-fille-actions">
+                  <button type="button" className="adm-btn-ordre" disabled={i === 0} aria-label="Monter d'un rang" onClick={() => deplacerFille("personnages", i, -1)}>↑</button>
+                  <button type="button" className="adm-btn-ordre" disabled={i === form.personnages.length - 1} aria-label="Descendre d'un rang" onClick={() => deplacerFille("personnages", i, +1)}>↓</button>
+                  <button type="button" className="adm-btn-suppr" onClick={() => supprimerFille("personnages", i)}>Supprimer</button>
+                </div>
               </div>
               <ChampPersonnage
                 referentiel={personnagesRef}
