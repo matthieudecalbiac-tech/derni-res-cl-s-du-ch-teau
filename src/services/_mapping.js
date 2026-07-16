@@ -23,6 +23,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { slugify } from "../utils/slug.js";
+import { NATURES } from "../utils/personnages.js";
 
 /**
  * UUID du Module B (Les Dernières Clés) dans le seed S1-γ.
@@ -528,6 +529,63 @@ export function mapPersonnageFiche(row) {
     biographie: nullable(row.biographie),
     chateaux,
   };
+}
+
+
+/**
+ * Mappe les rows `personnages` + embed liaisons vers le CATALOGUE groupé par
+ * nature (page /histoire). C'est le PLURIEL de mapPersonnageFiche : là on lisait
+ * les châteaux d'UN personnage ; ici, tous les personnages regroupés par nature.
+ *
+ * Embed attendu (côté personnages, aligné sur mapPersonnageFiche) :
+ *   personnages(id, nom, slug,
+ *     chateau_personnages(nature, chateaux!inner(is_demo_mock)))
+ *
+ * Un personnage apparaît dans CHAQUE groupe dont il porte la nature (décision :
+ * deux natures = deux groupes ; l'écarter de l'un mentirait par omission, et une
+ * règle de priorité entre natures serait arbitraire). Dédup par personnage.id
+ * DANS chaque groupe (un même personnage lié 2× avec la même nature → une fois).
+ * Tri alphabétique par nom (locale FR). Groupes dans l'ordre de NATURES ;
+ * groupes vides omis.
+ *
+ * Filtres :
+ *   - statut='publie' : déjà appliqué par la RLS + `chateaux!inner` (les liaisons
+ *     vers non-publiés sont absentes des rows) → rien à faire ici.
+ *   - is_demo_mock : filtré ICI (client) — la RLS ne le couvre pas.
+ * Un personnage sans nature survivante (tous ses châteaux non-publiés ou mocks)
+ * n'apparaît dans aucun groupe (mirroir de la règle 404 de la fiche).
+ *
+ * @param {Array} rows - Rows `personnages` avec chateau_personnages[] embarqué.
+ * @returns {Array<{nature: string, personnages: Array<{id, nom, slug}>}>}
+ */
+export function mapCataloguePersonnages(rows) {
+  // nature → Map(id → {id,nom,slug}) : la Map dédoublonne par id dans le groupe.
+  const parNature = new Map(NATURES.map((n) => [n.value, new Map()]));
+
+  for (const row of safeArray(rows)) {
+    if (!row) continue;
+    for (const cp of safeArray(row.chateau_personnages)) {
+      const ch = cp?.chateaux;
+      // Non-publié : déjà absent (RLS + !inner). Mock : exclu ici (hors RLS).
+      if (!ch || ch.is_demo_mock === true) continue;
+      const bucket = parNature.get(cp.nature);
+      if (!bucket) continue; // nature hors taxonomie (ne devrait pas arriver, CHECK)
+      if (!bucket.has(row.id)) {
+        bucket.set(row.id, { id: row.id, nom: row.nom, slug: row.slug });
+      }
+    }
+  }
+
+  const groupes = [];
+  for (const { value: nature } of NATURES) {
+    const bucket = parNature.get(nature);
+    if (bucket.size === 0) continue; // groupe vide omis
+    const personnages = Array.from(bucket.values()).sort((a, b) =>
+      String(a.nom).localeCompare(String(b.nom), "fr")
+    );
+    groupes.push({ nature, personnages });
+  }
+  return groupes;
 }
 
 
