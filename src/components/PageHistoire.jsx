@@ -12,8 +12,9 @@ import "../styles/page-histoire.css";
 // pas à l'univers → pas de navy ici. Le vide et le texte font la page ; les noms
 // se lisent comme un générique de film (une colonne centrée, aérée).
 //
-// Ornement fleur de lys ENTRE les groupes (avant chaque groupe sauf le premier)
-// → jamais après le dernier.
+// Intime, pas monumental : un index qu'on feuillette. Noms alignés à gauche
+// (colonne étroite centrée), Crimson Pro discret, un seul ornement fleur de lys
+// sous le titre (comme la fiche), filet fin entre les groupes.
 export default function PageHistoire() {
   const { groupes, loading, error } = useCataloguePersonnages();
 
@@ -34,15 +35,15 @@ export default function PageHistoire() {
           <p className="ph-phrase">Ceux qui ont fait, habité ou traversé nos demeures.</p>
         </header>
 
+        <div className="ph-orn" aria-hidden="true">
+          <span className="ph-orn-trait" />
+          <img src="/FDL-transparent.png" alt="" className="ph-orn-lys" />
+          <span className="ph-orn-trait" />
+        </div>
+
         {groupes.map((g, i) => (
           <section className="ph-groupe" key={g.nature}>
-            {i > 0 && (
-              <div className="ph-sep" aria-hidden="true">
-                <span className="ph-sep-trait" />
-                <img src="/FDL-transparent.png" alt="" className="ph-sep-lys" />
-                <span className="ph-sep-trait" />
-              </div>
-            )}
+            {i > 0 && <div className="ph-filet" aria-hidden="true" />}
             <h2 className="ph-groupe-titre">{libelleNature(g.nature)}</h2>
             <ul className="ph-liste">
               {g.personnages.map((p) => (
