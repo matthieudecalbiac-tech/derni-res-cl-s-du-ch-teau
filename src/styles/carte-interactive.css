@@ -107,6 +107,15 @@
   font-family: 'Crimson Pro', serif; font-size: 0.85rem; font-style: italic;
   color: #A8884E; margin: 0;
 }
+/* Sortie sobre : desserre le critere equipements sans que l'utilisateur cherche. */
+.ci-liste-vide-action {
+  margin-top: 14px;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.4); border-radius: 22px;
+  padding: 8px 18px; cursor: pointer;
+  font-family: 'Crimson Pro', serif; font-size: 0.82rem; letter-spacing: 0.04em;
+  color: #1A2D5A; transition: border-color 0.18s, background 0.18s;
+}
+.ci-liste-vide-action:hover { border-color: #C09840; background: #FAF5EA; }
 
 @media (max-width: 860px) {
   .ci-split { grid-template-columns: 1fr; height: auto; }
@@ -149,28 +158,29 @@
   font-family: 'Crimson Pro', serif; font-size: 0.85rem; color: #4A4640;
   padding: 8px 4px;
 }
-.ci-filtre-services {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-left: auto;
+/* Filtre "Sur place" (equipements) : bouton pousse a droite de la barre, popover
+   en dropdown (meme facture que le calendrier), aligne a droite pour ne pas
+   deborder du conteneur. La grille elle-meme = GrilleEquipements (champ-equip*). */
+.ci-filtre-equip { position: relative; margin-left: auto; }
+.ci-equip-pop {
+  position: absolute; top: calc(100% + 10px); right: 0; z-index: 800;
+  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.3);
+  border-radius: 12px; box-shadow: 0 18px 50px rgba(7,16,30,0.22);
+  padding: 20px; width: 560px; max-width: 90vw;
+  display: flex; flex-direction: column; gap: 14px;
 }
-.ci-filtre-service {
-  display: flex; align-items: center; gap: 6px;
-  background: transparent; border: 1px solid rgba(168,136,78,0.28); border-radius: 20px;
-  padding: 7px 14px; cursor: not-allowed;
-  font-family: 'Crimson Pro', serif; font-size: 0.8rem; color: #A8884E;
-  transition: opacity 0.18s;
-}
-.ci-filtre-plus { border-style: dashed; }
 @media (max-width: 720px) {
-  .ci-filtre-services { margin-left: 0; }
+  .ci-filtre-equip { margin-left: 0; }
 }
 
-/* Les controles zoom Leaflet (z-index interne eleve) passaient AU-DESSUS du
-   popover calendrier. On abaisse le pane des controles quand le calendrier
-   carte est ouvert. */
+/* Les controles zoom Leaflet (z-index interne eleve) passaient AU-DESSUS des
+   popovers. On abaisse le pane des controles quand un popover carte est ouvert. */
 .ci-conteneur:has(.ci-cal-pop) .leaflet-top,
 .ci-conteneur:has(.ci-cal-pop) .leaflet-bottom,
 .ci-conteneur:has(.ci-voy-pop) .leaflet-top,
-.ci-conteneur:has(.ci-voy-pop) .leaflet-bottom {
+.ci-conteneur:has(.ci-voy-pop) .leaflet-bottom,
+.ci-conteneur:has(.ci-equip-pop) .leaflet-top,
+.ci-conteneur:has(.ci-equip-pop) .leaflet-bottom {
   z-index: 400;
 }
 

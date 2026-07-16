@@ -4,6 +4,7 @@ import { useChateaux } from "../hooks/useChateaux";
 import { prixAffiche } from "../utils/derivePrix";
 import { capaciteSuffisante } from "../utils/capacite";
 import { libelleCategorie } from "../utils/categories";
+import { chateauPorteEquipements } from "../utils/equipements";
 import { getEquipements } from "../services/chateauxService";
 import Header from "./Header";
 import "../styles/page-resultats.css";
@@ -86,15 +87,10 @@ export default function PageResultats() {
     );
   }
   // Equipements = ET : le chateau doit porter TOUS les equipements coches (cocher
-  // piscine + sauna EXIGE les deux), peu importe via un ou plusieurs de ses
-  // services -> on teste l'union des equipements de tous ses services.
+  // piscine + sauna EXIGE les deux), via un ou plusieurs de ses services. Predicat
+  // partage avec la carte (utils/equipements) -> une seule source de verite.
   if (equipements.length > 0) {
-    resultats = resultats.filter((c) => {
-      const slugsChateau = new Set(
-        (c.amenities ?? []).flatMap((a) => (a.equipements ?? []).map((e) => e.slug))
-      );
-      return equipements.every((slug) => slugsChateau.has(slug));
-    });
+    resultats = resultats.filter((c) => chateauPorteEquipements(c, equipements));
   }
   resultats = resultats.filter((c) => capaciteSuffisante(c, nbInvites));
 

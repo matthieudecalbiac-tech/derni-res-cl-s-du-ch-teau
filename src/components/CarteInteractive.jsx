@@ -1,10 +1,13 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { formatDate } from "../utils/dates";
 import { prixAffiche } from "../utils/derivePrix";
 import { capaciteSuffisante } from "../utils/capacite";
+import { chateauPorteEquipements } from "../utils/equipements";
+import { getEquipements } from "../services/chateauxService";
 import CalendrierPlage from "./CalendrierPlage";
+import GrilleEquipements from "./GrilleEquipements";
 import "../styles/carte-interactive.css";
 
 export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, etapeDate, onSelectDate, onResetDates, invites, setInvites, onVoirChateau }) {
@@ -16,13 +19,42 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
   const [apercuChateau, setApercuChateau] = useState(null);
   const [photoZoom, setPhotoZoom] = useState(null);
 
+  // Filtre "Sur place" (equipements) — etat LOCAL, meme grain que dates/invites.
+  const [equipOuvert, setEquipOuvert] = useState(false);
+  const [equipements, setEquipements] = useState([]); // slugs coches
+  const [equipRef, setEquipRef] = useState([]); // referentiel [{slug,libelle,ordre}]
+
+  // Referentiel equipements : chargement unique au montage.
+  useEffect(() => {
+    let cancelled = false;
+    getEquipements()
+      .then((liste) => { if (!cancelled) setEquipRef(liste); })
+      .catch((e) => console.error("[CarteInteractive] getEquipements:", e));
+    return () => { cancelled = true; };
+  }, []);
+
+  const toggleEquipement = (slug) =>
+    setEquipements((cur) =>
+      cur.includes(slug) ? cur.filter((s) => s !== slug) : [...cur, slug]
+    );
+
   // La carte ne montre que les chateaux reels (!isDemoMock) : seuls routables vers
   // une vraie vitrine. Puis filtre capacite (voyageurs herites de la barre).
   // Un seul tableau alimente la liste ET les marqueurs.
+  // Memoise : reference stable tant que les entrees (chateaux, capacite) ne
+  // changent pas -> l'effet marqueurs peut en dependre EXPLICITEMENT sans se
+  // reconstruire a chaque rendu. Les futurs filtres (equipements) s'ajouteront
+  // ici : reels change -> les marqueurs se reposent.
   const totalInvites = invites ? invites.adultes + invites.enfants : 0;
-  const reels = (chateaux || [])
-    .filter((c) => !c.isDemoMock)
-    .filter((c) => capaciteSuffisante(c, totalInvites));
+  const reels = useMemo(
+    () =>
+      (chateaux || [])
+        .filter((c) => !c.isDemoMock)
+        .filter((c) => capaciteSuffisante(c, totalInvites))
+        // Filtre "Sur place" : meme predicat ET que /resultats (helper partage).
+        .filter((c) => chateauPorteEquipements(c, equipements)),
+    [chateaux, totalInvites, equipements]
+  );
 
   useEffect(() => {
     if (!conteneurRef.current || carteRef.current) return;
@@ -72,7 +104,12 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
       carte.remove();
       carteRef.current = null;
     };
-  }, [chateaux, onVoirChateau, apercuChateau]);
+    // Depend de la liste FILTREE (reels), pas de `chateaux` brut ni de la
+    // reference instable `onVoirChateau` (non utilisee dans cet effet) : un
+    // useCallback pose un jour sur onVoirChateau ne pourrait plus casser le
+    // filtrage en silence. `apercuChateau` reste : le conteneur .ci-carte
+    // monte/demonte avec la bascule apercu, la carte doit se (re)creer.
+  }, [reels, apercuChateau]);
 
   // Sens vignette -> pastille : au survol d'une vignette (survolId), surligne la
   // pastille correspondante. Les pastilles portent data-id ; querySelector no-op
@@ -98,11 +135,6 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
     }
     return parts.join(" · ");
   };
-
-  // Filtres services : illustratifs, desactives. Aucun champ service booleen
-  // n'existe encore sur les chateaux (equipements en texte libre uniquement).
-  // Actives quand la donnee structuree existera. Affiches pour la vision produit.
-  const servicesBientot = ["Spa", "Piscine", "Table d’hôtes", "Parc & jardins", "Animaux bienvenus"];
 
   const labelDatesFiltre = () => {
     if (dateArrivee && dateDepart) return `${formatDate(dateArrivee)} → ${formatDate(dateDepart)}`;
@@ -291,18 +323,32 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
           )}
         </div>
 
-        <div className="ci-filtre-services">
-          {servicesBientot.map((s) => (
-            <button key={s} type="button" className="ci-filtre-service" disabled title="Bientôt disponible">
-              {s}
-            </button>
-          ))}
-          <button type="button" className="ci-filtre-service ci-filtre-plus" disabled title="Bientôt disponible">
-            Plus de filtres
-            <svg width="12" height="12" viewBox="0 0 14 14" fill="none">
-              <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+        {/* Filtre "Sur place" (equipements) : bouton + popover, meme pattern que
+            dates/voyageurs. La grille (GrilleEquipements) est trop large pour la
+            barre -> dropdown. Reutilise le composant partage, aucune duplication. */}
+        <div className="ci-filtre-equip">
+          <button
+            type="button"
+            className="ci-filtre-btn"
+            onClick={() => setEquipOuvert((o) => !o)}
+            aria-expanded={equipOuvert}
+          >
+            <svg className="ci-filtre-ico" width="16" height="16" viewBox="0 0 18 18" fill="none">
+              <path d="M3 5.5h7.5M14 5.5H15M3 12.5h1M7.5 12.5H15" stroke="#C09840" strokeWidth="1.5" strokeLinecap="round"/>
+              <circle cx="12" cy="5.5" r="1.7" stroke="#C09840" strokeWidth="1.5"/>
+              <circle cx="5.5" cy="12.5" r="1.7" stroke="#C09840" strokeWidth="1.5"/>
             </svg>
+            Sur place{equipements.length > 0 ? ` · ${equipements.length}` : ""}
           </button>
+          {equipOuvert && (
+            <div className="ci-equip-pop">
+              <GrilleEquipements
+                referentiel={equipRef}
+                selection={equipements}
+                onToggle={toggleEquipement}
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -317,12 +363,36 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
         {reels.length === 0 && (
           <div className="ci-liste-vide">
             <span className="ci-liste-vide-lys">⚜</span>
-            <p className="ci-liste-vide-txt">
-              Aucune demeure ne peut accueillir {totalInvites} voyageurs pour l’instant.
-            </p>
-            <p className="ci-liste-vide-sous">
-              Notre réseau s’agrandit — réduisez le nombre de voyageurs ou revenez bientôt.
-            </p>
+            {equipements.length > 0 ? (
+              // Des equipements sont coches : c'est le critere que l'utilisateur
+              // vient d'ajouter -> on en parle, et on offre la sortie (les retirer).
+              <>
+                <p className="ci-liste-vide-txt">
+                  Aucune demeure ne réunit ces prestations pour l’instant.
+                </p>
+                <p className="ci-liste-vide-sous">
+                  Notre réseau s’agrandit — allégez votre choix pour élargir la recherche.
+                </p>
+                <button
+                  type="button"
+                  className="ci-liste-vide-action"
+                  onClick={() => setEquipements([])}
+                >
+                  Retirer les prestations
+                </button>
+              </>
+            ) : (
+              // Aucun equipement coche : la cause ne peut etre que la capacite.
+              // Message d'origine, inchange (la sortie est le stepper voyageurs).
+              <>
+                <p className="ci-liste-vide-txt">
+                  Aucune demeure ne peut accueillir {totalInvites} voyageurs pour l’instant.
+                </p>
+                <p className="ci-liste-vide-sous">
+                  Notre réseau s’agrandit — réduisez le nombre de voyageurs ou revenez bientôt.
+                </p>
+              </>
+            )}
           </div>
         )}
         {reels.map((c) => {
