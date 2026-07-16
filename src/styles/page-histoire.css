@@ -1,0 +1,128 @@
+/* /histoire — le catalogue "Histoire des lieux". Registre CRÈME ILLUSTRÉ,
+   COHÉRENT avec page-personnage.css : c'est la même page à deux échelles (le
+   catalogue, puis l'individu). Mêmes tokens, mêmes traitements (titre Playfair,
+   ornement fleur de lys, hover or). Les noms se lisent comme un générique de
+   film : une colonne centrée, aérée, sans grille.
+
+   Préfixe ph-. Couleurs = charte UNIQUEMENT, aliasées en variables page-locales
+   (mêmes valeurs que pp-). */
+
+.ph {
+  --ph-navy: #07101E;
+  --ph-or: var(--or, #C09840);
+  --ph-creme: var(--lcc-creme, #FAF6EE);
+  --ph-soft: #4A4640;
+
+  min-height: 100vh;
+  background: var(--ph-creme);
+  padding: clamp(3.5rem, 11vh, 8rem) clamp(1.25rem, 5vw, 3rem) clamp(4rem, 12vh, 9rem);
+}
+
+/* Placeholder de chargement : même crème, évite tout flash (body navy global). */
+.ph-chargement {
+  min-height: 100vh;
+  background: var(--lcc-creme, #FAF6EE);
+}
+
+.ph-inner {
+  max-width: 940px;
+  margin: 0 auto;
+}
+
+/* État error / vide : message sobre sur crème (jamais le navy hérité). */
+.ph-etat {
+  text-align: center;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+  color: var(--ph-soft);
+}
+
+/* ── 1. LE TITRE — même traitement que le nom sur la fiche (pp-nom). ── */
+.ph-titre {
+  margin: 0;
+  text-align: center;
+  font-family: "Playfair Display", serif;
+  font-weight: 600;
+  font-size: clamp(2.75rem, 8vw, 5.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--ph-navy);
+  text-wrap: balance;
+}
+
+/* ── 2. LA PHRASE — invitation, pas index. Colonne étroite centrée. ── */
+.ph-phrase {
+  max-width: 30em;
+  margin: clamp(1.5rem, 3.5vh, 2.25rem) auto 0;
+  text-align: center;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1.2rem, 2.6vw, 1.5rem);
+  line-height: 1.6;
+  color: var(--ph-soft);
+}
+
+/* ── 3. LES GROUPES ── */
+.ph-tete {
+  margin-bottom: clamp(3rem, 8vh, 5rem);
+}
+
+/* Titre de groupe : traitement de "LES DEMEURES" (petit, capitales espacées),
+   coloré en OR pour marquer les 4 sections du catalogue. */
+.ph-groupe-titre {
+  margin: 0 0 clamp(1.5rem, 4vh, 2.5rem);
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.28em;
+  color: var(--ph-or);
+}
+
+/* ── 4. LES NOMS — une colonne, aérée, centrée. Pas de grille. ── */
+.ph-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.55rem, 1.6vh, 1rem);
+}
+
+.ph-nom {
+  font-family: "Playfair Display", serif;
+  font-weight: 500;
+  font-size: clamp(1.4rem, 3.4vw, 2.1rem);
+  line-height: 1.25;
+  text-align: center;
+  color: var(--ph-navy);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.ph-nom:hover {
+  color: var(--ph-or);
+}
+
+/* ── 5. SÉPARATEUR — fleur de lys ENTRE les groupes (identique à pp-sep). ── */
+.ph-sep {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin: clamp(2.75rem, 7vh, 4.5rem) auto;
+}
+.ph-sep-trait {
+  height: 1px;
+  width: clamp(48px, 12vw, 110px);
+  background: linear-gradient(90deg, transparent, var(--ph-or));
+}
+.ph-sep-trait:last-child {
+  background: linear-gradient(90deg, var(--ph-or), transparent);
+}
+.ph-sep-lys {
+  height: 46px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+  background: transparent; /* neutralise le fond navy global de img{} */
+}
