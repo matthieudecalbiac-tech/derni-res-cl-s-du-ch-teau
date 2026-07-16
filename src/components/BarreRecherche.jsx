@@ -132,13 +132,6 @@ export default function BarreRecherche() {
     navigate(`/resultats?${p.toString()}`);
   };
 
-  // Depuis le panneau "+ Filtres" : "Voir les chateaux" ferme la modale ET lance
-  // la recherche (la modale masque le CTA "Trouver", il faut rendre le geste ici).
-  const validerFiltres = () => {
-    setFiltresOuvert(false);
-    lancerRecherche();
-  };
-
   return (
     <div className="barre-recherche">
       <div className="br-inner">
@@ -324,7 +317,7 @@ export default function BarreRecherche() {
       {/* MODALE PLUS DE FILTRES — panneau multi-criteres (categories + equipements).
           La selection remonte via onChange et alimente lancerRecherche (URL). */}
       <Modale ouvert={filtresOuvert} onClose={() => setFiltresOuvert(false)} titre="Filtres" largeur={520}>
-        <PanneauFiltres onChange={setFiltres} onValider={validerFiltres} />
+        <PanneauFiltres onChange={setFiltres} onFermer={() => setFiltresOuvert(false)} />
       </Modale>
     </div>
   );
