@@ -138,6 +138,8 @@ ALTER TABLE public.audit_log          ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.migrations_log     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.equipements         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.amenity_equipements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.personnages         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.chateau_personnages ENABLE ROW LEVEL SECURITY;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -386,6 +388,46 @@ CREATE POLICY chateau_timeline_delete_admin ON public.chateau_timeline
   FOR DELETE USING (public.is_admin());
 
 -- ───────────────────────────────────────────────────────────────────────────
+-- 6.4.1 — personnages (référentiel) + chateau_personnages (liaison éditoriale)
+-- ───────────────────────────────────────────────────────────────────────────
+-- personnages : SELECT public, écritures admin-only (pattern equipements).
+DROP POLICY IF EXISTS personnages_select_public ON public.personnages;
+CREATE POLICY personnages_select_public ON public.personnages
+  FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS personnages_insert_admin ON public.personnages;
+CREATE POLICY personnages_insert_admin ON public.personnages
+  FOR INSERT WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS personnages_update_admin ON public.personnages;
+CREATE POLICY personnages_update_admin ON public.personnages
+  FOR UPDATE USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS personnages_delete_admin ON public.personnages;
+CREATE POLICY personnages_delete_admin ON public.personnages
+  FOR DELETE USING (public.is_admin());
+
+-- chateau_personnages : SELECT public, INSERT admin, UPDATE chatelain|admin, DELETE
+-- admin (pattern chateau_timeline : le châtelain édite les liens de SON château).
+DROP POLICY IF EXISTS chateau_personnages_select_public ON public.chateau_personnages;
+CREATE POLICY chateau_personnages_select_public ON public.chateau_personnages
+  FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS chateau_personnages_insert_admin ON public.chateau_personnages;
+CREATE POLICY chateau_personnages_insert_admin ON public.chateau_personnages
+  FOR INSERT WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS chateau_personnages_update_chatelain_admin ON public.chateau_personnages;
+CREATE POLICY chateau_personnages_update_chatelain_admin ON public.chateau_personnages
+  FOR UPDATE
+  USING (public.is_chatelain_of(chateau_id) OR public.is_admin())
+  WITH CHECK (public.is_chatelain_of(chateau_id) OR public.is_admin());
+
+DROP POLICY IF EXISTS chateau_personnages_delete_admin ON public.chateau_personnages;
+CREATE POLICY chateau_personnages_delete_admin ON public.chateau_personnages
+  FOR DELETE USING (public.is_admin());
+
+-- ───────────────────────────────────────────────────────────────────────────
 -- 6.5 — chateau_alentours (4 policies)
 -- ───────────────────────────────────────────────────────────────────────────
 
@@ -624,6 +666,8 @@ GRANT SELECT ON public.chateau_timeline   TO anon, authenticated;
 GRANT SELECT ON public.chateau_alentours  TO anon, authenticated;
 GRANT SELECT ON public.equipements         TO anon, authenticated;
 GRANT SELECT ON public.amenity_equipements TO anon, authenticated;
+GRANT SELECT ON public.personnages         TO anon, authenticated;
+GRANT SELECT ON public.chateau_personnages TO anon, authenticated;
 GRANT SELECT ON public.modules            TO anon, authenticated;
 GRANT SELECT ON public.disponibilites     TO anon, authenticated;
 
@@ -643,6 +687,14 @@ GRANT INSERT, UPDATE, DELETE ON public.chambres           TO authenticated;
 GRANT INSERT, UPDATE, DELETE ON public.chateau_amenities  TO authenticated;
 GRANT INSERT, UPDATE, DELETE ON public.chateau_timeline   TO authenticated;
 GRANT INSERT, UPDATE, DELETE ON public.chateau_alentours  TO authenticated;
+-- personnages + chateau_personnages : GRANT d'ecriture pour que les policies RLS
+-- (admin / chatelain) soient atteignables. On s'ECARTE ici du pattern equipements
+-- (SELECT-only) : equipements EST le trou (policies d'ecriture inatteignables),
+-- tolerable car ses 21 lignes sont seedees, jamais ecrites par l'app. personnages
+-- est un catalogue gere via l'UI admin -> il LUI FAUT le GRANT ; le RLS WITH CHECK
+-- is_admin() garde l'ecriture admin-only.
+GRANT INSERT, UPDATE, DELETE ON public.personnages         TO authenticated;
+GRANT INSERT, UPDATE, DELETE ON public.chateau_personnages TO authenticated;
 GRANT INSERT, UPDATE, DELETE ON public.disponibilites     TO authenticated;
 GRANT INSERT, UPDATE, DELETE ON public.offres             TO authenticated;
 GRANT INSERT, UPDATE, DELETE ON public.chateau_modules    TO authenticated;
@@ -671,6 +723,10 @@ GRANT SELECT ON public.chateau_alentours  TO service_role;
 GRANT SELECT ON public.chateau_modules    TO service_role;
 GRANT SELECT ON public.offres             TO service_role;
 GRANT SELECT ON public.migrations_log     TO service_role;
+-- personnages : ajoutees des la creation pour NE PAS reproduire la dette
+-- "seed.sql ne contient pas equipements" (service_role oublie -> 42501 en lecture).
+GRANT SELECT ON public.personnages         TO service_role;
+GRANT SELECT ON public.chateau_personnages TO service_role;
 
 -- Note : les RLS gèrent finement qui peut faire quoi sur quelles lignes.
 -- Ces GRANT autorisent juste Postgres à évaluer les policies.

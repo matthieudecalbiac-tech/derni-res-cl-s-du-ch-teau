@@ -398,6 +398,49 @@ COMMENT ON COLUMN public.chateau_alentours.type IS
   'Catégorie filtrable. Enum strict — toute nouvelle valeur exige ALTER TYPE.';
 
 
+-- ───────────────────────────────────────────────────────────────────────────
+-- 5.6 — personnages (référentiel) + chateau_personnages (liaison éditoriale)
+-- ───────────────────────────────────────────────────────────────────────────
+-- "Histoire des lieux" : catalogue de personnages ET d'événements rattachés aux
+-- châteaux. Le NOM vit sur le personnage (référentiel réutilisable) ; la NATURE
+-- du lien et le TEXTE éditorial vivent sur la LIAISON (différents selon le
+-- château). Cf. migration 2026-07-16-personnages.
+
+CREATE TABLE IF NOT EXISTS public.personnages (
+  id         uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  nom        text        NOT NULL,
+  slug       text        NOT NULL UNIQUE,                    -- pour /personnage/:slug
+  created_at timestamptz NOT NULL DEFAULT NOW(),
+  updated_at timestamptz NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE public.personnages IS
+  'Référentiel des entités rattachées aux châteaux (le nom vit ici, réutilisable). Porte aussi des ÉVÉNEMENTS ("École de jeunes filles"), pas seulement des personnes : la nature du lien (chateau_personnages.nature) les distingue. Minimal : ni portrait ni dates (à ajouter si besoin).';
+
+CREATE TABLE IF NOT EXISTS public.chateau_personnages (
+  id            uuid        PRIMARY KEY DEFAULT gen_random_uuid(),   -- surrogate, pas de PK composite
+  chateau_id    uuid        NOT NULL REFERENCES public.chateaux(id)    ON DELETE CASCADE,
+  personnage_id uuid        NOT NULL REFERENCES public.personnages(id) ON DELETE RESTRICT,
+  nature        text        NOT NULL,
+  texte         text,                                                -- éditorial, remplissable plus tard
+  ordre         integer     NOT NULL DEFAULT 0,
+  created_at    timestamptz NOT NULL DEFAULT NOW(),
+  updated_at    timestamptz NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT chateau_personnages_nature_check CHECK (nature IN
+    ('fait_histoire', 'a_habite', 'evenement', 'histoire_famille')),
+  CONSTRAINT chateau_personnages_unique UNIQUE (chateau_id, personnage_id, nature)
+);
+
+COMMENT ON TABLE public.chateau_personnages IS
+  'Liaison éditoriale château × personnage (pattern chateau_timeline). Porte la NATURE du lien et le TEXTE, différents selon le château. CASCADE côté château, RESTRICT côté personnage.';
+COMMENT ON COLUMN public.chateau_personnages.nature IS
+  'Nature du lien (text + CHECK, pas enum : taxonomie éditoriale volatile). Valeurs : fait_histoire, a_habite, evenement, histoire_famille.';
+
+CREATE INDEX IF NOT EXISTS idx_chateau_personnages_personnage
+  ON public.chateau_personnages (personnage_id);
+
+
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 6. TABLES — MODULES & OFFRES (architecture multi-modules A/B/C/D)
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -731,6 +774,16 @@ CREATE TRIGGER set_timestamp_chateau_timeline
 DROP TRIGGER IF EXISTS set_timestamp_chateau_alentours ON public.chateau_alentours;
 CREATE TRIGGER set_timestamp_chateau_alentours
   BEFORE UPDATE ON public.chateau_alentours
+  FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
+
+DROP TRIGGER IF EXISTS set_timestamp_personnages ON public.personnages;
+CREATE TRIGGER set_timestamp_personnages
+  BEFORE UPDATE ON public.personnages
+  FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
+
+DROP TRIGGER IF EXISTS set_timestamp_chateau_personnages ON public.chateau_personnages;
+CREATE TRIGGER set_timestamp_chateau_personnages
+  BEFORE UPDATE ON public.chateau_personnages
   FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
 
 DROP TRIGGER IF EXISTS set_timestamp_modules ON public.modules;
