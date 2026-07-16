@@ -3,6 +3,7 @@ import {
   getChateaux as getChateauxService,
   getChateauBySlug,
   getChateauById as getChateauByIdService,
+  getPersonnageBySlug,
 } from "../services/chateauxService";
 
 /**
@@ -85,6 +86,45 @@ export function useChateau(slug) {
   }, [slug]);
 
   return { chateau, loading, error };
+}
+
+/**
+ * Récupère un personnage par son slug + les châteaux (publiés) rattachés,
+ * pour la fiche /personnage/:slug. Miroir de useChateau (sens inverse).
+ *
+ * @param {string} slug
+ * @returns {{ personnage: Object|null, loading: boolean, error: Error|null }}
+ */
+export function usePersonnage(slug) {
+  const [personnage, setPersonnage] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    getPersonnageBySlug(slug)
+      .then((data) => {
+        if (!cancelled) {
+          setPersonnage(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        if (!cancelled) {
+          setError(err);
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
+  return { personnage, loading, error };
 }
 
 /**
