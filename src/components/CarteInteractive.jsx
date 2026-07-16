@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import { formatDate } from "../utils/dates";
 import { prixAffiche } from "../utils/derivePrix";
 import { capaciteSuffisante } from "../utils/capacite";
+import { chateauPorteEquipements } from "../utils/equipements";
 import { getEquipements } from "../services/chateauxService";
 import CalendrierPlage from "./CalendrierPlage";
 import GrilleEquipements from "./GrilleEquipements";
@@ -49,8 +50,10 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
     () =>
       (chateaux || [])
         .filter((c) => !c.isDemoMock)
-        .filter((c) => capaciteSuffisante(c, totalInvites)),
-    [chateaux, totalInvites]
+        .filter((c) => capaciteSuffisante(c, totalInvites))
+        // Filtre "Sur place" : meme predicat ET que /resultats (helper partage).
+        .filter((c) => chateauPorteEquipements(c, equipements)),
+    [chateaux, totalInvites, equipements]
   );
 
   useEffect(() => {
