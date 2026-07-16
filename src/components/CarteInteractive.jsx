@@ -115,7 +115,10 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
   // Filtres services : illustratifs, desactives. Aucun champ service booleen
   // n'existe encore sur les chateaux (equipements en texte libre uniquement).
   // Actives quand la donnee structuree existera. Affiches pour la vision produit.
-  const servicesBientot = ["Spa", "Piscine", "Table d’hôtes", "Parc & jardins", "Animaux bienvenus"];
+  // "Animaux bienvenus" retire : c.animaux est une heuristique de nom a faux
+  // negatif ("Chiens acceptes" ne matche pas) -> pas de filtre trompeur (meme
+  // decision que le panneau "+ Filtres"). Chantier de donnees separe.
+  const servicesBientot = ["Spa", "Piscine", "Table d’hôtes", "Parc & jardins"];
 
   const labelDatesFiltre = () => {
     if (dateArrivee && dateDepart) return `${formatDate(dateArrivee)} → ${formatDate(dateDepart)}`;
