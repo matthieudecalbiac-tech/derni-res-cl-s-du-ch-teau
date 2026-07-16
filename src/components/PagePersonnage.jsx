@@ -27,6 +27,9 @@ export default function PagePersonnage() {
   return (
     <div>
       <h1>{personnage.nom}</h1>
+      {/* Biographie du personnage (référentiel, vraie partout). Masquée si vide,
+          comme le bloc personnages sur la vitrine. */}
+      {personnage.biographie && <p>{personnage.biographie}</p>}
       <ul>
         {personnage.chateaux.map((c) => (
           <li key={`${c.id}-${c.nature}`}>
