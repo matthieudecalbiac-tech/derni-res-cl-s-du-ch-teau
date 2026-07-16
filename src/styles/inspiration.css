@@ -33,7 +33,7 @@
   font-size: 0.72rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: #A8884E;
+  color: #8B6914; /* or fonce : contraste AA sur fond clair */
 }
 
 .insp-pastilles {
