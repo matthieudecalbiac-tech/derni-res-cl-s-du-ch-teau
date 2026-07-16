@@ -210,7 +210,7 @@ export default function BarreRecherche() {
             </button>
           </div>
 
-          <button className="br-cta" onClick={lancerRecherche} disabled={!selection}>Trouver votre château <span className="br-cta-fl">→</span></button>
+          <button className="br-cta" onClick={lancerRecherche}>Trouver votre château <span className="br-cta-fl">→</span></button>
         </div>
 
         {/* Petit bouton "Filtres" (sorti de la barre pour l'alleger) : ouvre le

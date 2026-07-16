@@ -60,8 +60,6 @@
   align-items: center; gap: 8px; white-space: nowrap; flex-shrink: 0; transition: background 0.25s;
 }
 .br-cta:hover { background: #24386b; }
-.br-cta:disabled { opacity: 0.45; cursor: not-allowed; }
-.br-cta:disabled:hover { background: #1A2D5A; }
 .br-cta-fl { font-size: 1rem; }
 @media (max-width: 900px) {
   .barre-recherche { margin-top: 0; padding: 0 16px 8px; }
