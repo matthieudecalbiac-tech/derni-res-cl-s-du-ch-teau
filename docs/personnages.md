@@ -31,7 +31,7 @@ Statut : à saisir en base via le formulaire château (brique 2d).
 | Entité | Nature | Lien |
 |---|---|---|
 | George Sand | a_habite | Y a séjourné. |
-| Chopin | a_habite | Y a séjourné. |
+| Frédéric Chopin | a_habite | Y a séjourné. |
 | Madame de Staël | ? | Nature à trancher. |
 
 ## Le Blanc Buisson
