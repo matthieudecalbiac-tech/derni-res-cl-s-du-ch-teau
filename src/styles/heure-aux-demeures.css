@@ -19,7 +19,9 @@
 .da-photo { width: 132px; height: 132px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 1px solid rgba(192,152,64,0.5); box-shadow: 0 0 0 4px rgba(251,247,243,0.55); }
 .da-photo img { width: 100%; height: 100%; object-fit: cover; }
 
-.da-num { display: block; font-family: 'Playfair Display', Georgia, serif; font-size: 16px; color: #C09840; margin-bottom: 6px; }
+/* Or CANONIQUE de la charte (#C09840) assombri en #8B6914 pour atteindre AA sur
+   creme (etait ~3.4:1, seuil 4.5). Deviation de marque -> a valider avec Tanguy. */
+.da-num { display: block; font-family: 'Playfair Display', Georgia, serif; font-size: 16px; color: #8B6914; margin-bottom: 6px; }
 .da-nom { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.15rem, 1.6vw, 1.5rem); font-weight: 400; color: #1A2D5A; line-height: 1.1; margin: 0 0 10px; }
 .da-desc { font-family: 'Crimson Pro', Georgia, serif; font-size: 13px; font-style: italic; color: #3A4456; line-height: 1.55; max-width: 230px; margin: 0; }
 .da-col--d .da-desc { margin-left: auto; }
