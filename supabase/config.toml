@@ -1,0 +1,21 @@
+# ============================================================
+# Supabase — configuration locale (Brique 1 : infrastructure Edge Functions)
+#
+# Posee A LA MAIN, sans lancer `supabase init` dans le repo : `init` aurait
+# regenere un seed.sql par-dessus l'existant et touche a la structure. Ce
+# fichier suffit pour deployer les Edge Functions.
+#
+# `project_id` est un identifiant LOCAL (namespace Docker pour le dev local),
+# PAS le ref du projet distant. Le ref distant (ynoieryxfqiqjscqieum) est
+# associe par `supabase link --project-ref ynoieryxfqiqjscqieum` (ecrit dans
+# supabase/.temp, gitignore).
+# ============================================================
+
+project_id = "lcc"
+
+# ── Edge Functions ──
+# Une entree [functions.<nom>] par fonction. verify_jwt controle si le gateway
+# Supabase exige un JWT valide avant d'invoquer la fonction.
+[functions.ping]
+# Fonction publique de sante : appelable SANS auth (pas de base, pas de JWT).
+verify_jwt = false
