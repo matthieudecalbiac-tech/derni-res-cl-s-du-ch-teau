@@ -19,3 +19,9 @@ project_id = "lcc"
 [functions.ping]
 # Fonction publique de sante : appelable SANS auth (pas de base, pas de JWT).
 verify_jwt = false
+
+[functions.demande-reservation]
+# Demande de reservation d'un visiteur PAS ENCORE CONNECTE : pas de session,
+# donc pas de JWT. La fonction tourne en service_role et re-valide tout (elle
+# est le seul rempart). verify_jwt = false = appelable par un anonyme.
+verify_jwt = false

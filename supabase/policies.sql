@@ -140,6 +140,9 @@ ALTER TABLE public.equipements         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.amenity_equipements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.personnages         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.chateau_personnages ENABLE ROW LEVEL SECURITY;
+-- demande_rate_limit : RLS active SANS aucune policy → anon/authenticated = zéro
+-- accès. service_role bypasse la RLS (GRANT §10). Migration 2026-07-17-garde-fous.
+ALTER TABLE public.demande_rate_limit  ENABLE ROW LEVEL SECURITY;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -727,6 +730,14 @@ GRANT SELECT ON public.migrations_log     TO service_role;
 -- "seed.sql ne contient pas equipements" (service_role oublie -> 42501 en lecture).
 GRANT SELECT ON public.personnages         TO service_role;
 GRANT SELECT ON public.chateau_personnages TO service_role;
+
+-- demande_rate_limit : anti-abus de l'Edge Function demande-reservation.
+-- service_role SEUL (jamais anon, jamais authenticated). PIÈGE amenity_equipements :
+-- service_role bypasse la RLS mais PAS le GRANT (évalué AVANT la RLS) — sans ce
+-- GRANT, l'Edge Function prend un 42501. REVOKE explicite en défense.
+-- Migration 2026-07-17-reservation-garde-fous.sql (brique 2-bis).
+REVOKE ALL ON public.demande_rate_limit FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, DELETE ON public.demande_rate_limit TO service_role;
 
 -- Note : les RLS gèrent finement qui peut faire quoi sur quelles lignes.
 -- Ces GRANT autorisent juste Postgres à évaluer les policies.
