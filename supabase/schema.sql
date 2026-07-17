@@ -619,6 +619,12 @@ CREATE TABLE IF NOT EXISTS public.reservations (
 
   date_arrivee                date                NOT NULL,
   date_depart                 date                NOT NULL,
+
+  -- Demande (mode sur_place). voyageurs : borne haute = garde-fou serveur.
+  voyageurs                   integer             NOT NULL DEFAULT 2
+                              CHECK (voyageurs > 0 AND voyageurs <= 50),
+  message                     text,               -- message libre du visiteur (facultatif)
+
   prix_total_cents            integer             NOT NULL,
   commission_lcc_cents        integer             NOT NULL DEFAULT 0,
 
@@ -659,6 +665,10 @@ COMMENT ON COLUMN public.reservations.offre_id IS
   'Offre source (peut être supprimée — ON DELETE SET NULL pour préserver l''historique commercial).';
 COMMENT ON COLUMN public.reservations.prix_total_cents IS
   'Prix total séjour en cents. = nb nuits × prix chambre + cleaning_fee + supplements amenities, hors marges Stripe.';
+COMMENT ON COLUMN public.reservations.voyageurs IS
+  'Nombre de voyageurs de la demande. NOT NULL DEFAULT 2 (aligné UI). CHECK 1..50 : borne haute = garde-fou de la fonction serveur (champ numérique libre). Une résa = une chambre (capacite ≤ 20). Cf. migration 2026-07-17-reservation-demande.';
+COMMENT ON COLUMN public.reservations.message IS
+  'Message libre du visiteur à la demande (mode sur_place). Nullable : facultatif.';
 COMMENT ON COLUMN public.reservations.commission_lcc_cents IS
   '[Plugeable] Part LCC sur prix_total_cents (snapshot au moment de la réservation). Inutilisé en MVP.';
 COMMENT ON COLUMN public.reservations.cancellation_policy IS
