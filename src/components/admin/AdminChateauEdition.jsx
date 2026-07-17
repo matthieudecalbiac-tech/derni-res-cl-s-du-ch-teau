@@ -19,6 +19,12 @@ const LIBELLE_STATUT = { brouillon: "Brouillon", publie: "Publié", archive: "Ar
 // Valeurs fermées des enums Postgres (cf. schema.sql).
 const ALENTOUR_TYPES = ["patrimoine", "gastronomie", "nature", "spirituel", "sport", "village", "culture", "histoire"];
 const AMENITY_TYPES = ["service", "activite"];
+// Mode de paiement du château (text + CHECK côté base). 'en_ligne' déclaré mais
+// non implémenté (Stripe non branché).
+const MODES_PAIEMENT = [
+  { value: "sur_place", label: "Sur place" },
+  { value: "en_ligne", label: "En ligne" },
+];
 // Categorie editoriale (liste fermee, nullable) : le referentiel vit desormais
 // dans src/utils/categories.js (source unique admin + front). Importe ci-dessus
 // et aliase AMENITY_CATEGORIES pour le select ChampSelect ({value,label}).
@@ -105,6 +111,7 @@ function formFromChateau(c) {
     heroNightStars: c.heroNightStars === true,
     uneDeLaSemaine: c.uneDeLaSemaine === true,
     ordreHome: c.ordreHome ?? null,
+    modePaiement: c.modePaiement ?? "sur_place",
     coordonnees: {
       lat: c.coordonnees?.lat ?? "",
       lng: c.coordonnees?.lng ?? "",
@@ -170,6 +177,7 @@ function preparerBase(form) {
     heroNightStars: form.heroNightStars === true,
     uneDeLaSemaine: form.uneDeLaSemaine === true,
     ordreHome: entierOuNull(form.ordreHome),
+    modePaiement: form.modePaiement,
     coordonnees: {
       lat: nbOuNull(form.coordonnees.lat),
       lng: nbOuNull(form.coordonnees.lng),
@@ -570,6 +578,7 @@ export default function AdminChateauEdition() {
             <input className="adm-input" type="number" value={form.ordreHome ?? ""} onChange={setChamp("ordreHome")} />
             <span className="adm-champ-aide">Section « Découvrez aussi » : plus petit = affiché en premier ; vide = à la fin.</span>
           </label>
+          <ChampSelect label="Mode de paiement" value={form.modePaiement} options={MODES_PAIEMENT} onChange={setChamp("modePaiement")} />
         </section>
 
         {/* ── Chambres ── */}

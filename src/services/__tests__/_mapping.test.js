@@ -367,7 +367,7 @@ describe("chateauToRow (mapper inverse — colonnes chateaux)", () => {
     "distance_paris_label", "distance_paris", "urgence", "histoire", "description",
     "region_narrative", "region_histoire", "chiffres_cles", "images",
     "video_background_youtube_id", "est_la_une", "is_demo_mock", "hero_night_stars",
-    "une_de_la_semaine", "ordre_home",
+    "une_de_la_semaine", "ordre_home", "mode_paiement",
     "couleur_theme", "accent_theme", "coordonnees_lat", "coordonnees_lng",
     "prop_nom", "prop_depuis", "prop_initiale", "prop_nom_affiche", "prop_portrait",
     "prop_citation", "prop_description",
