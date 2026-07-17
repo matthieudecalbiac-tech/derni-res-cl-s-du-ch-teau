@@ -1,6 +1,7 @@
 import { Navigate, useParams, Link } from "react-router-dom";
 import { usePersonnage } from "../hooks/useChateaux";
 import { libelleNature } from "../utils/personnages";
+import EnteteEditoriale from "./EnteteEditoriale";
 import "../styles/page-personnage.css";
 
 // Route /personnage/:slug — fiche personnage. Registre CRÈME ILLUSTRÉ.
@@ -33,7 +34,15 @@ export default function PagePersonnage() {
 
   return (
     <div className="pp">
+      <EnteteEditoriale titreSection={personnage.nom} />
       <div className="pp-inner">
+        <nav className="ee-fil pp-fil" aria-label="Fil d'Ariane">
+          <Link to="/">Accueil</Link>
+          <span className="ee-fil-sep" aria-hidden="true">›</span>
+          <Link to="/histoire">Histoire des lieux</Link>
+          <span className="ee-fil-sep" aria-hidden="true">›</span>
+          <span className="ee-fil-actuel">{personnage.nom}</span>
+        </nav>
         <div className="pp-grille">
           {/* Colonne gauche — l'individu (nom + bio, en haut, à gauche). */}
           <div className="pp-individu">

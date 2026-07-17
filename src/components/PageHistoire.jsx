@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useCataloguePersonnages } from "../hooks/useChateaux";
 import { libelleNature } from "../utils/personnages";
+import EnteteEditoriale from "./EnteteEditoriale";
 import "../styles/page-histoire.css";
 
 // Route /histoire — le catalogue "Histoire des lieux" : tous les personnages et
@@ -30,11 +31,22 @@ export default function PageHistoire() {
 
   return (
     <div className="ph">
+      <EnteteEditoriale titreSection="Histoire des lieux" />
       <div className="ph-inner">
-        <header className="ph-tete">
-          <h1 className="ph-titre">Histoire des lieux</h1>
-          <p className="ph-phrase">Ceux qui ont fait, habité ou traversé nos demeures.</p>
-        </header>
+        {/* Hero aligné à gauche, 2 colonnes (titre | chapô), comme les Vitrines. */}
+        <div className="ph-hero">
+          <div className="ph-hero-titre">
+            <nav className="ee-fil" aria-label="Fil d'Ariane">
+              <Link to="/">Accueil</Link>
+              <span className="ee-fil-sep" aria-hidden="true">›</span>
+              <span className="ee-fil-actuel">Histoire des lieux</span>
+            </nav>
+            <h1 className="ph-titre">Histoire des lieux</h1>
+          </div>
+          <div className="ph-hero-chapo">
+            <p className="ph-phrase">Ceux qui ont fait, habité ou traversé nos demeures.</p>
+          </div>
+        </div>
 
         <div className="ph-orn" aria-hidden="true">
           <span className="ph-orn-trait" />
@@ -43,10 +55,13 @@ export default function PageHistoire() {
         </div>
 
         <div className="ph-grille">
-          {groupes.map((g) => (
+          {groupes.map((g, i) => (
             <article className="ph-carte" key={g.nature}>
               <span className="ph-carte-coins" aria-hidden="true" />
-              <h2 className="ph-carte-titre">{libelleNature(g.nature)}</h2>
+              <h2 className="ph-carte-titre">
+                <span className="ph-carte-num" aria-hidden="true">{String(i + 1).padStart(2, "0")}</span>
+                {libelleNature(g.nature)}
+              </h2>
               <span className="ph-carte-filet" aria-hidden="true" />
               <ul className="ph-liste">
                 {g.personnages.map((p) => (

@@ -1,0 +1,83 @@
+/* En-tête éditorial partagé (histoire, personnage). Reprend le topbar des
+   Vitrines Permanentes : médaillon + « Les Clés du Château » (navy) + nom de
+   section (or italique). Le fil d'Ariane (.ee-fil) vit ici aussi, réutilisé par
+   les pages. Couleurs et polices = charte uniquement. */
+
+.ee-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 12px clamp(1.25rem, 5vw, 3rem);
+  background: #FAF6EE;
+  border-bottom: 1px solid rgba(192, 152, 64, 0.2);
+}
+
+.ee-logo {
+  display: flex;
+  align-items: center;
+  gap: 1.15rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.ee-embleme {
+  height: 56px;
+  width: auto;
+  display: block;
+  background: transparent; /* neutralise le fond navy global de img{} */
+}
+.ee-wordmark {
+  font-family: "Playfair Display", serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: #1A2D5A;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* Nom de section, à droite, or italique (comme .vit-topbar-titre). */
+.ee-titre {
+  font-family: "Playfair Display", serif;
+  font-weight: 400;
+  font-style: italic;
+  font-size: 1.3rem;
+  color: #9A7223;
+  letter-spacing: 0.05em;
+  text-align: right;
+}
+
+/* ── Fil d'Ariane (comme .vit-fil) — petites capitales espacées, or, cliquable. ── */
+.ee-fil {
+  font-family: "Crimson Pro", serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #A8884E;
+  margin: 0;
+}
+.ee-fil a {
+  color: #A8884E;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.ee-fil a:hover {
+  color: #C09840;
+}
+.ee-fil-sep {
+  color: #C09840;
+  margin: 0 8px;
+}
+.ee-fil-actuel {
+  color: #9A7223;
+}
+
+@media (max-width: 640px) {
+  .ee-embleme { height: 42px; }
+  .ee-wordmark { font-size: 1.1rem; }
+  .ee-titre { font-size: 0.95rem; }
+}

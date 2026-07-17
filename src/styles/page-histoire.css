@@ -14,7 +14,6 @@
 
   min-height: 100vh;
   background: var(--ph-creme);
-  padding: clamp(2.5rem, 7vh, 5rem) clamp(1.25rem, 5vw, 3rem) clamp(3rem, 8vh, 5.5rem);
 }
 
 /* Placeholder de chargement : même crème, évite tout flash (body navy global). */
@@ -34,27 +33,36 @@
 .ph-inner {
   max-width: 940px;
   margin: 0 auto;
+  padding: clamp(2.25rem, 5vh, 3.5rem) clamp(1.25rem, 5vw, 3rem) clamp(3rem, 8vh, 5.5rem);
 }
 
-/* ── EN-TÊTE (inchangé) — titre Playfair réduit, phrase, ornement fleur de lys. ── */
+/* ── HERO — aligné à GAUCHE, 2 colonnes (titre | chapô), comme les Vitrines. ── */
+.ph-hero {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: end;
+}
+.ph-hero-titre .ee-fil {
+  margin: 0 0 clamp(0.8rem, 2vh, 1.2rem);
+}
 .ph-titre {
   margin: 0;
-  text-align: center;
+  text-align: left;
   font-family: "Playfair Display", serif;
-  font-weight: 600;
-  font-size: clamp(1.9rem, 4.5vw, 2.9rem);
-  line-height: 1.1;
-  letter-spacing: -0.005em;
-  color: var(--ph-navy);
+  font-weight: 400;
+  font-size: clamp(2.4rem, 5.5vw, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  color: #1A2D5A;
   text-wrap: balance;
 }
-
 .ph-phrase {
-  max-width: 30em;
-  margin: clamp(1rem, 2.5vh, 1.5rem) auto 0;
-  text-align: center;
+  margin: 0;
+  max-width: 34em;
+  text-align: left;
   font-family: "Cormorant Garamond", serif;
-  font-size: clamp(1.05rem, 2.2vw, 1.3rem);
+  font-size: clamp(1.1rem, 2vw, 1.35rem);
   line-height: 1.6;
   color: var(--ph-soft);
 }
@@ -90,23 +98,18 @@
   gap: clamp(1.25rem, 3vw, 2rem);
 }
 
-/* ── LA CARTE — fin liseré or, fond crème un peu plus clair, coins ornés. ── */
+/* ── LA CARTE — tenue par ses 4 COINS seulement : pas de liseré latéral, pas de
+   fond. La charte laisse respirer le crème ; les angles suffisent. ── */
 .ph-carte {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: clamp(1.5rem, 2.6vw, 2.1rem) clamp(1.25rem, 2.2vw, 1.9rem) clamp(1.6rem, 2.8vw, 2.2rem);
-  border: 1px solid var(--ph-or);
-  border-radius: 2px; /* angles adoucis */
-  /* Crème légèrement plus clair que la page : voile blanc sur le fond crème
-     (pas une couleur nouvelle). */
-  background: rgba(255, 255, 255, 0.5);
+  padding: clamp(1.75rem, 3vw, 2.6rem) clamp(1.5rem, 2.5vw, 2rem);
 }
 
-/* Coins ornés — 4 équerres or en retrait (cadre gravé intérieur, "accolade").
-   card::before/::after = coins hauts ; le span .ph-carte-coins::before/::after
-   = coins bas (2 pseudo-éléments par élément → il en faut un second). */
+/* Coins en équerre — 4 angles or AUX coins (pas de côtés). card::before/::after
+   = coins hauts ; le span .ph-carte-coins::before/::after = coins bas. */
 .ph-carte-coins {
   position: absolute;
   inset: 0;
@@ -118,23 +121,35 @@
 .ph-carte-coins::after {
   content: "";
   position: absolute;
-  width: 11px;
-  height: 11px;
+  width: 14px;
+  height: 14px;
   border: 1px solid var(--ph-or);
 }
-.ph-carte::before { top: 6px; left: 6px; border-right: none; border-bottom: none; }
-.ph-carte::after  { top: 6px; right: 6px; border-left: none; border-bottom: none; }
-.ph-carte-coins::before { bottom: 6px; left: 6px; border-right: none; border-top: none; }
-.ph-carte-coins::after  { bottom: 6px; right: 6px; border-left: none; border-top: none; }
+.ph-carte::before { top: 0; left: 0; border-right: none; border-bottom: none; }
+.ph-carte::after  { top: 0; right: 0; border-left: none; border-bottom: none; }
+.ph-carte-coins::before { bottom: 0; left: 0; border-right: none; border-top: none; }
+.ph-carte-coins::after  { bottom: 0; right: 0; border-left: none; border-top: none; }
 
-/* Titre de groupe : or, capitales espacées, petit, CENTRÉ (il vit dans le cadre). */
+/* Titre de groupe : un NUMÉRO or (traitement du sommaire) au-dessus, puis le
+   libellé en capitales espacées. Centré dans le cadre. */
 .ph-carte-titre {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   text-align: center;
   font-family: var(--font-ui);
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.26em;
+  color: var(--ph-or);
+}
+.ph-carte-num {
+  font-family: "Playfair Display", serif;
+  font-size: 1.5rem;
+  letter-spacing: 0;
+  line-height: 1;
   color: var(--ph-or);
 }
 
@@ -171,8 +186,13 @@
   color: var(--ph-or);
 }
 
-/* ── MOBILE — une colonne, les cartes s'empilent. ── */
+/* ── MOBILE — hero et grille en une colonne. ── */
 @media (max-width: 640px) {
+  .ph-hero {
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: clamp(1rem, 3vh, 1.5rem);
+  }
   .ph-grille {
     grid-template-columns: 1fr;
   }
