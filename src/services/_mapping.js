@@ -111,6 +111,8 @@ export function mapChateauBase(row) {
     ordreHome: nullable(row.ordre_home),
     couleurTheme: nullable(row.couleur_theme),
     accentTheme: nullable(row.accent_theme),
+    // NOT NULL DEFAULT 'sur_place' côté base ; fallback pour rows partiels/mocks.
+    modePaiement: row.mode_paiement ?? "sur_place",
     coordonnees: {
       lat: nullable(row.coordonnees_lat),
       lng: nullable(row.coordonnees_lng),
@@ -631,6 +633,7 @@ const CHAMP_VERS_COLONNE = {
   ordreHome: "ordre_home",
   couleurTheme: "couleur_theme",
   accentTheme: "accent_theme",
+  modePaiement: "mode_paiement",
   // Re-séparation de la distance (mapChateauBase fusionne les deux colonnes).
   distanceParis: "distance_paris_label",
   distanceParisMinutes: "distance_paris",

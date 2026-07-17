@@ -33,6 +33,7 @@ export const FIXTURE_BRIOTTIERES = {
   accroche: "Sept générations d'une même famille, cinquante hectares d'Anjou.",
   siecle: "XVIIIe siècle",
   style: "Demeure familiale · Art de vivre anjouvin",
+  mode_paiement: "sur_place",
   distance_paris: 135,
   distance_paris_label: "2h15 de Paris",
   urgence: "J-10",
