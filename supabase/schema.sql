@@ -646,6 +646,7 @@ CREATE TABLE IF NOT EXISTS public.reservations (
 
   CONSTRAINT reservations_dates_valides    CHECK (date_depart > date_arrivee),
   CONSTRAINT reservations_prix_positif     CHECK (prix_total_cents > 0),
+  CONSTRAINT reservations_message_length   CHECK (message IS NULL OR char_length(message) <= 2000),
   CONSTRAINT reservations_commission_valide CHECK (commission_lcc_cents >= 0 AND commission_lcc_cents <= prix_total_cents),
   CONSTRAINT reservations_payout_coherent  CHECK (
     (payout_status = 'sent' AND payout_sent_at IS NOT NULL)
@@ -758,6 +759,23 @@ CREATE TABLE IF NOT EXISTS public.migrations_log (
 
 COMMENT ON TABLE  public.migrations_log IS
   'Trace des seeds et transformations data exécutés (S1-γ, S1-δ, etc.). Différent des migrations Supabase système.';
+
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 8.3 — demande_rate_limit (anti-abus Edge Function demande-reservation)
+-- ───────────────────────────────────────────────────────────────────────────
+-- Migration 2026-07-17-reservation-garde-fous.sql (brique 2-bis). Une ligne par
+-- tentative de demande (IP + horodatage). Fenêtre glissante calculée dans la
+-- fonction ; purge opportuniste par la fonction. Accès service_role SEUL :
+-- RLS active + aucune policy + GRANT ciblé (cf. policies.sql §10).
+
+CREATE TABLE IF NOT EXISTS public.demande_rate_limit (
+  ip          text        NOT NULL,
+  created_at  timestamptz NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE public.demande_rate_limit IS
+  'Anti-abus de l''Edge Function demande-reservation : une ligne par tentative (IP + horodatage). Fenêtre glissante calculée dans la fonction (3/15min/IP). Purge opportuniste par la fonction (DELETE > 15 min). Accès service_role SEUL (RLS active, aucune policy, GRANT ciblé cf. policies.sql).';
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -906,6 +924,15 @@ CREATE INDEX IF NOT EXISTS idx_audit_log_user_created
 
 CREATE INDEX IF NOT EXISTS idx_audit_log_table_row
   ON public.audit_log (table_name, row_id);
+
+-- Garde-fous demande de réservation (migration 2026-07-17-reservation-garde-fous)
+CREATE INDEX IF NOT EXISTS idx_demande_rate_limit_ip_created
+  ON public.demande_rate_limit (ip, created_at);
+
+-- Idempotence : une seule demande pending par (user, chambre, dates).
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_reservations_pending_demande
+  ON public.reservations (user_id, chambre_id, date_arrivee, date_depart)
+  WHERE status = 'pending';
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
