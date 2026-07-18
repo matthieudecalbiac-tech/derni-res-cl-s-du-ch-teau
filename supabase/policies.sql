@@ -143,6 +143,11 @@ ALTER TABLE public.chateau_personnages ENABLE ROW LEVEL SECURITY;
 -- demande_rate_limit : RLS active SANS aucune policy → anon/authenticated = zéro
 -- accès. service_role bypasse la RLS (GRANT §10). Migration 2026-07-17-garde-fous.
 ALTER TABLE public.demande_rate_limit  ENABLE ROW LEVEL SECURITY;
+-- Infrastructure email (migration 2026-07-18-email-infra) :
+-- chateau_contacts = lecture chatelain/admin (policy §9.3) ; email_log = AUCUNE
+-- policy (jamais exposé au front), service_role via GRANT §10.
+ALTER TABLE public.chateau_contacts    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.email_log           ENABLE ROW LEVEL SECURITY;
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -650,6 +655,18 @@ CREATE POLICY migrations_log_insert_admin ON public.migrations_log
   FOR INSERT WITH CHECK (public.is_admin());
 
 
+-- ───────────────────────────────────────────────────────────────────────────
+-- 9.3 — chateau_contacts (lecture chatelain de ce château OU admin)
+-- ───────────────────────────────────────────────────────────────────────────
+-- SELECT seulement : les écritures passent par service_role (GRANT §10) ; la
+-- gestion admin (INSERT/UPDATE/DELETE via UI) viendra avec sa propre policy.
+-- email_log n'a AUCUNE policy (deny-all front). Migration 2026-07-18-email-infra.
+
+DROP POLICY IF EXISTS chateau_contacts_select_chatelain_admin ON public.chateau_contacts;
+CREATE POLICY chateau_contacts_select_chatelain_admin ON public.chateau_contacts
+  FOR SELECT USING (public.is_chatelain_of(chateau_id) OR public.is_admin());
+
+
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 10. GRANTS POSTGRES (nécessaires avec les nouvelles clés sb_publishable_*)
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -748,6 +765,17 @@ GRANT SELECT, INSERT, DELETE ON public.demande_rate_limit TO service_role;
 -- Migration 2026-07-17-grants-service-role-reservation.sql.
 GRANT SELECT, UPDATE ON public.users        TO service_role;
 GRANT SELECT, INSERT ON public.reservations TO service_role;
+
+-- Infrastructure email (migration 2026-07-18-email-infra) — même piège GRANT.
+-- chateau_contacts : service_role CRUD complet ; authenticated SELECT (RLS filtre
+-- is_chatelain_of/is_admin) ; anon rien.
+REVOKE ALL ON public.chateau_contacts FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.chateau_contacts TO service_role;
+GRANT SELECT                         ON public.chateau_contacts TO authenticated;
+-- email_log : service_role SELECT/INSERT/UPDATE UNIQUEMENT (pas de DELETE) ;
+-- anon/authenticated rien (aucune policy + aucun GRANT).
+REVOKE ALL ON public.email_log FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE ON public.email_log TO service_role;
 
 -- Note : les RLS gèrent finement qui peut faire quoi sur quelles lignes.
 -- Ces GRANT autorisent juste Postgres à évaluer les policies.

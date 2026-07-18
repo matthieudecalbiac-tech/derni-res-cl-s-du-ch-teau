@@ -607,6 +607,30 @@ COMMENT ON COLUMN public.chateau_owners.stripe_payouts_enabled IS
 
 
 -- ───────────────────────────────────────────────────────────────────────────
+-- 7.1.bis — chateau_contacts (contacts de notification, SANS compte requis)
+-- ───────────────────────────────────────────────────────────────────────────
+-- Distinct de chateau_owners : owners = COMPTES châtelains (Stripe, rôle domaine) ;
+-- contacts = destinataires de notification sans compte. Deux rôles, deux tables.
+-- Migration 2026-07-18-email-infra.sql.
+
+CREATE TABLE IF NOT EXISTS public.chateau_contacts (
+  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  chateau_id  uuid        NOT NULL REFERENCES public.chateaux(id) ON DELETE CASCADE,
+  email       text        NOT NULL,
+  nom         text,
+  role        text        NOT NULL DEFAULT 'proprietaire',
+  actif       boolean     NOT NULL DEFAULT true,
+  created_at  timestamptz NOT NULL DEFAULT NOW(),
+  updated_at  timestamptz NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT chateau_contacts_email_unique UNIQUE (chateau_id, email)
+);
+
+COMMENT ON TABLE public.chateau_contacts IS
+  'Contacts de NOTIFICATION d''un château, SANS compte requis. Distinct de chateau_owners (comptes châtelains + Stripe). Plusieurs contacts par château OK (proprio + régisseur) ; UNIQUE (chateau_id, email) empêche le doublon. Lecture chatelain/admin (RLS), écriture service_role.';
+
+
+-- ───────────────────────────────────────────────────────────────────────────
 -- 7.2 — reservations
 -- ───────────────────────────────────────────────────────────────────────────
 
@@ -778,6 +802,31 @@ COMMENT ON TABLE public.demande_rate_limit IS
   'Anti-abus de l''Edge Function demande-reservation : une ligne par tentative (IP + horodatage). Fenêtre glissante calculée dans la fonction (3/15min/IP). Purge opportuniste par la fonction (DELETE > 15 min). Accès service_role SEUL (RLS active, aucune policy, GRANT ciblé cf. policies.sql).';
 
 
+-- ───────────────────────────────────────────────────────────────────────────
+-- 8.4 — email_log (trace + reprise des envois email)
+-- ───────────────────────────────────────────────────────────────────────────
+-- Jamais exposée au front (RLS active, aucune policy). service_role SELECT/INSERT/
+-- UPDATE (pas de DELETE — un log ne s'efface pas). Migration 2026-07-18-email-infra.
+
+CREATE TABLE IF NOT EXISTS public.email_log (
+  id                uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  destinataire      text        NOT NULL,
+  type              text        NOT NULL,       -- 'demande_client' | 'demande_chatelain' | 'demande_admin'
+  reservation_id    uuid        REFERENCES public.reservations(id) ON DELETE SET NULL,
+  statut            text        NOT NULL DEFAULT 'en_attente'
+                    CHECK (statut IN ('en_attente', 'envoye', 'echoue')),
+  tentatives        integer     NOT NULL DEFAULT 0,
+  derniere_erreur   text,
+  brevo_message_id  text,
+  payload           jsonb,
+  created_at        timestamptz NOT NULL DEFAULT NOW(),
+  updated_at        timestamptz NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE public.email_log IS
+  'Trace et REPRISE de chaque envoi email. Jamais exposée au front (RLS active, aucune policy). type ∈ demande_client/demande_chatelain/demande_admin. payload = sujet+params rejouables. reservation_id SET NULL si la demande disparaît (le log survit). service_role SELECT/INSERT/UPDATE seulement.';
+
+
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 9. TRIGGERS updated_at
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -859,6 +908,17 @@ CREATE TRIGGER set_timestamp_audit_log
   BEFORE UPDATE ON public.audit_log
   FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
 
+-- Infrastructure email (migration 2026-07-18-email-infra)
+DROP TRIGGER IF EXISTS set_timestamp_chateau_contacts ON public.chateau_contacts;
+CREATE TRIGGER set_timestamp_chateau_contacts
+  BEFORE UPDATE ON public.chateau_contacts
+  FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
+
+DROP TRIGGER IF EXISTS set_timestamp_email_log ON public.email_log;
+CREATE TRIGGER set_timestamp_email_log
+  BEFORE UPDATE ON public.email_log
+  FOR EACH ROW EXECUTE FUNCTION public.trigger_set_timestamp();
+
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 10. INDEXES
@@ -933,6 +993,10 @@ CREATE INDEX IF NOT EXISTS idx_demande_rate_limit_ip_created
 CREATE UNIQUE INDEX IF NOT EXISTS uniq_reservations_pending_demande
   ON public.reservations (user_id, chambre_id, date_arrivee, date_depart)
   WHERE status = 'pending';
+
+-- email_log : retrouver vite les envois à (re)faire (migration 2026-07-18-email-infra).
+CREATE INDEX IF NOT EXISTS idx_email_log_a_renvoyer
+  ON public.email_log (statut) WHERE statut != 'envoye';
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
