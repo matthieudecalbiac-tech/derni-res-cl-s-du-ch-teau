@@ -27,6 +27,7 @@
     "chrome-launcher": "^1.2.1",
     "cross-env": "^10.1.0",
     "lighthouse": "^13.1.0",
+    "supabase": "^2.109.1",
     "vite": "^6.0.3",
     "vitest": "^3.2.4",
     "wait-on": "^9.0.5"
