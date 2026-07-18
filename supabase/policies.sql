@@ -739,6 +739,16 @@ GRANT SELECT ON public.chateau_personnages TO service_role;
 REVOKE ALL ON public.demande_rate_limit FROM PUBLIC, anon, authenticated;
 GRANT SELECT, INSERT, DELETE ON public.demande_rate_limit TO service_role;
 
+-- users + reservations : l'Edge Function demande-reservation les touche en
+-- service_role. Même piège que ci-dessus — service_role bypasse la RLS mais PAS
+-- le GRANT (évalué avant). MINIMUM STRICT : users SELECT (lookup email) + UPDATE
+-- (full_name à la création) ; reservations SELECT (idempotence + plafond +
+-- RETURNING de l'insert) + INSERT (la demande). Ni DELETE ni UPDATE sur
+-- reservations (la fonction ne modifie jamais une demande existante).
+-- Migration 2026-07-17-grants-service-role-reservation.sql.
+GRANT SELECT, UPDATE ON public.users        TO service_role;
+GRANT SELECT, INSERT ON public.reservations TO service_role;
+
 -- Note : les RLS gèrent finement qui peut faire quoi sur quelles lignes.
 -- Ces GRANT autorisent juste Postgres à évaluer les policies.
 

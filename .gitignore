@@ -56,3 +56,7 @@ public/newlogo-detoure.png
 public/newlogotext-detoure.png
 
 supabase/.temp/
+
+# Fichiers de test locaux (bodies curl pour les Edge Functions)
+demande.json
+pirate.json
