@@ -214,6 +214,42 @@ COMMENT ON VIEW public.reservations_client_view IS
 
 GRANT SELECT ON public.reservations_client_view TO anon, authenticated;
 
+-- ───────────────────────────────────────────────────────────────────────────
+-- 4.3 — reservations_chatelain_view (vue châtelain : voyageurs + message,
+--        commission autorisée, PAS de user_id/contact client, PAS de stripe_*)
+-- ───────────────────────────────────────────────────────────────────────────
+-- security_invoker = true : la RLS reservations_select_owner filtre par château
+-- (chambres → chateau_owners) — un châtelain ne voit QUE ses demandes. JOINs
+-- chambres (public) + chateaux (is_chatelain_of OR publie) : aucune ligne
+-- légitime droppée. commission_lcc_cents exposée (non secrète pour le châtelain,
+-- décision Matthieu) ; user_id/contact client jamais exposés (LCC intermédiaire).
+-- Cf. migration 2026-07-21-vue-chatelain.sql.
+
+CREATE OR REPLACE VIEW public.reservations_chatelain_view
+WITH (security_invoker = true) AS
+SELECT
+  r.id,
+  r.chambre_id,
+  ch.nom               AS chambre_nom,
+  c.nom                AS chateau_nom,
+  c.slug               AS chateau_slug,
+  r.date_arrivee,
+  r.date_depart,
+  r.voyageurs,
+  r.message,
+  r.prix_total_cents,
+  r.commission_lcc_cents,
+  r.status,
+  r.created_at
+FROM public.reservations r
+JOIN public.chambres  ch ON ch.id = r.chambre_id
+JOIN public.chateaux  c  ON c.id  = ch.chateau_id;
+
+COMMENT ON VIEW public.reservations_chatelain_view IS
+  'Vue châtelain des demandes de séjour. security_invoker=true : RLS reservations_select_owner filtre par château (chambres→chateau_owners). N''expose PAS user_id/contact client (LCC intermédiaire) ; expose commission_lcc_cents (non secrète pour le châtelain) ; cache stripe_*/payout_*. JOIN chambres(nom)+chateaux(nom,slug) pour repérage multi-château.';
+
+GRANT SELECT ON public.reservations_chatelain_view TO authenticated;
+
 
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 5. POLICIES — GROUPE A : users (5 policies)
