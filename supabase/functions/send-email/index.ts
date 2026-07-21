@@ -81,6 +81,16 @@
 //       prixTotalEuros: number
 //     }
 //
+//   type = 'sejour_confirme' / 'sejour_refuse'  (réponse du châtelain, AU client)
+//     params: {
+//       nomClient:      string
+//       chateau:        string   // nom du château uniquement, jamais les propriétaires
+//       dateArrivee:    "YYYY-MM-DD"
+//       dateDepart:     "YYYY-MM-DD"
+//       voyageurs:      number
+//     }
+//     (écrits par la RPC repondre_demande, patron outbox.)
+//
 // Toutes les valeurs texte issues des params sont échappées (escapeHtml) avant
 // insertion dans le HTML — le `message` du visiteur est du texte non fiable.
 // ══════════════════════════════════════════════════════════════
@@ -244,10 +254,58 @@ function gabaritAdmin(p: Params): string {
   return enveloppe("Nouvelle demande (supervision)", corps);
 }
 
+// Réponse du châtelain — emails AU client. Mêmes params que gabaritClient
+// (nomClient, chateau, dateArrivee, dateDepart, voyageurs), écrits par la RPC
+// repondre_demande. enveloppe() garantit la conformité éditoriale (pas de %,
+// Fondation via le pied de page, pas d'emoji, ton patrimonial).
+function gabaritSejourConfirme(p: Params): string {
+  const sejour = tableFaits(
+    ligneFait("Château", escapeHtml(p.chateau)) +
+    ligneFait("Arrivée", dateFr(p.dateArrivee)) +
+    ligneFait("Départ", dateFr(p.dateDepart)) +
+    ligneFait("Voyageurs", escapeHtml(p.voyageurs)),
+  );
+  const corps = `
+    <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">Bonjour ${escapeHtml(p.nomClient)},</p>
+    <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">
+      Nous avons le plaisir de vous confirmer votre séjour. Le château vous attend
+      aux dates convenues.
+    </p>
+    ${sejour}
+    <p style="font-size:15px;line-height:1.7;margin:20px 0 0;">
+      Nous reviendrons vers vous pour les derniers détails. Au plaisir de vous y accueillir.
+    </p>`;
+  return enveloppe("Votre séjour est confirmé", corps);
+}
+
+// Refus courtois : porte ouverte, jamais de motif, jamais de nom de propriétaire,
+// jamais de fermeture sèche.
+function gabaritSejourRefuse(p: Params): string {
+  const sejour = tableFaits(
+    ligneFait("Château", escapeHtml(p.chateau)) +
+    ligneFait("Arrivée", dateFr(p.dateArrivee)) +
+    ligneFait("Départ", dateFr(p.dateDepart)),
+  );
+  const corps = `
+    <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">Bonjour ${escapeHtml(p.nomClient)},</p>
+    <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">
+      Nous vous remercions de l'intérêt que vous portez à cette demeure. Le château
+      ne peut malheureusement pas vous accueillir aux dates souhaitées.
+    </p>
+    ${sejour}
+    <p style="font-size:15px;line-height:1.7;margin:16px 0 0;">
+      Nous serions heureux de vous recevoir à une autre période — au plaisir de vous
+      accueillir une prochaine fois.
+    </p>`;
+  return enveloppe("Votre demande de séjour", corps);
+}
+
 const GABARITS: Record<string, (p: Params) => string> = {
   demande_client: gabaritClient,
   demande_chatelain: gabaritChatelain,
   demande_admin: gabaritAdmin,
+  sejour_confirme: gabaritSejourConfirme,
+  sejour_refuse: gabaritSejourRefuse,
 };
 
 // ══════════════════════════════════════════════════════════════
