@@ -18,6 +18,13 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   // En mode modal (overlay depuis la home), le fade-in reste (visible = false).
   const [visible, setVisible] = useState(mode === "route");
   const [reserve, setReserve] = useState(false);
+  // Modale réservation — champs contact + états du flux d'envoi (in-modale).
+  const [nom, setNom] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
+  const [envoi, setEnvoi] = useState(false);
+  const [erreurReserve, setErreurReserve] = useState(null);
+  const [succesReserve, setSuccesReserve] = useState(false);
   const [chambreIdx, setChambreIdx] = useState(0);
   const [dateArrivee, setDateArrivee] = useState("");
   const [dateDepart, setDateDepart] = useState("");
@@ -145,6 +152,64 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const handleReserver = (arg) => {
     if (typeof arg === "number") setChambreIdx(arg);
     setReserve(true);
+  };
+
+  // Fermeture : reset de TOUS les sous-états propres à la modale (champs contact +
+  // flux d'envoi), pour qu'une réouverture reparte propre. On NE touche PAS aux
+  // dates / voyageurs / chambre : ils appartiennent au contexte séjour partagé.
+  const fermerReserve = () => {
+    setReserve(false);
+    setNom("");
+    setEmail("");
+    setMessage("");
+    setEnvoi(false);
+    setErreurReserve(null);
+    setSuccesReserve(false);
+  };
+
+  // Soumission de la demande. Validation client MINIMALE (le serveur revalide
+  // TOUT et recalcule le prix — aucun prix n'est envoyé). Messages toujours
+  // génériques : jamais de détail brut, jamais l'existence d'un compte.
+  const soumettreReserve = async () => {
+    setErreurReserve(null);
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    if (nom.trim() === "") { setErreurReserve("Merci d'indiquer votre nom."); return; }
+    if (!emailOk) { setErreurReserve("Merci d'indiquer un email valide."); return; }
+    if (!dateArrivee || !dateDepart) { setErreurReserve("Merci de renseigner les dates de séjour."); return; }
+    if (dateArrivee >= dateDepart) { setErreurReserve("La date de départ doit suivre l'arrivée."); return; }
+
+    setEnvoi(true);
+    try {
+      const reponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/demande-reservation`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chateauSlug: chateau.slug,
+            chambreId: chambre.id,
+            dateArrivee,
+            dateDepart,
+            voyageurs,
+            message: message.trim() || null,
+            nom: nom.trim(),
+            email: email.trim(),
+          }),
+        },
+      );
+      const data = await reponse.json().catch(() => null);
+      if (reponse.ok && data?.ok) {
+        setSuccesReserve(true);
+      } else {
+        // response.error est déjà générique et anti-fuite côté serveur ; fallback neutre.
+        setErreurReserve(data?.error || "Un problème est survenu, merci de réessayer.");
+      }
+    } catch {
+      // Réseau KO / fetch rejeté : jamais de détail brut.
+      setErreurReserve("Un problème est survenu, merci de réessayer.");
+    } finally {
+      setEnvoi(false);
+    }
   };
 
   // POINT UNIQUE PLUG-READY dispo — a brancher sur Supabase le jour J (ne touche QUE le corps)
@@ -291,41 +356,71 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
 
       </div>
 
-      {/* MODALE RÉSERVE — INCHANGÉE (legacy) */}
+      {/* MODALE RÉSERVE — câblée sur l'Edge Function demande-reservation */}
       {reserve && (
-        <div className="vc3-reserve-overlay" onClick={() => setReserve(false)}>
+        <div className="vc3-reserve-overlay" onClick={fermerReserve}>
           <div className="vc3-reserve-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="vc3-reserve-close" onClick={() => setReserve(false)}>✕</button>
+            <button className="vc3-reserve-close" onClick={fermerReserve}>✕</button>
             <div className="vc3-reserve-lys">⚜</div>
-            <h2 className="vc3-reserve-titre">{chateau.nom}</h2>
-            <p className="vc3-reserve-sub">{chambre?.nom || chateau.chambres?.[0]?.nom} · {prixFinal} €/nuit</p>
-            <div className="vc3-reserve-sep" />
-            {chateau.chambres && (
-              <div className="vc3-reserve-chs">
-                {chateau.chambres.map((ch, i) => (
-                  <button key={i} className={"vc3-reserve-ch " + (chambreIdx === i ? "actif" : "")} onClick={() => setChambreIdx(i)}>
-                    <span>{ch.nom}</span>
-                    <span className="vc3-reserve-ch-prix">{ch.prix} €</span>
-                  </button>
-                ))}
-              </div>
+
+            {succesReserve ? (
+              /* ── ÉCRAN DE SUCCÈS — in-modale, aucune redirection ── */
+              <>
+                <h2 className="vc3-reserve-titre">Demande envoyée</h2>
+                <div className="vc3-reserve-sep" />
+                <p className="vc3-reserve-succes">
+                  Votre demande est bien partie. Le château vous répondra très vite.
+                </p>
+                <button className="vc3-reserve-btn" onClick={fermerReserve}>Fermer</button>
+              </>
+            ) : (
+              <>
+                <h2 className="vc3-reserve-titre">{chateau.nom}</h2>
+                <p className="vc3-reserve-sub">{chambre?.nom || chateau.chambres?.[0]?.nom} · {prixFinal} €/nuit</p>
+                <div className="vc3-reserve-sep" />
+                {chateau.chambres && (
+                  <div className="vc3-reserve-chs">
+                    {chateau.chambres.map((ch, i) => (
+                      <button key={i} className={"vc3-reserve-ch " + (chambreIdx === i ? "actif" : "")} onClick={() => setChambreIdx(i)}>
+                        <span>{ch.nom}</span>
+                        <span className="vc3-reserve-ch-prix">{ch.prix} €</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+                <div className="vc3-reserve-form">
+                  <div className="vc3-reserve-field">
+                    <label htmlFor="vc3-reserve-arrivee">Arrivée</label>
+                    <input id="vc3-reserve-arrivee" type="date" value={dateArrivee} onChange={(e) => setDateArrivee(e.target.value)} />
+                  </div>
+                  <div className="vc3-reserve-field">
+                    <label htmlFor="vc3-reserve-depart">Départ</label>
+                    <input id="vc3-reserve-depart" type="date" value={dateDepart} onChange={(e) => setDateDepart(e.target.value)} />
+                  </div>
+                  <div className="vc3-reserve-field vc3-reserve-field--full">
+                    <label htmlFor="vc3-reserve-voyageurs">Voyageurs</label>
+                    <input id="vc3-reserve-voyageurs" type="text" value={`${voyageurs} personne${voyageurs > 1 ? "s" : ""}`} readOnly />
+                  </div>
+                  <div className="vc3-reserve-field vc3-reserve-field--full">
+                    <label htmlFor="vc3-reserve-nom">Nom</label>
+                    <input id="vc3-reserve-nom" type="text" value={nom} onChange={(e) => setNom(e.target.value)} autoComplete="name" />
+                  </div>
+                  <div className="vc3-reserve-field vc3-reserve-field--full">
+                    <label htmlFor="vc3-reserve-email">Email</label>
+                    <input id="vc3-reserve-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+                  </div>
+                  <div className="vc3-reserve-field vc3-reserve-field--full">
+                    <label htmlFor="vc3-reserve-message">Message (facultatif)</label>
+                    <textarea id="vc3-reserve-message" className="vc3-reserve-textarea" rows={3} value={message} onChange={(e) => setMessage(e.target.value)} />
+                  </div>
+                </div>
+                {erreurReserve && <p className="vc3-reserve-erreur">{erreurReserve}</p>}
+                <button className="vc3-reserve-btn" onClick={soumettreReserve} disabled={envoi}>
+                  {envoi ? "Envoi…" : "Confirmer la réservation →"}
+                </button>
+                <p className="vc3-reserve-fond">Une partie de nos recettes est reversée à la Fondation du Patrimoine.</p>
+              </>
             )}
-            <div className="vc3-reserve-form">
-              <div className="vc3-reserve-field">
-                <label htmlFor="vc3-reserve-arrivee">Arrivée</label>
-                <input id="vc3-reserve-arrivee" type="date" value={dateArrivee} onChange={(e) => setDateArrivee(e.target.value)} />
-              </div>
-              <div className="vc3-reserve-field">
-                <label htmlFor="vc3-reserve-depart">Départ</label>
-                <input id="vc3-reserve-depart" type="date" value={dateDepart} onChange={(e) => setDateDepart(e.target.value)} />
-              </div>
-              <div className="vc3-reserve-field vc3-reserve-field--full">
-                <label htmlFor="vc3-reserve-voyageurs">Voyageurs</label>
-                <input id="vc3-reserve-voyageurs" type="text" value={`${voyageurs} personne${voyageurs > 1 ? "s" : ""}`} readOnly />
-              </div>
-            </div>
-            <button className="vc3-reserve-btn">Confirmer la réservation →</button>
-            <p className="vc3-reserve-fond">⚜ Une partie sera reversée à la Fondation du Patrimoine</p>
           </div>
         </div>
       )}
