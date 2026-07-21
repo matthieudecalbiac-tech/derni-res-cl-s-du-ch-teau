@@ -25,3 +25,11 @@ verify_jwt = false
 # donc pas de JWT. La fonction tourne en service_role et re-valide tout (elle
 # est le seul rempart). verify_jwt = false = appelable par un anonyme.
 verify_jwt = false
+
+[functions.send-email]
+# Traite la file email_log (modele b). JAMAIS appelable par un visiteur : la
+# protection n'est PAS le JWT (l'anon key est publique, donc verify_jwt seul ne
+# discrimine rien) mais le header X-Internal-Secret == INTERNAL_FUNCTION_SECRET
+# (secret Supabase, server-only). verify_jwt = false : on fait le controle
+# nous-memes en tete de fonction.
+verify_jwt = false
