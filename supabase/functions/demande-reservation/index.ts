@@ -20,6 +20,11 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
+// EdgeRuntime.waitUntil : garde le worker vivant jusqu'à ce que la promesse en
+// arrière-plan (le "nudge" vers send-email) se règle, APRÈS le return au client.
+// Fourni par l'Edge Runtime Supabase ; typé ici pour le confort.
+declare const EdgeRuntime: { waitUntil?: (p: Promise<unknown>) => void } | undefined;
+
 // ── Réglages (dans la fonction, pas en base) ──
 const RATE_LIMIT_MAX = 3; // demandes par IP...
 const RATE_WINDOW_MS = 15 * 60_000; // ...par fenêtre de 15 min
@@ -156,7 +161,7 @@ Deno.serve(async (req) => {
   // ─────────────────────────────────────────────────────────
   const { data: chateau, error: cErr } = await supabase
     .from("chateaux")
-    .select("id, statut, mode_paiement")
+    .select("id, nom, statut, mode_paiement")
     .eq("slug", chateauSlug)
     .maybeSingle();
   if (cErr) {
@@ -344,6 +349,111 @@ Deno.serve(async (req) => {
     }
     console.error("[demande-reservation] insert:", iErr.message, iErr.code);
     return fail(500, ERR_GENERIC);
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // 8. EMAIL (best-effort) — la demande est DÉJÀ durable (§7c). RIEN ci-dessous
+  //    ne peut faire échouer le return : la demande ne dépend jamais de l'email
+  //    (anti-fuite — le client reçoit le MÊME ok(reservationId) quoi qu'il arrive).
+  //
+  //    Placement VOULU : on écrit les lignes email_log de façon SYNCHRONE, AVANT
+  //    le return. C'est le cœur du modèle (b) : l'intention d'envoi doit être
+  //    durable en base pour être reprise si le nudge échoue. Coût = 2 aller-retours
+  //    (SELECT contacts + INSERT groupé) — on n'attend JAMAIS Brevo ici (ça, c'est
+  //    le nudge/reprise). Le rendu HTML n'est PAS fait ici : payload = { sujet,
+  //    params }, send-email met en forme selon le type.
+  // ─────────────────────────────────────────────────────────
+  try {
+    // Faits communs aux 3 gabarits. prixTotalEuros = montant SERVEUR (jamais client).
+    const base = {
+      chateau: chateau.nom,
+      dateArrivee,
+      dateDepart,
+      voyageurs,
+      prixTotalEuros: prixTotalCents / 100,
+    };
+
+    // Destinataires châtelains : 0, 1 ou plusieurs contacts actifs → 1 ligne / contact.
+    const { data: contacts, error: ctErr } = await supabase
+      .from("chateau_contacts")
+      .select("email")
+      .eq("chateau_id", chateau.id)
+      .eq("actif", true);
+    if (ctErr) console.error("[demande-reservation] chateau_contacts:", ctErr.message);
+
+    const adminEmail = Deno.env.get("ADMIN_EMAIL");
+    if (!adminEmail) console.warn("[demande-reservation] ADMIN_EMAIL absent — pas d'email admin");
+
+    // Une ligne email_log par email. Formes de params = celles documentées en tête
+    // de send-email/index.ts (ne pas dévier).
+    const rows: Array<Record<string, unknown>> = [];
+
+    // client : le CHÂTEAU uniquement, jamais le nom des propriétaires (règle éditoriale).
+    rows.push({
+      destinataire: email,
+      type: "demande_client",
+      reservation_id: inserted.id,
+      statut: "en_attente",
+      payload: {
+        sujet: `Votre demande — ${chateau.nom}`,
+        params: { nomClient: nom, ...base },
+      },
+    });
+
+    // chatelain : email de travail (contact + message + prix). Un par contact actif.
+    for (const c of contacts ?? []) {
+      rows.push({
+        destinataire: c.email,
+        type: "demande_chatelain",
+        reservation_id: inserted.id,
+        statut: "en_attente",
+        payload: {
+          sujet: `Nouvelle demande de séjour — ${chateau.nom}`,
+          params: { nomClient: nom, emailClient: email, message, ...base },
+        },
+      });
+    }
+
+    // admin : supervision, tout en clair.
+    if (adminEmail) {
+      rows.push({
+        destinataire: adminEmail,
+        type: "demande_admin",
+        reservation_id: inserted.id,
+        statut: "en_attente",
+        payload: {
+          sujet: `Demande ${chateau.nom} — ${nom}`,
+          params: { nomClient: nom, emailClient: email, message, ...base },
+        },
+      });
+    }
+
+    const { error: elErr } = await supabase.from("email_log").insert(rows);
+    if (elErr) {
+      // Écriture ratée (rare) : la demande reste valide. On logue, on NE casse PAS
+      // le return, et on ne nudge pas (rien à envoyer).
+      console.error("[demande-reservation] insert email_log:", elErr.message);
+    } else {
+      // NUDGE best-effort : déclenche send-email SANS attendre (waitUntil garde le
+      // worker vivant après le return). Si le nudge échoue, les lignes restent
+      // 'en_attente' → reprises plus tard. Le client ne voit rien de tout ça.
+      const nudge = fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-email`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Internal-Secret": Deno.env.get("INTERNAL_FUNCTION_SECRET") ?? "",
+        },
+        body: JSON.stringify({ reservationId: inserted.id }),
+      }).catch((e) =>
+        console.error("[demande-reservation] nudge send-email:", e instanceof Error ? e.message : String(e))
+      );
+      if (typeof EdgeRuntime !== "undefined" && EdgeRuntime?.waitUntil) {
+        EdgeRuntime.waitUntil(nudge);
+      }
+    }
+  } catch (e) {
+    // Filet ultime : quoi qu'il arrive côté email, la demande est déjà durable.
+    console.error("[demande-reservation] bloc email:", e instanceof Error ? e.message : String(e));
   }
 
   return ok(inserted.id);
