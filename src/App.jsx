@@ -24,7 +24,7 @@ import RequireAuth from "./components/auth/RequireAuth";
 import RequireRole from "./components/auth/RequireRole";
 import BookingFlowPlaceholder from "./components/placeholders/BookingFlowPlaceholder";
 import BookingConfirmationPlaceholder from "./components/placeholders/BookingConfirmationPlaceholder";
-import OwnerDashboardPlaceholder from "./components/placeholders/OwnerDashboardPlaceholder";
+import ChatelainDashboard from "./components/chatelain/ChatelainDashboard";
 // Chantier admin — brique 1 : châssis (layout + sidebar + sections placeholder).
 import AdminLayout from "./components/admin/AdminLayout";
 import AdminAccueil from "./components/admin/AdminAccueil";
@@ -160,7 +160,7 @@ function App() {
         element={
           <RequireAuth>
             <RequireRole role="chatelain">
-              <OwnerDashboardPlaceholder />
+              <ChatelainDashboard />
             </RequireRole>
           </RequireAuth>
         }
