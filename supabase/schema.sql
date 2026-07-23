@@ -807,6 +807,8 @@ COMMENT ON TABLE public.demande_rate_limit IS
 -- ───────────────────────────────────────────────────────────────────────────
 -- Jamais exposée au front (RLS active, aucune policy). service_role SELECT/INSERT/
 -- UPDATE (pas de DELETE — un log ne s'efface pas). Migration 2026-07-18-email-infra.
+-- Le statut 'en_cours' (réservation par claim_emails) vient de la migration
+-- 2026-07-23-email-log-claim.sql, qui porte aussi la fonction de claim.
 
 CREATE TABLE IF NOT EXISTS public.email_log (
   id                uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -814,7 +816,8 @@ CREATE TABLE IF NOT EXISTS public.email_log (
   type              text        NOT NULL,       -- 'demande_client' | 'demande_chatelain' | 'demande_admin'
   reservation_id    uuid        REFERENCES public.reservations(id) ON DELETE SET NULL,
   statut            text        NOT NULL DEFAULT 'en_attente'
-                    CHECK (statut IN ('en_attente', 'envoye', 'echoue')),
+                    CONSTRAINT email_log_statut_check
+                    CHECK (statut IN ('en_attente', 'en_cours', 'envoye', 'echoue')),
   tentatives        integer     NOT NULL DEFAULT 0,
   derniere_erreur   text,
   brevo_message_id  text,
