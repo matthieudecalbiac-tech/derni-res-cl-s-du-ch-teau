@@ -17,23 +17,29 @@
 // GRANTs email_log = SELECT/INSERT/UPDATE pour service_role (migration
 // 2026-07-18-email-infra.sql). Pas de DELETE (un log ne s'efface pas).
 //
-// ── FILE / REPRISE ────────────────────────────────────────────
-// SELECT email_log WHERE statut != 'envoye' AND tentatives < 5
-//                  [AND reservation_id = reservationId si fourni].
-//   • != 'envoye'  → reprend en_attente (jamais tenté) ET echoue (transitoire).
-//                    Aligné sur l'index partiel idx_email_log_a_renvoyer.
-//                    (NB : élargi depuis "= en_attente" du brief pour que les
-//                     lignes passées à 'echoue' en cas d'échec transitoire soient
-//                     réellement rejouées — sinon la reprise serait lettre morte.)
-//   • tentatives < 5 → borne l'acharnement. Au-delà, la ligne reste 'echoue' mais
-//                      n'est plus reprise (pas de statut "abandonné" dans l'enum ;
-//                      statut IN en_attente/envoye/echoue).
+// ── FILE / REPRISE — CLAIM ATOMIQUE ───────────────────────────
+// On ne LIT plus la file, on la RÉSERVE : rpc claim_emails(p_limit,
+// p_reservation_id) (migration 2026-07-23-email-log-claim.sql). Un UPDATE ...
+// RETURNING passe les lignes éligibles à 'en_cours' et les renvoie — deux drains
+// concurrents ne peuvent donc pas prendre la même ligne et envoyer deux fois le
+// même email (indispensable avec le balayage pg_cron toutes les 2 min).
+//   • éligible = statut != 'envoye' ET tentatives < 5 ET (pas déjà 'en_cours'
+//     OU réservée depuis plus de 10 min = drain mort, on la reprend).
+//   • FIFO created_at, lot borné à LOT_MAX.
+//   • p_reservation_id non-null = chemin nudge ; NULL = balayage complet.
+//   • tentatives est incrémenté AU CLAIM, pas à l'envoi : une ligne qui tue le
+//     worker de façon déterministe brûle son budget au lieu de boucler toutes
+//     les 10 min. C'est pourquoi les UPDATE de succès/échec ci-dessous n'y
+//     touchent plus.
+// La borne d'acharnement et le choix des statuts repris vivent maintenant dans
+// la fonction SQL — cette fonction ne décide plus QUI envoyer, seulement COMMENT.
 //
 // ── MAPPING BREVO ─────────────────────────────────────────────
-//   • 201            → statut='envoye', brevo_message_id=messageId, tentatives++.
-//   • 4xx sauf 429   → statut='echoue', derniere_erreur, tentatives++ (définitif).
-//   • 429 / 5xx / net→ statut='echoue', derniere_erreur, tentatives++ (transitoire,
-//                      rejoué au prochain appel tant que tentatives < 5).
+//   • 201            → statut='envoye', brevo_message_id=messageId.
+//   • 4xx sauf 429   → statut='echoue', derniere_erreur (définitif).
+//   • 429 / 5xx / net→ statut='echoue', derniere_erreur (transitoire, rejoué au
+//                      prochain claim tant que tentatives < 5).
+//   (tentatives n'apparaît plus ici : il est incrémenté au claim.)
 //   (429 et 4xx-définitif finissent tous en 'echoue' : la seule différence est que
 //    le second est peu susceptible de réussir en rejouant — la borne tentatives<5
 //    le neutralise de toute façon.)
@@ -97,7 +103,11 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2";
 
-const TENTATIVES_MAX = 5; // au-delà, on ne rejoue plus (borne d'acharnement)
+// Taille du lot réservé par appel. Assez pour vider une file normale en un
+// passage, assez petit pour qu'un worker mort n'immobilise pas toute la file
+// pendant la fenêtre de reprise. La borne d'acharnement (tentatives < 5), elle,
+// vit désormais dans claim_emails — plus de constante TENTATIVES_MAX ici.
+const LOT_MAX = 50;
 
 // Expéditeur vérifié Brevo (non négociable ici).
 const SENDER = { name: "Les Clés du Château", email: "matthieu.de.calbiac@gmail.com" };
@@ -350,17 +360,20 @@ Deno.serve(async (req) => {
     { auth: { persistSession: false, autoRefreshToken: false } },
   );
 
-  // ── 2. Lire la file (en_attente + echoue, sous la borne tentatives) ──
-  let q = supabase
-    .from("email_log")
-    .select("id, destinataire, type, payload, tentatives")
-    .neq("statut", "envoye")
-    .lt("tentatives", TENTATIVES_MAX);
-  if (reservationId) q = q.eq("reservation_id", reservationId);
-
-  const { data: lignes, error: selErr } = await q;
-  if (selErr) {
-    console.error("[send-email] SELECT email_log:", selErr.message);
+  // ── 2. RÉSERVER le lot (claim atomique) ──
+  // On ne lit plus la file : on la RÉSERVE. claim_emails passe les lignes
+  // éligibles à 'en_cours' et les renvoie, en une requête. Deux drains
+  // concurrents ne peuvent donc plus prendre la même ligne et envoyer deux fois
+  // le même email — ce qui deviendrait courant avec le balayage pg_cron.
+  // L'éligibilité (statut, borne tentatives, reprise des drains morts) vit
+  // désormais dans la fonction SQL, pas ici.
+  const { data: lignes, error: claimErr } = await supabase.rpc("claim_emails", {
+    p_limit: LOT_MAX,
+    // NULL = balayage de toute la file ; sinon chemin nudge sur une demande.
+    p_reservation_id: reservationId ?? null,
+  });
+  if (claimErr) {
+    console.error("[send-email] claim_emails:", claimErr.message);
     return json(500, { ok: false, error: "db_error" });
   }
 
@@ -372,7 +385,10 @@ Deno.serve(async (req) => {
   for (const ligne of lignes ?? []) {
     traites++;
 
-    // Échec (statut='echoue') centralisé : trace derniere_erreur + tentatives++.
+    // Échec (statut='echoue') centralisé : trace derniere_erreur.
+    // PAS de tentatives++ ici : le compteur a déjà été incrémenté AU CLAIM.
+    // L'incrémenter une seconde fois consommerait deux essais par passage et
+    // ramènerait le budget réel de 5 à 2,5.
     const marquerEchoue = async (raison: string) => {
       echoues++;
       const { error: upErr } = await supabase
@@ -380,7 +396,6 @@ Deno.serve(async (req) => {
         .update({
           statut: "echoue",
           derniere_erreur: raison.slice(0, 500),
-          tentatives: (ligne.tentatives ?? 0) + 1,
         })
         .eq("id", ligne.id);
       if (upErr) console.error(`[send-email] UPDATE echoue id=${ligne.id}:`, upErr.message);
@@ -438,12 +453,12 @@ Deno.serve(async (req) => {
       } catch {
         // 201 sans corps JSON exploitable : on considère l'envoi réussi quand même.
       }
+      // Idem : tentatives a été incrémenté au claim, on ne le retouche pas.
       const { error: upErr } = await supabase
         .from("email_log")
         .update({
           statut: "envoye",
           brevo_message_id: messageId,
-          tentatives: (ligne.tentatives ?? 0) + 1,
         })
         .eq("id", ligne.id);
       if (upErr) {
@@ -462,7 +477,8 @@ Deno.serve(async (req) => {
       // pas de corps JSON
     }
     // 4xx sauf 429 = définitif ; 429 / 5xx = transitoire. Dans les deux cas :
-    // statut='echoue' + tentatives++ (la borne tentatives<5 neutralise le définitif).
+    // statut='echoue' dans les deux cas (la borne tentatives<5, appliquée au
+    // claim, neutralise de toute façon le définitif).
     console.warn(`[send-email] Brevo échec id=${ligne.id} type=${ligne.type}: ${detail}`);
     await marquerEchoue(detail);
   }
