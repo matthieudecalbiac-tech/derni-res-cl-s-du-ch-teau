@@ -144,3 +144,80 @@
   font-style: italic;
   color: var(--gris-fonce);
 }
+
+/* ── Avis d'information (ex. demande déjà traitée) ──────────────────────────
+   Ce n'est pas une panne : ton neutre, pas .che-erreur (rouge velours). */
+.che-avis {
+  margin: 0 0 20px;
+  padding: 10px 14px;
+  border-left: 2px solid var(--or);
+  background: rgba(192, 152, 64, 0.08);
+  font-family: var(--font-editorial), serif;
+  font-size: 1.05rem;
+  color: var(--bleu-nuit);
+}
+
+/* ── Répondre à une demande ─────────────────────────────────────────────────
+   Deux boutons sobres. "Refuser" ne porte AUCUN rouge : refuser un séjour est
+   une réponse légitime du châtelain, pas une action destructrice à dramatiser. */
+.che-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(192, 152, 64, 0.2);
+}
+
+.che-btn {
+  font-family: var(--font-ui), sans-serif;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 9px 20px;
+  border-radius: 2px;
+  border: 1px solid rgba(13, 22, 40, 0.25);
+  background: transparent;
+  color: var(--bleu-nuit);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.che-btn:hover:not(:disabled) {
+  border-color: var(--bleu-nuit);
+  background: rgba(13, 22, 40, 0.04);
+}
+.che-btn--primaire {
+  border-color: var(--or-sombre);
+  background: rgba(192, 152, 64, 0.16);
+  color: var(--or-sombre);
+}
+.che-btn--primaire:hover:not(:disabled) {
+  border-color: var(--or-sombre);
+  background: rgba(192, 152, 64, 0.28);
+}
+.che-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── Modale de confirmation (corps posé dans le primitif Modale) ──────────── */
+.che-confirm {
+  font-family: var(--font-ui), sans-serif;
+  color: var(--bleu-nuit);
+}
+.che-confirm-texte {
+  margin: 0 0 22px;
+  font-family: var(--font-editorial), serif;
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: var(--bleu-nuit);
+}
+.che-confirm .che-erreur {
+  margin: 0 0 18px;
+  font-size: 0.98rem;
+}
+.che-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
