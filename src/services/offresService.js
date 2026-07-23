@@ -1,5 +1,6 @@
 import { supabase } from "../lib/supabase.js";
 import { mapOffre, MODULE_B_ID, MODULE_C_ID } from "./_mapping.js";
+import { logErreurSupabase } from "../utils/logSupabase.js";
 
 // ============================================================
 // Service des offres. Lit la table public.offres (plus de mock).
@@ -45,7 +46,7 @@ export async function getOffresPourChateau(chateauSlug, module, filtre = null) {
   const hit = _cache.get(cle);
   if (_cleValide(hit)) return hit.v;
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("offres")
     .select(SELECT_OFFRES)
     .eq("chateaux.slug", chateauSlug)
@@ -54,7 +55,7 @@ export async function getOffresPourChateau(chateauSlug, module, filtre = null) {
     .order("ordre", { ascending: true });
 
   if (error) {
-    console.error("[offresService] getOffresPourChateau:", error);
+    logErreurSupabase("[offresService] getOffresPourChateau:", error, status);
     throw error;
   }
 
@@ -68,7 +69,7 @@ export async function getOffresClub() {
   const hit = _cache.get(cle);
   if (_cleValide(hit)) return hit.v;
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("offres")
     .select(SELECT_OFFRES_CLUB)
     .eq("module_id", MODULE_C_ID)
@@ -76,7 +77,7 @@ export async function getOffresClub() {
     .order("ordre", { ascending: true });
 
   if (error) {
-    console.error("[offresService] getOffresClub:", error);
+    logErreurSupabase("[offresService] getOffresClub:", error, status);
     throw error;
   }
 
@@ -99,14 +100,14 @@ export async function getOffresClub() {
 // Les slugs des chateaux ayant au moins une offre Dernieres Cles visible.
 // Sert l'overlay marketing, qui listait ces chateaux via un champ modules invente.
 export async function getSlugsAvecOffreDernieresCles() {
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("offres")
     .select("chateaux!inner(slug)")
     .eq("module_id", MODULE_B_ID)
     .eq("visible", true);
 
   if (error) {
-    console.error("[offresService] getSlugsAvecOffreDernieresCles:", error);
+    logErreurSupabase("[offresService] getSlugsAvecOffreDernieresCles:", error, status);
     throw error;
   }
   return new Set((data ?? []).map((r) => r.chateaux?.slug).filter(Boolean));
@@ -114,7 +115,7 @@ export async function getSlugsAvecOffreDernieresCles() {
 
 export async function getOffreParId(offreId) {
   if (!offreId) return null;
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("offres")
     .select(SELECT_OFFRES)
     .eq("id", offreId)
@@ -122,7 +123,7 @@ export async function getOffreParId(offreId) {
     .maybeSingle();
 
   if (error) {
-    console.error("[offresService] getOffreParId:", error);
+    logErreurSupabase("[offresService] getOffreParId:", error, status);
     throw error;
   }
   if (!data) return null;

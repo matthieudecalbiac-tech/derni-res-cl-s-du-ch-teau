@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase.js";
+import { logErreurSupabase } from "../utils/logSupabase.js";
 
 // ============================================================
 // Service du Club des Chatelains.
@@ -13,12 +14,12 @@ import { supabase } from "../lib/supabase.js";
 
 // Grille complete des paliers (referentiel public, ordonne par rang).
 export async function getPaliers() {
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("paliers")
     .select("*")
     .order("rang", { ascending: true });
   if (error) {
-    console.error("[clubService] getPaliers:", error);
+    logErreurSupabase("[clubService] getPaliers:", error, status);
     throw error;
   }
   return data ?? [];
@@ -27,11 +28,11 @@ export async function getPaliers() {
 // Nombre de sejours confirmes d'un utilisateur (via RPC).
 export async function getNbSejoursConfirmes(userId) {
   if (!userId) return 0;
-  const { data, error } = await supabase.rpc("count_sejours_confirmes", {
+  const { data, error, status } = await supabase.rpc("count_sejours_confirmes", {
     p_user_id: userId,
   });
   if (error) {
-    console.error("[clubService] getNbSejoursConfirmes:", error);
+    logErreurSupabase("[clubService] getNbSejoursConfirmes:", error, status);
     throw error;
   }
   return typeof data === "number" ? data : 0;
@@ -40,11 +41,11 @@ export async function getNbSejoursConfirmes(userId) {
 // Palier courant derive (via RPC). Renvoie la ligne paliers ou null.
 export async function getPalierCourant(userId) {
   if (!userId) return null;
-  const { data, error } = await supabase.rpc("palier_du_membre", {
+  const { data, error, status } = await supabase.rpc("palier_du_membre", {
     p_user_id: userId,
   });
   if (error) {
-    console.error("[clubService] getPalierCourant:", error);
+    logErreurSupabase("[clubService] getPalierCourant:", error, status);
     throw error;
   }
   // rpc sur une fonction RETURNS table_row renvoie soit un objet, soit un
@@ -57,7 +58,7 @@ export async function getPalierCourant(userId) {
 // date d'arrivee decroissante. Jointure vers chambre + chateau pour l'affichage.
 export async function getMesReservations(userId) {
   if (!userId) return [];
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("reservations")
     .select(`
       id, date_arrivee, date_depart, prix_total_cents, status,
@@ -66,7 +67,7 @@ export async function getMesReservations(userId) {
     .eq("user_id", userId)
     .order("date_arrivee", { ascending: false });
   if (error) {
-    console.error("[clubService] getMesReservations:", error);
+    logErreurSupabase("[clubService] getMesReservations:", error, status);
     throw error;
   }
   return data ?? [];

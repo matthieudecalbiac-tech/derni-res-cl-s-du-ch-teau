@@ -9,6 +9,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { supabase } from "../lib/supabase.js";
+import { logErreurSupabase } from "../utils/logSupabase.js";
 
 // Code porté par l'Error levée quand la RPC refuse une demande déjà traitée
 // (garde `status = pending`). L'appelant teste CE code, jamais un message : le
@@ -18,14 +19,14 @@ export const ERR_DEJA_TRAITEE = "DEMANDE_DEJA_TRAITEE";
 // Demandes de séjour des châteaux du châtelain courant, plus récente arrivée en
 // tête. La vue n'expose ni user_id ni contact client (LCC intermédiaire).
 export async function getDemandesChatelain() {
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("reservations_chatelain_view")
     .select(
       "id, chambre_id, chambre_nom, chateau_nom, chateau_slug, date_arrivee, date_depart, voyageurs, message, prix_total_cents, commission_lcc_cents, status, created_at",
     )
     .order("date_arrivee", { ascending: false });
   if (error) {
-    console.error("[chatelainService] getDemandesChatelain:", error);
+    logErreurSupabase("[chatelainService] getDemandesChatelain:", error, status);
     throw error;
   }
   return data ?? [];
@@ -46,13 +47,13 @@ export async function getDemandesChatelain() {
 // 'en_attente' (outbox) dans la même transaction que le statut. Cf. le
 // commentaire du dashboard sur le drain.
 export async function repondreDemande(reservationId, decision) {
-  const { data, error } = await supabase.rpc("repondre_demande", {
+  const { data, error, status } = await supabase.rpc("repondre_demande", {
     p_reservation_id: reservationId,
     p_decision: decision,
   });
 
   if (error) {
-    console.error("[chatelainService] repondreDemande:", error);
+    logErreurSupabase("[chatelainService] repondreDemande:", error, status);
     // La RPC lève 4 exceptions, chacune avec son ERRCODE : P0002 introuvable,
     // 42501 pas le châtelain, 22023 décision invalide, et P0001 UNIQUEMENT pour
     // la garde "déjà traitée". On discrimine donc sur le code (stable), pas sur

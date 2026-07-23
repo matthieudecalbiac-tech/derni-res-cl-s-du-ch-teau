@@ -1,4 +1,5 @@
 import { supabase } from "../lib/supabase.js";
+import { logErreurSupabase } from "../utils/logSupabase.js";
 
 // ============================================================
 // Messagerie du Club. Un fil unique par membre, avec l'equipe.
@@ -15,14 +16,14 @@ import { supabase } from "../lib/supabase.js";
 // Le fil du membre, du plus ancien au plus recent.
 export async function getFil(userId) {
   if (!userId) return [];
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("messages")
     .select("id, expediteur, contenu, lu_le, created_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: true });
 
   if (error) {
-    console.error("[messagesService] getFil:", error);
+    logErreurSupabase("[messagesService] getFil:", error, status);
     throw error;
   }
   return data ?? [];
@@ -34,14 +35,14 @@ export async function envoyerMessage(userId, contenu) {
   const texte = (contenu ?? "").trim();
   if (!userId || !texte) return null;
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("messages")
     .insert({ user_id: userId, expediteur: "membre", contenu: texte })
     .select("id, expediteur, contenu, lu_le, created_at")
     .single();
 
   if (error) {
-    console.error("[messagesService] envoyerMessage:", error);
+    logErreurSupabase("[messagesService] envoyerMessage:", error, status);
     throw error;
   }
   return data;
@@ -51,7 +52,7 @@ export async function envoyerMessage(userId, contenu) {
 // C'est le chiffre de la pastille dans la barre laterale.
 export async function compterNonLus(userId) {
   if (!userId) return 0;
-  const { count, error } = await supabase
+  const { count, error, status } = await supabase
     .from("messages")
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId)
@@ -59,7 +60,7 @@ export async function compterNonLus(userId) {
     .is("lu_le", null);
 
   if (error) {
-    console.error("[messagesService] compterNonLus:", error);
+    logErreurSupabase("[messagesService] compterNonLus:", error, status);
     throw error;
   }
   return count ?? 0;
@@ -69,7 +70,7 @@ export async function compterNonLus(userId) {
 // La policy interdit de toucher aux messages du membre lui-meme.
 export async function marquerLu(userId) {
   if (!userId) return 0;
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("messages")
     .update({ lu_le: new Date().toISOString() })
     .eq("user_id", userId)
@@ -78,7 +79,7 @@ export async function marquerLu(userId) {
     .select("id");
 
   if (error) {
-    console.error("[messagesService] marquerLu:", error);
+    logErreurSupabase("[messagesService] marquerLu:", error, status);
     throw error;
   }
   return data?.length ?? 0;
