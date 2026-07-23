@@ -28,7 +28,9 @@
 //   - Sera réparée S2 via RPC Supabase count_chambres_disponibles()
 //
 // ROBUSTESSE
-//   - Erreurs Supabase loggées console.error + propagées au caller
+//   - Erreurs Supabase loggées via logErreurSupabase (utils/logSupabase.js) —
+//     une requête sans réponse HTTP (status 0 : annulation, transport) ne part
+//     PAS en console.error — puis propagées au caller (le throw est inchangé)
 //   - Cache miss après TTL → refresh transparent
 //   - VITE_FAKE_LATENCY conservé pour DX (tests UI ralentis Phase 4.7)
 // ═══════════════════════════════════════════════════════════════════════════
@@ -48,6 +50,7 @@ import {
 } from "./_mapping.js";
 import { cheminStorageDepuisUrl } from "../utils/storageUrl.js";
 import { slugify } from "../utils/slug.js";
+import { logErreurSupabase } from "../utils/logSupabase.js";
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -138,7 +141,7 @@ function _isMock(chateau) {
  * @throws Si Supabase retourne une erreur.
  */
 async function _fetchAllChateaux() {
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("chateaux")
     .select(SELECT_FULL)
     .eq("statut", "publie")
@@ -146,7 +149,7 @@ async function _fetchAllChateaux() {
     .order("nom", { ascending: true });
 
   if (error) {
-    console.error("[chateauxService] Supabase error:", error);
+    logErreurSupabase("[chateauxService] Supabase error:", error, status);
     throw new Error(`Failed to fetch chateaux: ${error.message}`);
   }
 
@@ -234,14 +237,14 @@ export async function getPersonnageBySlug(slug) {
   if (!slug) return null;
   await _withFakeLatency();
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("personnages")
     .select(SELECT_PERSONNAGE_FICHE)
     .eq("slug", slug)
     .maybeSingle();
 
   if (error) {
-    console.error("[chateauxService] getPersonnageBySlug error:", error);
+    logErreurSupabase("[chateauxService] getPersonnageBySlug error:", error, status);
     throw new Error(`Failed to fetch personnage ${slug}: ${error.message}`);
   }
   return mapPersonnageFiche(data);
@@ -258,13 +261,13 @@ export async function getPersonnageBySlug(slug) {
 export async function getCataloguePersonnages() {
   await _withFakeLatency();
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("personnages")
     .select(SELECT_CATALOGUE)
     .order("nom", { ascending: true });
 
   if (error) {
-    console.error("[chateauxService] getCataloguePersonnages error:", error);
+    logErreurSupabase("[chateauxService] getCataloguePersonnages error:", error, status);
     throw new Error(`Failed to fetch catalogue personnages: ${error.message}`);
   }
   return mapCataloguePersonnages(data);
@@ -340,13 +343,13 @@ export function invalidateCache() {
  * @throws Si Supabase retourne une erreur.
  */
 export async function getChateauxAdmin() {
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("chateaux")
     .select("id,slug,nom,region,statut,is_demo_mock,est_la_une")
     .order("nom", { ascending: true });
 
   if (error) {
-    console.error("[chateauxService] getChateauxAdmin error:", error);
+    logErreurSupabase("[chateauxService] getChateauxAdmin error:", error, status);
     throw new Error(`Failed to fetch chateaux (admin): ${error.message}`);
   }
 
@@ -374,14 +377,14 @@ export async function updateChateau(id, champs) {
 
   const row = chateauToRow(champs, { partial: true });
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("chateaux")
     .update(row)
     .eq("id", id)
     .select();
 
   if (error) {
-    console.error("[chateauxService] updateChateau error:", error);
+    logErreurSupabase("[chateauxService] updateChateau error:", error, status);
     throw new Error(`Failed to update chateau ${id}: ${error.message}`);
   }
 
@@ -418,14 +421,14 @@ export async function updateChateau(id, champs) {
 export async function getChateauAdminById(id) {
   if (!id) throw new Error("getChateauAdminById : id requis.");
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("chateaux")
     .select(SELECT_FULL)
     .eq("id", id)
     .maybeSingle();
 
   if (error) {
-    console.error("[chateauxService] getChateauAdminById error:", error);
+    logErreurSupabase("[chateauxService] getChateauAdminById error:", error, status);
     throw new Error(`Failed to fetch chateau ${id} (admin): ${error.message}`);
   }
   if (!data) {
@@ -452,13 +455,13 @@ export async function getChateauAdminById(id) {
  * @throws Si erreur Supabase.
  */
 export async function getEquipements() {
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("equipements")
     .select("slug, libelle, ordre")
     .order("ordre", { ascending: true });
 
   if (error) {
-    console.error("[chateauxService] getEquipements error:", error);
+    logErreurSupabase("[chateauxService] getEquipements error:", error, status);
     throw new Error(`Failed to fetch equipements: ${error.message}`);
   }
   return data ?? [];
@@ -476,13 +479,13 @@ export async function getEquipements() {
  * @throws Si erreur Supabase.
  */
 export async function getPersonnages() {
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("personnages")
     .select("id, nom, slug, biographie")
     .order("nom", { ascending: true });
 
   if (error) {
-    console.error("[chateauxService] getPersonnages error:", error);
+    logErreurSupabase("[chateauxService] getPersonnages error:", error, status);
     throw new Error(`Failed to fetch personnages: ${error.message}`);
   }
   return data ?? [];
@@ -511,13 +514,13 @@ function _mapPersonnageAdmin(row) {
  * @throws Si erreur Supabase.
  */
 export async function getPersonnagesAdmin() {
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("personnages")
     .select("id, nom, slug, biographie, chateau_personnages(count)")
     .order("nom", { ascending: true });
 
   if (error) {
-    console.error("[chateauxService] getPersonnagesAdmin error:", error);
+    logErreurSupabase("[chateauxService] getPersonnagesAdmin error:", error, status);
     throw new Error(`Failed to fetch personnages (admin): ${error.message}`);
   }
   return (data ?? []).map(_mapPersonnageAdmin);
@@ -534,14 +537,14 @@ export async function getPersonnagesAdmin() {
 export async function getPersonnageAdminById(id) {
   if (!id) throw new Error("getPersonnageAdminById : id requis.");
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("personnages")
     .select("id, nom, slug, biographie, chateau_personnages(count)")
     .eq("id", id)
     .maybeSingle();
 
   if (error) {
-    console.error("[chateauxService] getPersonnageAdminById error:", error);
+    logErreurSupabase("[chateauxService] getPersonnageAdminById error:", error, status);
     throw new Error(`Failed to fetch personnage ${id} (admin): ${error.message}`);
   }
   if (!data) throw new Error(`getPersonnageAdminById : personnage ${id} introuvable.`);
@@ -576,14 +579,14 @@ export async function updatePersonnage(id, { nom, biographie } = {}) {
   // biographie : vide/espaces → null (colonne nullable, cohérent avec la lecture).
   const bio = typeof biographie === "string" && biographie.trim() !== "" ? biographie : null;
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("personnages")
     .update({ nom: nom.trim(), slug, biographie: bio })
     .eq("id", id)
     .select();
 
   if (error) {
-    console.error("[chateauxService] updatePersonnage error:", error);
+    logErreurSupabase("[chateauxService] updatePersonnage error:", error, status);
     if (error.code === "23505") {
       throw new Error(
         `Le nom « ${nom.trim()} » produit un slug (${slug}) déjà utilisé par un autre personnage. Choisis un nom distinct.`
@@ -617,14 +620,14 @@ export async function updatePersonnage(id, { nom, biographie } = {}) {
 export async function deletePersonnage(id) {
   if (!id) throw new Error("deletePersonnage : id requis.");
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("personnages")
     .delete()
     .eq("id", id)
     .select();
 
   if (error) {
-    console.error("[chateauxService] deletePersonnage error:", error);
+    logErreurSupabase("[chateauxService] deletePersonnage error:", error, status);
     if (error.code === "23503") {
       throw new Error(
         "Ce personnage est rattaché à un ou plusieurs châteaux et ne peut pas être supprimé. " +
@@ -678,7 +681,7 @@ export async function saveChateauComplet(id, sections = {}) {
   const p_amenities   = amenities   != null ? amenities.map((a, i) => amenityToRow(a, i))    : null;
   const p_personnages = personnages != null ? personnages.map((p, i) => personnageToRow(p, i)) : null;
 
-  const { data, error } = await supabase.rpc("admin_upsert_chateau", {
+  const { data, error, status } = await supabase.rpc("admin_upsert_chateau", {
     p_id: id,
     p_base,
     p_chambres,
@@ -690,7 +693,7 @@ export async function saveChateauComplet(id, sections = {}) {
 
   if (error) {
     // Un non-admin déclenche le RAISE 42501 de la RPC → error non-null.
-    console.error("[chateauxService] saveChateauComplet error:", error);
+    logErreurSupabase("[chateauxService] saveChateauComplet error:", error, status);
 
     // 23503 = violation de FK : on tente de supprimer une chambre encore
     // référencée par une réservation (FK RESTRICT). Message clair plutôt que
@@ -731,14 +734,14 @@ export async function createChateau(nom, slug) {
     throw new Error("createChateau : le slug est requis.");
   }
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("chateaux")
     .insert({ nom: nom.trim(), slug: slug.trim() })
     .select()
     .single();
 
   if (error) {
-    console.error("[chateauxService] createChateau error:", error);
+    logErreurSupabase("[chateauxService] createChateau error:", error, status);
     if (error.code === "23505") {
       // Violation d'unicité — le slug existe déjà.
       throw new Error("Ce slug est déjà utilisé, choisis-en un autre.");
@@ -795,7 +798,8 @@ export async function uploadImage(file) {
     .upload(chemin, file, { contentType: file.type });
 
   if (error) {
-    console.error("[chateauxService] uploadImage error:", error);
+    // Storage : la réponse n'expose pas de `status` → le helper logge normalement.
+    logErreurSupabase("[chateauxService] uploadImage error:", error);
     throw new Error(`Échec du téléversement : ${error.message}`);
   }
 
@@ -825,14 +829,14 @@ export async function updateStatut(id, statut) {
     );
   }
 
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("chateaux")
     .update({ statut })
     .eq("id", id)
     .select();
 
   if (error) {
-    console.error("[chateauxService] updateStatut error:", error);
+    logErreurSupabase("[chateauxService] updateStatut error:", error, status);
     throw new Error(`Failed to update statut ${id}: ${error.message}`);
   }
   if (!data || data.length === 0) {
@@ -884,20 +888,20 @@ export async function deleteChateau(id) {
       .from("chateaux-images")
       .remove(chemins);
     if (errStorage) {
-      console.error("[chateauxService] deleteChateau: nettoyage Storage échoué:", errStorage);
+      logErreurSupabase("[chateauxService] deleteChateau: nettoyage Storage échoué:", errStorage);
       // On continue : le château doit partir même si des images subsistent.
     }
   }
 
   // 3. Supprimer la ligne château — les filles partent en cascade FK.
-  const { data, error } = await supabase
+  const { data, error, status } = await supabase
     .from("chateaux")
     .delete()
     .eq("id", id)
     .select();
 
   if (error) {
-    console.error("[chateauxService] deleteChateau error:", error);
+    logErreurSupabase("[chateauxService] deleteChateau error:", error, status);
     throw new Error(`Failed to delete chateau ${id}: ${error.message}`);
   }
   if (!data || data.length === 0) {
