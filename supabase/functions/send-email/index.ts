@@ -97,6 +97,19 @@
 //     }
 //     (écrits par la RPC repondre_demande, patron outbox.)
 //
+//   type = 'sejour_annule'  (annulation par le client — AU CHÂTELAIN + ADMIN)
+//     params: {
+//       chateau:        string
+//       chambre:        string
+//       dateArrivee:    "YYYY-MM-DD"
+//       dateDepart:     "YYYY-MM-DD"
+//       voyageurs:      number
+//     }
+//     (écrits par la RPC annuler_ma_reservation, patron outbox.)
+//     JAMAIS envoyé au client : il vient de faire le geste, l'écran le lui
+//     confirme. Ne porte NI contact client NI motif d'annulation (texte libre
+//     non relu ; le motif reste en base dans reservations.cancellation_reason).
+//
 // Toutes les valeurs texte issues des params sont échappées (escapeHtml) avant
 // insertion dans le HTML — le `message` du visiteur est du texte non fiable.
 // ══════════════════════════════════════════════════════════════
@@ -310,12 +323,36 @@ function gabaritSejourRefuse(p: Params): string {
   return enveloppe("Votre demande de séjour", corps);
 }
 
+// Annulation par le client — email de TRAVAIL, destiné au châtelain (sa chambre
+// se libère) et à l'admin. Volontairement sec : aucun contact client, aucun
+// motif (texte libre non relu, il reste en base), aucune formule d'excuse. Ce
+// n'est pas une mauvaise nouvelle à annoncer, c'est une information à donner.
+function gabaritSejourAnnule(p: Params): string {
+  const sejour = tableFaits(
+    ligneFait("Château", escapeHtml(p.chateau)) +
+    ligneFait("Chambre", escapeHtml(p.chambre)) +
+    ligneFait("Arrivée", dateFr(p.dateArrivee)) +
+    ligneFait("Départ", dateFr(p.dateDepart)) +
+    ligneFait("Voyageurs", escapeHtml(p.voyageurs)),
+  );
+  const corps = `
+    <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">
+      Une demande de séjour vient d'être annulée par le voyageur.
+    </p>
+    ${sejour}
+    <p style="font-size:15px;line-height:1.7;margin:16px 0 0;">
+      Ces dates redeviennent disponibles.
+    </p>`;
+  return enveloppe("Séjour annulé", corps);
+}
+
 const GABARITS: Record<string, (p: Params) => string> = {
   demande_client: gabaritClient,
   demande_chatelain: gabaritChatelain,
   demande_admin: gabaritAdmin,
   sejour_confirme: gabaritSejourConfirme,
   sejour_refuse: gabaritSejourRefuse,
+  sejour_annule: gabaritSejourAnnule,
 };
 
 // ══════════════════════════════════════════════════════════════
