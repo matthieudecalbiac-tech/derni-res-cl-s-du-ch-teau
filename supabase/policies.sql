@@ -586,12 +586,34 @@ CREATE POLICY chateau_owners_write_admin ON public.chateau_owners
   WITH CHECK (public.is_admin());
 
 -- ───────────────────────────────────────────────────────────────────────────
--- 8.2 — reservations (4 policies cumulatives — pas de DELETE possible)
+-- 8.2 — reservations (1 seule policy : LECTURE. Aucune écriture directe.)
 -- ───────────────────────────────────────────────────────────────────────────
+-- Durci le 23 juillet 2026 (migration 2026-07-23-reservations-durcissement.sql).
+-- AUCUN rôle applicatif n'écrit plus directement dans cette table : toutes les
+-- écritures passent par une fonction, seul chemin possible.
+--   • création    → Edge Function demande-reservation, en service_role ;
+--   • réponse     → RPC repondre_demande, SECURITY DEFINER ;
+--   • annulation  → RPC annuler_ma_reservation, SECURITY DEFINER.
+-- Une fonction SECURITY DEFINER s'exécute avec les privilèges de son
+-- propriétaire : retirer les GRANT d'écriture à authenticated ne casse aucune
+-- des trois, et ferme l'accès direct.
+--
+-- Ce qui a été RETIRÉ, et pourquoi :
+--   • reservations_update_client_cancel — son WITH CHECK ne fixait que user_id
+--     et status : un client pouvait réécrire prix_total_cents, les dates ou
+--     chambre_id dans le même UPDATE, et « annuler » un séjour completed.
+--   • reservations_insert_client_admin — permettait à tout client connecté
+--     d'INSÉRER une réservation au prix de son choix. Aucun consommateur.
+--   • reservations_update_admin — DROP assumé. Un admin est un `authenticated` ;
+--     sans GRANT UPDATE pour ce rôle, la policy n'aurait plus jamais été
+--     évaluée. La garder aurait été un leurre — cf. le trou `equipements`
+--     documenté § GRANTs. Qui voudra un back-office d'écriture sur les
+--     réservations devra poser SCIEMMENT son chemin (RPC admin dédiée ou Edge
+--     Function service_role), plutôt que de croire qu'il en existe un.
+--
 -- Chatelain READ-ONLY (décision Matthieu : flexibilité plug-in externe S2).
--- Le client peut INSERT (sa propre réservation) et UPDATE (annulation seulement).
--- Admin a tous les pouvoirs sauf DELETE (intentionnellement absent — préserve
--- l'historique commercial via status='cancelled').
+-- Pas de DELETE, intentionnellement — l'historique commercial se préserve via
+-- status='cancelled'.
 
 DROP POLICY IF EXISTS reservations_select_owner ON public.reservations;
 CREATE POLICY reservations_select_owner ON public.reservations
@@ -606,31 +628,13 @@ CREATE POLICY reservations_select_owner ON public.reservations
     OR public.is_admin()
   );
 
+-- Les trois policies d'écriture (insert_client_admin, update_client_cancel,
+-- update_admin) ont été retirées le 23 juillet 2026 — cf. l'en-tête de cette
+-- section. Les DROP restent posés ici pour que rejouer ce fichier sur une base
+-- déjà bootstrappée referme bien les chemins.
 DROP POLICY IF EXISTS reservations_insert_client_admin ON public.reservations;
-CREATE POLICY reservations_insert_client_admin ON public.reservations
-  FOR INSERT
-  WITH CHECK (
-    user_id = auth.uid()
-    OR public.is_admin()
-  );
-
--- ⚠️ FAILLE THÉORIQUE MVP : la policy ci-dessous autorise un client à UPDATE
--- n'importe quelle colonne de sa résa tant que NEW.status='cancelled'.
--- Le frontend ne l'exposera pas (UI inexistante), mais un appel direct à
--- l'API Supabase pourrait modifier prix_total_cents, dates, etc.
--- À durcir en S2 : remplacer par RPC cancel_my_reservation(p_id, p_reason)
--- en SECURITY DEFINER + USING (false) FOR UPDATE pour bloquer UPDATE direct.
 DROP POLICY IF EXISTS reservations_update_client_cancel ON public.reservations;
-CREATE POLICY reservations_update_client_cancel ON public.reservations
-  FOR UPDATE
-  USING (user_id = auth.uid())
-  WITH CHECK (user_id = auth.uid() AND status = 'cancelled');
-
 DROP POLICY IF EXISTS reservations_update_admin ON public.reservations;
-CREATE POLICY reservations_update_admin ON public.reservations
-  FOR UPDATE
-  USING (public.is_admin())
-  WITH CHECK (public.is_admin());
 
 -- Pas de policy DELETE — DELETE refusé universellement (RLS deny-by-default).
 
@@ -756,7 +760,13 @@ GRANT INSERT, UPDATE, DELETE ON public.offres             TO authenticated;
 GRANT INSERT, UPDATE, DELETE ON public.chateau_modules    TO authenticated;
 GRANT INSERT, UPDATE, DELETE ON public.modules            TO authenticated;
 GRANT INSERT, UPDATE         ON public.users              TO authenticated;
-GRANT INSERT, UPDATE         ON public.reservations       TO authenticated;
+-- reservations : AUCUN droit d'ecriture pour authenticated (durcissement du
+-- 23 juillet 2026). Tout passe par fonction — demande-reservation en
+-- service_role, repondre_demande et annuler_ma_reservation en SECURITY DEFINER,
+-- qui s'executent avec les privileges du proprietaire et n'ont donc besoin
+-- d'aucun GRANT cote appelant. Le REVOKE ci-dessous est explicite pour que
+-- rejouer ce fichier sur une base deja bootstrappee referme le chemin.
+REVOKE INSERT, UPDATE        ON public.reservations       FROM authenticated;
 GRANT INSERT, UPDATE, DELETE ON public.chateau_owners     TO authenticated;
 GRANT INSERT                 ON public.audit_log          TO authenticated;
 GRANT INSERT                 ON public.migrations_log     TO authenticated;
