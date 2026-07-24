@@ -630,3 +630,201 @@
 .adm-apercu-retour:hover {
   text-decoration: underline;
 }
+
+/* ── Messages : deux panneaux (liste des fils | fil ouvert) ────────────────
+   Outil de travail : lisibilité avant décor. Reprend les tokens admin
+   existants, aucun style nouveau hors de ce bloc. */
+.adm-msgs {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) 1fr;
+  gap: var(--s-md);
+  margin-top: var(--s-sm);
+  align-items: start;
+}
+
+/* Liste des fils */
+.adm-fils {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--gris-clair);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.adm-fil {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.7rem 0.9rem;
+  border: none;
+  border-bottom: 1px solid var(--gris-clair);
+  background: transparent;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.adm-fil:hover {
+  background: var(--blanc-casse);
+}
+
+.adm-fil--actif {
+  background: var(--blanc-casse);
+  box-shadow: inset 3px 0 0 var(--or);
+}
+
+.adm-fil-tete {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.adm-fil-nom {
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+}
+
+.adm-fil--non-lu .adm-fil-nom {
+  font-weight: 600;
+}
+
+.adm-fil-pastille {
+  flex-shrink: 0;
+  min-width: 1.15rem;
+  padding: 0 0.35rem;
+  border-radius: 999px;
+  background: var(--or);
+  color: var(--bleu-nuit);
+  font-size: var(--t-xs);
+  text-align: center;
+}
+
+.adm-fil-email,
+.adm-fil-extrait,
+.adm-fil-date {
+  display: block;
+  font-size: var(--t-xs);
+  color: var(--gris-fonce);
+}
+
+.adm-fil-email {
+  margin-top: 1px;
+}
+
+/* La troncature de l'extrait est ICI, pas en base : c'est une décision
+   d'affichage. La vue renvoie le dernier message entier. */
+.adm-fil-extrait {
+  margin-top: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adm-fil-prefixe {
+  color: var(--bleu-nuit);
+}
+
+.adm-fil-date {
+  margin-top: 3px;
+  opacity: 0.75;
+}
+
+/* Fil ouvert */
+.adm-conv {
+  border: 1px solid var(--gris-clair);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  min-height: 420px;
+}
+
+.adm-conv-vide {
+  margin: auto;
+  padding: var(--s-md);
+}
+
+.adm-conv-tete {
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--gris-clair);
+  background: var(--blanc-casse);
+  font-family: var(--font-ui);
+}
+
+.adm-conv-nom {
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+}
+
+.adm-conv-email {
+  display: block;
+  font-size: var(--t-xs);
+  color: var(--gris-fonce);
+}
+
+.adm-conv-fil {
+  flex: 1;
+  padding: var(--s-sm) 0.9rem;
+  overflow-y: auto;
+  max-height: 46vh;
+}
+
+.adm-bulle {
+  max-width: 78%;
+  margin-bottom: 0.7rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 4px;
+  font-family: var(--font-ui);
+}
+
+.adm-bulle--membre {
+  background: var(--blanc-casse);
+  border: 1px solid var(--gris-clair);
+}
+
+.adm-bulle--equipe {
+  margin-left: auto;
+  background: rgba(192, 152, 64, 0.12);
+  border: 1px solid rgba(192, 152, 64, 0.35);
+}
+
+.adm-bulle-auteur {
+  display: block;
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  color: var(--gris-fonce);
+}
+
+.adm-bulle-contenu {
+  margin: 3px 0 0;
+  font-size: var(--t-sm);
+  line-height: 1.55;
+  color: var(--bleu-nuit);
+  white-space: pre-wrap;
+}
+
+.adm-bulle-heure {
+  display: block;
+  margin-top: 4px;
+  font-size: var(--t-xs);
+  color: var(--gris-fonce);
+  opacity: 0.75;
+}
+
+.adm-conv-saisie {
+  padding: var(--s-sm) 0.9rem;
+  border-top: 1px solid var(--gris-clair);
+}
+
+.adm-conv-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 900px) {
+  .adm-msgs {
+    grid-template-columns: 1fr;
+  }
+}

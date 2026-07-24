@@ -251,6 +251,38 @@ COMMENT ON VIEW public.reservations_chatelain_view IS
 GRANT SELECT ON public.reservations_chatelain_view TO authenticated;
 
 
+-- ───────────────────────────────────────────────────────────────────────────
+-- 4.4 — messages_fils_admin (liste des fils de la messagerie du Club)
+-- ───────────────────────────────────────────────────────────────────────────
+-- PostgREST ne sait pas faire de GROUP BY : « un fil par membre, avec son
+-- dernier message et son compte de non-lus » doit exister côté base.
+-- security_invoker = true : messages_select (user_id = auth.uid() OR is_admin())
+-- et users_select_self (auth.uid() = id OR is_admin()) font le filtrage avec les
+-- droits de l'appelant. Aucune garde applicative à écrire — là où une RPC, en
+-- SECURITY DEFINER, exposerait la correspondance de tous les membres si l'on
+-- oubliait son is_admin(). Cf. migration 2026-07-24-vue-messages-fils.sql.
+
+CREATE OR REPLACE VIEW public.messages_fils_admin
+WITH (security_invoker = true) AS
+SELECT
+  m.user_id,
+  u.email,
+  u.full_name,
+  count(*) FILTER (WHERE m.expediteur = 'membre' AND m.lu_le IS NULL)      AS non_lus,
+  count(*) FILTER (WHERE m.expediteur = 'membre' AND m.lu_le IS NULL) > 0  AS a_non_lus,
+  max(m.created_at)                                        AS dernier_at,
+  (array_agg(m.contenu    ORDER BY m.created_at DESC))[1]  AS dernier_contenu,
+  (array_agg(m.expediteur ORDER BY m.created_at DESC))[1]  AS dernier_expediteur
+FROM public.messages m
+JOIN public.users u ON u.id = m.user_id
+GROUP BY m.user_id, u.email, u.full_name;
+
+COMMENT ON VIEW public.messages_fils_admin IS
+  'Liste des fils de la messagerie du Club, un par membre, pour l''ecran /admin/messages. security_invoker=true : la RLS fait le filtrage (messages_select + users_select_self) — l''admin voit tous les fils, sans aucune garde applicative. Expose email et full_name : donnee personnelle assumee, l''admin doit savoir a qui il parle ; d''ou le suffixe _admin. dernier_expediteur dit si la balle est dans le camp de LCC. dernier_contenu est ENTIER (la troncature est une decision d''affichage, faite en CSS). a_non_lus sert le tri « non-lus d''abord PUIS par date », que non_lus DESC ne donnerait pas. LIMITE 1 : l''agregat parcourt messages a chaque appel, sans index dedie — sans objet a l''echelle actuelle (quelques membres), a revoir si le volume croit ; les index existants (messages_fil_idx, messages_non_lus_idx) servent le fil ouvert, pas cette agregation. LIMITE 2 : un membre NON-admin qui interrogerait cette vue y verrait sa propre ligne — ce n''est pas une fuite (c''est son fil), c''est un comportement a connaitre.';
+
+GRANT SELECT ON public.messages_fils_admin TO authenticated;
+
+
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 5. POLICIES — GROUPE A : users (5 policies)
 -- ═══════════════════════════════════════════════════════════════════════════
