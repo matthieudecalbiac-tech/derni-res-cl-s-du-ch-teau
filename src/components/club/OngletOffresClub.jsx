@@ -25,9 +25,16 @@ export default function OngletOffresClub() {
       {erreur && <p className="oc-etat oc-etat--erreur">Les offres n'ont pas pu être chargées.</p>}
 
       {!chargement && !erreur && offres.length === 0 && (
+        // Le vide dit la rareté, pas le chantier. « Arrivent bientôt » était une
+        // promesse datée que personne ne tiendrait, « vos châtelains les
+        // préparent » montrait les coulisses. Même parti pris que le slogan fixe
+        // de BandeauOffres : la rareté est une nature, pas un manque.
         <div className="oc-vide">
-          <p>Les offres du Club arrivent bientôt.</p>
-          <p className="oc-vide-sub">Vos châtelains les préparent.</p>
+          <p>Le Club ne compte aucun séjour ouvert aujourd'hui.</p>
+          <p className="oc-vide-sub">
+            Ces séjours sont rares par nature : quelques demeures, quelques dates,
+            réservées aux membres.
+          </p>
         </div>
       )}
 

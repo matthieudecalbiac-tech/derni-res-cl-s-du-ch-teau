@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 // Machine a etats simple (patron TransitionPorte) : apparition, tenue, fondu.
 // Respecte prefers-reduced-motion : dans ce cas, l'overlay ne se monte pas
 // (le parent ne l'appelle pas) -- voir PageClub.
-export default function BienvenueClub({ prenom, onTermine }) {
+// `nom` : le prenom quand on l'a, le nom complet a defaut (cf. PageClub). La
+// prop ne s'appelle pas `prenom` parce qu'elle ne porte pas toujours un prenom.
+export default function BienvenueClub({ nom, onTermine }) {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
@@ -20,7 +22,7 @@ export default function BienvenueClub({ prenom, onTermine }) {
         <img src="/FDL-transparent.png" alt="" className="bvn-logo" />
         <p className="bvn-texte">
           Le Club des Châtelains vous accueille,
-          <span className="bvn-prenom">{prenom}</span>
+          <span className="bvn-prenom">{nom}</span>
         </p>
         <span className="bvn-trait" />
       </div>

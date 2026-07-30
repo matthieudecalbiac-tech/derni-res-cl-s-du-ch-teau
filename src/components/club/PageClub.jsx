@@ -40,7 +40,9 @@ const ONGLETS = [
   { id: "messages", label: "Messages" },
   { id: "avantages", label: "Mes avantages" },
   { id: "infos", label: "Informations personnelles" },
-  { id: "preferences", label: "Préférences" },
+  // « Préférences » retirée : elle n'affichait qu'une note de développement au
+  // membre. Une rubrique vide vaut mieux qu'une rubrique qui montre le chantier.
+  // A remettre ici LE JOUR OU elle a un contenu — pas avant.
 ];
 
 export default function PageClub() {
@@ -57,10 +59,27 @@ export default function PageClub() {
   const [bienvenue, setBienvenue] = useState(false);
   const [bienvenueEvaluee, setBienvenueEvaluee] = useState(false);
 
+  // Le nom d'accueil : le prenom si on l'a, le nom complet sinon.
+  //
+  // Cas nominal : un membre arrive avec first_name renseigne — /completer-profil
+  // le lui demande (requis) au retour de sa PREMIERE connexion, magic link comme
+  // mot de passe, avant de le rendre a sa destination.
+  //
+  // Le repli couvre le RESIDU : celui qui a ferme l'onglet sur /completer-profil
+  // garde une session valide, et une visite directe de /club ne repasse par
+  // aucune des deux verifications (RequireAuth ne regarde que la session). Sans
+  // repli, le seul ecran concu pour accueillir un arrivant ne se jouait jamais
+  // pour lui. Un compte cree par le tunnel a toujours full_name (ecrit par
+  // demande-reservation).
+  //
+  // On ne DECOUPE pas full_name pour en extraire un prenom : « de Calbiac », les
+  // prenoms composes et les noms saisis a l'envers rendent l'heuristique fausse,
+  // et le registre patrimonial s'accommode tres bien du nom entier.
+  const nomAccueil = profile?.first_name?.trim() || profile?.full_name?.trim();
+
   useEffect(() => {
     if (bienvenueEvaluee) return;
-    const prenom = profile?.first_name?.trim();
-    if (!prenom) return;   // on attend que le profil arrive (null au premier rendu)
+    if (!nomAccueil) return;   // on attend que le profil arrive (null au premier rendu)
 
     setBienvenueEvaluee(true);
 
@@ -69,7 +88,7 @@ export default function PageClub() {
     if (dejaVue || motionReduit) return;
 
     setBienvenue(true);
-  }, [profile?.first_name, bienvenueEvaluee]);
+  }, [nomAccueil, bienvenueEvaluee]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -101,7 +120,7 @@ export default function PageClub() {
     <>
       {bienvenue && (
         <BienvenueClub
-          prenom={profile?.first_name}
+          nom={nomAccueil}
           onTermine={() => {
             // Le drapeau marque "vue", pas "evaluee" : une visite qui ne joue pas
             // l'animation (motion reduit, profil incomplet) ne la consomme pas.
@@ -179,7 +198,6 @@ export default function PageClub() {
             )}
             {ongletActif === "avantages" && <OngletAvantages espace={espace} />}
             {ongletActif === "infos" && <OngletInfos profile={profile} user={user} />}
-            {ongletActif === "preferences" && <div className="club-placeholder-onglet">Préférences (a definir)</div>}
           </div>
         )}
       </main>
