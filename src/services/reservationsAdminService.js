@@ -55,3 +55,47 @@ export async function getStatsAdmin() {
   }
   return data ?? [];
 }
+
+// ── ÉCRITURES (brique 2/2) ──────────────────────────────────
+// Appel DIRECT des RPC via le client PARTAGÉ, surtout pas une Edge Function :
+// c'est le JWT de l'admin qui doit voyager, pour qu'auth.uid() reste LUI côté
+// Postgres. Les deux RPC sont SECURITY DEFINER mais leur garde interne
+// is_admin() lit auth.uid() — passer par service_role ferait sauter la garde ou
+// obligerait à la réimplémenter. Même raisonnement que
+// chatelainService.repondreDemande.
+//
+// Les RPC sont RETURNS TABLE → PostgREST renvoie un tableau de lignes ; on
+// normalise sur la première.
+
+// Annulation par LCC. Le motif reste en base (cancellation_reason) pour le
+// support — il n'entre jamais dans l'email envoyé au client.
+// Refuse depuis completed ou cancelled (P0001) : ces cas passent par
+// forcerStatutAdmin, qui n'envoie aucun email.
+export async function annulerReservationAdmin(reservationId, motif = null) {
+  const { data, error, status } = await supabase.rpc("admin_annuler_reservation", {
+    p_reservation_id: reservationId,
+    p_motif: motif?.trim() ? motif.trim() : null,
+  });
+
+  if (error) {
+    logErreurSupabase("[reservationsAdminService] annulerReservationAdmin:", error, status);
+    throw error;
+  }
+  return Array.isArray(data) ? data[0] : data;
+}
+
+// Forçage technique du statut. Liberté totale sur la transition, aucun email.
+// La RPC nettoie elle-même cancelled_at / cancellation_reason quand la cible
+// n'est pas 'cancelled' — le CHECK de la base ne le fait pas.
+export async function forcerStatutAdmin(reservationId, nouveauStatut) {
+  const { data, error, status } = await supabase.rpc("admin_forcer_statut", {
+    p_reservation_id: reservationId,
+    p_nouveau_statut: nouveauStatut,
+  });
+
+  if (error) {
+    logErreurSupabase("[reservationsAdminService] forcerStatutAdmin:", error, status);
+    throw error;
+  }
+  return Array.isArray(data) ? data[0] : data;
+}

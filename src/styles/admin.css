@@ -949,6 +949,77 @@
   background: var(--gris);
 }
 
+/* ── Actions par ligne ── */
+.adm-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.adm-select-statut {
+  padding: 0.3rem 0.4rem;
+  font-size: var(--t-xs);
+}
+
+/* ── Modale de confirmation ──
+   Neuve : aucun écran admin n'en avait. Sobre, centrée, fond assombri — pas
+   d'animation, c'est un outil de travail. */
+.adm-modal-fond {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 16, 30, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--s-md);
+  z-index: 60;
+}
+
+.adm-modal {
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--creme);
+  border: 1px solid var(--creme-chaud);
+  border-top: 2px solid var(--or);
+  padding: var(--s-md);
+  box-shadow: var(--ombre-forte);
+}
+
+.adm-modal-titre {
+  font-family: var(--font-titre);
+  font-size: var(--t-lg);
+  color: var(--bleu-nuit);
+  margin: 0 0 0.6rem;
+}
+
+.adm-modal-texte {
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+  line-height: 1.6;
+  margin: 0 0 0.6rem;
+}
+
+.adm-modal-avert {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--gris-fonce);
+  line-height: 1.6;
+  margin: 0 0 var(--s-sm);
+  padding: 0.6rem 0.8rem;
+  background: var(--lcc-creme);
+  border-left: 2px solid var(--or);
+}
+
+.adm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: var(--s-sm);
+}
+
 @media (max-width: 900px) {
   .adm-stats {
     grid-template-columns: 1fr;
