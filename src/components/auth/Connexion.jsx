@@ -36,6 +36,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../contexts/AuthContext";
+import { isPathInterneValide } from "../../utils/pathInterne";
 import { IconOeil, IconOeilBarre } from "./IconesOeil";
 import "../../styles/connexion.css";
 
@@ -72,6 +73,33 @@ export default function Connexion() {
     const t = setTimeout(() => setCooldown((s) => s - 1), 1000);
     return () => clearTimeout(t);
   }, [cooldown]);
+
+  // ── ?next= → lcc_auth_next ──────────────────────────────────
+  // Le bouton de l'email dit « Accéder à mon espace » : il doit donc ramener
+  // sur /club, y compris APRÈS le détour par /completer-profil (le compte du
+  // tunnel n'a ni first_name ni last_name, ce détour est la norme).
+  //
+  // POURQUOI ICI ET PAS DANS AuthCallback : c'est /connexion que l'email vise,
+  // donc c'est ici que le param arrive. Il ne survivrait pas jusqu'au callback —
+  // Supabase v2 strip les query params d'emailRedirectTo. En le déposant dans
+  // lcc_auth_next, les trois maillons en aval le lisent SANS MODIFICATION :
+  // handleSubmitMagicLink l'encode dans emailRedirectTo, AuthCallback le relit
+  // en source primaire, CompleterProfil le consomme à la fin. localStorage (et
+  // non sessionStorage) parce qu'il doit survivre à l'ouverture d'un nouvel
+  // onglet depuis la boîte mail.
+  //
+  // ÉCRITURE CONDITIONNELLE, jamais d'effacement : sans ?next valide on ne
+  // touche à rien, et tous les parcours existants (RequireAuth, modale Club)
+  // gardent la valeur qu'ils avaient posée. Un next absent = comportement
+  // d'avant, à l'octet près.
+  //
+  // isPathInterneValide barre l'open-redirect : un lien forgé avec
+  // ?next=https://evil.fr ne doit pas pouvoir se faire relayer par nous juste
+  // après l'authentification, au moment où l'utilisateur nous fait confiance.
+  useEffect(() => {
+    const next = searchParams.get("next");
+    if (isPathInterneValide(next)) localStorage.setItem("lcc_auth_next", next);
+  }, [searchParams]);
 
   if (loading) return null;
 

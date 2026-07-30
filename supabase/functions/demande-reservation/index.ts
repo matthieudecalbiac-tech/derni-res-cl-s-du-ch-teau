@@ -403,8 +403,12 @@ Deno.serve(async (req) => {
     // mode magic link qu'il lui faut.)
     const siteUrl = Deno.env.get("SITE_URL");
     if (!siteUrl) console.warn("[demande-reservation] SITE_URL absent — email client sans lien vers l'espace");
+    // next=/club : le bouton dit « Accéder à mon espace », il doit y mener. Sans
+    // lui, /connexion → /completer-profil → "/" (la home), et la promesse du
+    // bouton tombe à plat. /connexion dépose ce chemin dans lcc_auth_next, que
+    // CompleterProfil consomme en fin de parcours.
     const lienEspace = siteUrl
-      ? `${siteUrl.replace(/\/+$/, "")}/connexion?mode=magic-link`
+      ? `${siteUrl.replace(/\/+$/, "")}/connexion?mode=magic-link&next=%2Fclub`
       : null;
 
     // Une ligne email_log par email. Formes de params = celles documentées en tête

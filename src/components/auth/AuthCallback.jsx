@@ -27,29 +27,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+// Whitelist anti open-redirect — vivait ici, extraite en source unique le jour
+// où /connexion a eu besoin de la même garde (règles inchangées).
+import { isPathInterneValide } from "../../utils/pathInterne";
 import "../../styles/connexion.css";
 
 const TIMEOUT_MS = 10000;
-
-/**
- * Sprint S2-α.2 Mini-Phase 6 — Whitelist anti open-redirect.
- *
- * `next` doit être un chemin INTERNE de l'app (commence par "/" unique,
- * pas "//", pas "/\\", pas URL scheme déguisé). Un attaquant pourrait
- * sinon forger un magic link pointant vers /auth/callback?next=https://evil.com
- * et nous faire rediriger l'utilisateur après auth.
- *
- * @param {unknown} path
- * @returns {boolean}
- */
-function isPathInterneValide(path) {
-  if (typeof path !== "string") return false;
-  if (!path.startsWith("/")) return false;
-  if (path.startsWith("//")) return false;     // protocol-relative URL
-  if (path.startsWith("/\\")) return false;    // backslash escape
-  if (/^\/?[a-z]+:/i.test(path)) return false; // URL scheme déguisé
-  return true;
-}
 
 export default function AuthCallback() {
   const { user, profile, loading } = useAuth();
