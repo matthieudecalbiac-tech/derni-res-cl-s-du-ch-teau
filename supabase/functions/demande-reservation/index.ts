@@ -8,6 +8,11 @@
 // applicatifs. Elle est le SEUL rempart — elle RE-VALIDE tout ce que la RLS et
 // les contraintes auraient validé, et RECALCULE le prix côté serveur.
 //
+// La COMMISSION LCC est recalculée ici pour la même raison que le prix : le taux
+// (chateau_modules.commission_pct_negociee) n'est jamais exposé au front, et un
+// montant venu du client serait falsifiable. Taux absent = commission 0, jamais
+// un refus — cf. § 5 bis.
+//
 // verify_jwt = false (config.toml) : appelable sans Authorization (visiteur
 // anonyme). Les garde-fous (rate-limit, idempotence, plafond) viennent de la
 // migration 2026-07-17-reservation-garde-fous.sql.
@@ -212,7 +217,8 @@ Deno.serve(async (req) => {
   }
 
   // ─────────────────────────────────────────────────────────
-  // 5. MODULE A (vitrine permanente) du château — existe + actif
+  // 5. MODULE A (vitrine permanente) du château — existe + actif, ET son taux
+  //    de commission négocié.
   // ─────────────────────────────────────────────────────────
   const { data: moduleA, error: mErr } = await supabase
     .from("modules")
@@ -224,9 +230,12 @@ Deno.serve(async (req) => {
     console.error("[demande-reservation] module A introuvable:", mErr?.message);
     return fail(500, ERR_GENERIC);
   }
+  // commission_pct_negociee voyage avec cette ligne : c'est EXACTEMENT le couple
+  // (château × module) qui porte le taux, et la requête existait déjà pour le
+  // contrôle est_actif. Le taux ne coûte donc AUCUN aller-retour supplémentaire.
   const { data: lien, error: lErr } = await supabase
     .from("chateau_modules")
-    .select("id")
+    .select("id, commission_pct_negociee")
     .eq("chateau_id", chateau.id)
     .eq("module_id", moduleA.id)
     .eq("est_actif", true)
@@ -239,6 +248,44 @@ Deno.serve(async (req) => {
   if (!lien) {
     console.error(`[demande-reservation] module A non actif pour château ${chateau.id}`);
     return fail(409, ERR_INDISPO);
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // 5 bis. COMMISSION LCC — recalculée SERVEUR, comme le prix
+  // ─────────────────────────────────────────────────────────
+  // Même principe que le prix : le client n'a pas voix au chapitre. Le taux
+  // vit en base (chateau_modules.commission_pct_negociee, numeric(5,2), un
+  // taux par couple château × module) et n'est jamais exposé au front — la vue
+  // chateau_modules_public existe précisément pour le cacher.
+  //
+  // Number() et pas une lecture directe : PostgREST sérialise numeric tantôt en
+  // nombre, tantôt en chaîne selon la précision. Le passer par Number() rend le
+  // calcul indifférent aux deux, et Number(null) vaut 0 — d'où le isFinite qui
+  // suit, seul garant que « pas de taux » ne devienne pas « taux 0 » par
+  // accident de typage.
+  //
+  // TAUX ABSENT = COMMISSION 0, jamais un échec. Un château sans accord négocié
+  // doit pouvoir recevoir des demandes : refuser la réservation pour une
+  // question de facturation punirait le visiteur d'un trou de paramétrage. Le
+  // console.warn est là pour que ce trou se voie dans les logs — c'est très
+  // exactement ce qui a caché la commission à 0 jusqu'ici.
+  //
+  // Math.round et non Math.floor : l'arrondi au centime le plus proche, et il
+  // s'aligne sur le round() de Postgres (demi vers le haut pour les positifs)
+  // qu'emploie le script de recalcul rétroactif — les deux chemins produisent
+  // donc le MÊME centime.
+  //
+  // Le CHECK reservations_commission_valide (0 <= commission <= prix) est
+  // satisfait par construction : le CHECK chateau_modules_commission_valide
+  // borne déjà le taux à 0..100.
+  const tauxPct = Number(lien.commission_pct_negociee);
+  let commissionCents = 0;
+  if (Number.isFinite(tauxPct) && lien.commission_pct_negociee != null) {
+    commissionCents = Math.round(prixTotalCents * (tauxPct / 100));
+  } else {
+    console.warn(
+      `[demande-reservation] commission_pct_negociee absent pour château ${chateau.id} (module A) — commission 0`,
+    );
   }
 
   // ─────────────────────────────────────────────────────────
@@ -337,6 +384,7 @@ Deno.serve(async (req) => {
       voyageurs,
       message,
       prix_total_cents: prixTotalCents,
+      commission_lcc_cents: commissionCents,
       status: "pending",
     })
     .select("id")
