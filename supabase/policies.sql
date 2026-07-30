@@ -283,6 +283,84 @@ COMMENT ON VIEW public.messages_fils_admin IS
 GRANT SELECT ON public.messages_fils_admin TO authenticated;
 
 
+-- ───────────────────────────────────────────────────────────────────────────
+-- 4.5 — reservations_admin_view (liste des réservations, tous châteaux)
+-- ───────────────────────────────────────────────────────────────────────────
+-- Le troisième public de reservations, après le client (4.2) et le châtelain
+-- (4.3). Ici rien n'est caché : l'admin a le droit de tout voir. La vue est
+-- donc un choix de RANGEMENT, pas une garde — la liste des colonnes est une
+-- décision, elle vit ici plutôt que dans une chaîne .select() côté JS.
+-- security_invoker = true : reservations_select_owner + users_select_self +
+-- chateaux_select_public filtrent avec les droits de l'appelant. Les trois
+-- incluent is_admin(), donc aucune ligne légitime n'est droppée — y compris
+-- les réservations portant sur un château en brouillon.
+-- PAS de stripe_*/payout_* : inertes tant que Stripe n'est pas branché.
+-- Cf. migration 2026-07-30-vues-admin-reservations.sql.
+
+CREATE OR REPLACE VIEW public.reservations_admin_view
+WITH (security_invoker = true) AS
+SELECT
+  r.id,
+  r.chambre_id,
+  ch.nom                 AS chambre_nom,
+  ch.chateau_id,
+  c.nom                  AS chateau_nom,
+  c.slug                 AS chateau_slug,
+  u.email                AS client_email,
+  u.full_name            AS client_nom,
+  r.date_arrivee,
+  r.date_depart,
+  r.voyageurs,
+  r.message,
+  r.prix_total_cents,
+  r.commission_lcc_cents,
+  r.status,
+  r.created_at,
+  r.cancelled_at,
+  r.cancellation_reason
+FROM public.reservations r
+JOIN public.chambres ch ON ch.id = r.chambre_id
+JOIN public.chateaux c  ON c.id  = ch.chateau_id
+JOIN public.users    u  ON u.id  = r.user_id;
+
+COMMENT ON VIEW public.reservations_admin_view IS
+  'Liste des reservations pour l''ecran /admin/reservations, tous chateaux confondus. security_invoker=true : la RLS fait le filtrage (reservations_select_owner + users_select_self + chateaux_select_public), l''admin voit tout sans aucune garde applicative. Expose client_email et client_nom : donnee personnelle assumee, l''admin est l''intermediaire et doit savoir qui reserve — d''ou le suffixe _admin. N''expose PAS stripe_* ni payout_* : colonnes inertes tant que Stripe n''est pas branche, elles n''afficheraient que des NULL. Inclut les reservations portant sur un chateau en brouillon (chateaux_select_public inclut is_admin()) : l''admin voit l''exploitation, pas la vitrine. LIMITE : un NON-admin qui interrogerait cette vue y verrait ses propres reservations, jamais celles des autres — ce n''est pas une fuite (ce sont les siennes), c''est un comportement a connaitre ; le JOIN sur users, filtre par users_select_self, suffit a l''y borner.';
+
+GRANT SELECT ON public.reservations_admin_view TO authenticated;
+
+
+-- ───────────────────────────────────────────────────────────────────────────
+-- 4.6 — reservations_stats_admin (agrégats par château × statut)
+-- ───────────────────────────────────────────────────────────────────────────
+-- PostgREST ne sait pas faire de GROUP BY : count + sum par statut doit exister
+-- côté base. Vue et non RPC — règle maison : les RPC sont réservées aux
+-- ÉCRITURES ou aux scalaires dérivés, et une RPC SECURITY DEFINER exposerait le
+-- chiffre d'affaires de LCC si l'on y oubliait is_admin().
+-- VOLONTAIREMENT FACTUELLE : elle ne décide pas ce qui compte comme revenu.
+-- prix_total_cents est renseigné sur toutes les lignes, cancelled comprises ;
+-- c'est l'écran qui sépare réalisé / potentiel / perdu.
+-- Cf. migration 2026-07-30-vues-admin-reservations.sql.
+
+CREATE OR REPLACE VIEW public.reservations_stats_admin
+WITH (security_invoker = true) AS
+SELECT
+  ch.chateau_id,
+  c.nom                        AS chateau_nom,
+  r.status,
+  count(*)                     AS nb,
+  sum(r.prix_total_cents)      AS somme_prix_cents,
+  sum(r.commission_lcc_cents)  AS somme_commission_cents
+FROM public.reservations r
+JOIN public.chambres ch ON ch.id = r.chambre_id
+JOIN public.chateaux c  ON c.id  = ch.chateau_id
+GROUP BY ch.chateau_id, c.nom, r.status;
+
+COMMENT ON VIEW public.reservations_stats_admin IS
+  'Agregats des reservations par (chateau, statut) pour l''ecran /admin/reservations : nb, somme des prix, somme des commissions LCC. PostgREST ne sait pas faire de GROUP BY — d''ou la vue. security_invoker=true : la RLS reservations_select_owner filtre avec les droits de l''appelant, aucune garde applicative (une RPC SECURITY DEFINER exposerait le chiffre d''affaires de LCC si l''on y oubliait is_admin()). VOLONTAIREMENT FACTUELLE : elle ne decide PAS ce qui compte comme revenu. prix_total_cents est renseigne sur TOUTES les lignes, cancelled comprises ; un total global melangerait donc du revenu reel, du potentiel et du perdu. L''ecran separe realise (confirmed+completed) / attente (pending) / annule (cancelled). Granularite (chateau, statut) : porte les deux ventilations en une requete. Montants en CENTIMES, la conversion appartient a l''affichage. Un chatelain y verrait les agregats de ses chateaux (commission comprise, deja visible pour lui via reservations_chatelain_view) ; un client, les siens.';
+
+GRANT SELECT ON public.reservations_stats_admin TO authenticated;
+
+
 -- ═══════════════════════════════════════════════════════════════════════════
 -- 5. POLICIES — GROUPE A : users (5 policies)
 -- ═══════════════════════════════════════════════════════════════════════════

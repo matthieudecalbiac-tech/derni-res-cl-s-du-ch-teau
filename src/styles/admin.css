@@ -828,3 +828,129 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   Réservations — le relevé, les onglets de statut, le tableau
+   ═══════════════════════════════════════════════════════════
+   Registre « relevé de compte », pas « dashboard » : fond crème, filet or,
+   chiffre en sérif de titre. Aucune couleur pleine sur les tuiles — la couleur
+   est réservée aux badges de statut, où elle porte une information.
+   Uniquement des tokens existants de global.css. */
+
+.adm-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s-sm);
+  margin: var(--s-md) 0;
+}
+
+.adm-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: var(--s-sm) 1rem;
+  background: var(--lcc-creme);
+  border: 1px solid var(--creme-chaud);
+  border-top: 2px solid var(--or);
+}
+
+/* Les deux blocs qui ne portent PAS de revenu acquis se distinguent par leur
+   filet, jamais par une couleur d'alerte : ce ne sont pas des anomalies. */
+.adm-stat--attente {
+  border-top-color: var(--or-pale);
+}
+
+.adm-stat--annule {
+  border-top-color: var(--gris-clair);
+}
+
+.adm-stat-label {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gris-fonce);
+}
+
+.adm-stat-valeur {
+  font-family: var(--font-titre);
+  font-size: var(--t-xl);
+  line-height: 1.1;
+  color: var(--bleu-nuit);
+}
+
+.adm-stat-detail {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--gris-fonce);
+}
+
+/* ── Onglets de statut ── */
+.adm-onglets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: var(--s-md) 0 var(--s-sm);
+  border-bottom: 1px solid var(--creme-chaud);
+}
+
+.adm-onglet {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 0.5rem 0.9rem;
+  font-family: var(--font-ui);
+  font-size: var(--t-sm);
+  color: var(--gris-fonce);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.adm-onglet:hover {
+  color: var(--bleu-nuit);
+}
+
+.adm-onglet--actif {
+  color: var(--bleu-nuit);
+  border-bottom-color: var(--or);
+}
+
+/* ── Contact client dans le tableau ── */
+.adm-client-nom {
+  display: block;
+  color: var(--bleu-nuit);
+}
+
+.adm-client-email {
+  display: block;
+  font-size: var(--t-xs);
+  color: var(--gris-fonce);
+}
+
+/* ── Badges des 4 statuts de reservation_status ──
+   Quatre valeurs distinctes pour rester lisibles côte à côte. « Annulée » est
+   en gris et non en rouge : une annulation est un fait d'exploitation, pas une
+   erreur à signaler. */
+.adm-badge--pending {
+  background: var(--or-sombre);
+}
+
+.adm-badge--confirmed {
+  background: var(--vert-lierre);
+}
+
+.adm-badge--completed {
+  background: var(--bleu-nuit);
+}
+
+.adm-badge--cancelled {
+  background: var(--gris);
+}
+
+@media (max-width: 900px) {
+  .adm-stats {
+    grid-template-columns: 1fr;
+  }
+}
