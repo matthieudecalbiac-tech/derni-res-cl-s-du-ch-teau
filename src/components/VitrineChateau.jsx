@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import OngletsNiveau1 from "./vitrine/OngletsNiveau1";
 import OngletsNiveau2 from "./vitrine/OngletsNiveau2";
@@ -7,11 +7,15 @@ import ContenuDernieresCles from "./vitrine/ContenuDernieresCles";
 import ContenuClub from "./vitrine/ContenuClub";
 import ContenuTheme from "./vitrine/ContenuTheme";
 import { useClubMember } from "../hooks/useClubMember";
+import { useAuth } from "../contexts/AuthContext";
 import "../styles/vitrine-chateau.css";
 import "../styles/vitrine-onglets.css";
 
 export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const isClubMember = useClubMember();
+  // VitrineChateau vit déjà sous AuthProvider (useClubMember en est la preuve —
+  // il appelle useAuth). On lit ici le profil pour reconnaître le membre.
+  const { profile, loading: loadingAuth } = useAuth();
   const navigate = useNavigate();
   // En mode route (arrivee directe / apres TransitionPorte), on demarre visible
   // pour eviter le fade-in opacity 0->1 qui laisserait transparaitre le body navy.
@@ -31,6 +35,52 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const [voyageurs, setVoyageurs] = useState(2);
   const [messageDispo, setMessageDispo] = useState(null);
   const [dispoVerifiee, setDispoVerifiee] = useState(false);
+
+  // ── Identité du membre connecté ─────────────────────────────
+  // Le tunnel demande-reservation IGNORE totalement la session (verify_jwt =
+  // false, aucune lecture d'Authorization) : il résout le compte sur l'EMAIL
+  // SOUMIS. Envoyer l'email du profil suffit donc à rattacher la demande au
+  // compte — rien à changer côté serveur.
+  //
+  // LE NOM NE VIENT PAS DE full_name SEUL. Trois chemins écrivent le profil et
+  // ils ne remplissent pas les mêmes colonnes : le trigger handle_new_user
+  // n'insère que (id, email, role) ; le tunnel pose full_name à la création ;
+  // /completer-profil écrit first_name + last_name et NE touche PAS full_name.
+  // Un compte né de /inscription puis complété a donc full_name à NULL pour
+  // toujours. D'où la composition, avec full_name en simple repli.
+  const prefill = useMemo(() => {
+    if (loadingAuth || !profile) return { nom: "", email: "" };
+    const prenom = (profile.first_name || "").trim();
+    const patronyme = (profile.last_name || "").trim();
+    return {
+      nom: prenom && patronyme ? `${prenom} ${patronyme}` : (profile.full_name || "").trim(),
+      email: (profile.email || "").trim(),
+    };
+  }, [loadingAuth, profile]);
+
+  // Membre RECONNU = on a de quoi réserver sans rien demander. Les deux valeurs
+  // sont exigées : sans nom exploitable, le tunnel refuserait la demande (400),
+  // donc on retombe sur le formulaire éditable plutôt que d'envoyer un vide.
+  // C'est aussi ce qui garantit qu'un visiteur anonyme (profile null) ne
+  // rencontre JAMAIS ce mode.
+  const membreReconnu = Boolean(prefill.nom && prefill.email);
+
+  // SYNCHRO ASYNCHRONE — un useEffect, PAS un initialiseur useState.
+  // Au boot, loading vaut true et profile est null : un initialiseur lu au
+  // montage ne verrait rien, et ne rejouerait jamais. Or la modale peut être
+  // ouverte AVANT que la session ne soit vérifiée. C'est donc l'arrivée du
+  // profil qui déclenche le remplissage.
+  //
+  // `(v) => v || …` et non une écriture sèche : on ne réécrit jamais par-dessus
+  // ce qu'un visiteur a déjà tapé. Utile dans le seul cas mixte — connecté mais
+  // sans nom exploitable — où les champs restent visibles avec l'email déjà
+  // rempli, et où seul le nom reste à saisir.
+  useEffect(() => {
+    if (loadingAuth || !profile) return;
+    if (prefill.email) setEmail((v) => v || prefill.email);
+    if (prefill.nom) setNom((v) => v || prefill.nom);
+  }, [loadingAuth, profile, prefill.nom, prefill.email]);
+
   const [scrollPct, setScrollPct] = useState(0);
   const [heure, setHeure] = useState({ h: "09", m: "42", isNight: false });
   const [heroLoaded, setHeroLoaded] = useState(false);
@@ -159,8 +209,14 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   // dates / voyageurs / chambre : ils appartiennent au contexte séjour partagé.
   const fermerReserve = () => {
     setReserve(false);
-    setNom("");
-    setEmail("");
+    // Retour à l'ÉTAT DE DÉPART, qui n'est pas le même pour tous : le vide pour
+    // un visiteur anonyme (comportement d'origine, inchangé), les valeurs du
+    // profil pour un membre. Remettre "" inconditionnellement viderait le
+    // pré-remplissage, et le useEffect ci-dessus ne le rejouerait pas (profile
+    // n'a pas bougé) : rouvrir la modale montrerait des champs vides à un
+    // membre connecté.
+    setNom(prefill.nom);
+    setEmail(prefill.email);
     setMessage("");
     setEnvoi(false);
     setErreurReserve(null);
@@ -172,9 +228,22 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   // génériques : jamais de détail brut, jamais l'existence d'un compte.
   const soumettreReserve = async () => {
     setErreurReserve(null);
-    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-    if (nom.trim() === "") { setErreurReserve("Merci d'indiquer votre nom."); return; }
-    if (!emailOk) { setErreurReserve("Merci d'indiquer un email valide."); return; }
+
+    // Membre reconnu : l'identité vient du PROFIL, pas des champs — ils ne sont
+    // plus à l'écran, et le profil est la seule source qui fasse foi. Anonyme :
+    // les champs, exactement comme avant.
+    const nomEnvoye = membreReconnu ? prefill.nom : nom.trim();
+    const emailEnvoye = membreReconnu ? prefill.email : email.trim();
+
+    // Les deux gardes de saisie ne concernent QUE le formulaire. Les appliquer
+    // à un membre reconnu afficherait une erreur devant un champ qui n'existe
+    // pas : rien à corriger, donc rien à signaler. Les valeurs sont d'ailleurs
+    // non vides par définition de membreReconnu, et l'email vient d'un compte.
+    if (!membreReconnu) {
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEnvoye);
+      if (nomEnvoye === "") { setErreurReserve("Merci d'indiquer votre nom."); return; }
+      if (!emailOk) { setErreurReserve("Merci d'indiquer un email valide."); return; }
+    }
     if (!dateArrivee || !dateDepart) { setErreurReserve("Merci de renseigner les dates de séjour."); return; }
     if (dateArrivee >= dateDepart) { setErreurReserve("La date de départ doit suivre l'arrivée."); return; }
 
@@ -192,8 +261,8 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             dateDepart,
             voyageurs,
             message: message.trim() || null,
-            nom: nom.trim(),
-            email: email.trim(),
+            nom: nomEnvoye,
+            email: emailEnvoye,
           }),
         },
       );
@@ -401,14 +470,29 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
                     <label htmlFor="vc3-reserve-voyageurs">Voyageurs</label>
                     <input id="vc3-reserve-voyageurs" type="text" value={`${voyageurs} personne${voyageurs > 1 ? "s" : ""}`} readOnly />
                   </div>
-                  <div className="vc3-reserve-field vc3-reserve-field--full">
-                    <label htmlFor="vc3-reserve-nom">Nom</label>
-                    <input id="vc3-reserve-nom" type="text" value={nom} onChange={(e) => setNom(e.target.value)} autoComplete="name" />
-                  </div>
-                  <div className="vc3-reserve-field vc3-reserve-field--full">
-                    <label htmlFor="vc3-reserve-email">Email</label>
-                    <input id="vc3-reserve-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-                  </div>
+                  {/* Membre reconnu : la saisie disparaît, l'identité s'affiche.
+                      Elle reste VISIBLE et non masquée — c'est l'email qui
+                      détermine à quel compte la demande sera rattachée, le
+                      voyageur doit pouvoir le lire. Branche anonyme strictement
+                      inchangée. */}
+                  {membreReconnu ? (
+                    <div className="vc3-reserve-field vc3-reserve-field--full vc3-reserve-identite">
+                      <span className="vc3-reserve-identite-label">Réservation au nom de</span>
+                      <span className="vc3-reserve-identite-nom">{prefill.nom}</span>
+                      <span className="vc3-reserve-identite-email">{prefill.email}</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="vc3-reserve-field vc3-reserve-field--full">
+                        <label htmlFor="vc3-reserve-nom">Nom</label>
+                        <input id="vc3-reserve-nom" type="text" value={nom} onChange={(e) => setNom(e.target.value)} autoComplete="name" />
+                      </div>
+                      <div className="vc3-reserve-field vc3-reserve-field--full">
+                        <label htmlFor="vc3-reserve-email">Email</label>
+                        <input id="vc3-reserve-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
+                      </div>
+                    </>
+                  )}
                   <div className="vc3-reserve-field vc3-reserve-field--full">
                     <label htmlFor="vc3-reserve-message">Message (facultatif)</label>
                     <textarea id="vc3-reserve-message" className="vc3-reserve-textarea" rows={3} value={message} onChange={(e) => setMessage(e.target.value)} />
