@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { construireGalerie } from "../../services/galerieService";
 import { libelleNature } from "../../utils/personnages";
@@ -184,44 +184,56 @@ function AmenityBadges({ inclus, prixSupplement, dureeMinutes }) {
   );
 }
 
-// Vignette carrée cliquable : photo en fond (ou placeholder + icône), overlay
-// dégradé pour la lisibilité, nom + description courte tronquée. Bouton pour
-// l'accessibilité clavier ; ouvre la modale de détail au clic/Entrée.
-function AmenityTuile({ a, onOpen }) {
+const LIBELLE_TYPE = { service: "Service", activite: "Activité" };
+
+// Tuile de la mosaïque. Deux formes, jamais une principale et une dégradée :
+//
+//   PHOTO — 18 amenities sur 83 en ont une. Ce sont les ACCENTS de la grille :
+//     la première occupe deux colonnes sur deux rangs, les suivantes deux
+//     colonnes sur un rang. Photo en fond, dégradé navy pour la lisibilité.
+//
+//   TEXTE — les 78 % restants, donc la forme PAR DÉFAUT. Elle est composée pour
+//     elle-même : glyphe or (icone est rempli 83/83, ⚜ en dernier recours),
+//     filet, nom en Playfair, description en Crimson Pro. Une tuile sur trois
+//     passe en encre navy — c'est ce qui donne du rythme à une mosaïque SANS
+//     aucune photo, cas réel de Saint-Paterne (1 image pour 12).
+//
+// Le mécanisme est inchangé : <button> pour le clavier, onOpen ouvre
+// AmenityModale, description tronquée par le même helper.
+function AmenityTuile({ a, onOpen, variante, encre }) {
   const avecPhoto = Boolean(a.image);
+  const classes = [
+    "vc4-mosa-tuile",
+    avecPhoto ? "vc4-mosa-tuile--photo" : "vc4-mosa-tuile--texte",
+    variante === "dominante" ? "vc4-mosa-tuile--dominante" : "",
+    variante === "large" ? "vc4-mosa-tuile--large" : "",
+    !avecPhoto && encre ? "vc4-mosa-tuile--encre" : "",
+  ].filter(Boolean).join(" ");
+
   return (
     <button
       type="button"
-      className={`vc4-theme-amenity-tuile${avecPhoto ? " vc4-theme-amenity-tuile--photo" : ""}`}
+      className={classes}
       style={avecPhoto ? { backgroundImage: `url(${a.image})` } : undefined}
       onClick={() => onOpen(a)}
       aria-label={`${a.nom} — voir le détail`}
     >
       {!avecPhoto && (
-        <span className="vc4-theme-amenity-tuile-ico" aria-hidden="true">{a.icone || "⚜"}</span>
+        <span className="vc4-mosa-glyphe" aria-hidden="true">{a.icone || "⚜"}</span>
       )}
-      <span className="vc4-theme-amenity-tuile-overlay">
-        <span className="vc4-theme-amenity-tuile-nom">{a.nom}</span>
+      <span className="vc4-mosa-corps">
+        {/* Le type reste LISIBLE sans découper la grille en deux : la
+            séparation stricte laissait une colonne vide aux châteaux qui n'ont
+            que des activités (Briottières, Blanc Buisson : 0 service / 6). */}
+        <span className="vc4-mosa-type">{LIBELLE_TYPE[a.type] || ""}</span>
+        <span className="vc4-mosa-nom">{a.nom}</span>
         {a.description && (
-          <span className="vc4-theme-amenity-tuile-desc">{tronquer(a.description, 70)}</span>
+          <span className="vc4-mosa-desc">
+            {tronquer(a.description, avecPhoto && variante === "dominante" ? 140 : 70)}
+          </span>
         )}
       </span>
     </button>
-  );
-}
-
-// Une section (Services OU Activités) : masquée si vide. Grille de vignettes.
-function AmenitySection({ eyebrow, titre, items, onOpen }) {
-  if (items.length === 0) return null;
-  return (
-    <div className="vc4-theme-amenity-section">
-      <ThemeHeader eyebrow={eyebrow} titre={titre} />
-      <div className="vc4-theme-amenity-grille">
-        {items.map((a, i) => (
-          <AmenityTuile key={i} a={a} onOpen={onOpen} />
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -261,19 +273,46 @@ function ThemeServices({ chateau }) {
   // Les 4 booléens flatten (petitDejeuner/parking/wifi/animaux) ne sont plus
   // affichés ici : l'info détaillée vit désormais dans amenities.
   const amenities = chateau.amenities || [];
-  const services = amenities.filter((a) => a.type === "service");
-  const activites = amenities.filter((a) => a.type === "activite");
   const [selection, setSelection] = useState(null);
 
-  if (services.length === 0 && activites.length === 0) {
+  // MOSAÏQUE UNIFIÉE, et non deux colonnes Services / Activités.
+  // La séparation stricte pénalisait deux châteaux sur cinq : Briottières et
+  // Blanc Buisson n'ont AUCUN service et six activités, donc une colonne vide.
+  // Le type reste lisible — il est écrit sur chaque tuile — mais il ne découpe
+  // plus la page. L'ordre éditorial de la base (`ordre`) est conservé.
+  //
+  // Le calibre de chaque tuile se décide ICI, pas dans le CSS : seule une passe
+  // sur la liste sait quelle est la PREMIÈRE tuile photo (la dominante) et
+  // quelle tuile texte reçoit l'encre. Le CSS ne fait qu'appliquer les spans.
+  const tuiles = useMemo(() => {
+    let photoVue = 0;
+    let texteVu = 0;
+    return amenities.map((a) => {
+      if (a.image) {
+        photoVue += 1;
+        // La première photo domine (2 colonnes × 2 rangs), les suivantes sont
+        // larges (2 × 1). Sans cette hiérarchie, six photos donneraient six
+        // blocs égaux — une planche-contact, pas une mise en page.
+        return { a, variante: photoVue === 1 ? "dominante" : "large", encre: false };
+      }
+      texteVu += 1;
+      // Une tuile texte sur trois en encre navy : le seul rythme disponible
+      // quand il n'y a aucune photo, et il tient tout seul.
+      return { a, variante: "texte", encre: texteVu % 3 === 0 };
+    });
+  }, [amenities]);
+
+  if (amenities.length === 0) {
     return <p className="vc4-theme-vide">Services à présenter prochainement.</p>;
   }
 
   return (
     <>
-      <div className="vc4-theme-amenity-cols">
-        <AmenitySection eyebrow="L'art de recevoir" titre="Services" items={services} onOpen={setSelection} />
-        <AmenitySection eyebrow="Au domaine" titre="Activités & loisirs" items={activites} onOpen={setSelection} />
+      <ThemeHeader eyebrow="L'art de recevoir" titre="Services & activités" />
+      <div className="vc4-mosa">
+        {tuiles.map(({ a, variante, encre }, i) => (
+          <AmenityTuile key={i} a={a} onOpen={setSelection} variante={variante} encre={encre} />
+        ))}
       </div>
       <AmenityModale amenity={selection} onClose={() => setSelection(null)} />
     </>
