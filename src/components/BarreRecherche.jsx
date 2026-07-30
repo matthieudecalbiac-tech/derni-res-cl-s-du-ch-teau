@@ -28,6 +28,12 @@ export default function BarreRecherche() {
   // Invites
   const [invOuvert, setInvOuvert] = useState(false);
   const [invites, setInvites] = useState({ adultes: 2, enfants: 0 });
+  // Seul des trois champs SANS etat vide : invites vaut {2, 0} des le premier
+  // rendu. Sans ce drapeau, le recap afficherait « 2 adultes » a un visiteur qui
+  // n'a jamais ouvert le selecteur — un choix qu'il n'a pas fait. Le drapeau
+  // n'entre PAS dans la requete : lancerRecherche envoie invites tel quel,
+  // touche ou non (2 adultes reste le defaut cote resultats).
+  const [invitesTouche, setInvitesTouche] = useState(false);
 
   // Plus de filtres — panneau multi-criteres (categories + equipements). L'etat
   // de selection est remonte par PanneauFiltres via onChange puis injecte dans
@@ -46,6 +52,10 @@ export default function BarreRecherche() {
     setDatesOuvert(champ === "dates");
     setFiltresOuvert(champ === "filtres");
     setInvOuvert(champ === "invites");
+    // OUVRIR suffit a « toucher » : le visiteur qui consulte le selecteur et le
+    // referme sans rien changer a vu le defaut et l'a accepte. Exiger un clic sur
+    // + ou − laisserait ce cas sans aucun retour a l'ecran.
+    if (champ === "invites") setInvitesTouche(true);
   };
 
   // Machine a etats arrivee -> depart (la source de verite des dates reste ici,
@@ -93,6 +103,24 @@ export default function BarreRecherche() {
     if (e === 0) return pa;
     return `${pa}, ${e} enfant${e > 1 ? "s" : ""}`;
   };
+
+  // ── Recap sous la barre ─────────────────────────────────────
+  // Les valeurs ont quitte les boutons : elles tronquaient des 1920 px de large
+  // (« Arrivée » n'etait deja qu'un bout de « Arrivée — Départ »), et choisir des
+  // dates AGGRAVAIT la troncature — « lun. 5 mai → jeu. 8 mai » demande ~170 px
+  // pour 70 disponibles. La barre se degradait a l'usage.
+  //
+  // Ici la place est entiere : pas de nowrap, pas d'ellipse, aucune largeur a
+  // negocier avec le CTA. Les memes helpers fournissent le contenu — ils etaient
+  // deja purement presentationnels, seul leur point d'affichage change.
+  //
+  // UN SEGMENT PAR CHOIX REELLEMENT FAIT. Les branches « etat vide » des helpers
+  // (« Région », « Arrivée — Départ ») ne peuvent donc jamais atterrir ici : leur
+  // condition d'entree les exclut. Aucun choix = pas de ligne du tout.
+  const segmentsRecap = [];
+  if (selection) segmentsRecap.push(labelDestination);
+  if (dateArrivee) segmentsRecap.push(labelDates());
+  if (invitesTouche) segmentsRecap.push(labelInvites());
 
   const choisirRegion = (region) => {
     setSelection({ type: "region", region });
@@ -152,7 +180,6 @@ export default function BarreRecherche() {
               </svg>
               <span className="br-champ-txt">
                 <span className="br-label">Destination</span>
-                <span className="br-valeur">{labelDestination}</span>
               </span>
               <svg className={"br-chevron" + (destOuvert ? " br-chevron--ouvert" : "")} width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -176,7 +203,6 @@ export default function BarreRecherche() {
               </svg>
               <span className="br-champ-txt">
                 <span className="br-label">Dates</span>
-                <span className="br-valeur">{labelDates()}</span>
               </span>
               <svg className={"br-chevron" + (datesOuvert ? " br-chevron--ouvert" : "")} width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -202,7 +228,6 @@ export default function BarreRecherche() {
               </svg>
               <span className="br-champ-txt">
                 <span className="br-label">Invités</span>
-                <span className="br-valeur">{labelInvites()}</span>
               </span>
               <svg className={"br-chevron" + (invOuvert ? " br-chevron--ouvert" : "")} width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -212,6 +237,17 @@ export default function BarreRecherche() {
 
           <button className="br-cta" onClick={lancerRecherche}>Trouver votre château <span className="br-cta-fl">→</span></button>
         </div>
+
+        {/* RÉCAP — le seul endroit où les valeurs choisies s'affichent désormais.
+            Rendu uniquement s'il y a quelque chose à dire : barre au repos, pas
+            de ligne, pas d'espace réservé.
+            aria-live : les valeurs ayant quitté les boutons, c'est la seule
+            restitution du choix — elle doit être annoncée. */}
+        {segmentsRecap.length > 0 && (
+          <p className="br-recap" aria-live="polite">
+            {segmentsRecap.join(" · ")}
+          </p>
+        )}
 
         {/* Petit bouton "Filtres" (sorti de la barre pour l'alleger) : ouvre le
             panneau Filtres. Son libelle reflete le nombre de criteres actifs. */}

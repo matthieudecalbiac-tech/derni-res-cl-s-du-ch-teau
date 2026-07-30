@@ -15,7 +15,15 @@
   border-radius: 10px; box-shadow: 0 16px 44px rgba(26,45,90,0.10);
   /* Pistes minmax(0,...) : les champs se SERRENT au lieu de deborder si la colonne
      est etroite. Le bouton (derniere piste auto) reste DANS la barre. min-width:0 +
-     overflow:hidden : jamais de debordement sur la carte a droite. */
+     overflow:hidden : jamais de debordement sur la carte a droite.
+     ⚠ LIMITE MESUREE, ANTERIEURE AU PASSAGE DES VALEURS EN RECAP. Le minmax(0,...)
+     autorise les pistes a descendre SOUS leur contenu : entre 900 et ~1300 px, le
+     CTA (242 px, nowrap) et les separateurs consomment assez de place pour que les
+     trois colonnes de texte tombent a 54 / 18 / 18 px a 1280, puis a 16 / 0 / 0 a
+     1100 — les labels eux-memes disparaissent, il ne reste que les icones. Retirer
+     les valeurs des boutons ne corrige PAS cet intervalle : il vient de la grille,
+     pas du contenu. Piste si on veut le fermer : remonter le point de bascule une
+     colonne (media query, 900 -> ~1300 px). */
   display: grid;
   /* 4 zones : Destination | Dates | Invites | bouton Trouver. */
   grid-template-columns: minmax(0,1.35fr) auto minmax(0,1fr) auto minmax(0,1fr) auto;
@@ -46,11 +54,35 @@
 .br-ico { color: #C09840; font-size: 1.1rem; flex-shrink: 0; }
 .br-champ-txt { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow: hidden; }
 .br-label {
-  font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.14em;
+  /* Seul texte du bouton depuis que les valeurs sont passees au recap. Monte de
+     0.62 a 0.66rem pour ne pas flotter dans un bouton devenu presque vide, et
+     PAS au-dela — mesure faite a 1440 px, ou « Invités » ne dispose que de 44 px :
+     il demande 52 px a 0.75rem et 45 a 0.68rem (il se remettait donc a tronquer),
+     43 a 0.66rem. Le letter-spacing suit, de 0.14 a 0.11em.
+     L'ellipse reste posee en dernier recours — elle sert encore sous 1300 px,
+     ou les pistes de la grille s'effondrent (limite documentee sur .br-carte). */
+  font-family: 'Crimson Pro', serif; font-size: 0.66rem; letter-spacing: 0.11em;
   text-transform: uppercase; color: #8B6914; /* or fonce : contraste AA (4.96:1) sur fond clair */
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.br-valeur { font-family: 'Playfair Display', serif; font-size: 0.95rem; color: #1A2D5A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* .br-valeur retiree : les valeurs choisies ne s'affichent plus DANS les boutons
+   (elles y tronquaient des 1920 px) mais dans .br-recap, sous la barre. Aucune
+   autre vue ne portait cette classe. */
+
+/* ── Recap des choix, sous la barre ──
+   Registre du lien Filtres (meme encre or foncee, meme retrait de 6 px) pour que
+   les deux elements secondaires partagent un bord gauche. Discret : ce n'est pas
+   une action, c'est un rappel. Ici la largeur est entiere — ni nowrap ni ellipse,
+   le texte peut passer a la ligne plutot que d'etre coupe. */
+.br-recap {
+  margin: 10px 0 0 6px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: #8B6914;
+  letter-spacing: 0.02em;
+}
 .br-chevron { color: #A8884E; font-size: 0.85rem; margin-left: auto; flex-shrink: 0; }
 .br-sep { width: 1px; height: 40px; background: rgba(192,152,64,0.25); }
 .br-cta {
@@ -66,6 +98,12 @@
   .br-carte { grid-template-columns: 1fr; gap: 0; }
   .br-sep { width: 100%; height: 1px; }
   .br-cta { width: 100%; justify-content: center; margin-top: 8px; }
+  /* Le recap est CONSERVE en petit ecran, et il y est meme plus necessaire
+     qu'ailleurs : les champs n'affichent plus que leur label, donc sans lui rien
+     a l'ecran ne dirait ce que le visiteur a choisi. Centre pour s'aligner sur
+     les pastilles d'inspiration, elles aussi centrees sous 900 px
+     (accueil.css : .acc-gauche .insp-inner { align-items: center }). */
+  .br-recap { margin: 12px 0 0; text-align: center; }
 }
 
 /* ── Champ Destination (bouton declencheur de modale) ── */
