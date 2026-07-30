@@ -103,6 +103,21 @@
 //     }
 //     (écrits par la RPC repondre_demande, patron outbox.)
 //
+//   type = 'sejour_annule_admin'  (annulation par LCC — AU CLIENT)
+//     params: {
+//       nomClient:      string
+//       chateau:        string   // nom du château uniquement, jamais les propriétaires
+//       dateArrivee:    "YYYY-MM-DD"
+//       dateDepart:     "YYYY-MM-DD"
+//       voyageurs:      number
+//     }
+//     (écrits par la RPC admin_annuler_reservation, patron outbox.)
+//     À NE PAS CONFONDRE avec 'sejour_annule', qui va au CHÂTELAIN et affirme
+//     que le voyageur a annulé. Ici c'est l'inverse : le client SUBIT
+//     l'annulation, et c'est le seul moyen qu'il a de l'apprendre.
+//     Ne porte JAMAIS le motif (cancellation_reason reste en base, pour le
+//     support) ni le nom des propriétaires.
+//
 //   type = 'sejour_annule'  (annulation par le client — AU CHÂTELAIN + ADMIN)
 //     params: {
 //       chateau:        string
@@ -382,10 +397,16 @@ function gabaritSejourRefuse(p: Params): string {
   return enveloppe("Votre demande de séjour", corps);
 }
 
-// Annulation par le client — email de TRAVAIL, destiné au châtelain (sa chambre
-// se libère) et à l'admin. Volontairement sec : aucun contact client, aucun
-// motif (texte libre non relu, il reste en base), aucune formule d'excuse. Ce
-// n'est pas une mauvaise nouvelle à annoncer, c'est une information à donner.
+// Annulation — email de TRAVAIL, destiné au châtelain (sa chambre se libère) et
+// à l'admin. Volontairement sec : aucun contact client, aucun motif (texte libre
+// non relu, il reste en base), aucune formule d'excuse. Ce n'est pas une
+// mauvaise nouvelle à annoncer, c'est une information à donner.
+//
+// NE DIT PAS QUI A ANNULÉ. Ce gabarit sert DEUX chemins : annuler_ma_reservation
+// (le client annule) et admin_annuler_reservation (LCC annule). Il affirmait
+// « par le voyageur », ce qui était faux dans le second cas. Ce que le châtelain
+// doit savoir tient de toute façon dans la dernière ligne : ses dates se
+// libèrent. Le commanditaire de l'annulation ne change rien pour lui.
 function gabaritSejourAnnule(p: Params): string {
   const sejour = tableFaits(
     ligneFait("Château", escapeHtml(p.chateau)) +
@@ -396,13 +417,47 @@ function gabaritSejourAnnule(p: Params): string {
   );
   const corps = `
     <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">
-      Une demande de séjour vient d'être annulée par le voyageur.
+      Une demande de séjour vient d'être annulée.
     </p>
     ${sejour}
     <p style="font-size:15px;line-height:1.7;margin:16px 0 0;">
       Ces dates redeviennent disponibles.
     </p>`;
   return enveloppe("Séjour annulé", corps);
+}
+
+// Annulation par LCC — AU CLIENT. Le pendant de gabaritSejourAnnule, qui va au
+// châtelain et reste factuel. Ici le voyageur n'a rien annulé : il l'apprend,
+// et c'est la seule façon qu'il a de l'apprendre.
+//
+// Modèle gabaritSejourRefuse plutôt que gabaritSejourAnnule : c'est une
+// mauvaise nouvelle adressée à quelqu'un, pas une information de service. Même
+// registre — on ne se dérobe pas, on ne rejette la faute sur personne (ni sur
+// le château, ni sur le voyageur), et on laisse la porte ouverte.
+//
+// PAS de motif : cancellation_reason est du texte libre écrit par l'équipe, non
+// relu, et il reste en base pour le support. PAS de nom de propriétaire (règle
+// éditoriale). PAS de « désolés » répété — une excuse suffit.
+function gabaritSejourAnnuleAdmin(p: Params): string {
+  const sejour = tableFaits(
+    ligneFait("Château", escapeHtml(p.chateau)) +
+    ligneFait("Arrivée", dateFr(p.dateArrivee)) +
+    ligneFait("Départ", dateFr(p.dateDepart)) +
+    ligneFait("Voyageurs", escapeHtml(p.voyageurs)),
+  );
+  const corps = `
+    <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">Bonjour ${escapeHtml(p.nomClient)},</p>
+    <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">
+      Nous sommes au regret de vous annoncer que votre séjour ne pourra
+      finalement pas avoir lieu aux dates prévues.
+    </p>
+    ${sejour}
+    <p style="font-size:15px;line-height:1.7;margin:20px 0 0;">
+      Nous mesurons la déception que cela représente. Nos équipes restent à votre
+      disposition, et nous serions heureux de vous accueillir à une autre période
+      — dans cette demeure ou dans une autre de nos maisons.
+    </p>`;
+  return enveloppe("Votre séjour ne pourra avoir lieu", corps);
 }
 
 const GABARITS: Record<string, (p: Params) => string> = {
@@ -412,6 +467,7 @@ const GABARITS: Record<string, (p: Params) => string> = {
   sejour_confirme: gabaritSejourConfirme,
   sejour_refuse: gabaritSejourRefuse,
   sejour_annule: gabaritSejourAnnule,
+  sejour_annule_admin: gabaritSejourAnnuleAdmin,
 };
 
 // ══════════════════════════════════════════════════════════════

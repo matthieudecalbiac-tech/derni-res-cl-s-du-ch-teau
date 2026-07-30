@@ -1,24 +1,32 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   getReservationsAdmin,
   getStatsAdmin,
+  annulerReservationAdmin,
+  forcerStatutAdmin,
 } from "../../services/reservationsAdminService";
 
-// Section admin — Réservations (brique 1/2 : LECTURE + CHIFFRES, aucune action).
+// Section admin — Réservations (lecture + chiffres + actions).
 //
 // Le tableau de bord d'exploitation : toutes les réservations, tous châteaux,
 // avec le contact client — que le châtelain, lui, ne voit jamais (LCC reste
-// l'intermédiaire). Deux vues en base font le travail : reservations_admin_view
+// l'intermédiaire). Deux vues en base font la lecture : reservations_admin_view
 // pour la liste, reservations_stats_admin pour les agrégats (PostgREST ne sait
 // pas faire de GROUP BY).
 //
-// LECTURE SEULE, et pas par oubli : le durcissement du 23 juillet a retiré tout
-// droit d'écriture directe sur reservations à `authenticated`, admin compris.
-// Annuler et forcer un statut demanderont des RPC dédiées — brique 2/2.
+// LES ÉCRITURES PASSENT PAR DEUX RPC, et c'est le seul chemin : le durcissement
+// du 23 juillet a retiré tout droit d'UPDATE direct sur reservations à
+// `authenticated`, admin compris.
+//
+//   annuler       → admin_annuler_reservation, un GESTE : le client reçoit un
+//                   email. Bornée à pending/confirmed, parce qu'annoncer une
+//                   annulation à qui a déjà dormi au château serait faux.
+//   forcer statut → admin_forcer_statut, une CORRECTION : liberté totale sur la
+//                   transition, aucun email.
 //
 // Modèle AdminMessages pour les états (data/loading/erreur + useEffect
-// cancelled). Registre « relevé », pas « dashboard » : sobre, chiffré, sans
-// couleur criarde (contrainte Phase 4.2 — jamais un dashboard SaaS B2B).
+// cancelled, rechargement après action). Registre « relevé », pas
+// « dashboard » : sobre, chiffré, sans couleur criarde (contrainte Phase 4.2).
 
 // Les quatre statuts de l'enum reservation_status. Un statut inconnu (ajout
 // futur) s'affiche BRUT dans le tableau plutôt que de disparaître — l'écran
@@ -80,19 +88,36 @@ export default function AdminReservations() {
   const [erreur, setErreur] = useState(null);
   const [ongletActif, setOngletActif] = useState("tous");
 
+  // Action en cours : l'id de la réservation touchée, ou null. Sert à désactiver
+  // les commandes de CETTE ligne seulement — un double-clic sur « Annuler »
+  // enverrait deux fois l'email au client.
+  const [actionEnCours, setActionEnCours] = useState(null);
+  const [erreurAction, setErreurAction] = useState(null);
+  // Réservation en attente de confirmation d'annulation (objet, pas booléen :
+  // la modale a besoin du nom et des dates pour que l'admin voie ce qu'il annule).
+  const [aAnnuler, setAAnnuler] = useState(null);
+  const [motif, setMotif] = useState("");
+
+  // Rechargement des DEUX sources. Après une action, les chiffres bougent
+  // autant que la liste : un confirmed annulé sort du réalisé et entre dans
+  // l'annulé. Ne recharger que la liste laisserait un relevé qui ment.
+  const recharger = useCallback(async () => {
+    // Les deux vues en parallèle : elles sont indépendantes, et les chiffres ne
+    // dérivent PAS de la liste (les agrégats sont calculés en base, sur la
+    // totalité des lignes, pas sur ce que le tableau affiche).
+    const [listeLignes, agregats] = await Promise.all([
+      getReservationsAdmin(),
+      getStatsAdmin(),
+    ]);
+    setReservations(listeLignes);
+    setStats(agregats);
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
     setErreur(null);
-    // Les deux vues en parallèle : elles sont indépendantes, et les chiffres ne
-    // dérivent PAS de la liste (les agrégats sont calculés en base, sur la
-    // totalité des lignes, pas sur ce que le tableau affiche).
-    Promise.all([getReservationsAdmin(), getStatsAdmin()])
-      .then(([listeLignes, agregats]) => {
-        if (cancelled) return;
-        setReservations(listeLignes);
-        setStats(agregats);
-      })
+    recharger()
       .catch((e) => {
         if (!cancelled) setErreur(e.message || "Erreur de chargement");
       })
@@ -102,7 +127,52 @@ export default function AdminReservations() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [recharger]);
+
+  // Enveloppe commune aux deux actions : verrou de ligne, erreur générique,
+  // rechargement. Si l'action réussit mais que le rechargement échoue, on garde
+  // l'écran sur son état précédent plutôt que de le vider — l'écriture, elle,
+  // a bien eu lieu. Même règle que AdminMessages.
+  const executer = async (reservationId, travail) => {
+    setActionEnCours(reservationId);
+    setErreurAction(null);
+    try {
+      await travail();
+      try {
+        await recharger();
+      } catch {
+        // Le service a déjà loggé. Rien à dire à l'admin : son action a abouti.
+      }
+      return true;
+    } catch {
+      // Détail Postgres jamais à l'écran (il porte des noms de fonctions et des
+      // ERRCODE). Le service l'a loggé.
+      setErreurAction("L'action n'a pas pu être effectuée.");
+      return false;
+    } finally {
+      setActionEnCours(null);
+    }
+  };
+
+  const confirmerAnnulation = async () => {
+    const cible = aAnnuler;
+    if (!cible) return;
+    const ok = await executer(cible.id, () =>
+      annulerReservationAdmin(cible.id, motif),
+    );
+    if (ok) {
+      setAAnnuler(null);
+      setMotif("");
+    }
+  };
+
+  // Le sélecteur renvoie toujours une valeur de l'enum. On ignore le choix
+  // identique au statut courant : forcer 'confirmed' sur une confirmée
+  // écrirait une ligne d'historique pour rien.
+  const changerStatut = (r, cible) => {
+    if (!cible || cible === r.status) return;
+    executer(r.id, () => forcerStatutAdmin(r.id, cible));
+  };
 
   // Les chiffres, dérivés des agrégats (château × statut) en les repliant sur
   // le statut seul. La vue reste factuelle : c'est ICI que se décide ce qui
@@ -219,6 +289,10 @@ export default function AdminReservations() {
             </p>
           )}
 
+          {erreurAction && (
+            <p className="adm-erreur" role="alert">{erreurAction}</p>
+          )}
+
           {lignes.length > 0 && (
             <table className="adm-table">
               <thead>
@@ -231,6 +305,7 @@ export default function AdminReservations() {
                   <th>Montant</th>
                   <th>Commission</th>
                   <th>Statut</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -251,12 +326,117 @@ export default function AdminReservations() {
                         {LIBELLE_STATUT[r.status] || r.status}
                       </span>
                     </td>
+                    <td>
+                      <div className="adm-actions">
+                        {/* « Annuler » n'apparaît que là où la RPC l'accepte —
+                            pending et confirmed. Sur un séjour terminé ou déjà
+                            annulé, l'email serait faux ; le sélecteur ci-contre
+                            fait la transition en silence si elle est nécessaire. */}
+                        {(r.status === "pending" || r.status === "confirmed") && (
+                          <button
+                            type="button"
+                            className="adm-btn-suppr"
+                            disabled={actionEnCours === r.id}
+                            onClick={() => {
+                              setErreurAction(null);
+                              setMotif("");
+                              setAAnnuler(r);
+                            }}
+                          >
+                            Annuler
+                          </button>
+                        )}
+                        {/* Forçage : liberté totale, aucun email. La valeur
+                            affichée est le statut RÉEL de la ligne — on ne
+                            présume aucun parcours, y compris une réservation
+                            instantanée future née 'confirmed'. */}
+                        <select
+                          className="adm-input adm-select-statut"
+                          aria-label={`Forcer le statut — ${nomClient(r)}`}
+                          value={r.status}
+                          disabled={actionEnCours === r.id}
+                          onChange={(e) => changerStatut(r, e.target.value)}
+                        >
+                          {Object.entries(LIBELLE_STATUT).map(([valeur, libelle]) => (
+                            <option key={valeur} value={valeur}>{libelle}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
         </>
+      )}
+
+      {/* ── Confirmation d'annulation ──────────────────────────
+          Une modale et non un window.confirm : l'annulation envoie un EMAIL au
+          client, elle mérite qu'on relise ce qu'on annule avant de le faire.
+          Le motif est facultatif et reste EN BASE (cancellation_reason) pour le
+          support — il n'entre jamais dans l'email, comme le motif d'annulation
+          côté client. */}
+      {aAnnuler && (
+        <div
+          className="adm-modal-fond"
+          onClick={() => { if (!actionEnCours) setAAnnuler(null); }}
+        >
+          <div
+            className="adm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="adm-annul-titre"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="adm-annul-titre" className="adm-modal-titre">Annuler ce séjour</h2>
+            <p className="adm-modal-texte">
+              {nomClient(aAnnuler)} — {aAnnuler.chateau_nom}, {aAnnuler.chambre_nom}
+              <br />
+              {sejour(aAnnuler.date_arrivee, aAnnuler.date_depart)}
+            </p>
+            <p className="adm-modal-avert">
+              Le voyageur recevra un email lui annonçant que son séjour n'aura pas
+              lieu. Le château est prévenu que ses dates se libèrent.
+            </p>
+
+            <label className="adm-champ-label" htmlFor="adm-annul-motif">
+              Motif (facultatif, interne)
+            </label>
+            <textarea
+              id="adm-annul-motif"
+              className="adm-textarea"
+              rows={2}
+              value={motif}
+              onChange={(e) => setMotif(e.target.value)}
+              disabled={actionEnCours === aAnnuler.id}
+            />
+            <p className="adm-champ-aide">
+              Conservé pour le support. N'apparaît pas dans l'email.
+            </p>
+
+            {erreurAction && <p className="adm-erreur" role="alert">{erreurAction}</p>}
+
+            <div className="adm-modal-actions">
+              <button
+                type="button"
+                className="adm-btn"
+                disabled={actionEnCours === aAnnuler.id}
+                onClick={() => setAAnnuler(null)}
+              >
+                Revenir
+              </button>
+              <button
+                type="button"
+                className="adm-btn-danger"
+                disabled={actionEnCours === aAnnuler.id}
+                onClick={confirmerAnnulation}
+              >
+                {actionEnCours === aAnnuler.id ? "Annulation…" : "Confirmer l'annulation"}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
