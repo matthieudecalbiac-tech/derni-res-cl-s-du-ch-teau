@@ -1094,34 +1094,37 @@
   text-transform: uppercase;
 }
 
-/* Services & activités (onglet Services) — 2 sections côte à côte, vignettes carrées */
-.vc4-theme-amenity-cols {
-  display: flex;
-  gap: 40px;
-  align-items: flex-start;
-}
-.vc4-theme-amenity-section {
-  flex: 1 1 0;
-  min-width: 0;
-}
+/* ══════════════════════════════════════════════════════════════════════════
+   Services & activités — MOSAÏQUE ÉDITORIALE (onglet Services)
+   ══════════════════════════════════════════════════════════════════════════
+   Remplace la grille rigide 2 colonnes × 2 sections. Le principe est inversé :
+   la tuile TEXTE est la forme par défaut (78 % des amenities n'ont pas d'image,
+   18 sur 83), la tuile PHOTO est un accent. Une mosaïque sans aucune photo doit
+   tenir debout seule — c'est le cas réel de Saint-Paterne, une image pour douze.
 
-.vc4-theme-amenity-grille {
+   Les calibres (dominante / large / texte) sont décidés en JS, où l'on sait
+   quelle est la première photo. Ici on ne fait qu'appliquer les spans.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.vc4-mosa {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 186px;
+  /* dense : les tuiles 1×1 remontent combler les trous laissés par les spans.
+     Sans lui, une dominante en milieu de liste ouvrirait un vide à sa gauche. */
+  grid-auto-flow: dense;
   gap: 14px;
 }
 
-/* Vignette carrée cliquable */
-.vc4-theme-amenity-tuile {
+.vc4-mosa-tuile {
   position: relative;
-  aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  overflow: hidden;
   padding: 0;
   border: 1px solid var(--vc4-or-faint);
   border-radius: 4px;
-  overflow: hidden;
   background-color: var(--vc4-surface);
   background-size: cover;
   background-position: center;
@@ -1130,54 +1133,120 @@
   text-align: left;
   transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
 }
-.vc4-theme-amenity-tuile:hover {
+.vc4-mosa-tuile:hover {
   border-color: var(--vc4-or-soft);
   transform: translateY(-3px);
   box-shadow: 0 12px 30px rgba(7, 16, 30, 0.14);
 }
-.vc4-theme-amenity-tuile:focus-visible {
+.vc4-mosa-tuile:focus-visible {
   outline: 2px solid var(--vc4-or);
   outline-offset: 2px;
 }
 
-/* Placeholder (sans photo) : grande icône centrée sous l'overlay */
-.vc4-theme-amenity-tuile-ico {
-  position: absolute;
-  inset: 0 0 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  color: var(--vc4-or-soft);
+/* ── Calibres ── */
+.vc4-mosa-tuile--dominante { grid-column: span 2; grid-row: span 2; }
+.vc4-mosa-tuile--large     { grid-column: span 2; }
+
+/* ── Tuile TEXTE : la forme par défaut, composée pour elle-même ──
+   Fond crème, glyphe or en tête, filet, titre Playfair, description Crimson.
+   Rien n'y signale un manque : il n'y a pas de cadre photo vide, pas de zone
+   grise en attente d'image. */
+.vc4-mosa-tuile--texte {
+  justify-content: flex-start;
+  padding: 20px 18px 18px;
+  background-color: var(--vc4-surface);
+}
+.vc4-mosa-glyphe {
+  display: block;
+  font-size: 26px;
+  line-height: 1;
+  color: var(--vc4-or-sur-surface);
+  margin-bottom: 12px;
+}
+/* Filet or sous le glyphe : la respiration qui distingue une tuile éditoriale
+   d'une simple case. */
+.vc4-mosa-tuile--texte .vc4-mosa-glyphe::after {
+  content: "";
+  display: block;
+  width: 26px;
+  height: 1px;
+  margin-top: 12px;
+  background: var(--vc4-or-soft);
 }
 
-/* Overlay dégradé bas pour la lisibilité du nom + description */
-.vc4-theme-amenity-tuile-overlay {
-  position: relative;
-  z-index: 1;
+/* Une tuile texte sur trois en encre navy : le seul rythme disponible quand la
+   mosaïque n'a aucune photo. */
+.vc4-mosa-tuile--encre {
+  background-color: var(--vc4-ink);
+  border-color: transparent;
+}
+.vc4-mosa-tuile--encre .vc4-mosa-glyphe { color: var(--vc4-or); }
+.vc4-mosa-tuile--encre .vc4-mosa-nom    { color: var(--vc4-bg); }
+.vc4-mosa-tuile--encre .vc4-mosa-desc   { color: var(--vc4-bg); opacity: 0.78; }
+.vc4-mosa-tuile--encre .vc4-mosa-type   { color: var(--vc4-or); }
+
+/* ── Tuile PHOTO : l'accent ──
+   Dégradé navy montant pour que le texte reste lisible quelle que soit l'image. */
+.vc4-mosa-tuile--photo .vc4-mosa-corps {
+  padding: 46px 18px 16px;
+  background: linear-gradient(to top, rgba(7,16,30,0.88), rgba(7,16,30,0.40) 58%, transparent);
+}
+.vc4-mosa-tuile--photo .vc4-mosa-nom  { color: var(--vc4-bg); }
+.vc4-mosa-tuile--photo .vc4-mosa-desc { color: var(--vc4-bg); opacity: 0.85; }
+.vc4-mosa-tuile--photo .vc4-mosa-type { color: var(--vc4-or); }
+
+/* ── Contenu commun ── */
+.vc4-mosa-corps { position: relative; z-index: 1; display: block; }
+.vc4-mosa-type {
   display: block;
-  padding: 30px 14px 12px;
-  background: linear-gradient(to top, rgba(7, 16, 30, 0.85), rgba(7, 16, 30, 0.35) 55%, transparent);
+  font-family: "Crimson Pro", serif;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vc4-or-sur-surface);
+  margin-bottom: 5px;
 }
-.vc4-theme-amenity-tuile--photo .vc4-theme-amenity-tuile-overlay {
-  padding-top: 42px;
-}
-.vc4-theme-amenity-tuile-nom {
+.vc4-mosa-nom {
   display: block;
   font-family: "Playfair Display", serif;
-  font-size: 15px;
-  line-height: 1.2;
-  color: var(--vc4-bg);
-  margin-bottom: 4px;
+  font-size: 15.5px;
+  line-height: 1.22;
+  color: var(--vc4-ink);
+  margin-bottom: 5px;
 }
-.vc4-theme-amenity-tuile-desc {
+.vc4-mosa-tuile--dominante .vc4-mosa-nom { font-size: 21px; }
+.vc4-mosa-desc {
   display: block;
   font-family: "Crimson Pro", serif;
   font-style: italic;
-  font-size: 11.5px;
-  line-height: 1.35;
-  color: var(--vc4-bg);
-  opacity: 0.82;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--vc4-ink-faint);
+}
+.vc4-mosa-tuile--dominante .vc4-mosa-desc { font-size: 13px; }
+
+/* ── Respiration ──
+   1200 px : 3 colonnes. 900 px : 2 — la dominante y occupe la largeur entière
+   sur deux rangs, ce qui reste une belle ouverture. 620 px : une colonne, tous
+   les spans retombent à 1 et les tuiles photo prennent un format paysage
+   plutôt qu'un carré trop haut. */
+@media (max-width: 1200px) {
+  .vc4-mosa { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 900px) {
+  .vc4-mosa { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 168px; }
+}
+@media (max-width: 620px) {
+  .vc4-mosa { grid-template-columns: 1fr; grid-auto-rows: auto; }
+  .vc4-mosa-tuile--dominante,
+  .vc4-mosa-tuile--large { grid-column: span 1; grid-row: span 1; }
+  .vc4-mosa-tuile--photo { min-height: 200px; }
+  .vc4-mosa-tuile--texte { min-height: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vc4-mosa-tuile { transition: none; }
+  .vc4-mosa-tuile:hover { transform: none; }
 }
 
 /* Modale de détail d'un amenity */
@@ -1272,9 +1341,9 @@
   }
   .vc4-theme-chambre-photo { width: 100%; height: 180px; }
   .vc4-theme-chambre-prix { border-left: none; border-top: 1px solid var(--vc4-or-faint); padding: 12px; }
-  .vc4-theme-amenity-cols { flex-direction: column; gap: 0; }
-  .vc4-theme-amenity-section { margin-bottom: 40px; }
-  .vc4-theme-amenity-section:last-child { margin-bottom: 0; }
+  /* .vc4-theme-amenity-cols / -section retirees : les deux colonnes Services et
+     Activites ont fait place a une mosaique unifiee (cf. bloc MOSAÏQUE plus
+     haut). Aucun markup ne portait plus ces classes. */
 }
 
 /* ══ GALERIE PHOTOS (onglet Photos) ══ */
