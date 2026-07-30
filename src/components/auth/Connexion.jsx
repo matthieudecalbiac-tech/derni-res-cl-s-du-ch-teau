@@ -7,6 +7,16 @@
 //   "password"   (défaut)  : email + mot de passe → signInWithPassword
 //   "magic-link" (fallback): email seul → signInWithMagicLink (lien par email)
 //
+// MODE D'OUVERTURE VIA ?mode=magic-link
+//   L'email demande_client (gabarit send-email) pointe ici avec ce param. Son
+//   destinataire est un visiteur dont le tunnel a créé le compte SILENCIEUSEMENT
+//   (demande-reservation → admin.createUser) : il n'a JAMAIS choisi de mot de
+//   passe. L'ouvrir sur le formulaire mot de passe serait un cul-de-sac — d'où
+//   la lecture du param au montage.
+//   Seule la valeur "magic-link" est acceptée ; absente ou inconnue → password.
+//   Lu UNE FOIS (initialiseur paresseux) : ensuite l'état appartient à
+//   l'utilisateur, et la bascule manuelle ne se fait pas réécraser par l'URL.
+//
 // FLOW password
 //   1. Saisie email + mot de passe → submit
 //   2. signInWithPassword → si erreur, message FR (mappé dans AuthContext)
@@ -23,7 +33,7 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../contexts/AuthContext";
 import { IconOeil, IconOeilBarre } from "./IconesOeil";
@@ -42,8 +52,12 @@ export default function Connexion() {
     signOut,
   } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const [mode, setMode] = useState("password"); // "password" | "magic-link"
+  // Mode d'ouverture : ?mode=magic-link, sinon password (cf. en-tête).
+  const [mode, setMode] = useState(() =>
+    searchParams.get("mode") === "magic-link" ? "magic-link" : "password",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

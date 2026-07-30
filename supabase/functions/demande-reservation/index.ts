@@ -384,6 +384,29 @@ Deno.serve(async (req) => {
     const adminEmail = Deno.env.get("ADMIN_EMAIL");
     if (!adminEmail) console.warn("[demande-reservation] ADMIN_EMAIL absent — pas d'email admin");
 
+    // ── Lien vers l'espace membre (email client uniquement) ──
+    // SITE_URL est un secret Supabase (`supabase secrets set SITE_URL=...`), au
+    // même titre qu'ADMIN_EMAIL. Il n'existe AUCUN équivalent côté front : le
+    // navigateur dérive tout de window.location.origin, ce qu'une Edge Function
+    // n'a pas. Ne pas confondre avec SUPABASE_URL, qui est l'API.
+    //
+    // On ne lit PAS l'en-tête Origin de la requête : cette fonction est appelable
+    // par un anonyme (verify_jwt = false), donc Origin est fourni par l'appelant.
+    // Mettre une URL d'appelant dans un email que nous signons offrirait un
+    // vecteur de phishing.
+    //
+    // Lien vers /connexion en magic link, PAS d'action_link Supabase : un
+    // action_link est un credential à usage unique, et payload finit en clair
+    // dans email_log. Le membre demande son lien lui-même depuis la page.
+    // (?mode=magic-link est inerte tant que Connexion.jsx ne lit pas le param —
+    // le compte créé par le tunnel n'ayant PAS de mot de passe, c'est bien le
+    // mode magic link qu'il lui faut.)
+    const siteUrl = Deno.env.get("SITE_URL");
+    if (!siteUrl) console.warn("[demande-reservation] SITE_URL absent — email client sans lien vers l'espace");
+    const lienEspace = siteUrl
+      ? `${siteUrl.replace(/\/+$/, "")}/connexion?mode=magic-link`
+      : null;
+
     // Une ligne email_log par email. Formes de params = celles documentées en tête
     // de send-email/index.ts (ne pas dévier).
     const rows: Array<Record<string, unknown>> = [];
@@ -396,7 +419,10 @@ Deno.serve(async (req) => {
       statut: "en_attente",
       payload: {
         sujet: `Votre demande — ${chateau.nom}`,
-        params: { nomClient: nom, ...base },
+        // lienEspace : le SEUL des trois gabarits à le porter. Le châtelain et
+        // l'admin ont leurs propres accès, ce bloc ne s'adresse qu'au visiteur
+        // dont le compte vient d'être créé sans qu'il le sache.
+        params: { nomClient: nom, ...base, lienEspace },
       },
     });
 
