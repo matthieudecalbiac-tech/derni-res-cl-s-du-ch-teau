@@ -61,6 +61,12 @@
 //       dateDepart:     "YYYY-MM-DD"
 //       voyageurs:      number
 //       prixTotalEuros?: number  // optionnel, affiché discrètement ("montant estimé")
+//       lienEspace?:    string   // optionnel — URL ABSOLUE vers /connexion (magic link).
+//                                //   Écrite par demande-reservation depuis le secret
+//                                //   SITE_URL. Absente = le bloc Club n'est pas rendu
+//                                //   (le reste de l'email part normalement).
+//                                //   JAMAIS un action_link Supabase : pas de credential
+//                                //   dans email_log.payload.
 //     }
 //
 //   type = 'demande_chatelain'  (email de TRAVAIL au châtelain)
@@ -206,6 +212,32 @@ function tableFaits(rows: string): string {
   return `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin:8px 0;">${rows}</table>`;
 }
 
+// ── Bouton-lien ───────────────────────────────────────────────
+// PREMIER helper de lien de l'infra email : jusqu'ici aucun gabarit ne renvoyait
+// vers le site. Tous ceux qui le feront passeront par ici — d'où le soin.
+//
+// Tout est en style INLINE : aucune feuille de style ne survit à Gmail. Navy
+// plein, filet or, texte crème — les couleurs d'enveloppe(), rien d'autre.
+//
+// URL VIDE OU NON http(s) = CHAÎNE VIDE, pas de bouton mort. Deux services :
+// le gabarit dégrade proprement quand le param manque (ligne email_log mise en
+// file AVANT ce déploiement, secret SITE_URL non posé), et un href `javascript:`
+// ne peut pas naître d'un param. Les valeurs viennent aujourd'hui de nos propres
+// secrets ; ce garde-fou est là pour le jour où ce ne sera plus vrai.
+//
+// Outlook desktop (moteur Word) rend approximativement le padding d'un <a> : le
+// bouton y paraît plus plat. Il reste lisible et cliquable — la table VML qui
+// corrigerait ça pèse plus que ce que ce gabarit sobre justifie.
+function bouton(texte: string, url: unknown): string {
+  const brut = String(url ?? "").trim();
+  if (!/^https?:\/\//i.test(brut)) return "";
+  return `<table role="presentation" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:22px 0;">
+    <tr><td style="background:#07101E;border:1px solid #C09840;">
+      <a href="${escapeHtml(brut)}" style="display:inline-block;padding:13px 26px;font-family:Georgia,'Times New Roman',serif;font-size:15px;letter-spacing:0.04em;color:#F7F2E8;text-decoration:none;">${escapeHtml(texte)}</a>
+    </td></tr>
+  </table>`;
+}
+
 // ── Gabarits par type ─────────────────────────────────────────
 type Params = Record<string, unknown>;
 
@@ -219,6 +251,32 @@ function gabaritClient(p: Params): string {
   const prix = p.prixTotalEuros != null && euros(p.prixTotalEuros)
     ? `<p style="font-size:14px;line-height:1.7;color:#5a5a5a;margin:16px 0 0;">Montant estimé du séjour : ${euros(p.prixTotalEuros)}.</p>`
     : "";
+
+  // ── Bloc Club des Châtelains ────────────────────────────────
+  // Le tunnel crée le compte du visiteur SILENCIEUSEMENT : son espace existe
+  // déjà, mais aucun email ne le lui disait. C'est cet email — le seul qu'il
+  // reçoive à coup sûr — qui doit lui en donner la clé.
+  //
+  // Ce qu'on annonce est vrai AUJOURD'HUI : suivre sa demande et écrire à
+  // l'équipe (messagerie ouverte des deux côtés depuis /admin/messages). On ne
+  // promet PAS de séjours réservés aux membres — l'onglet Offres est vide, et
+  // l'email arriverait avant la marchandise.
+  //
+  // Le bloc entier disparaît sans lienEspace : un texte qui ouvre des portes
+  // sans donner la porte serait pire que pas de texte du tout.
+  const lien = bouton("Accéder à mon espace", p.lienEspace);
+  const blocClub = lien
+    ? `<hr style="border:none;border-top:1px solid #C09840;opacity:0.25;margin:28px 0 20px;">
+       <p style="font-size:16px;line-height:1.7;margin:0 0 12px;">
+         Votre demande vous ouvre les portes du Club des Châtelains.
+       </p>
+       <p style="font-size:15px;line-height:1.7;margin:0;color:#5a5a5a;">
+         Votre espace y est déjà ouvert : vous y suivez l'avancement de vos demandes
+         et échangez avec nous à tout moment.
+       </p>
+       ${lien}`
+    : "";
+
   const corps = `
     <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">Bonjour ${escapeHtml(p.nomClient)},</p>
     <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">
@@ -228,6 +286,7 @@ function gabaritClient(p: Params): string {
     <p style="font-size:15px;line-height:1.7;margin:0 0 8px;color:#5a5a5a;">Récapitulatif de votre demande :</p>
     ${sejour}
     ${prix}
+    ${blocClub}
     <p style="font-size:15px;line-height:1.7;margin:20px 0 0;">Avec toute notre attention.</p>`;
   return enveloppe("Votre demande est bien reçue", corps);
 }
