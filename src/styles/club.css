@@ -57,10 +57,9 @@
 
 .club-etat { font-family: 'Crimson Pro', serif; color: #4A4640; padding: 40px 0; }
 .club-etat--erreur { color: #a03028; }
-.club-placeholder-onglet {
-  font-family: 'Crimson Pro', serif; color: #4A4640; padding: 40px;
-  background: #FEFCF8; border: 1px solid rgba(192,152,64,0.2); border-radius: 12px; line-height: 1.6;
-}
+/* .club-placeholder-onglet retiree en meme temps que l'onglet « Préférences »
+   (cf. PageClub.jsx) : plus aucun JSX ne la portait. A recreer le jour ou une
+   rubrique a besoin d'un etat d'attente — pas de CSS en sommeil ici. */
 
 /* ── Dashboard Club ── */
 .dash { display: flex; flex-direction: column; gap: 24px; }
