@@ -24,6 +24,7 @@
 
 import { slugify } from "../utils/slug.js";
 import { NATURES } from "../utils/personnages.js";
+import { EMPLACEMENTS_PHOTO } from "../utils/photosEmplacements.js";
 
 /**
  * UUID du Module B (Les Dernières Clés) dans le seed S1-γ.
@@ -104,6 +105,13 @@ export function mapChateauBase(row) {
     chiffresCles: nullable(row.chiffres_cles),
     images: safeArray(row.images),
     videoBackground: nullable(row.video_background_youtube_id),
+    // Photos par emplacement de vitrine — 7 champs, tous nullable. null n'est
+    // pas une absence de donnée : c'est le cas « repli », que la vitrine sait
+    // traiter (cf. utils/photosEmplacements.js). Dérivé de la liste plutôt
+    // qu'énuméré : un emplacement ajouté là-bas arrive ici sans rien toucher.
+    ...Object.fromEntries(
+      EMPLACEMENTS_PHOTO.map(({ champ, colonne }) => [champ, nullable(row[colonne])])
+    ),
     estLaUne: row.est_la_une === true,
     isDemoMock: row.is_demo_mock === true,
     heroNightStars: row.hero_night_stars === true,
@@ -637,6 +645,9 @@ const CHAMP_VERS_COLONNE = {
   // Re-séparation de la distance (mapChateauBase fusionne les deux colonnes).
   distanceParis: "distance_paris_label",
   distanceParisMinutes: "distance_paris",
+  // Les 7 emplacements de photo — même source que la lecture, donc l'aller et
+  // le retour ne peuvent pas diverger.
+  ...Object.fromEntries(EMPLACEMENTS_PHOTO.map(({ champ, colonne }) => [champ, colonne])),
 };
 
 /** Sous-champ `proprietaires.*` → colonne `prop_*`. */

@@ -115,8 +115,11 @@ export default function JournalApercus({ chateau, onOuvrirTheme }) {
   const amenities = chateau?.amenities || [];
   const prop = chateau?.proprietaires || null;
 
-  // Repli d'image en cascade : la source propre à la section, puis une photo du
-  // domaine, puis rien (l'aplat au lys).
+  // Repli d'image en cascade : l'emplacement ASSIGNÉ en admin
+  // (chateau.imgJournal*, cf. utils/photosEmplacements.js), puis la source
+  // propre à la section, puis une photo du domaine, puis rien (l'aplat au lys).
+  // L'assignation vient en tête et ne supprime rien : tant qu'elle est vide, la
+  // cascade d'origine s'applique mot pour mot.
   //
   // LE HERO PREND images[0] : le journal pioche donc dans le RESTE, en tournant,
   // pour ne pas réafficher la photo qu'on vient de voir en plein cadre. Un
@@ -137,7 +140,7 @@ export default function JournalApercus({ chateau, onOuvrirTheme }) {
       // 4 phrases : l affiche porte le recit, et cette longueur equilibre sa
       // colonne face aux deux breves empilees en face.
       texte: premieresPhrases(chateau?.histoire, 4, 460),
-      image: photoDomaine(0),
+      image: chateau?.imgJournalHistoire || photoDomaine(0),
     },
     {
       cle: "famille",
@@ -151,7 +154,7 @@ export default function JournalApercus({ chateau, onOuvrirTheme }) {
       // 2 phrases : la brève est plus étroite que l'affiche, et la citation en
       // repli est déjà un propos complet.
       texte: premieresPhrases(prop?.description || prop?.citation, 2, 240),
-      image: prop?.portrait || photoDomaine(1),
+      image: chateau?.imgJournalProprietaires || prop?.portrait || photoDomaine(1),
     },
     {
       cle: "services",
@@ -163,7 +166,7 @@ export default function JournalApercus({ chateau, onOuvrirTheme }) {
       // Déjà composée en deux phrases (annonce + citation) : on la prend telle
       // quelle, la découper la mutilerait.
       texte: accrocheServices(amenities),
-      image: photoService || photoDomaine(2),
+      image: chateau?.imgJournalServices || photoService || photoDomaine(2),
     },
   ].filter((c) => c.texte || c.image);
 

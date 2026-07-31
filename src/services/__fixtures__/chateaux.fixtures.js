@@ -46,6 +46,16 @@ export const FIXTURE_BRIOTTIERES = {
   chiffres_cles: { ans: 7, hectares: 50, generations: 7, etoiles: 4 },
   images: ["/bri-1.avif", "/bri-2.avif", "/bri-3.avif"],
   video_background_youtube_id: null,
+  // Photos par emplacement de vitrine. Ici TOUTES assignées, et volontairement
+  // hors de `images` : c'est ce qui prouve que la vitrine lit l'emplacement et
+  // ne retombe pas sur la pioche. FIXTURE_MINIMAL couvre le cas inverse.
+  img_hero: "/bri-empl-hero.avif",
+  img_journal_histoire: "/bri-empl-histoire.avif",
+  img_journal_proprietaires: "/bri-empl-proprietaires.avif",
+  img_journal_services: "/bri-empl-services.avif",
+  img_barre_permanent: "/bri-empl-permanent.avif",
+  img_barre_dernieres_cles: "/bri-empl-dernieres-cles.avif",
+  img_barre_club: "/bri-empl-club.avif",
   prop_nom: "Arnaud & Madeleine de Valbray",
   prop_depuis: "2010",
   prop_initiale: "A",

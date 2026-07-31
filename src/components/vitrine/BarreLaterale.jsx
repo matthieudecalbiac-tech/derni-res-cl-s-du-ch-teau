@@ -3,6 +3,7 @@ import { getOffresPourChateau } from "../../services/offresService";
 import { formaterPrix } from "../../services/_mapping";
 import { LIBELLES, PHRASES_BANDEAU, ICONES } from "./OngletsNiveau1";
 import { THEMES } from "./OngletsNiveau2";
+import { CHAMP_PHOTO_BARRE } from "../../utils/photosEmplacements";
 import "../../styles/barre-laterale.css";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -19,9 +20,13 @@ import "../../styles/barre-laterale.css";
 //   constantes, et sa copie de cette logique est dormante — à supprimer quand
 //   le composant le sera.
 //
-// LES PHOTOS DES CARTES ÉVITENT CELLE DU HERO. Le hero prend images[0] ; les
-// cartes piochent dans le reste, en tournant. Un château qui n'a qu'une seule
-// photo la réutilise — c'est le repli, et il est visible plutôt que caché.
+// LES PHOTOS DES CARTES SONT ASSIGNABLES EN ADMIN (chateaux.img_barre_*). Si
+// l'emplacement est rempli, il tranche. Sinon on retombe sur la pioche
+// historique : le hero prend images[0], les cartes puisent dans le reste, en
+// tournant. Un château qui n'a qu'une seule photo la réutilise — c'est le repli,
+// et il est visible plutôt que caché.
+// ⚠ C'est cette pioche que le journal partage à l'identique (même vivier, même
+//   index) : sans assignation, la même photo paraît deux fois par écran.
 // ═══════════════════════════════════════════════════════════════════════════
 
 const MODULES = ["permanent", "dernieresCles", "club"];
@@ -53,11 +58,17 @@ export default function BarreLaterale({
     return () => { cancelled = true; };
   }, [chateau.slug]);
 
-  // Le vivier des cartes : tout sauf la photo du hero. S'il n'y a qu'une image,
-  // on la reprend — mieux vaut la même photo trois fois qu'un cadre vide.
+  // La photo d'une carte, par ordre de priorité :
+  //   1. l'emplacement ASSIGNÉ en admin (chateau.imgBarre*) — il tranche ;
+  //   2. le vivier : tout sauf la photo du hero, en tournant.
+  // Le vivier reste le repli et non l'inverse : tant qu'aucun emplacement n'est
+  // rempli, la barre affiche exactement ce qu'elle affichait avant.
+  // S'il n'y a qu'une image, on la reprend — mieux vaut la même photo trois
+  // fois qu'un cadre vide.
   const images = chateau?.images || [];
   const vivier = images.length > 1 ? images.slice(1) : images;
-  const photoCarte = (i) => (vivier.length ? vivier[i % vivier.length] : null);
+  const photoCarte = (m, i) =>
+    chateau?.[CHAMP_PHOTO_BARRE[m]] || (vivier.length ? vivier[i % vivier.length] : null);
 
   // Le détail distinctif : prix d'appel, compte, ou invitation. Rien tant que le
   // comptage n'est pas revenu — un « 0 offre » qui apparaît puis se corrige
@@ -103,7 +114,7 @@ export default function BarreLaterale({
             <p className="bl-eyebrow">Les offres</p>
             <ul className="bl-offres">
               {MODULES.map((m, i) => {
-                const photo = photoCarte(i);
+                const photo = photoCarte(m, i);
                 return (
                   <li key={m}>
                     <button
