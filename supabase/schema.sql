@@ -184,6 +184,18 @@ CREATE TABLE IF NOT EXISTS public.chateaux (
   img_barre_dernieres_cles    text,
   img_barre_club              text,
 
+  -- Accroches editoriales par EMPLACEMENT (migration 2026-08-01). Toutes
+  -- OPTIONNELLES : NULL = repli sur la logique actuelle — decoupe automatique du
+  -- texte long pour le journal, constantes PHRASES_BANDEAU pour la barre. Sans
+  -- ces colonnes, aucun texte d'appel de la vitrine n'etait ecrit par la DA :
+  -- tout etait decoupe, compose en JS, ou identique pour tous les chateaux.
+  accroche_journal_histoire      text,
+  accroche_journal_proprietaires text,
+  accroche_journal_services      text,
+  accroche_barre_permanent       text,
+  accroche_barre_dernieres_cles  text,
+  accroche_barre_club            text,
+
   -- Propriétaires (flatten 1:1, 7 colonnes)
   prop_nom                    text,
   prop_depuis                 text,

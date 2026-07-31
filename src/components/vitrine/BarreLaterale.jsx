@@ -4,6 +4,7 @@ import { formaterPrix } from "../../services/_mapping";
 import { LIBELLES, PHRASES_BANDEAU, ICONES } from "./OngletsNiveau1";
 import { THEMES } from "./OngletsNiveau2";
 import { CHAMP_PHOTO_BARRE } from "../../utils/photosEmplacements";
+import { CHAMP_ACCROCHE_BARRE } from "../../utils/accrochesEmplacements";
 import "../../styles/barre-laterale.css";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -70,6 +71,11 @@ export default function BarreLaterale({
   const photoCarte = (m, i) =>
     chateau?.[CHAMP_PHOTO_BARRE[m]] || (vivier.length ? vivier[i % vivier.length] : null);
 
+  // La phrase d'une carte, même règle : l'accroche écrite en admin d'abord,
+  // sinon la constante PHRASES_BANDEAU — la même pour tous les châteaux. C'est
+  // précisément ce que l'accroche permet de particulariser, domaine par domaine.
+  const phraseCarte = (m) => chateau?.[CHAMP_ACCROCHE_BARRE[m]] || PHRASES_BANDEAU[m];
+
   // Le détail distinctif : prix d'appel, compte, ou invitation. Rien tant que le
   // comptage n'est pas revenu — un « 0 offre » qui apparaît puis se corrige
   // serait pire que le silence.
@@ -135,7 +141,7 @@ export default function BarreLaterale({
                       <span className="bl-offre-corps">
                         <img className="bl-offre-ico" src={ICONES[m]} alt="" aria-hidden="true" />
                         <span className="bl-offre-nom">{LIBELLES[m]}</span>
-                        <span className="bl-offre-ligne">{PHRASES_BANDEAU[m]}</span>
+                        <span className="bl-offre-ligne">{phraseCarte(m)}</span>
                         {detail(m) && <span className="bl-offre-detail">{detail(m)}</span>}
                       </span>
                     </button>

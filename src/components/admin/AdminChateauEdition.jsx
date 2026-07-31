@@ -5,6 +5,7 @@ import { validerPublication } from "../../utils/validerPublication";
 import { CATEGORIES as AMENITY_CATEGORIES } from "../../utils/categories";
 import { NATURES } from "../../utils/personnages";
 import { EMPLACEMENTS_PHOTO } from "../../utils/photosEmplacements";
+import { ACCROCHES_EMPLACEMENT } from "../../utils/accrochesEmplacements";
 import BoutonTeleverser from "./BoutonTeleverser";
 import ChampCase from "../ChampCase";
 import ChampEquipements from "../ChampEquipements";
@@ -108,6 +109,8 @@ function formFromChateau(c) {
     // Les 7 photos d'emplacement : "" dans le form (les inputs sont contrôlés),
     // re-converti en null à l'envoi — et null, c'est le repli.
     ...Object.fromEntries(EMPLACEMENTS_PHOTO.map(({ champ }) => [champ, c[champ] ?? ""])),
+    // Idem pour les 6 accroches : "" au chargement, null à l'envoi.
+    ...Object.fromEntries(ACCROCHES_EMPLACEMENT.map(({ champ }) => [champ, c[champ] ?? ""])),
     couleurTheme: c.couleurTheme ?? "",
     accentTheme: c.accentTheme ?? "",
     estLaUne: c.estLaUne === true,
@@ -177,6 +180,9 @@ function preparerBase(form) {
     // Champ laissé vide = null en base = la vitrine reprend sa pioche d'origine.
     // C'est le seul moyen de DÉSASSIGNER un emplacement : on vide, on enregistre.
     ...Object.fromEntries(EMPLACEMENTS_PHOTO.map(({ champ }) => [champ, videOuNull(form[champ])])),
+    // Vider une accroche est le seul moyen de RENDRE LA MAIN au texte
+    // automatique : "" -> null, et null est le cas repli.
+    ...Object.fromEntries(ACCROCHES_EMPLACEMENT.map(({ champ }) => [champ, videOuNull(form[champ])])),
     couleurTheme: videOuNull(form.couleurTheme),
     accentTheme: videOuNull(form.accentTheme),
     estLaUne: form.estLaUne === true,
@@ -735,6 +741,28 @@ export default function AdminChateauEdition() {
                 valeur={form[champ]}
                 onUpload={(url) => setForm((f) => ({ ...f, [champ]: url }))}
               />
+            </div>
+          ))}
+        </section>
+
+        {/* ── Accroches éditoriales ──
+            Le pendant textuel de la section ci-dessus, et le même contrat :
+            laissé vide, la vitrine reprend son texte automatique. L'`aide` dit
+            le repli EXACT — c'est la seule information dont l'éditeur a besoin
+            pour décider s'il doit écrire ou laisser faire.
+            <ChampZone> et non <Champ> : ce sont des phrases, parfois deux ou
+            trois. Une ligne unique les ferait défiler à l'aveugle. */}
+        <section className="adm-section">
+          <h2 className="adm-section-titre">
+            Accroches éditoriales <span className="adm-section-note">(facultatif — vide = texte automatique)</span>
+          </h2>
+          {ACCROCHES_EMPLACEMENT.map(({ champ, label, aide }) => (
+            <div className="adm-fille" key={champ}>
+              <div className="adm-fille-tete">
+                <span className="adm-fille-num">{label}</span>
+                <span className="adm-section-note">{aide}</span>
+              </div>
+              <ChampZone label="Texte affiché" value={form[champ]} onChange={setChamp(champ)} rows={3} />
             </div>
           ))}
         </section>

@@ -10,8 +10,10 @@ import "../../styles/vitrine-journal.css";
 // dans ThemeHistoire / ThemeFamille / ThemeServices, et le clic y mène.
 //
 // AUCUNE DONNÉE NOUVELLE, aucun service appelé : on lit ce que mapChateau
-// expose déjà. Les accroches sont dérivées du contenu présent (la base ne porte
-// aucun champ de teaser — cf. premierePhrase ci-dessous).
+// expose déjà. Chaque accroche vient d'abord du champ que la DA peut écrire en
+// admin (chateau.accrocheJournal*, cf. utils/accrochesEmplacements.js) ; à
+// défaut seulement, elle est DÉRIVÉE du contenu long présent (découpe par
+// premieresPhrases, ou composition par accrocheServices).
 //
 // COMPOSITION MAGAZINE, pas trois blocs égaux. Une affiche verticale (Histoire)
 // ancre à gauche ; deux brèves horizontales (Propriétaires, Services) s'empilent
@@ -40,12 +42,15 @@ function decouperPhrases(texte) {
  * Les N premières phrases d'un texte long — assez pour donner envie, pas assez
  * pour tout dire : l'aperçu mène à l'onglet complet, il ne le remplace pas.
  *
- * La base ne porte aucun champ d'accroche par section, il faut donc dériver.
- * Le plafond de caractères est un garde-fou de mise en page (une phrase de 300
- * caractères existe) : il coupe au dernier espace, jamais en plein mot.
+ * C'est désormais le REPLI, plus le seul chemin : depuis la migration
+ * 2026-08-01, chaque section a son champ d'accroche en admin. Cette découpe ne
+ * s'applique qu'aux châteaux dont personne n'a encore écrit le teaser — c'est
+ * le cas de tous tant que rien n'est saisi.
  *
- * À AJOUTER CÔTÉ ADMIN PLUS TARD : un champ court par section, pour que la
- * direction artistique écrive le teaser au lieu de subir une coupe.
+ * Le plafond de caractères est un garde-fou de mise en page (une phrase de 300
+ * caractères existe) : il coupe au dernier espace, jamais en plein mot. Il ne
+ * s'applique PAS à une accroche écrite à la main — quand la DA compose la
+ * phrase, elle en décide aussi la longueur.
  */
 function premieresPhrases(texte, nb = 3, max = 340) {
   const phrases = decouperPhrases(texte);
@@ -139,7 +144,7 @@ export default function JournalApercus({ chateau, onOuvrirTheme }) {
       titre: "L'histoire du domaine",
       // 4 phrases : l affiche porte le recit, et cette longueur equilibre sa
       // colonne face aux deux breves empilees en face.
-      texte: premieresPhrases(chateau?.histoire, 4, 460),
+      texte: chateau?.accrocheJournalHistoire || premieresPhrases(chateau?.histoire, 4, 460),
       image: chateau?.imgJournalHistoire || photoDomaine(0),
     },
     {
@@ -153,7 +158,9 @@ export default function JournalApercus({ chateau, onOuvrirTheme }) {
       titre: prop?.nom || "La famille",
       // 2 phrases : la brève est plus étroite que l'affiche, et la citation en
       // repli est déjà un propos complet.
-      texte: premieresPhrases(prop?.description || prop?.citation, 2, 240),
+      texte:
+        chateau?.accrocheJournalProprietaires ||
+        premieresPhrases(prop?.description || prop?.citation, 2, 240),
       image: chateau?.imgJournalProprietaires || prop?.portrait || photoDomaine(1),
     },
     {
@@ -165,7 +172,7 @@ export default function JournalApercus({ chateau, onOuvrirTheme }) {
       titre: "Table d'hôtes & Services",
       // Déjà composée en deux phrases (annonce + citation) : on la prend telle
       // quelle, la découper la mutilerait.
-      texte: accrocheServices(amenities),
+      texte: chateau?.accrocheJournalServices || accrocheServices(amenities),
       image: chateau?.imgJournalServices || photoService || photoDomaine(2),
     },
   ].filter((c) => c.texte || c.image);
