@@ -27,6 +27,7 @@ import {
   mapCataloguePersonnages,
   MODULE_B_ID,
 } from "../_mapping.js";
+import { EMPLACEMENTS_PHOTO } from "../../utils/photosEmplacements.js";
 import {
   FIXTURE_BRIOTTIERES,
   FIXTURE_VAUX,
@@ -75,6 +76,27 @@ describe("mapChateauBase", () => {
     expect(out.coordonnees).toEqual({ lat: null, lng: null });
     expect(out.proprietaires.nom).toBeNull();
     expect(out.images).toEqual([]);
+  });
+
+  it("photos d'emplacement : les 7 colonnes img_* remontent en camelCase", () => {
+    const out = mapChateauBase(FIXTURE_BRIOTTIERES);
+    expect(out.imgHero).toBe("/bri-empl-hero.avif");
+    expect(out.imgJournalHistoire).toBe("/bri-empl-histoire.avif");
+    expect(out.imgJournalProprietaires).toBe("/bri-empl-proprietaires.avif");
+    expect(out.imgJournalServices).toBe("/bri-empl-services.avif");
+    expect(out.imgBarrePermanent).toBe("/bri-empl-permanent.avif");
+    expect(out.imgBarreDernieresCles).toBe("/bri-empl-dernieres-cles.avif");
+    expect(out.imgBarreClub).toBe("/bri-empl-club.avif");
+  });
+
+  it("photos d'emplacement : colonne absente → null (le cas REPLI, pas un crash)", () => {
+    // Le contrat entier de la brique tient dans cette ligne : un château non
+    // assigné donne null, et null est ce que la vitrine sait traiter en repli.
+    const out = mapChateauBase(FIXTURE_MINIMAL);
+    for (const { champ } of EMPLACEMENTS_PHOTO) {
+      expect(out[champ]).toBeNull();
+    }
+    expect(EMPLACEMENTS_PHOTO).toHaveLength(7);
   });
 
   it("input null → null (zéro crash)", () => {
@@ -368,6 +390,8 @@ describe("chateauToRow (mapper inverse — colonnes chateaux)", () => {
     "region_narrative", "region_histoire", "chiffres_cles", "images",
     "video_background_youtube_id", "est_la_une", "is_demo_mock", "hero_night_stars",
     "une_de_la_semaine", "ordre_home", "mode_paiement",
+    "img_hero", "img_journal_histoire", "img_journal_proprietaires", "img_journal_services",
+    "img_barre_permanent", "img_barre_dernieres_cles", "img_barre_club",
     "couleur_theme", "accent_theme", "coordonnees_lat", "coordonnees_lng",
     "prop_nom", "prop_depuis", "prop_initiale", "prop_nom_affiche", "prop_portrait",
     "prop_citation", "prop_description",

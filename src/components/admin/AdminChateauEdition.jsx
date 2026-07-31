@@ -4,6 +4,7 @@ import { getChateauAdminById, saveChateauComplet, updateStatut, deleteChateau, g
 import { validerPublication } from "../../utils/validerPublication";
 import { CATEGORIES as AMENITY_CATEGORIES } from "../../utils/categories";
 import { NATURES } from "../../utils/personnages";
+import { EMPLACEMENTS_PHOTO } from "../../utils/photosEmplacements";
 import BoutonTeleverser from "./BoutonTeleverser";
 import ChampCase from "../ChampCase";
 import ChampEquipements from "../ChampEquipements";
@@ -104,6 +105,9 @@ function formFromChateau(c) {
     distanceParis: c.distanceParis ?? "",
     distanceParisMinutes: c.distanceParisMinutes ?? "",
     videoBackground: c.videoBackground ?? "",
+    // Les 7 photos d'emplacement : "" dans le form (les inputs sont contrôlés),
+    // re-converti en null à l'envoi — et null, c'est le repli.
+    ...Object.fromEntries(EMPLACEMENTS_PHOTO.map(({ champ }) => [champ, c[champ] ?? ""])),
     couleurTheme: c.couleurTheme ?? "",
     accentTheme: c.accentTheme ?? "",
     estLaUne: c.estLaUne === true,
@@ -170,6 +174,9 @@ function preparerBase(form) {
     distanceParis: videOuNull(form.distanceParis),
     distanceParisMinutes: entierOuNull(form.distanceParisMinutes),
     videoBackground: videOuNull(form.videoBackground),
+    // Champ laissé vide = null en base = la vitrine reprend sa pioche d'origine.
+    // C'est le seul moyen de DÉSASSIGNER un emplacement : on vide, on enregistre.
+    ...Object.fromEntries(EMPLACEMENTS_PHOTO.map(({ champ }) => [champ, videOuNull(form[champ])])),
     couleurTheme: videOuNull(form.couleurTheme),
     accentTheme: videOuNull(form.accentTheme),
     estLaUne: form.estLaUne === true,
@@ -705,6 +712,31 @@ export default function AdminChateauEdition() {
             </div>
           ))}
           <button type="button" className="adm-btn-ajouter" onClick={ajouterImage}>+ Ajouter une image</button>
+        </section>
+
+        {/* ── Photos de la vitrine ──
+            La galerie ci-dessus est le VIVIER ; cette section dit où va quoi.
+            Chaque emplacement est optionnel : laissé vide, la vitrine reprend
+            sa logique de pioche (l'`aide` de chaque champ dit laquelle). C'est
+            ce qui garantit qu'un château non renseigné s'affiche exactement
+            comme avant. */}
+        <section className="adm-section">
+          <h2 className="adm-section-titre">
+            Photos de la vitrine <span className="adm-section-note">(facultatif — vide = photo choisie automatiquement)</span>
+          </h2>
+          {EMPLACEMENTS_PHOTO.map(({ champ, label, aide }) => (
+            <div className="adm-fille" key={champ}>
+              <div className="adm-fille-tete">
+                <span className="adm-fille-num">{label}</span>
+                <span className="adm-section-note">{aide}</span>
+              </div>
+              <Champ label="URL / chemin" value={form[champ]} onChange={setChamp(champ)} />
+              <BoutonTeleverser
+                valeur={form[champ]}
+                onUpload={(url) => setForm((f) => ({ ...f, [champ]: url }))}
+              />
+            </div>
+          ))}
         </section>
 
         {/* ── Chiffres clés (lecture seule) ── */}

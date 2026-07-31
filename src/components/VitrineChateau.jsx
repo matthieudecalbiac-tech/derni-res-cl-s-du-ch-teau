@@ -385,7 +385,12 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
               />
             </div>
           ) : (
-            <div className="vc3-hero2-media" style={{ backgroundImage: `url('${chateau.images?.[0]}')` }} />
+            // imgHero assigné en admin s'il existe, sinon la 1re image de la
+            // galerie — la source historique, inchangée tant que rien n'est posé.
+            <div
+              className="vc3-hero2-media"
+              style={{ backgroundImage: `url('${chateau.imgHero || chateau.images?.[0]}')` }}
+            />
           )}
           <div className="vc3-hero2-vign" />
 

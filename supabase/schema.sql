@@ -172,6 +172,18 @@ CREATE TABLE IF NOT EXISTS public.chateaux (
   images                      text[]       NOT NULL DEFAULT ARRAY[]::text[],
   video_background_youtube_id text,
 
+  -- Photos par EMPLACEMENT de vitrine (migration 2026-07-31). Toutes OPTIONNELLES :
+  -- NULL = repli sur la logique de pioche dans images[] (cf. BarreLaterale /
+  -- JournalApercus). Sans ces colonnes, le journal et la barre tiraient la meme
+  -- photo au meme index — elle apparaissait deux fois par ecran.
+  img_hero                    text,
+  img_journal_histoire        text,
+  img_journal_proprietaires   text,
+  img_journal_services        text,
+  img_barre_permanent         text,
+  img_barre_dernieres_cles    text,
+  img_barre_club              text,
+
   -- Propriétaires (flatten 1:1, 7 colonnes)
   prop_nom                    text,
   prop_depuis                 text,
