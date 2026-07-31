@@ -116,7 +116,11 @@ test.describe('Vitrines · comportement (decouverte DOM)', () => {
         }
 
         // — Module Permanent (overlay) : au moins une chambre rendue.
-        await page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i }).click();
+        // Sélecteur réécrit : la bande de cartes Niveau 1 a quitté le flux, la
+        // barre latérale est le seul point d'accès (.bl-offre[data-module]).
+        // Les clics de thèmes juste au-dessus visent [data-theme="X"] sans
+        // préfixe de classe — ils ont donc survécu au changement sans retouche.
+        await page.locator('.bl-offre[data-module="permanent"]').click();
         await expect(page.locator('.vc3-module-panel')).toBeVisible();
         expect(
           await page.locator('.vc4-permanent-chambre').count(),

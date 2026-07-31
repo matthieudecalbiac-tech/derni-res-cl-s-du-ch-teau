@@ -1,4 +1,4 @@
-const THEMES = [
+export const THEMES = [
   { code: "apercu", label: "Aperçu" },
   { code: "histoire", label: "Histoire" },
   { code: "famille", label: "Famille & propriétaires" },

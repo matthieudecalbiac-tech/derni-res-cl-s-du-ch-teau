@@ -84,6 +84,27 @@
 .vc3-sejour-btn{width:100%;padding:14px;background:var(--or);border:none;border-radius:3px;font-family:'Crimson Pro',serif;font-size:0.82rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--vc3-on-or);cursor:pointer;transition:all 0.25s;font-weight:500;margin-bottom:10px}
 .vc3-sejour-btn:hover{background:var(--or-c);transform:translateY(-2px)}
 
+/* ══ ZONE JOURNAL + BARRE LATERALE ══
+   Deux colonnes sur un meme fond creme : le journal a gauche, la barre a droite.
+   La reserve d'espace n'est plus un padding du journal (approche du panneau
+   abandonne) mais une vraie colonne — la barre l'occupe pour de bon.
+   clamp : 20 % de la zone, borne pour qu'elle ne devienne ni un ruban sur grand
+   ecran ni une gouttiere sur petit. align-items: stretch (defaut) pour que le
+   creme chaud de la barre descende sur toute la hauteur de la zone. */
+.vc3-zone-journal{display:grid;grid-template-columns:minmax(0,1fr) clamp(238px,20%,320px);background:var(--lcc-creme)}
+/* LA GOUTTIERE EST SUPPRIMEE, pas reduite. Le journal porte un padding lateral
+   de 64 px qui, cote droit, s'ajoutait aux 38 px de la barre : pres de 100 px de
+   vide au milieu. Ici son padding droit tombe a 24 px — le journal et la barre
+   se frolent, separes par le seul filet or vertical et les paddings internes.
+   Regle portee par la ZONE et non par vitrine-journal.css : le journal hors
+   zone (s'il resservait seul) garde sa mise en page d'origine. */
+.vc3-zone-journal .vj-journal{padding-right:24px}
+.vc3-zone-journal .vj-inner{max-width:none}  /* la colonne borne deja */
+/* Sous 1000 px la barre passe SOUS le journal, pleine largeur : une colonne de
+   droite y prendrait la moitie de l'ecran. Rien n'est cache, tout reste
+   atteignable en defilant — pas de declencheur a trouver. */
+@media(max-width:1000px){.vc3-zone-journal{grid-template-columns:minmax(0,1fr)}.vc3-zone-journal .vj-journal{padding-right:clamp(20px,5vw,64px)}}
+
 /* ══ MODALE ══ */
 /* ══ OVERLAY MODULE (contenu Permanent/Dernieres/Club en superposition) ══ */
 .vc3-module-overlay{position:fixed;inset:0;z-index:9050;background:var(--vc3-scrim);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding:48px 24px;overflow-y:auto}

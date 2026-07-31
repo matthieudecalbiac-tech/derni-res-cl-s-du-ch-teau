@@ -116,9 +116,14 @@ export default function JournalApercus({ chateau, onOuvrirTheme }) {
   const prop = chateau?.proprietaires || null;
 
   // Repli d'image en cascade : la source propre à la section, puis une photo du
-  // domaine, puis rien (l'aplat au lys). Les index décalés évitent que les trois
-  // cartes montrent la même photo quand une section n'a pas la sienne.
-  const photoDomaine = (i) => images[i] || images[0] || null;
+  // domaine, puis rien (l'aplat au lys).
+  //
+  // LE HERO PREND images[0] : le journal pioche donc dans le RESTE, en tournant,
+  // pour ne pas réafficher la photo qu'on vient de voir en plein cadre. Un
+  // château qui n'a qu'une seule image la réutilise — c'est le repli, et il vaut
+  // mieux la même photo deux fois qu'un cadre vide.
+  const vivier = images.length > 1 ? images.slice(1) : images;
+  const photoDomaine = (i) => (vivier.length ? vivier[i % vivier.length] : null);
   const photoService = amenities.find((a) => a?.image)?.image || null;
 
   const cartes = [

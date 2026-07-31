@@ -2,16 +2,29 @@
  * Tests E2E · Sprint S2-α.1.5 — refonte vitrine 2 niveaux d'onglets
  *
  * Couvre :
- *   1.  /chateau/les-briottieres → hero + onglet Permanent défaut + phrase intro + chambres
- *   2.  ?onglet=dernieresCles → onglet B actif, offre B affichée
+ *   1.  /chateau/les-briottieres → hero + module Permanent actif + intro + chambres
+ *   2.  ?onglet=dernieresCles → module B actif, offre B affichée
  *   3.  ?onglet=dernieresCles&offre=<id lu au DOM> → highlight de l'offre ciblée
- *   4.  ?onglet=club → fallback Permanent (IS_CLUB_MEMBER stub = false)
- *   5.  Onglet Club PAS dans la liste (non-membre)
- *   6.  Click onglet "Histoire" niveau 2 → ?theme=histoire + timeline visible
- *   7.  Click successif sur les 6 thèmes niveau 2 → chaque contenu charge
+ *   4.  ?onglet=club → fallback Permanent (non-membre)
+ *   5.  Module Club visible pour tous, click non-membre ouvre la modale de verrou
+ *   6.  Click thème "Histoire" → ?theme=histoire + timeline visible
+ *   7.  Click successif sur les 6 thèmes → chaque contenu charge
  *   8.  /chateau/vaux-le-vicomte (estLaUne:false) → redirect /
  *   9.  Régression : "/" home OK
  *   10. Régression : click château estLaUne depuis VitrinePermanente → VitrineChateau (Dette 2)
+ *   12. Switch de module préserve hero + navigation thèmes
+ *   13. DernieresCles overlay → /chateau/:slug?onglet=dernieresCles, module actif
+ *
+ * ── SÉLECTEURS RÉÉCRITS (retrait des onglets N1/N2 du flux) ──────────────────
+ * La bande de cartes Niveau 1 et la barre d'onglets Niveau 2 ont quitté la page :
+ * la BARRE LATÉRALE est le seul point d'accès. Les tests visent donc désormais
+ *   .vc4-offre-card[data-onglet="X"]  →  .bl-offre[data-module="X"]
+ *   .vc4-offre-card--actif            →  .bl-offre--actif
+ *   .vc4-onglet-n2[data-theme="X"]    →  .bl-theme[data-theme="X"]
+ *   .vc4-onglets-n2-wrap              →  .bl-themes
+ * Ce qu'ils VÉRIFIENT est inchangé — seul le chemin d'accès a bougé. Aucune
+ * assertion n'a été relâchée, aucun test neutralisé pour faire passer la suite.
+ * Le Test 11 (sticky de la bande N1) est SUPPRIMÉ : son sujet n'existe plus.
  *
  * URL params en camelCase (alignés sur chateau.modules.dernieresCles).
  */
@@ -27,9 +40,9 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(page.locator('.vc3-hero2').first()).toBeVisible({ timeout: 8000 });
 
     // Onglet Permanent actif par défaut
-    const ongletPermanent = page.locator('.vc4-offre-card[data-onglet="permanent"]');
+    const ongletPermanent = page.locator('.bl-offre[data-module="permanent"]');
     await expect(ongletPermanent).toBeVisible();
-    await expect(ongletPermanent).toHaveClass(/vc4-offre-card--actif/);
+    await expect(ongletPermanent).toHaveClass(/bl-offre--actif/);
 
     // Phrase d'intro présente
     await expect(page.locator('.vc4-permanent-intro')).toBeVisible();
@@ -44,9 +57,9 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await page.goto('/chateau/les-briottieres?onglet=dernieresCles');
     await page.waitForLoadState('domcontentloaded');
 
-    const ongletDC = page.locator('.vc4-offre-card[data-onglet="dernieresCles"]');
+    const ongletDC = page.locator('.bl-offre[data-module="dernieresCles"]');
     await expect(ongletDC).toBeVisible({ timeout: 8000 });
-    await expect(ongletDC).toHaveClass(/vc4-offre-card--actif/);
+    await expect(ongletDC).toHaveClass(/bl-offre--actif/);
 
     // Au moins 1 offre listée (les services ne sont plus en base : la colonne
     // conditions est du texte libre, mapper renvoie servicesInclus: [], assume).
@@ -89,10 +102,10 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     // au click via modale stub (TODO α.2 : brancher Supabase auth).
     await page.goto('/chateau/les-briottieres');
     await page.waitForLoadState('domcontentloaded');
-    await page.locator('.vc4-offre-card[data-onglet="permanent"]').waitFor({ timeout: 8000 });
+    await page.locator('.bl-offre[data-module="permanent"]').waitFor({ timeout: 8000 });
 
     // L'onglet Club EST visible (modules.club=true via _mapping.js fallback)
-    const ongletClub = page.locator('.vc4-offre-card[data-onglet="club"]');
+    const ongletClub = page.locator('.bl-offre[data-module="club"]');
     await expect(ongletClub).toBeVisible({ timeout: 5000 });
 
     // Click sur Club non-membre → modale stub auth s'ouvre
@@ -110,14 +123,14 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(modaleAuth).not.toBeVisible({ timeout: 3000 });
 
     // L'onglet Permanent reste actif après fermeture
-    await expect(page.locator('.vc4-offre-card[data-onglet="permanent"]')).toHaveClass(/vc4-offre-card--actif/);
+    await expect(page.locator('.bl-offre[data-module="permanent"]')).toHaveClass(/bl-offre--actif/);
   });
 
   test('Test 6 · Click onglet Histoire (niveau 2) → ?theme=histoire + timeline', async ({ page }) => {
     await page.goto('/chateau/les-briottieres');
     await page.waitForLoadState('domcontentloaded');
 
-    const ongletHistoire = page.locator('.vc4-onglet-n2[data-theme="histoire"]');
+    const ongletHistoire = page.locator('.bl-theme[data-theme="histoire"]');
     await ongletHistoire.scrollIntoViewIfNeeded();
     await ongletHistoire.click();
 
@@ -132,7 +145,7 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
 
     const themes = ['apercu', 'histoire', 'famille', 'lieu', 'services', 'chambres'];
     for (const t of themes) {
-      const onglet = page.locator(`.vc4-onglet-n2[data-theme="${t}"]`);
+      const onglet = page.locator(`.bl-theme[data-theme="${t}"]`);
       await onglet.scrollIntoViewIfNeeded();
       await onglet.click();
       await expect(page.locator(`[data-theme-contenu="${t}"]`)).toBeVisible({ timeout: 3000 });
@@ -182,28 +195,14 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(page.locator('.vc3-overlay')).toBeVisible({ timeout: 8000 });
   });
 
-  test('Test 11 · Sticky Niveau 1 reste visible après scroll 2000px (R1)', async ({ page }) => {
-    test.skip(true, 'Sticky N1 cassé par le wrapper ongletsN1Ref (79d6a36, cible scrollIntoView parcours dispo) trop court pour position:sticky. Dette polish Phase 6.x — relocaliser le ref (forwardRef sur OngletsNiveau1) sans casser le scroll dispo.');
-    // Sprint S2-α.1.5-FIX : régression R1 (sticky cassé top: 64px) résolue
-    // par top: 0 dans vitrine-onglets.css. Test garantit que le scroll dans
-    // .vc3-corps préserve la barre d'onglets N1 visible.
-    await page.goto('/chateau/les-briottieres');
-    await page.waitForLoadState('domcontentloaded');
-    await page.locator('.vc4-offre-card[data-onglet="permanent"]').waitFor({ timeout: 8000 });
+  // Test 11 SUPPRIMÉ — il vérifiait que la bande d'onglets Niveau 1 restait
+  // collante au défilement. Cette bande a quitté le flux : la barre latérale est
+  // désormais le seul point d'accès, et c'est ELLE qui est collante. Le test
+  // était de toute façon neutralisé par un test.skip(true, …) depuis la dette
+  // Phase 6.x (le wrapper ongletsN1Ref, trop court pour position:sticky). Il
+  // n'avait donc plus de sujet, et son sujet n'existe plus.
 
-    // Scroll de 2000px dans le scroll container .vc3-corps
-    await page.evaluate(() => {
-      const corps = document.querySelector('.vc3-corps');
-      if (corps) corps.scrollTo({ top: 2000, behavior: 'instant' });
-    });
-    await page.waitForTimeout(300);
-
-    // Le bandeau N1 doit rester dans le viewport (sticky)
-    const bandeau = page.locator('.vc4-onglets-n1-wrap');
-    await expect(bandeau).toBeInViewport({ ratio: 0.5 });
-  });
-
-  test('Test 12 · Switch onglet N1 préserve hero + N2 (R3)', async ({ page }) => {
+  test('Test 12 · Switch de module préserve hero + navigation thèmes (R3)', async ({ page }) => {
     // Sprint S2-α.1.5-FIX : régression R3 (architecture "vues séparées" perçue)
     // — l'architecture en code est correcte : Hero + N2 sont toujours rendus,
     // indépendamment du module actif. Seule la section module change.
@@ -213,16 +212,16 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
 
     // Permanent par défaut : hero + N2 attachés au DOM
     await expect(page.locator('.vc3-hero2')).toBeAttached();
-    await expect(page.locator('.vc4-onglets-n2-wrap')).toBeAttached();
+    await expect(page.locator('.bl-themes')).toBeAttached();
     await expect(page.locator('[data-onglet-contenu="permanent"]')).toBeVisible({ timeout: 8000 });
 
     // Switch vers Dernières Clés
-    await page.locator('.vc4-offre-card[data-onglet="dernieresCles"]').click();
+    await page.locator('.bl-offre[data-module="dernieresCles"]').click();
     await expect(page.locator('[data-onglet-contenu="dernieresCles"]')).toBeVisible({ timeout: 8000 });
 
     // Hero + N2 TOUJOURS attachés (jamais unmounted)
     await expect(page.locator('.vc3-hero2')).toBeAttached();
-    await expect(page.locator('.vc4-onglets-n2-wrap')).toBeAttached();
+    await expect(page.locator('.bl-themes')).toBeAttached();
 
     // ContenuPermanent disparaît, ContenuDernieresCles apparaît (seule la section module change)
     await expect(page.locator('[data-onglet-contenu="permanent"]')).toHaveCount(0);
@@ -256,9 +255,9 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(page).toHaveURL(/\/chateau\/[^?]+\?onglet=dernieresCles/, { timeout: 5000 });
 
     // Onglet Dernières Clés actif à l'arrivée
-    const ongletDC = page.locator('.vc4-offre-card[data-onglet="dernieresCles"]');
+    const ongletDC = page.locator('.bl-offre[data-module="dernieresCles"]');
     await expect(ongletDC).toBeVisible({ timeout: 8000 });
-    await expect(ongletDC).toHaveClass(/vc4-offre-card--actif/);
+    await expect(ongletDC).toHaveClass(/bl-offre--actif/);
   });
 
 });

@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import OngletsNiveau1 from "./vitrine/OngletsNiveau1";
-import OngletsNiveau2 from "./vitrine/OngletsNiveau2";
 import ContenuPermanent from "./vitrine/ContenuPermanent";
 import ContenuDernieresCles from "./vitrine/ContenuDernieresCles";
 import ContenuClub from "./vitrine/ContenuClub";
 import ContenuTheme from "./vitrine/ContenuTheme";
 import JournalApercus from "./vitrine/JournalApercus";
+import BarreLaterale from "./vitrine/BarreLaterale";
 import { useClubMember } from "../hooks/useClubMember";
 import { useAuth } from "../contexts/AuthContext";
 import "../styles/vitrine-chateau.css";
@@ -88,8 +87,11 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const [clubLockOpen, setClubLockOpen] = useState(false);
   const [moduleOuvert, setModuleOuvert] = useState(false);
   const corpsRef = useRef(null);
-  const ongletsN1Ref = useRef(null);
   const sejourRef = useRef(null);
+  // Contenu du module (Permanent / Dernières Clés / Club) : cible de défilement
+  // depuis « Vérifier les disponibilités ». Remplace ongletsN1Ref, dont la bande
+  // d'onglets a quitté le flux.
+  const moduleRef = useRef(null);
   // Section Niveau 2 (onglets thèmes + contenu) : cible de défilement des
   // aperçus du journal, qui ouvrent le thème correspondant.
   const themesRef = useRef(null);
@@ -289,8 +291,11 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const verifierDispo = () => {
     setDispoVerifiee(true);
     setMessageDispo("Voir les disponibilites ci-dessous");
-    // scroll vers les onglets Niveau 1
-    ongletsN1Ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // La bande d'onglets N1 ayant quitté le flux, on défile vers le CONTENU du
+    // module — ce que le visiteur venait chercher en vérifiant ses dates.
+    requestAnimationFrame(() =>
+      moduleRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+    );
   };
 
   // Contenu module (Permanent / Dernieres Cles / Club) — source unique.
@@ -407,47 +412,59 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             de navigation en place et les thèmes Niveau 2 gardent le contenu.
             Le clic pose le thème via setTheme (qui gère déjà les deux modes :
             URL en route, état local en modal) puis fait défiler jusqu'au N2. */}
-        <JournalApercus
-          chateau={chateau}
-          onOuvrirTheme={(t) => {
-            setTheme(t);
-            // Un frame d'attente : en mode route, setTheme passe par
-            // setSearchParams — la section n'a pas encore re-rendu quand le
-            // gestionnaire rend la main.
-            requestAnimationFrame(() =>
-              themesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
-            );
-          }}
-        />
-
-        {/* ══ NIVEAU 1 — Modules commerciaux (sticky) ══ */}
-        <div ref={ongletsN1Ref}>
-          <OngletsNiveau1
+        {/* Le journal et la barre latérale partagent une zone : deux colonnes
+            sur un même fond, séparées par un filet or. La barre est PERMANENTE
+            (collante au défilement), pas un panneau — et elle s'ajoute aux
+            onglets N1/N2, qui restent en place le temps de vérifier qu'elle
+            reprend bien tout. */}
+        <div className="vc3-zone-journal">
+          <JournalApercus
             chateau={chateau}
-            actif={moduleEffectif}
-            isClubMember={isClubMember}
-            onChange={(m) => { setModule(m); setModuleOuvert(true); }}
-            onClubLock={() => setClubLockOpen(true)}
-            dispoVerifiee={dispoVerifiee}
-            dateArrivee={dateArrivee}
-            dateDepart={dateDepart}
-            voyageurs={voyageurs}
+            onOuvrirTheme={(t) => {
+              setTheme(t);
+              // Un frame d'attente : en mode route, setTheme passe par
+              // setSearchParams — la section n'a pas encore re-rendu quand le
+              // gestionnaire rend la main.
+              requestAnimationFrame(() =>
+                themesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+              );
+            }}
+          />
+          <BarreLaterale
+            chateau={chateau}
             prixAPartir={prixAPartir}
+            moduleActif={moduleEffectif}
+            themeActif={themeActif}
+            isClubMember={isClubMember}
+            onChoisirModule={(m) => { setModule(m); setModuleOuvert(true); }}
+            onChoisirTheme={(t) => {
+              setTheme(t);
+              requestAnimationFrame(() =>
+                themesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+              );
+            }}
+            onClubLock={() => setClubLockOpen(true)}
           />
         </div>
 
+        {/* ══ NAVIGATION RETIRÉE DU FLUX ══
+            La bande de cartes Niveau 1 (OngletsNiveau1) et la barre d'onglets
+            Niveau 2 (OngletsNiveau2) sont retirées : la barre latérale est
+            désormais le SEUL point d'accès. La même navigation existait trois
+            fois sur la page.
+            Ce qui est retiré, ce sont des SÉLECTEURS — les CONTENUS restent :
+            contenuModule ci-dessous et ContenuTheme plus bas sont inchangés,
+            c'est eux que la barre pilote. */}
+
         {/* Mode route : contenu module inline dans le flux (deep-link SEO, pas de scrim). */}
         {mode === "route" && (
-          <div className="vc3-module-inline">{contenuModule}</div>
+          <div className="vc3-module-inline" ref={moduleRef}>{contenuModule}</div>
         )}
 
-        {/* ══ Niveau 2 — Découverte éditoriale ══
-            themesRef : cible de défilement des aperçus du journal. Posé sur un
-            wrapper plutôt que sur OngletsNiveau2, qui est un composant (il
-            faudrait un forwardRef) — et le sticky de la barre N1 a déjà montré
-            (dette Phase 6.x) ce que coûte un ref mal placé ici. */}
+        {/* ══ Niveau 2 — le CONTENU éditorial, sans sa barre d'onglets ══
+            themesRef : cible de défilement de la barre latérale et des aperçus
+            du journal. */}
         <div ref={themesRef}>
-          <OngletsNiveau2 actif={themeActif} onChange={setTheme} />
           <ContenuTheme chateau={chateau} theme={themeActif} onChange={setTheme} />
         </div>
 

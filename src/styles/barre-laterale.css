@@ -1,0 +1,248 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Barre latérale permanente — LES OFFRES + EXPLORER LE CHÂTEAU.
+   ══════════════════════════════════════════════════════════════════════════
+   Préfixe bl- : vc3- (châssis), vc4- (onglets/thèmes) et vj- (journal) sont
+   pris. La convention CLAUDE.md impose de scoper les styles vitrine.
+
+   REGISTRE : carton gravé. Un cartouche au filet or posé sur la page, trois
+   entrées à photo, puis une grille d'ancres. Aucune ombre portée, aucun bloc
+   rempli — trois matériaux seulement : l'air, le trait, la typographie.
+
+   COMPACITÉ VOULUE. La grille des thèmes est à DEUX colonnes : sept ancres en
+   quatre rangs au lieu de sept. C'est ce qui permet à l'ensemble — cartouche,
+   trois cartes, grille — de tenir dans un écran sans défiler.
+
+   LES FILETS sont en 1px à faible opacité plutôt qu'en 0.5px : un demi-pixel
+   n'existe pas sur un écran non-retina, il y est arrondi à 1px opaque ou il
+   disparaît. L'opacité donne la finesse de façon fiable partout.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.bl {
+  --bl-creme: #F4EDDF;
+  --bl-or: #C09840;
+  --bl-or-encre: #8B6914;          /* or foncé : contraste AA sur crème */
+  --bl-filet: rgba(192, 152, 64, 0.30);
+  --bl-filet-tenu: rgba(192, 152, 64, 0.16);
+  --bl-encre: #1A2D5A;
+  --bl-encre-douce: rgba(26, 45, 90, 0.58);
+
+  background: var(--bl-creme);
+  border-left: 1px solid rgba(192, 152, 64, 0.20);
+}
+
+.bl-sticky {
+  position: sticky;
+  top: 0;
+  padding: clamp(22px, 2vw, 30px) clamp(18px, 1.6vw, 26px);
+}
+
+/* ── Le cartouche : l'encadré qui tient la colonne ── */
+.bl-cartouche {
+  border: 1px solid var(--bl-filet);
+  padding: clamp(22px, 2vw, 30px) clamp(18px, 1.6vw, 24px) clamp(24px, 2.2vw, 32px);
+}
+
+/* ── Eyebrows or, détachés du contenu qui suit ── */
+.bl-eyebrow {
+  margin: 0 0 17px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--bl-or-encre);
+}
+
+/* ══ LES TROIS MODULES — cartes à photo ══
+   Vignette verticale à gauche, corps à droite. Le filet ne souligne QUE
+   l'espace entre deux entrées : il n'encadre rien. */
+.bl-offres { list-style: none; margin: 0; padding: 0; }
+
+.bl-offre {
+  display: flex;
+  align-items: stretch;
+  gap: 14px;
+  width: 100%;
+  padding: 9px 2px 11px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--bl-filet-tenu);
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.4s ease;
+}
+.bl-offres li:first-child .bl-offre { padding-top: 2px; }
+.bl-offres li:last-child .bl-offre { border-bottom: none; padding-bottom: 2px; }
+/* Le fond se réchauffe à peine — 4 % d'or. Assez pour que la ligne réponde,
+   trop peu pour qu'elle devienne un bloc. */
+.bl-offre:hover { background: rgba(192, 152, 64, 0.05); }
+.bl-offre:focus-visible { outline: 1px solid var(--bl-or); outline-offset: -2px; }
+
+/* La vignette : verticale, format portrait, elle donne son assise à la carte. */
+.bl-offre-media {
+  flex: 0 0 clamp(58px, 6vw, 76px);
+  overflow: hidden;
+  border: 1px solid var(--bl-filet-tenu);
+}
+.bl-offre-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 66px;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.bl-offre:hover .bl-offre-photo { transform: scale(1.06); }
+.bl-offre-photo--sans {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(155deg, #F1E8D6 0%, #E9DFC9 100%);
+  font-size: 18px;
+  color: rgba(192, 152, 64, 0.7);
+}
+
+.bl-offre-corps { flex: 1 1 auto; min-width: 0; display: block; padding-top: 1px; }
+
+.bl-offre-ico {
+  display: block;
+  width: 19px;
+  height: 19px;
+  margin-bottom: 7px;
+  object-fit: contain;
+  background: transparent;         /* neutralise le fond navy global de img {} */
+  opacity: 0.82;
+  transition: opacity 0.4s ease;
+}
+.bl-offre:hover .bl-offre-ico,
+.bl-offre--actif .bl-offre-ico { opacity: 1; }
+
+/* Contraste de hiérarchie franc : le nom domine sa ligne de contexte, et il
+   est dans une autre famille. On lit le nom d'abord. */
+.bl-offre-nom {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.02rem;
+  font-weight: 400;
+  line-height: 1.22;
+  color: var(--bl-encre);
+  margin-bottom: 5px;
+  transition: color 0.4s ease;
+}
+.bl-offre:hover .bl-offre-nom,
+.bl-offre--actif .bl-offre-nom { color: var(--bl-or-encre); }
+
+.bl-offre-ligne {
+  display: block;
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 0.73rem;
+  line-height: 1.45;
+  color: var(--bl-encre-douce);
+}
+
+/* Le détail distinctif — prix d'appel, compte, invitation. Seul élément en or
+   de l'entrée, détaché par un blanc : le geste d'une carte qui met son prix à
+   part. */
+.bl-offre-detail {
+  display: block;
+  margin-top: 8px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.63rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--bl-or-encre);
+}
+
+/* ── Respiration entre les deux sections ── */
+.bl-sep {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 22px 0 20px;
+}
+.bl-sep-l { flex: 1 1 auto; height: 1px; background: var(--bl-filet-tenu); }
+.bl-sep-lys { font-size: 0.78rem; line-height: 1; color: var(--bl-or); }
+
+/* ══ LES SEPT THÈMES — grille à deux colonnes ══
+   Quatre rangs au lieu de sept : c'est ce qui garde la barre courte. Aucun
+   filet entre les cases — l'air suffit à les séparer. */
+.bl-themes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 10px;
+}
+/* Le septième, seul sur son rang, prend toute la largeur : une case orpheline
+   à demi-largeur donnerait l'air d'un oubli. */
+.bl-themes li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+.bl-theme {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  width: 100%;
+  padding: 7px 4px 7px 0;
+  background: none;
+  border: none;
+  text-align: left;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+  color: var(--bl-encre-douce);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.bl-theme:hover { color: var(--bl-or-encre); }
+.bl-theme:focus-visible { outline: 1px solid var(--bl-or); outline-offset: -2px; }
+
+.bl-theme-lys {
+  flex: 0 0 auto;
+  font-size: 0.62rem;
+  line-height: 1;
+  color: var(--bl-or);
+  opacity: 0.55;
+  transition: opacity 0.3s ease;
+}
+.bl-theme:hover .bl-theme-lys { opacity: 1; }
+
+.bl-theme-label { flex: 1 1 auto; min-width: 0; }
+
+.bl-theme--actif { color: var(--bl-or-encre); }
+.bl-theme--actif .bl-theme-lys { opacity: 1; }
+
+/* ══ MOBILE ══
+   Une barre permanente à droite ne tient pas sous ~1000 px : elle prendrait la
+   moitié de l'écran. Elle passe donc SOUS le journal, pleine largeur, et cesse
+   d'être collante — la réponse la plus simple, et la seule qui ne cache rien :
+   tout reste atteignable en défilant, sans déclencheur à trouver. La bascule de
+   grille est dans vitrine-chateau.css ; ici on ne règle que l'intérieur. */
+@media (max-width: 1000px) {
+  .bl {
+    border-left: none;
+    border-top: 1px solid rgba(192, 152, 64, 0.20);
+  }
+  .bl-sticky {
+    position: static;
+    padding: clamp(32px, 5vw, 44px) clamp(20px, 5vw, 40px);
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .bl-cartouche { padding: clamp(24px, 4vw, 32px) clamp(20px, 3vw, 28px); }
+}
+
+@media (max-width: 460px) {
+  /* Deux colonnes de thèmes deviennent illisibles sous 460 px. */
+  .bl-themes { grid-template-columns: minmax(0, 1fr); }
+  .bl-themes li:last-child:nth-child(odd) { grid-column: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bl-offre, .bl-offre-ico, .bl-offre-nom, .bl-offre-photo, .bl-theme, .bl-theme-lys { transition: none; }
+  .bl-offre:hover .bl-offre-photo { transform: none; }
+}
