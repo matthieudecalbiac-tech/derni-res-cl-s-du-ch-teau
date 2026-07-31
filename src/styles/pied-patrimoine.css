@@ -33,3 +33,45 @@
 .pied-patrimoine-lien:hover {
   color: #EDD880;
 }
+
+/* ── Raccourci « Espace professionnel » ──
+   Volontairement en retrait : plus petit, moins contrasté et sans soulignement
+   que le lien Fondation qui le précède. Un filet court le sépare du propos
+   patrimonial — c'est un outil, pas un message. */
+.pied-patrimoine-pro {
+  margin: 30px 0 0;
+  padding-top: 22px;
+  position: relative;
+}
+
+.pied-patrimoine-pro::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 1px;
+  background: rgba(192, 152, 64, 0.22);
+}
+
+.pied-patrimoine-pro-lien {
+  font-family: 'Crimson Pro', serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: none;
+  /* 0.50 et non 0.34. Mesuré sur le fond #050b15 : 0.34 donne 2,83:1, très
+     en deçà des 4,5:1 exigés pour un texte de 11 px — le lien était discret
+     au point d'être illisible. 0.50 remonte à 4,89:1. Il reste MOINS visible
+     que le texte Fondation qui le précède (0.55) : la discrétion vient de la
+     hiérarchie — 11 px, capitales espacées, sous un filet — pas d'un contraste
+     insuffisant. */
+  color: rgba(247, 242, 232, 0.5);
+  transition: color 0.25s ease;
+}
+
+.pied-patrimoine-pro-lien:hover,
+.pied-patrimoine-pro-lien:focus-visible {
+  color: rgba(192, 152, 64, 0.85);
+}

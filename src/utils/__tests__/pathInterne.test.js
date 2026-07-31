@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { isPathInterneValide } from "../pathInterne";
+import {
+  DESTINATIONS_PRO,
+  lienConnexion,
+} from "../../components/auth/EspaceProfessionnel";
 
 // Le prédicat garde une redirection post-authentification : ses cas de REFUS
 // sont la partie qui compte. Un test qui ne couvrirait que les chemins valides
@@ -49,5 +53,43 @@ describe("isPathInterneValide", () => {
 
   it("refuse la chaîne vide (ne commence pas par /)", () => {
     expect(isPathInterneValide("")).toBe(false);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Les raccourcis de /professionnel dépendent de ce prédicat : une destination
+// qu'il recalerait ne serait pas mémorisée en lcc_auth_next, et le raccourci
+// mènerait à /connexion SANS destination — un lien mort silencieux, qui n'a
+// aucun symptôme visible tant qu'on ne va pas jusqu'au bout du parcours.
+// Le test porte sur les constantes réelles de la page, pas sur des copies.
+// ─────────────────────────────────────────────────────────────────────────────
+describe("destinations de /professionnel", () => {
+  it("les deux destinations passent la whitelist", () => {
+    expect(DESTINATIONS_PRO).toHaveLength(2);
+    for (const { chemin } of DESTINATIONS_PRO) {
+      expect(isPathInterneValide(chemin)).toBe(true);
+    }
+    expect(DESTINATIONS_PRO.map((d) => d.chemin)).toEqual([
+      "/chatelain/dashboard",
+      "/admin",
+    ]);
+  });
+
+  it("lienConnexion encode la destination dans ?next", () => {
+    expect(lienConnexion("/chatelain/dashboard")).toBe(
+      "/connexion?next=%2Fchatelain%2Fdashboard"
+    );
+    expect(lienConnexion("/admin")).toBe("/connexion?next=%2Fadmin");
+  });
+
+  it("le next relu depuis l'URL fabriquée est bien la destination d'origine", () => {
+    // Le trajet réel : Link -> barre d'adresse -> searchParams.get("next") ->
+    // isPathInterneValide -> localStorage. On rejoue le décodage.
+    for (const { chemin } of DESTINATIONS_PRO) {
+      const url = new URL(lienConnexion(chemin), "https://lcc.test");
+      const next = url.searchParams.get("next");
+      expect(next).toBe(chemin);
+      expect(isPathInterneValide(next)).toBe(true);
+    }
   });
 });

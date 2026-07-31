@@ -1,0 +1,118 @@
+/* ════════════════════════════════════════════════════════════════════════════
+   /professionnel — le choix de destination avant la connexion.
+   ════════════════════════════════════════════════════════════════════════════
+   Préfixe .pro-* pour le seul bloc propre à cette page : les deux cartes de
+   choix. Tout le châssis (page, carte crème, logo, titres, lien de retour) est
+   emprunté à connexion.css — même registre, aucune valeur dupliquée.
+   Les variables --cnx-* sont posées sur .cnx-page, donc disponibles ici.
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* Un peu plus large que la carte de connexion : deux options en pleine largeur
+   respirent mal dans 480 px, et il n'y a pas de formulaire à contenir. */
+.pro-container {
+  max-width: 560px;
+}
+
+.pro-choix {
+  list-style: none;
+  margin: 30px 0 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Une carte, pas un bouton : c'est un aiguillage, pas un appel à l'action. Le
+   filet or reste discret et ne s'anime qu'au survol. */
+.pro-carte {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 22px;
+  text-align: left;
+  text-decoration: none;
+  background: #FFFDF8;
+  border: 1px solid var(--cnx-or-doux);
+  border-radius: 8px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.pro-carte:hover,
+.pro-carte:focus-visible {
+  border-color: rgba(192, 152, 64, 0.6);
+  box-shadow: 0 10px 28px rgba(26, 45, 90, 0.09);
+  transform: translateY(-1px);
+}
+
+.pro-carte:focus-visible {
+  outline: 1px solid var(--cnx-or);
+  outline-offset: 3px;
+}
+
+/* align-self et non le centrage de la carte : sur une option de deux lignes, le
+   lys centré flottait à mi-hauteur du paragraphe. Il ponctue le TITRE. */
+.pro-carte-lys {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 4px;
+  font-size: 19px;
+  line-height: 1;
+  color: rgba(192, 152, 64, 0.85);
+}
+
+.pro-carte-corps {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pro-carte-titre {
+  font-family: "Playfair Display", serif;
+  font-size: 1.06rem;
+  font-weight: 400;
+  color: var(--cnx-navy);
+}
+
+.pro-carte-texte {
+  font-family: "Crimson Pro", serif;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--cnx-texte);
+}
+
+.pro-carte-fleche {
+  flex-shrink: 0;
+  color: var(--cnx-or-texte);
+  transition: transform 0.3s ease;
+}
+
+.pro-carte:hover .pro-carte-fleche,
+.pro-carte:focus-visible .pro-carte-fleche {
+  transform: translateX(4px);
+}
+
+.pro-note {
+  margin: 22px 0 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 0.88rem;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--cnx-texte-faint);
+}
+
+@media (max-width: 520px) {
+  .pro-carte {
+    padding: 18px;
+    gap: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pro-carte,
+  .pro-carte-fleche { transition: none; }
+  .pro-carte:hover { transform: none; }
+  .pro-carte:hover .pro-carte-fleche { transform: none; }
+}
