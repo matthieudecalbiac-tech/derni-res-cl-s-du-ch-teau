@@ -6,6 +6,7 @@ import ContenuPermanent from "./vitrine/ContenuPermanent";
 import ContenuDernieresCles from "./vitrine/ContenuDernieresCles";
 import ContenuClub from "./vitrine/ContenuClub";
 import ContenuTheme from "./vitrine/ContenuTheme";
+import JournalApercus from "./vitrine/JournalApercus";
 import { useClubMember } from "../hooks/useClubMember";
 import { useAuth } from "../contexts/AuthContext";
 import "../styles/vitrine-chateau.css";
@@ -89,6 +90,9 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const corpsRef = useRef(null);
   const ongletsN1Ref = useRef(null);
   const sejourRef = useRef(null);
+  // Section Niveau 2 (onglets thèmes + contenu) : cible de défilement des
+  // aperçus du journal, qui ouvrent le thème correspondant.
+  const themesRef = useRef(null);
   const arriveeRef = useRef(null);
 
   const fermerClubLock = () => setClubLockOpen(false);
@@ -398,6 +402,24 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
           </div>
         </section>
 
+        {/* ══ LE JOURNAL — trois aperçus vers les thèmes existants ══
+            AJOUT PUR : rien n'est retiré, les onglets Niveau 1 restent le chemin
+            de navigation en place et les thèmes Niveau 2 gardent le contenu.
+            Le clic pose le thème via setTheme (qui gère déjà les deux modes :
+            URL en route, état local en modal) puis fait défiler jusqu'au N2. */}
+        <JournalApercus
+          chateau={chateau}
+          onOuvrirTheme={(t) => {
+            setTheme(t);
+            // Un frame d'attente : en mode route, setTheme passe par
+            // setSearchParams — la section n'a pas encore re-rendu quand le
+            // gestionnaire rend la main.
+            requestAnimationFrame(() =>
+              themesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
+            );
+          }}
+        />
+
         {/* ══ NIVEAU 1 — Modules commerciaux (sticky) ══ */}
         <div ref={ongletsN1Ref}>
           <OngletsNiveau1
@@ -419,9 +441,15 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
           <div className="vc3-module-inline">{contenuModule}</div>
         )}
 
-        {/* ══ Niveau 2 — Découverte éditoriale ══ */}
-        <OngletsNiveau2 actif={themeActif} onChange={setTheme} />
-        <ContenuTheme chateau={chateau} theme={themeActif} onChange={setTheme} />
+        {/* ══ Niveau 2 — Découverte éditoriale ══
+            themesRef : cible de défilement des aperçus du journal. Posé sur un
+            wrapper plutôt que sur OngletsNiveau2, qui est un composant (il
+            faudrait un forwardRef) — et le sticky de la barre N1 a déjà montré
+            (dette Phase 6.x) ce que coûte un ref mal placé ici. */}
+        <div ref={themesRef}>
+          <OngletsNiveau2 actif={themeActif} onChange={setTheme} />
+          <ContenuTheme chateau={chateau} theme={themeActif} onChange={setTheme} />
+        </div>
 
       </div>
 
