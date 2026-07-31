@@ -65,8 +65,14 @@ test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
 
   test('Modal de réservation propose les 2 hébergements', async ({ page }) => {
     await ouvrirBlancBuisson(page);
-    // Route mode : module Permanent inline, pas d'overlay .vc3-module-panel.
-    const cta = page.locator('.vc4-permanent-chambre-cta').first();
+    // Le module Permanent n'est plus inline : son contenu reste dans le DOM
+    // (bloc SEO) mais invisible. On ouvre donc sa MODALE depuis la barre
+    // laterale avant de cliquer le CTA d'une chambre — c'est le parcours reel.
+    await page.locator('.bl-offre[data-module="permanent"]').click();
+    const modaleModule = page.locator('.mdl-panneau');
+    await expect(modaleModule).toBeVisible({ timeout: 5000 });
+
+    const cta = modaleModule.locator('.vc4-permanent-chambre-cta').first();
     await cta.scrollIntoViewIfNeeded();
     await cta.click();
     await expect(page.locator('.vc3-reserve-modal')).toBeVisible();

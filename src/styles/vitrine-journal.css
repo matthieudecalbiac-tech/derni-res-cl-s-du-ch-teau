@@ -15,25 +15,16 @@
 .vj-journal {
   background: var(--lcc-creme);
   padding: clamp(56px, 7vw, 100px) clamp(20px, 5vw, 64px);
-
-  /* ── RÉSERVE POUR LA BARRE LATÉRALE ──
-     Le journal n'occupe pas toute la largeur : la colonne de droite est gardée
-     libre pour la barre latérale à venir (« Les offres » + modules + onglets).
-     Elle est réservée MAINTENANT pour que cette brique-là n'ait rien à
-     redécaler — elle n'aura qu'à venir occuper l'espace.
-     Une variable plutôt qu'une valeur en dur : la future barre lira la même. */
-  --vj-laterale: 23%;
-  --vj-gouttiere: clamp(24px, 3vw, 52px);
 }
 
+/* La RÉSERVE de 23 % qui vivait ici est retirée : la barre latérale n'est plus
+   un espace gardé libre par un padding, c'est une VRAIE COLONNE de la grille
+   .vc3-zone-journal (cf. vitrine-chateau.css). Laisser les deux aurait décalé
+   le journal deux fois — mesuré, son contenu tombait à 776 px dans une colonne
+   de 1152. */
 .vj-inner {
   max-width: 1240px;
   margin: 0 auto;
-  /* Le décalage vers la gauche. En padding et non en grille : aucun élément
-     mort dans le DOM en attendant la barre. L'en-tête centré se centre donc
-     sur la zone du journal, pas sur la page — c'est voulu, tout le bloc glisse
-     ensemble. */
-  padding-right: calc(var(--vj-laterale) + var(--vj-gouttiere));
 }
 
 /* ── En-tête ── */
@@ -73,10 +64,15 @@
   height: 1px;
   background: rgba(192, 152, 64, 0.45);
 }
+/* Fleur de lys clé — image et non glyphe. background:transparent neutralise le
+   `background: var(--bleu-carte)` que global.css pose sur TOUS les img : sans
+   lui, un rectangle bleu apparaît derrière l'ornement. */
 .vj-orn-lys {
-  font-size: 0.95rem;
-  line-height: 1;
-  color: var(--or);
+  height: 30px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+  background: transparent;
 }
 
 /* ── La composition ──
@@ -260,13 +256,6 @@
    passe à une colonne — l'affiche garde son image en haut, les brèves gardent
    leur vignette à gauche. 620 px : les brèves passent à leur tour en vertical,
    sinon la vignette étrangle le texte. */
-/* La réserve latérale disparaît avant la bascule en une colonne : sous 1250 px
-   elle mangerait la place du journal lui-même. La future barre passera alors
-   sous le contenu, comme le reste du site sous 900 px. */
-@media (max-width: 1250px) {
-  .vj-inner { padding-right: 0; }
-}
-
 @media (max-width: 1050px) {
   .vj-grille { grid-template-columns: minmax(0, 1fr); }
   .vj-carte--grande { grid-row: auto; }

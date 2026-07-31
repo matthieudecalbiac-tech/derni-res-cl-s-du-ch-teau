@@ -1,12 +1,15 @@
 import { useEffect, useState, useRef, useMemo } from "react";
+import { createPortal } from "react-dom";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import OngletsNiveau1 from "./vitrine/OngletsNiveau1";
-import OngletsNiveau2 from "./vitrine/OngletsNiveau2";
 import ContenuPermanent from "./vitrine/ContenuPermanent";
 import ContenuDernieresCles from "./vitrine/ContenuDernieresCles";
 import ContenuClub from "./vitrine/ContenuClub";
 import ContenuTheme from "./vitrine/ContenuTheme";
+import { THEMES } from "./vitrine/OngletsNiveau2";
+import { LIBELLES as LIBELLES_MODULES } from "./vitrine/OngletsNiveau1";
+import Modale from "./Modale";
 import JournalApercus from "./vitrine/JournalApercus";
+import BarreLaterale from "./vitrine/BarreLaterale";
 import { useClubMember } from "../hooks/useClubMember";
 import { useAuth } from "../contexts/AuthContext";
 import "../styles/vitrine-chateau.css";
@@ -87,9 +90,16 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const [heroLoaded, setHeroLoaded] = useState(false);
   const [clubLockOpen, setClubLockOpen] = useState(false);
   const [moduleOuvert, setModuleOuvert] = useState(false);
+  // Modale de thème. Distincte de themeActif : le thème a TOUJOURS une valeur
+  // (« apercu » par défaut), la modale non. Sans cet état séparé, elle
+  // s'ouvrirait à chaque chargement de page.
+  const [themeOuvert, setThemeOuvert] = useState(false);
   const corpsRef = useRef(null);
-  const ongletsN1Ref = useRef(null);
   const sejourRef = useRef(null);
+  // Contenu du module (Permanent / Dernières Clés / Club) : cible de défilement
+  // depuis « Vérifier les disponibilités ». Remplace ongletsN1Ref, dont la bande
+  // d'onglets a quitté le flux.
+  const moduleRef = useRef(null);
   // Section Niveau 2 (onglets thèmes + contenu) : cible de défilement des
   // aperçus du journal, qui ouvrent le thème correspondant.
   const themesRef = useRef(null);
@@ -155,16 +165,40 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Escape : ferme d'abord l'overlay module s'il est ouvert, sinon ferme la vitrine.
+  // DEEP-LINK : /chateau/x?theme=histoire doit ouvrir la modale au montage.
+  // On teste la PRÉSENCE du param, pas la valeur de themeActif — celle-ci vaut
+  // « apercu » par défaut, ce qui ferait s'ouvrir la modale sur chaque visite.
+  // Au montage seulement : une fermeture manuelle ne doit pas être annulée par
+  // un re-rendu.
+  useEffect(() => {
+    if (mode !== "route") return;
+    if (searchParams.get("theme")) setThemeOuvert(true);
+    // Même règle pour les modules : /chateau/x?onglet=dernieresCles ouvre la
+    // modale du module. On teste la PRÉSENCE du param — moduleEffectif vaut
+    // « permanent » par défaut, ce qui ouvrirait la modale à chaque visite.
+    if (searchParams.get("onglet")) setModuleOuvert(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Escape : ferme la couche la plus haute, jamais deux à la fois.
+  //
+  // ⚠ Chaque Modale pose son PROPRE écouteur Escape (dans Modale.jsx), et tous
+  //   sont sur window : sans ce garde, une seule pression fermait la modale ET
+  //   la vitrine entière. Trouvé par le Test 7, qui enchaîne six
+  //   ouvertures-fermetures — le bouton de la barre se retrouvait détaché du
+  //   DOM parce que toute la vitrine venait d'être démontée.
+  //   Le garde couvre maintenant les DEUX modales : thème et module. La branche
+  //   `mode === "modal" && moduleOuvert` qui fermait l'overlay maison a disparu
+  //   avec lui — Modale.jsx s'en charge, et de la même façon dans les deux modes.
   useEffect(() => {
     const onKey = (e) => {
       if (e.key !== "Escape") return;
-      if (mode === "modal" && moduleOuvert) { setModuleOuvert(false); return; }
+      if (themeOuvert || moduleOuvert || clubLockOpen) return;   // Modale.jsx s'en charge
       onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [mode, moduleOuvert, onClose]);
+  }, [moduleOuvert, themeOuvert, clubLockOpen, onClose]);
 
   // Reinitialise la verification de dispo si les criteres changent (libelle jamais perime)
   useEffect(() => {
@@ -289,26 +323,30 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const verifierDispo = () => {
     setDispoVerifiee(true);
     setMessageDispo("Voir les disponibilites ci-dessous");
-    // scroll vers les onglets Niveau 1
-    ongletsN1Ref.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Le contenu du module n'est plus dans le flux : il n'y a plus rien vers
+    // quoi défiler. On OUVRE donc la modale Permanent — les chambres et leurs
+    // prix, c'est-à-dire exactement ce que le visiteur vient de demander en
+    // vérifiant ses dates. Un défilement vers un bloc invisible n'aurait
+    // produit aucun effet visible : la décohérence est levée, pas déplacée.
+    setModule("permanent");
+    setModuleOuvert(true);
   };
 
-  // Contenu module (Permanent / Dernieres Cles / Club) — source unique.
-  // Rendu inline dans le flux en mode route (deep-link SEO), en overlay au clic
-  // en mode modal (overlay home). Un mount est route XOR modal → jamais dupliqué.
-  const contenuModule = (
-    <>
-      {moduleEffectif === "permanent" && (
-        <ContenuPermanent chateau={chateau} onReserver={handleReserver} />
-      )}
-      {moduleEffectif === "dernieresCles" && (
-        <ContenuDernieresCles chateau={chateau} offreCible={offreCible} onReserver={handleReserver} />
-      )}
-      {moduleEffectif === "club" && isClubMember && (
-        <ContenuClub chateau={chateau} offreCible={offreCible} onReserver={handleReserver} />
-      )}
-    </>
-  );
+  // Contenu d'UN module. Même fabrique pour le bloc SEO et pour la modale : il
+  // n'existe donc qu'une définition, et les deux ne peuvent pas diverger.
+  //
+  // Le Club n'est rendu QUE pour un membre — ni dans la modale, ni dans le bloc
+  // crawlable. Le masquage intégral du Module C est une décision actée (offres
+  // requires_role, RLS) : le SEO ne doit pas devenir la porte dérobée qui
+  // publierait au monde un contenu réservé.
+  const contenuDuModule = (m) => {
+    if (m === "permanent") return <ContenuPermanent chateau={chateau} onReserver={handleReserver} />;
+    if (m === "dernieresCles") return <ContenuDernieresCles chateau={chateau} offreCible={offreCible} onReserver={handleReserver} />;
+    if (m === "club" && isClubMember) return <ContenuClub chateau={chateau} offreCible={offreCible} onReserver={handleReserver} />;
+    return null;
+  };
+
+  const MODULES_SEO = ["permanent", "dernieresCles", "club"];
 
   return (
     <div className={"vc3-overlay " + (visible ? "vc3-visible" : "vc3-hidden")}>
@@ -320,7 +358,8 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
       <header className="vc3-header">
         <button className="vc3-retour" onClick={onClose}>← Retour</button>
         <div className="vc3-header-centre">
-          <span className="vc3-header-lys">⚜</span>
+          {/* Fleur de lys clé — l'ornement de marque, pas le ⚜ unicode. */}
+          <img src="/FDL-transparent.png" alt="" className="vc3-header-lys" aria-hidden="true" />
           <span className="vc3-header-nom">{chateau.nom}</span>
           <span className="vc3-header-region">{chateau.region} · {chateau.distanceParis}</span>
         </div>
@@ -407,54 +446,84 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             de navigation en place et les thèmes Niveau 2 gardent le contenu.
             Le clic pose le thème via setTheme (qui gère déjà les deux modes :
             URL en route, état local en modal) puis fait défiler jusqu'au N2. */}
-        <JournalApercus
-          chateau={chateau}
-          onOuvrirTheme={(t) => {
-            setTheme(t);
-            // Un frame d'attente : en mode route, setTheme passe par
-            // setSearchParams — la section n'a pas encore re-rendu quand le
-            // gestionnaire rend la main.
-            requestAnimationFrame(() =>
-              themesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }),
-            );
-          }}
-        />
-
-        {/* ══ NIVEAU 1 — Modules commerciaux (sticky) ══ */}
-        <div ref={ongletsN1Ref}>
-          <OngletsNiveau1
+        {/* Le journal et la barre latérale partagent une zone : deux colonnes
+            sur un même fond, séparées par un filet or. La barre est PERMANENTE
+            (collante au défilement), pas un panneau — et elle s'ajoute aux
+            onglets N1/N2, qui restent en place le temps de vérifier qu'elle
+            reprend bien tout. */}
+        <div className="vc3-zone-journal">
+          <JournalApercus
             chateau={chateau}
-            actif={moduleEffectif}
-            isClubMember={isClubMember}
-            onChange={(m) => { setModule(m); setModuleOuvert(true); }}
-            onClubLock={() => setClubLockOpen(true)}
-            dispoVerifiee={dispoVerifiee}
-            dateArrivee={dateArrivee}
-            dateDepart={dateDepart}
-            voyageurs={voyageurs}
+            // Les aperçus du journal ouvrent la même modale que la barre : plus
+            // rien à faire défiler, le contenu ne vit plus dans le flux.
+            onOuvrirTheme={(t) => { setTheme(t); setThemeOuvert(true); }}
+          />
+          <BarreLaterale
+            chateau={chateau}
             prixAPartir={prixAPartir}
+            moduleActif={moduleEffectif}
+            themeActif={themeActif}
+            isClubMember={isClubMember}
+            onChoisirModule={(m) => { setModule(m); setModuleOuvert(true); }}
+            onChoisirTheme={(t) => { setTheme(t); setThemeOuvert(true); }}
+            onClubLock={() => setClubLockOpen(true)}
           />
         </div>
 
-        {/* Mode route : contenu module inline dans le flux (deep-link SEO, pas de scrim). */}
-        {mode === "route" && (
-          <div className="vc3-module-inline">{contenuModule}</div>
-        )}
+        {/* ══ NAVIGATION RETIRÉE DU FLUX ══
+            La bande de cartes Niveau 1 et la barre d'onglets Niveau 2 sont
+            retirées : la barre latérale est le SEUL point d'accès. Ce qui est
+            retiré, ce sont des SÉLECTEURS — les contenus vivent désormais dans
+            les deux blocs crawlables ci-dessous, révélés par des modales. */}
 
-        {/* ══ Niveau 2 — Découverte éditoriale ══
-            themesRef : cible de défilement des aperçus du journal. Posé sur un
-            wrapper plutôt que sur OngletsNiveau2, qui est un composant (il
-            faudrait un forwardRef) — et le sticky de la barre N1 a déjà montré
-            (dette Phase 6.x) ce que coûte un ref mal placé ici. */}
-        <div ref={themesRef}>
-          <OngletsNiveau2 actif={themeActif} onChange={setTheme} />
-          <ContenuTheme chateau={chateau} theme={themeActif} onChange={setTheme} />
+        {/* ══ LES TROIS MODULES — DANS LE DOM, HORS DE L'ŒIL ══
+            Même régime que les thèmes : rendus ici pour rester crawlables,
+            masqués par clip-path (pas display:none), retirés du focus et de
+            l'arbre d'accessibilité par `inert`.
+            Le module OUVERT est retiré d'ici et rendu dans la modale : les
+            trois existent toujours, jamais en double. */}
+        <div className="vc3-themes-seo" ref={moduleRef} inert>
+          {MODULES_SEO
+            .filter((m) => !(moduleOuvert && m === moduleEffectif))
+            .map((m) => (
+              <div key={m}>{contenuDuModule(m)}</div>
+            ))}
+        </div>
+
+        {/* ══ LES SEPT THÈMES — DANS LE DOM, HORS DE L'ŒIL ══
+            Rien ne s'insère plus sous le journal : le contenu éditorial est
+            rendu ici pour rester CRAWLABLE, et masqué visuellement.
+
+            Masquage par clip-path et non display:none — décision Matthieu, SEO
+            d'OTA. Et `inert` plutôt qu'aria-hidden : un seul attribut retire à
+            la fois du focus et de l'arbre d'accessibilité. Sans lui, un lecteur
+            d'écran traverserait sept sections complètes sans contexte, et la
+            tabulation entrerait dans des liens invisibles. React 19 le supporte
+            comme prop booléenne.
+
+            LE THÈME OUVERT EST RETIRÉ D'ICI et rendu dans la modale : les sept
+            existent toujours, jamais en double. Un crawler n'ouvre pas de
+            modale — le HTML qu'il lit porte donc exactement une copie de
+            chacun. */}
+        <div className="vc3-themes-seo" ref={themesRef} inert>
+          {THEMES.filter((t) => !(themeOuvert && t.code === themeActif)).map((t) => (
+            <ContenuTheme key={t.code} chateau={chateau} theme={t.code} onChange={setTheme} />
+          ))}
         </div>
 
       </div>
 
-      {/* MODALE RÉSERVE — câblée sur l'Edge Function demande-reservation */}
-      {reserve && (
+      {/* MODALE RÉSERVE — câblée sur l'Edge Function demande-reservation.
+          PORTÉE SUR <body>. Elle vit sinon à l'intérieur de .vc3-overlay, qui
+          est position:fixed + z-index:9000 et crée donc un CONTEXTE
+          D'EMPILEMENT : son z-index 9100 ne vaut qu'à l'intérieur de ce
+          contexte, et ne peut pas dépasser un portail frère posé au niveau du
+          body. Depuis que les modules s'ouvrent dans Modale.jsx (portail,
+          z-index 9000, plus tard dans le DOM), la modale de réservation se
+          retrouvait DESSOUS — un clic sur une chambre ouvrait un formulaire
+          inatteignable. Le markup et les classes sont inchangés : seul le point
+          de montage bouge, donc les tests qui la ciblent restent valides. */}
+      {reserve && createPortal(
         <div className="vc3-reserve-overlay" onClick={fermerReserve}>
           <div className="vc3-reserve-modal" onClick={(e) => e.stopPropagation()}>
             <button className="vc3-reserve-close" onClick={fermerReserve}>✕</button>
@@ -534,86 +603,89 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
               </>
             )}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
 
-      {/* OVERLAY MODULE — mode modal (overlay home) : contenu en superposition au clic carte */}
-      {mode === "modal" && moduleOuvert && (
-        <div className="vc3-module-overlay" onClick={() => setModuleOuvert(false)}>
-          <div className="vc3-module-panel" onClick={(e) => e.stopPropagation()}>
-            <button className="vc3-module-close" onClick={() => setModuleOuvert(false)}>✕</button>
-            {contenuModule}
-          </div>
-        </div>
-      )}
+      {/* ══ MODALE DE MODULE ══
+          L'overlay maison (.vc3-module-overlay / -panel / -close) est retiré :
+          les modules passent au MÊME régime que les thèmes, sur Modale.jsx —
+          portal, verrou de défilement, Échap, clic sur le fond, piège à focus,
+          et max-height 88vh avec défilement interne.
+          Elle RÉVÈLE : le contenu vient du même contenuDuModule que le bloc
+          crawlable, dont le module actif a été retiré le temps de l'ouverture.
+          Et elle ne dépend plus du mode — route et overlay se comportent enfin
+          pareil, là où le contenu était inline d'un côté et en overlay de
+          l'autre. */}
+      <Modale
+        ouvert={moduleOuvert}
+        onClose={() => setModuleOuvert(false)}
+        titre={LIBELLES_MODULES[moduleEffectif]}
+        largeur={1080}
+      >
+        {contenuDuModule(moduleEffectif)}
+      </Modale>
 
-      {/* MODALE STUB AUTH CLUB — TODO α.2 : brancher Supabase auth */}
-      {clubLockOpen && (
-        <div className="vc3-reserve-overlay" onClick={fermerClubLock}>
-          <div className="vc3-reserve-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="vc3-reserve-close" onClick={fermerClubLock}>✕</button>
-            <div className="vc3-reserve-lys">⚜</div>
-            <h2 className="vc3-reserve-titre">Club Châtelain</h2>
-            <p className="vc3-reserve-sub">Réservé aux membres</p>
-            <div className="vc3-reserve-sep" />
-            <p
-              style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontStyle: "italic",
-                fontSize: "15px",
-                lineHeight: 1.6,
-                textAlign: "center",
-                margin: "0 0 28px",
-                color: "rgba(247, 242, 232, 0.75)",
-                maxWidth: "420px",
-              }}
-            >
-              Connectez-vous pour accéder aux offres exclusives réservées aux membres du Club Châtelain.
-            </p>
-            <button
-              className="vc3-reserve-btn"
-              onClick={() => {
-                // Sprint S2-α.2 Mini-Phase 6.1 : bascule sessionStorage →
-                // localStorage. sessionStorage est session-scoped à un tab,
-                // ne survit pas au nouveau tab Gmail. localStorage est
-                // cross-tab same-origin → robuste au flow magic link.
-                //
-                // Sprint α.2.5 Phase B4.5 (bug fix) : on stocke la route
-                // canonique /chateau/<slug> plutôt que window.location.pathname.
-                // En mode "modal" (overlay depuis home), pathname = "/" → le
-                // user perdait le contexte château post-auth. La route
-                // canonique (servie par VitrineChateauRoute) ramène à la
-                // vitrine identique. Fallback "/" défensif si slug absent.
-                localStorage.setItem(
-                  "lcc_auth_next",
-                  chateau.slug ? `/chateau/${chateau.slug}` : "/",
-                );
-                navigate("/inscription");
-              }}
-            >
-              Se connecter →
-            </button>
-            <button
-              onClick={fermerClubLock}
-              style={{
-                marginTop: "12px",
-                background: "transparent",
-                border: "1px solid rgba(192, 152, 64, 0.6)",
-                color: "rgba(247, 242, 232, 0.7)",
-                padding: "12px 28px",
-                fontFamily: "'Crimson Pro', serif",
-                fontSize: "12px",
-                letterSpacing: "0.08em",
-                cursor: "pointer",
-                transition: "all 0.25s ease",
-                width: "100%",
-              }}
-            >
-              Fermer
-            </button>
-          </div>
+      {/* ══ MODALE DE THÈME ══
+          Elle RÉVÈLE, elle n'insère pas : le contenu vient du même
+          ContenuTheme que le bloc SEO ci-dessus, dont le thème actif a été
+          retiré le temps de l'ouverture.
+          Modale.jsx réutilisée telle quelle — portal, verrou de défilement,
+          Échap, clic sur le fond, piège à focus, et max-height 88vh avec
+          défilement interne pour les thèmes longs (Photos, Chambres). */}
+      <Modale
+        ouvert={themeOuvert}
+        onClose={() => setThemeOuvert(false)}
+        titre={THEMES.find((t) => t.code === themeActif)?.label}
+        largeur={980}
+      >
+        <ContenuTheme chateau={chateau} theme={themeActif} onChange={setTheme} />
+      </Modale>
+
+      {/* ══ VERROU CLUB (non-membre) ══
+          Passe sur Modale.jsx comme les modules et les themes : portail,
+          verrou de defilement, Echap, clic sur le fond, piege a focus. Il vivait
+          jusqu ici dans un overlay maison PIEGE dans le contexte d empilement de
+          .vc3-overlay — il serait passe SOUS la modale de module.
+
+          ⚠ CONTRASTE REPARE AU PASSAGE. Ses styles inline dataient d un temps ou
+          .vc3-reserve-modal etait sombre : ils posaient du texte creme
+          (rgba(247,242,232,.75)) sur ce qui est devenu #FFFDF8 depuis la
+          migration en palette claire. Le message etait donc quasi illisible.
+          Les couleurs suivent desormais l encre du reste du site. */}
+      <Modale
+        ouvert={clubLockOpen}
+        onClose={fermerClubLock}
+        titre="Club Châtelain"
+        largeur={460}
+      >
+        <div className="vc3-clublock">
+          <p className="vc3-clublock-sur">Réservé aux membres</p>
+          <p className="vc3-clublock-txt">
+            Connectez-vous pour accéder aux offres exclusives réservées aux membres du Club Châtelain.
+          </p>
+          <button
+            className="vc3-reserve-btn"
+            onClick={() => {
+              // Sprint S2-α.2 Mini-Phase 6.1 : localStorage et non
+              // sessionStorage — ce dernier est scope a un onglet et ne survit
+              // pas au nouvel onglet ouvert depuis la boite mail.
+              // Sprint α.2.5 Phase B4.5 : on stocke la route CANONIQUE
+              // /chateau/<slug> et non window.location.pathname — en mode
+              // overlay depuis la home, pathname vaut "/" et le visiteur
+              // perdait le contexte chateau apres authentification.
+              localStorage.setItem(
+                "lcc_auth_next",
+                chateau.slug ? `/chateau/${chateau.slug}` : "/",
+              );
+              navigate("/inscription");
+            }}
+          >
+            Se connecter →
+          </button>
+          <button className="vc3-clublock-fermer" onClick={fermerClubLock}>Fermer</button>
         </div>
-      )}
+      </Modale>
     </div>
   );
 }

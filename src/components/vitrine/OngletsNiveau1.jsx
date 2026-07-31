@@ -2,19 +2,19 @@ import { useEffect, useState } from "react";
 import { getOffresPourChateau } from "../../services/offresService";
 import { formaterPrix } from "../../services/_mapping";
 
-const PHRASES_BANDEAU = {
+export const PHRASES_BANDEAU = {
   permanent: "Les chambres du château, disponibles toute l'année.",
   dernieresCles: "Des séjours exceptionnels à dates précises, à prix réduits.",
   club: "Offres confidentielles réservées aux membres du Club Châtelains.",
 };
 
-const LIBELLES = {
+export const LIBELLES = {
   permanent: "Permanent",
   dernieresCles: "Dernières Clés",
   club: "Club Châtelains",
 };
 
-const ICONES = {
+export const ICONES = {
   permanent: "/icon-demeure.png",
   dernieresCles: "/icon-cle.png",
   club: "/icon-couronne.png",

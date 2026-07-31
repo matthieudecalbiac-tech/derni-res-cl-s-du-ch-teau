@@ -93,46 +93,57 @@ test.describe('Vitrines · comportement (decouverte DOM)', () => {
         }
         await expect(page.locator('.vc3-sejour-prix')).toContainText('€');
 
-        // — Onglet Histoire : timeline gardee par sa presence (chateau sans
+        // Les themes s'ouvrent desormais en MODALE : le contenu n'est plus
+        // insere dans le flux. On porte donc les assertions sur .mdl-panneau,
+        // et on REFERME entre deux themes — sinon l'overlay de la premiere
+        // modale intercepte le clic sur la barre. C'est aussi le geste reel du
+        // visiteur : il ferme, puis rouvre ailleurs.
+        const modaleTheme = page.locator('.mdl-panneau');
+
+        // — Theme Histoire : timeline gardee par sa presence (chateau sans
         //   timeline = pas de .vc4-theme-timeline, on ne teste rien).
-        const ongletHistoire = page.locator('[data-theme="histoire"]');
-        await ongletHistoire.scrollIntoViewIfNeeded();
-        await ongletHistoire.click();
-        if (await page.locator('.vc4-theme-timeline').count() > 0) {
+        await page.locator('[data-theme="histoire"]').click();
+        await expect(modaleTheme).toBeVisible({ timeout: 5000 });
+        if (await modaleTheme.locator('.vc4-theme-timeline').count() > 0) {
           expect(
-            await page.locator('.vc4-theme-tl-item').count(),
+            await modaleTheme.locator('.vc4-theme-tl-item').count(),
             'Timeline rendue mais sans evenement'
           ).toBeGreaterThan(0);
         }
+        await page.keyboard.press('Escape');
+        await expect(modaleTheme).toHaveCount(0, { timeout: 3000 });
 
-        // — Onglet Famille : citation gardee par sa presence.
-        const ongletFamille = page.locator('[data-theme="famille"]');
-        await ongletFamille.scrollIntoViewIfNeeded();
-        await ongletFamille.click();
-        const citation = page.locator('.vc4-theme-famille-citation');
+        // — Theme Famille : citation gardee par sa presence.
+        await page.locator('[data-theme="famille"]').click();
+        await expect(modaleTheme).toBeVisible({ timeout: 5000 });
+        const citation = modaleTheme.locator('.vc4-theme-famille-citation');
         if (await citation.count() > 0) {
-          await citation.first().scrollIntoViewIfNeeded();
           await expect(citation.first()).toBeVisible();
         }
+        await page.keyboard.press('Escape');
+        await expect(modaleTheme).toHaveCount(0, { timeout: 3000 });
 
-        // — Module Permanent (overlay) : au moins une chambre rendue.
-        await page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i }).click();
-        await expect(page.locator('.vc3-module-panel')).toBeVisible();
+        // — Module Permanent : meme regime que les themes desormais. La bande de
+        //   cartes Niveau 1 a quitte le flux (barre laterale = seul acces), et
+        //   l'overlay maison .vc3-module-panel a fait place a Modale.jsx.
+        await page.locator('.bl-offre[data-module="permanent"]').click();
+        await expect(modaleTheme).toBeVisible({ timeout: 5000 });
         expect(
-          await page.locator('.vc4-permanent-chambre').count(),
+          await modaleTheme.locator('.vc4-permanent-chambre').count(),
           'Aucune chambre dans le module Permanent'
         ).toBeGreaterThan(0);
 
-        // — Modale de reservation : s'ouvre puis se ferme.
-        await page.locator('.vc4-permanent-chambre-cta').first().click();
+        // — Modale de reservation : s'ouvre PAR-DESSUS celle du module
+        //   (.vc3-reserve-overlay est en z-index 9100 contre 9000), puis se ferme.
+        await modaleTheme.locator('.vc4-permanent-chambre-cta').first().click();
         await expect(page.locator('.vc3-reserve-modal')).toBeVisible();
         await page.locator('.vc3-reserve-close').click();
         await expect(page.locator('.vc3-reserve-modal')).not.toBeVisible();
 
-        // Referme le panneau module : en overlay, Escape le fermerait AVANT la
-        // vitrine (cf. VitrineChateau onKey). On le ferme pour que l'Escape
-        // suivant vise bien la vitrine.
-        await page.locator('.vc3-module-close').click();
+        // Referme la modale du module : sans ca, l'Escape suivant serait absorbe
+        // par elle au lieu de fermer la vitrine (garde pose dans VitrineChateau).
+        await page.keyboard.press('Escape');
+        await expect(modaleTheme).toHaveCount(0, { timeout: 3000 });
         await expect(page.locator('.vc3-module-panel')).toHaveCount(0);
 
         // — Images : declenche le chargement sous le fold (4xx collectes globalement).

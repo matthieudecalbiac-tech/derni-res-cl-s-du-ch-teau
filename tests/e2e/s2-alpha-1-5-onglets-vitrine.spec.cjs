@@ -2,16 +2,29 @@
  * Tests E2E · Sprint S2-α.1.5 — refonte vitrine 2 niveaux d'onglets
  *
  * Couvre :
- *   1.  /chateau/les-briottieres → hero + onglet Permanent défaut + phrase intro + chambres
- *   2.  ?onglet=dernieresCles → onglet B actif, offre B affichée
+ *   1.  /chateau/les-briottieres → hero + module Permanent actif + intro + chambres
+ *   2.  ?onglet=dernieresCles → module B actif, offre B affichée
  *   3.  ?onglet=dernieresCles&offre=<id lu au DOM> → highlight de l'offre ciblée
- *   4.  ?onglet=club → fallback Permanent (IS_CLUB_MEMBER stub = false)
- *   5.  Onglet Club PAS dans la liste (non-membre)
- *   6.  Click onglet "Histoire" niveau 2 → ?theme=histoire + timeline visible
- *   7.  Click successif sur les 6 thèmes niveau 2 → chaque contenu charge
+ *   4.  ?onglet=club → fallback Permanent (non-membre)
+ *   5.  Module Club visible pour tous, click non-membre ouvre la modale de verrou
+ *   6.  Click thème "Histoire" → ?theme=histoire + timeline visible
+ *   7.  Click successif sur les 6 thèmes → chaque contenu charge
  *   8.  /chateau/vaux-le-vicomte (estLaUne:false) → redirect /
  *   9.  Régression : "/" home OK
  *   10. Régression : click château estLaUne depuis VitrinePermanente → VitrineChateau (Dette 2)
+ *   12. Switch de module préserve hero + navigation thèmes
+ *   13. DernieresCles overlay → /chateau/:slug?onglet=dernieresCles, module actif
+ *
+ * ── SÉLECTEURS RÉÉCRITS (retrait des onglets N1/N2 du flux) ──────────────────
+ * La bande de cartes Niveau 1 et la barre d'onglets Niveau 2 ont quitté la page :
+ * la BARRE LATÉRALE est le seul point d'accès. Les tests visent donc désormais
+ *   .vc4-offre-card[data-onglet="X"]  →  .bl-offre[data-module="X"]
+ *   .vc4-offre-card--actif            →  .bl-offre--actif
+ *   .vc4-onglet-n2[data-theme="X"]    →  .bl-theme[data-theme="X"]
+ *   .vc4-onglets-n2-wrap              →  .bl-themes
+ * Ce qu'ils VÉRIFIENT est inchangé — seul le chemin d'accès a bougé. Aucune
+ * assertion n'a été relâchée, aucun test neutralisé pour faire passer la suite.
+ * Le Test 11 (sticky de la bande N1) est SUPPRIMÉ : son sujet n'existe plus.
  *
  * URL params en camelCase (alignés sur chateau.modules.dernieresCles).
  */
@@ -27,26 +40,34 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(page.locator('.vc3-hero2').first()).toBeVisible({ timeout: 8000 });
 
     // Onglet Permanent actif par défaut
-    const ongletPermanent = page.locator('.vc4-offre-card[data-onglet="permanent"]');
+    const ongletPermanent = page.locator('.bl-offre[data-module="permanent"]');
     await expect(ongletPermanent).toBeVisible();
-    await expect(ongletPermanent).toHaveClass(/vc4-offre-card--actif/);
+    await expect(ongletPermanent).toHaveClass(/bl-offre--actif/);
 
-    // Phrase d'intro présente
-    await expect(page.locator('.vc4-permanent-intro')).toBeVisible();
-
-    // Au moins 2 chambres affichées (Briottières en a plusieurs)
+    // Le contenu du module est DANS LE DOM (bloc SEO crawlable) mais invisible
+    // avant clic. On verifie donc la PRESENCE ici, et la visibilite apres
+    // ouverture de la modale — deux assertions la ou il y en avait une.
+    await expect(page.locator('.vc4-permanent-intro')).toBeAttached();
     const chambres = page.locator('.vc4-permanent-chambre');
-    await expect(chambres.first()).toBeVisible();
+    await expect(chambres.first()).toBeAttached();
     expect(await chambres.count()).toBeGreaterThanOrEqual(2);
+    await expect(page.locator('.vc4-permanent-intro')).not.toBeVisible();
+
+    // Ouverture de la modale Permanent : le meme contenu devient visible.
+    await ongletPermanent.click();
+    const modale = page.locator('.mdl-panneau');
+    await expect(modale).toBeVisible({ timeout: 5000 });
+    await expect(modale.locator('.vc4-permanent-intro')).toBeVisible();
+    expect(await modale.locator('.vc4-permanent-chambre').count()).toBeGreaterThanOrEqual(2);
   });
 
   test('Test 2 · ?onglet=dernieresCles : offre B affichée', async ({ page }) => {
     await page.goto('/chateau/les-briottieres?onglet=dernieresCles');
     await page.waitForLoadState('domcontentloaded');
 
-    const ongletDC = page.locator('.vc4-offre-card[data-onglet="dernieresCles"]');
+    const ongletDC = page.locator('.bl-offre[data-module="dernieresCles"]');
     await expect(ongletDC).toBeVisible({ timeout: 8000 });
-    await expect(ongletDC).toHaveClass(/vc4-offre-card--actif/);
+    await expect(ongletDC).toHaveClass(/bl-offre--actif/);
 
     // Au moins 1 offre listée (les services ne sont plus en base : la colonne
     // conditions est du texte libre, mapper renvoie servicesInclus: [], assume).
@@ -89,41 +110,54 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     // au click via modale stub (TODO α.2 : brancher Supabase auth).
     await page.goto('/chateau/les-briottieres');
     await page.waitForLoadState('domcontentloaded');
-    await page.locator('.vc4-offre-card[data-onglet="permanent"]').waitFor({ timeout: 8000 });
+    await page.locator('.bl-offre[data-module="permanent"]').waitFor({ timeout: 8000 });
 
     // L'onglet Club EST visible (modules.club=true via _mapping.js fallback)
-    const ongletClub = page.locator('.vc4-offre-card[data-onglet="club"]');
+    const ongletClub = page.locator('.bl-offre[data-module="club"]');
     await expect(ongletClub).toBeVisible({ timeout: 5000 });
 
-    // Click sur Club non-membre → modale stub auth s'ouvre
+    // Click sur Club non-membre → le verrou s'ouvre. Il passe desormais par
+    // Modale.jsx (.mdl-panneau) comme les modules et les themes, au lieu de son
+    // ancien overlay maison .vc3-reserve-modal.
     await ongletClub.click();
-    const modaleAuth = page.locator('.vc3-reserve-modal').filter({ hasText: /Club Châtelain/i });
+    const modaleAuth = page.locator('.mdl-panneau').filter({ hasText: /Club Châtelain/i });
     await expect(modaleAuth).toBeVisible({ timeout: 5000 });
     await expect(modaleAuth).toContainText(/Connectez-vous/i);
 
-    // ContenuClub PAS rendu (state moduleActif n'a pas bougé)
+    // ContenuClub PAS rendu du tout — ni en modale, ni dans le bloc SEO : le
+    // Module C reste invisible aux non-membres, le SEO ne doit pas devenir la
+    // porte derobee qui publierait un contenu reserve.
     await expect(page.locator('[data-onglet-contenu="club"]')).toHaveCount(0);
-    await expect(page.locator('[data-onglet-contenu="permanent"]')).toBeVisible();
+    // Le clic sur Club n'a PAS ouvert de modale de module : Permanent reste
+    // dans le bloc crawlable, invisible.
+    await expect(page.locator('[data-onglet-contenu="permanent"]')).toBeAttached();
+    await expect(page.locator('[data-onglet-contenu="permanent"]')).not.toBeVisible();
 
-    // Fermer la modale via bouton Fermer
+    // Fermer le verrou via son bouton Fermer
     await modaleAuth.locator('button').filter({ hasText: /^Fermer$/ }).click();
-    await expect(modaleAuth).not.toBeVisible({ timeout: 3000 });
+    await expect(modaleAuth).toHaveCount(0, { timeout: 3000 });
 
     // L'onglet Permanent reste actif après fermeture
-    await expect(page.locator('.vc4-offre-card[data-onglet="permanent"]')).toHaveClass(/vc4-offre-card--actif/);
+    await expect(page.locator('.bl-offre[data-module="permanent"]')).toHaveClass(/bl-offre--actif/);
   });
 
   test('Test 6 · Click onglet Histoire (niveau 2) → ?theme=histoire + timeline', async ({ page }) => {
     await page.goto('/chateau/les-briottieres');
     await page.waitForLoadState('domcontentloaded');
 
-    const ongletHistoire = page.locator('.vc4-onglet-n2[data-theme="histoire"]');
+    const ongletHistoire = page.locator('.bl-theme[data-theme="histoire"]');
     await ongletHistoire.scrollIntoViewIfNeeded();
     await ongletHistoire.click();
 
     await expect(page).toHaveURL(/[?&]theme=histoire/, { timeout: 5000 });
-    await expect(page.locator('[data-theme-contenu="histoire"]')).toBeVisible();
-    await expect(page.locator('.vc4-theme-timeline')).toBeVisible();
+
+    // Le contenu n'est plus inséré sous le journal : il s'ouvre en MODALE.
+    // L'assertion est RENFORCÉE, pas relâchée — on exige désormais que le
+    // contenu soit visible ET contenu dans le panneau de la modale.
+    const modale = page.locator('.mdl-panneau');
+    await expect(modale).toBeVisible({ timeout: 5000 });
+    await expect(modale.locator('[data-theme-contenu="histoire"]')).toBeVisible();
+    await expect(modale.locator('.vc4-theme-timeline')).toBeVisible();
   });
 
   test('Test 7 · Cycle sur les 6 thèmes niveau 2', async ({ page }) => {
@@ -131,11 +165,19 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await page.waitForLoadState('domcontentloaded');
 
     const themes = ['apercu', 'histoire', 'famille', 'lieu', 'services', 'chambres'];
+    const modale = page.locator('.mdl-panneau');
+
     for (const t of themes) {
-      const onglet = page.locator(`.vc4-onglet-n2[data-theme="${t}"]`);
+      const onglet = page.locator(`.bl-theme[data-theme="${t}"]`);
       await onglet.scrollIntoViewIfNeeded();
       await onglet.click();
-      await expect(page.locator(`[data-theme-contenu="${t}"]`)).toBeVisible({ timeout: 3000 });
+      await expect(modale.locator(`[data-theme-contenu="${t}"]`)).toBeVisible({ timeout: 3000 });
+
+      // On REFERME avant le thème suivant. Ce n'est pas une commodité de test :
+      // la modale couvre la page, son overlay intercepte le clic sur la barre.
+      // Un visiteur fait exactement ce geste — il ferme, puis rouvre ailleurs.
+      await page.keyboard.press('Escape');
+      await expect(modale).toHaveCount(0, { timeout: 3000 });
     }
   });
 
@@ -182,28 +224,14 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(page.locator('.vc3-overlay')).toBeVisible({ timeout: 8000 });
   });
 
-  test('Test 11 · Sticky Niveau 1 reste visible après scroll 2000px (R1)', async ({ page }) => {
-    test.skip(true, 'Sticky N1 cassé par le wrapper ongletsN1Ref (79d6a36, cible scrollIntoView parcours dispo) trop court pour position:sticky. Dette polish Phase 6.x — relocaliser le ref (forwardRef sur OngletsNiveau1) sans casser le scroll dispo.');
-    // Sprint S2-α.1.5-FIX : régression R1 (sticky cassé top: 64px) résolue
-    // par top: 0 dans vitrine-onglets.css. Test garantit que le scroll dans
-    // .vc3-corps préserve la barre d'onglets N1 visible.
-    await page.goto('/chateau/les-briottieres');
-    await page.waitForLoadState('domcontentloaded');
-    await page.locator('.vc4-offre-card[data-onglet="permanent"]').waitFor({ timeout: 8000 });
+  // Test 11 SUPPRIMÉ — il vérifiait que la bande d'onglets Niveau 1 restait
+  // collante au défilement. Cette bande a quitté le flux : la barre latérale est
+  // désormais le seul point d'accès, et c'est ELLE qui est collante. Le test
+  // était de toute façon neutralisé par un test.skip(true, …) depuis la dette
+  // Phase 6.x (le wrapper ongletsN1Ref, trop court pour position:sticky). Il
+  // n'avait donc plus de sujet, et son sujet n'existe plus.
 
-    // Scroll de 2000px dans le scroll container .vc3-corps
-    await page.evaluate(() => {
-      const corps = document.querySelector('.vc3-corps');
-      if (corps) corps.scrollTo({ top: 2000, behavior: 'instant' });
-    });
-    await page.waitForTimeout(300);
-
-    // Le bandeau N1 doit rester dans le viewport (sticky)
-    const bandeau = page.locator('.vc4-onglets-n1-wrap');
-    await expect(bandeau).toBeInViewport({ ratio: 0.5 });
-  });
-
-  test('Test 12 · Switch onglet N1 préserve hero + N2 (R3)', async ({ page }) => {
+  test('Test 12 · Switch de module préserve hero + navigation thèmes (R3)', async ({ page }) => {
     // Sprint S2-α.1.5-FIX : régression R3 (architecture "vues séparées" perçue)
     // — l'architecture en code est correcte : Hero + N2 sont toujours rendus,
     // indépendamment du module actif. Seule la section module change.
@@ -211,21 +239,34 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await page.goto('/chateau/les-briottieres');
     await page.waitForLoadState('domcontentloaded');
 
-    // Permanent par défaut : hero + N2 attachés au DOM
+    const modale = page.locator('.mdl-panneau');
+
+    // AU CHARGEMENT : le contenu du module est DANS LE DOM — bloc SEO crawlable,
+    // decision Matthieu — mais PAS visible. Rien ne s'insere plus sous le
+    // journal. L'assertion est donc DEDOUBLEE, pas relachee : on exige a la fois
+    // la presence (SEO) et l'invisibilite (mise en page).
+    const permanent = page.locator('[data-onglet-contenu="permanent"]');
+    await expect(permanent).toBeAttached({ timeout: 8000 });
+    await expect(permanent).not.toBeVisible();
+    await expect(modale).toHaveCount(0);
+
+    // Hero + navigation des themes attaches au DOM
     await expect(page.locator('.vc3-hero2')).toBeAttached();
-    await expect(page.locator('.vc4-onglets-n2-wrap')).toBeAttached();
-    await expect(page.locator('[data-onglet-contenu="permanent"]')).toBeVisible({ timeout: 8000 });
+    await expect(page.locator('.bl-themes')).toBeAttached();
 
-    // Switch vers Dernières Clés
-    await page.locator('.vc4-offre-card[data-onglet="dernieresCles"]').click();
-    await expect(page.locator('[data-onglet-contenu="dernieresCles"]')).toBeVisible({ timeout: 8000 });
+    // Switch vers Dernieres Cles : la modale REVELE ce module.
+    await page.locator('.bl-offre[data-module="dernieresCles"]').click();
+    await expect(modale).toBeVisible({ timeout: 8000 });
+    await expect(modale.locator('[data-onglet-contenu="dernieresCles"]')).toBeVisible({ timeout: 8000 });
 
-    // Hero + N2 TOUJOURS attachés (jamais unmounted)
+    // Hero + themes TOUJOURS attaches (jamais unmounted)
     await expect(page.locator('.vc3-hero2')).toBeAttached();
-    await expect(page.locator('.vc4-onglets-n2-wrap')).toBeAttached();
+    await expect(page.locator('.bl-themes')).toBeAttached();
 
-    // ContenuPermanent disparaît, ContenuDernieresCles apparaît (seule la section module change)
-    await expect(page.locator('[data-onglet-contenu="permanent"]')).toHaveCount(0);
+    // Seul le module ACTIF est dans la modale : Permanent n'y figure pas. Il
+    // reste dans le bloc SEO — d'ou l'assertion portee sur la modale et non sur
+    // la page, sinon elle nierait le SEO qu'on vient d'exiger.
+    await expect(modale.locator('[data-onglet-contenu="permanent"]')).toHaveCount(0);
   });
 
   test('Test 13 · FIX D : DernieresCles overlay → click château → /chateau/:slug?onglet=dernieresCles', async ({ page, browserName, isMobile }) => {
@@ -256,9 +297,9 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(page).toHaveURL(/\/chateau\/[^?]+\?onglet=dernieresCles/, { timeout: 5000 });
 
     // Onglet Dernières Clés actif à l'arrivée
-    const ongletDC = page.locator('.vc4-offre-card[data-onglet="dernieresCles"]');
+    const ongletDC = page.locator('.bl-offre[data-module="dernieresCles"]');
     await expect(ongletDC).toBeVisible({ timeout: 8000 });
-    await expect(ongletDC).toHaveClass(/vc4-offre-card--actif/);
+    await expect(ongletDC).toHaveClass(/bl-offre--actif/);
   });
 
 });
