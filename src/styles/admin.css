@@ -1025,3 +1025,127 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   Commissions (/admin/commissions) — relevé château × module.
+   ══════════════════════════════════════════════════════════════════════════
+   Préfixe .adm-cm-*, dans admin.css comme les styles de /admin/reservations :
+   une seule feuille pour l'espace admin, le préfixe suffit à isoler.
+
+   Le registre reste « relevé » : crème, navy, or. La SEULE couleur vive de
+   l'écran est celle de l'alerte — un module actif sans taux. C'est délibéré :
+   si tout criait, plus rien ne se verrait. */
+
+/* Le bloc d'alerte ne prend sa couleur QUE s'il compte quelque chose. À zéro,
+   il reste un chiffre comme les autres — un écran rouge en permanence cesse
+   d'être lu au bout d'une semaine. */
+.adm-cm-stat--alerte {
+  border-top-color: #b23a2e;
+  background: #FCF3F1;
+}
+
+.adm-cm-table th {
+  vertical-align: top;
+}
+
+/* Le libellé de colonne porte la fourchette indicative du référentiel. Elle
+   n'est PAS contraignante (décision : liberté totale sur le taux négocié) —
+   d'où le mot « indicatif », et le gris. */
+.adm-cm-fourchette {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  color: var(--gris-fonce);
+}
+
+.adm-cm-col--ferme,
+.adm-cm-cell--ferme {
+  opacity: 0.45;
+}
+
+.adm-cm-cell {
+  min-width: 168px;
+  vertical-align: top;
+}
+
+/* L'état ENREGISTRÉ, au-dessus de la saisie : l'admin voit ce qui est en base
+   pendant qu'il tape ce qui va le remplacer. */
+.adm-cm-etat {
+  display: block;
+  margin-bottom: 6px;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--gris-fonce);
+}
+
+/* LE BADGE. C'est le signal qui manquait le 1er août : deux châteaux publiés
+   encaissaient 0 % et rien ne le disait. Rouge plein, pas un liseré. */
+.adm-cm-alerte {
+  display: inline-block;
+  margin-bottom: 6px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  background: #b23a2e;
+  color: #FFFDF8;
+  font-family: var(--font-ui);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  line-height: 1.35;
+}
+
+.adm-cm-saisie {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.adm-cm-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--gris-fonce);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.adm-cm-taux {
+  width: 68px;
+  padding: 4px 6px;
+  font-size: var(--t-xs);
+}
+
+.adm-cm-pct {
+  font-family: var(--font-ui);
+  font-size: var(--t-xs);
+  color: var(--gris-fonce);
+}
+
+/* Les boutons n'apparaissent que sur une cellule modifiée : rien ne s'écrit
+   sans un geste explicite, et l'écran ne porte pas 44 boutons dormants. */
+.adm-cm-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.adm-cm-btn {
+  padding: 4px 10px;
+  font-size: 0.68rem;
+}
+
+/* Les brouillons en retrait : réglables, mais pas urgents — leur commission ne
+   coûte rien tant que le château n'est pas en ligne. */
+.adm-cm-ligne--brouillon td {
+  background: rgba(0, 0, 0, 0.012);
+}
+
+.adm-cm-ligne--brouillon .adm-client-nom {
+  opacity: 0.72;
+}
