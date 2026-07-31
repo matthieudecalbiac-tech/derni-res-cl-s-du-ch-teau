@@ -1,0 +1,289 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Le journal du château — trois aperçus cliquables sous le hero.
+   ══════════════════════════════════════════════════════════════════════════
+   Préfixe vj- : vc3- (châssis vitrine) et vc4- (onglets/thèmes) sont pris. La
+   convention CLAUDE.md impose de scoper les styles vitrine.
+
+   Aucune couleur nouvelle : crème, navy, or et les trois familles de caractères
+   du :root de global.css. L'or foncé #8B6914 est celui déjà documenté AA sur
+   crème pour les micro-textes.
+
+   Le hero est sombre, le journal ouvre sur le crème : ce contraste EST le signal
+   de lecture. On quitte l'image, on entre dans le récit.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.vj-journal {
+  background: var(--lcc-creme);
+  padding: clamp(56px, 7vw, 100px) clamp(20px, 5vw, 64px);
+
+  /* ── RÉSERVE POUR LA BARRE LATÉRALE ──
+     Le journal n'occupe pas toute la largeur : la colonne de droite est gardée
+     libre pour la barre latérale à venir (« Les offres » + modules + onglets).
+     Elle est réservée MAINTENANT pour que cette brique-là n'ait rien à
+     redécaler — elle n'aura qu'à venir occuper l'espace.
+     Une variable plutôt qu'une valeur en dur : la future barre lira la même. */
+  --vj-laterale: 23%;
+  --vj-gouttiere: clamp(24px, 3vw, 52px);
+}
+
+.vj-inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  /* Le décalage vers la gauche. En padding et non en grille : aucun élément
+     mort dans le DOM en attendant la barre. L'en-tête centré se centre donc
+     sur la zone du journal, pas sur la page — c'est voulu, tout le bloc glisse
+     ensemble. */
+  padding-right: calc(var(--vj-laterale) + var(--vj-gouttiere));
+}
+
+/* ── En-tête ── */
+.vj-entete {
+  text-align: center;
+  margin-bottom: clamp(38px, 4.5vw, 60px);
+}
+
+.vj-eyebrow {
+  margin: 0 0 14px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #8B6914;
+}
+
+.vj-titre {
+  margin: 0;
+  font-family: 'Playfair Display', serif;
+  font-weight: 400;
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+  line-height: 1.18;
+  color: var(--bleu-nuit);
+}
+
+.vj-orn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+}
+.vj-orn-l {
+  display: block;
+  width: clamp(40px, 8vw, 96px);
+  height: 1px;
+  background: rgba(192, 152, 64, 0.45);
+}
+.vj-orn-lys {
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--or);
+}
+
+/* ── La composition ──
+   Une affiche verticale à gauche sur deux rangs, deux brèves empilées à droite.
+   Les rangs sont libres : les brèves se répartissent la hauteur de l'affiche. */
+.vj-grille {
+  display: grid;
+  /* 1.35 et non 1.5 : la réserve latérale a rétréci le journal, la colonne de
+     droite doit garder de quoi porter une vraie photo ET son texte. */
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 22px;
+  /* start et non stretch : chaque colonne prend sa hauteur naturelle. Avec un
+     span de deux rangs, l'affiche s'étirait à la hauteur des deux brèves
+     réunies — 1625 px mesurés, dont un vide considérable sous son texte. */
+  align-items: start;
+}
+
+.vj-breves {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ── Carte : socle commun ──
+   <button> et non <div> : c'est une action. Focus clavier et sémantique
+   viennent seuls, il n'y a qu'à défaire l'apparence native. */
+.vj-carte {
+  position: relative;
+  display: flex;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: #FEFCF8;
+  border: 1px solid rgba(192, 152, 64, 0.28);
+  border-radius: 3px;
+  text-align: left;
+  font: inherit;
+  cursor: pointer;
+  box-shadow: 0 2px 14px rgba(26, 45, 90, 0.05);
+  transition: border-color 0.35s ease, box-shadow 0.35s ease, transform 0.35s ease;
+}
+.vj-carte:hover,
+.vj-carte:focus-visible {
+  border-color: rgba(192, 152, 64, 0.6);
+  box-shadow: 0 14px 38px rgba(26, 45, 90, 0.12);
+  transform: translateY(-2px);
+}
+.vj-carte:focus-visible {
+  outline: 1px solid var(--or);
+  outline-offset: 3px;
+}
+
+/* ── Anatomie 1 : l'affiche (Histoire) ── image en haut, corps dessous ── */
+.vj-carte--affiche { flex-direction: column; }
+.vj-carte--affiche .vj-carte-media {
+  display: block;
+  width: 100%;
+  /* 16/9 et non 16/10 : l'affiche reste la plus grande image de la page, mais
+     elle écrasait les deux brèves. Elle perd de la hauteur, elles gagnent de la
+     largeur — le rapport se rééquilibre des deux côtés à la fois. */
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+.vj-carte--affiche .vj-carte-corps {
+  padding: 30px clamp(24px, 2.4vw, 36px) 30px;
+}
+
+/* ── Anatomie 2 : la brève (Propriétaires, Services) ── vignette à gauche ── */
+/* La vignette latérale faisait timbre-poste (104-150 px) et, une fois élargie,
+   étranglait le texte : dans une carte de 350 px, une photo de 268 px ne laisse
+   que 25 px de colonne — mesuré, la carte montait à 922 px de haut.
+   La photo passe donc EN HAUT, sur toute la largeur de la carte : elle gagne
+   réellement en présence (350 px au lieu de 143) et le texte récupère la
+   largeur entière. L'anatomie reste distincte de l'affiche par le format —
+   3/2 ici, 16/9 là — et par l'échelle de la typographie. */
+.vj-carte--breve { flex-direction: column; }
+.vj-carte--breve .vj-carte-media {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+.vj-carte--breve .vj-carte-corps {
+  min-width: 0;
+  padding: 24px clamp(22px, 2vw, 30px) 26px;
+}
+
+/* ── L'image ──
+   Le zoom au survol est LENT (0.9 s) et léger (1.05) : une image qui bondit
+   ferait publicité. Elle doit à peine respirer. */
+.vj-carte-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.vj-carte:hover .vj-carte-img,
+.vj-carte:focus-visible .vj-carte-img { transform: scale(1.05); }
+
+/* Sans image : un aplat crème et le lys. La carte reste une carte. */
+.vj-carte-img--sans {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 120px;
+  background: linear-gradient(155deg, #F5EEDF 0%, #EDE3CE 100%);
+  font-size: 26px;
+  color: rgba(192, 152, 64, 0.75);
+}
+
+/* ── Le corps ── */
+.vj-carte-corps {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+}
+
+.vj-carte-eyebrow {
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.63rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #8B6914;
+}
+
+.vj-carte-titre {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.22rem;
+  font-weight: 400;
+  line-height: 1.22;
+  color: var(--bleu-nuit);
+}
+.vj-carte--grande .vj-carte-titre { font-size: clamp(1.5rem, 2.1vw, 1.9rem); }
+
+/* Filet or court sous le titre : la respiration qui fait la carte éditoriale.
+   Sur la grande il est plus long — la hiérarchie passe aussi par l'ornement. */
+.vj-carte-titre::after {
+  content: "";
+  display: block;
+  width: 34px;
+  height: 1px;
+  margin-top: 12px;
+  background: rgba(192, 152, 64, 0.5);
+}
+.vj-carte--grande .vj-carte-titre::after { width: 58px; margin-top: 16px; }
+
+.vj-carte-texte {
+  font-family: 'Crimson Pro', serif;
+  font-style: italic;
+  font-size: 0.93rem;
+  line-height: 1.62;
+  color: rgba(26, 45, 90, 0.74);
+}
+.vj-carte--grande .vj-carte-texte { font-size: 1.02rem; line-height: 1.7; }
+
+.vj-carte-lien {
+  /* margin-top: auto colle le lien en bas : les « Découvrir » des deux brèves
+     s'alignent même quand leurs accroches n'ont pas la même hauteur. */
+  margin-top: auto;
+  padding-top: 12px;
+  font-family: 'Crimson Pro', serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #8B6914;
+}
+
+.vj-carte-fleche {
+  display: inline-block;
+  margin-left: 4px;
+  transition: transform 0.3s ease;
+}
+.vj-carte:hover .vj-carte-fleche,
+.vj-carte:focus-visible .vj-carte-fleche { transform: translateX(5px); }
+
+/* ── Respiration ──
+   1050 px : la composition en deux colonnes n'a plus la place de respirer, on
+   passe à une colonne — l'affiche garde son image en haut, les brèves gardent
+   leur vignette à gauche. 620 px : les brèves passent à leur tour en vertical,
+   sinon la vignette étrangle le texte. */
+/* La réserve latérale disparaît avant la bascule en une colonne : sous 1250 px
+   elle mangerait la place du journal lui-même. La future barre passera alors
+   sous le contenu, comme le reste du site sous 900 px. */
+@media (max-width: 1250px) {
+  .vj-inner { padding-right: 0; }
+}
+
+@media (max-width: 1050px) {
+  .vj-grille { grid-template-columns: minmax(0, 1fr); }
+  .vj-carte--grande { grid-row: auto; }
+}
+
+@media (max-width: 620px) {
+  /* Les brèves sont déjà en colonne : il ne reste qu'à resserrer les marges et
+     à élargir un peu le format des photos, l'écran étant étroit. */
+  .vj-carte--breve .vj-carte-media { aspect-ratio: 16 / 9; }
+  .vj-carte--breve .vj-carte-corps { padding: 22px 20px 24px; }
+  .vj-carte--affiche .vj-carte-corps { padding: 26px 22px 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vj-carte,
+  .vj-carte-img,
+  .vj-carte-fleche { transition: none; }
+  .vj-carte:hover { transform: none; }
+  .vj-carte:hover .vj-carte-img { transform: none; }
+}
