@@ -45,6 +45,7 @@ import PageHistoire from "./components/PageHistoire";
 
 // Sprint S2-α.2 — pages auth magic link (remplace AuthCallbackPlaceholder)
 import Connexion from "./components/auth/Connexion";
+import EspaceProfessionnel from "./components/auth/EspaceProfessionnel";
 import Inscription from "./components/auth/Inscription";
 import MotDePasseOublie from "./components/auth/MotDePasseOublie";
 import ReinitialiserMotDePasse from "./components/auth/ReinitialiserMotDePasse";
@@ -186,6 +187,9 @@ function App() {
         <Route path="reservations" element={<AdminReservations />} />
       </Route>
       <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
+      {/* Aiguillage seul : cette route ne garde rien et n'est pas gardée. Les
+          deux destinations qu'elle propose, elles, restent sous RequireRole. */}
+      <Route path="/professionnel" element={<EspaceProfessionnel />} />
       <Route path="/connexion" element={<Connexion />} />
       <Route path="/inscription" element={<Inscription />} />
       <Route path="/mot-de-passe-oublie" element={<MotDePasseOublie />} />
