@@ -36,6 +36,7 @@ import AdminChateauApercu from "./components/admin/AdminChateauApercu";
 import AdminPersonnages from "./components/admin/AdminPersonnages";
 import AdminPersonnageEdition from "./components/admin/AdminPersonnageEdition";
 import AdminReservations from "./components/admin/AdminReservations";
+import AdminCommissions from "./components/admin/AdminCommissions";
 // Sprint S2-α.1.5 — route vitrine SEO /chateau/:slug?onglet=&theme=&offre=
 import VitrineChateauRoute from "./components/VitrineChateauRoute";
 import PageClub from "./components/club/PageClub";
@@ -185,6 +186,7 @@ function App() {
         <Route path="personnages" element={<AdminPersonnages />} />
         <Route path="personnages/:id" element={<AdminPersonnageEdition />} />
         <Route path="reservations" element={<AdminReservations />} />
+        <Route path="commissions" element={<AdminCommissions />} />
       </Route>
       <Route path="/admin/dashboard" element={<Navigate to="/admin" replace />} />
       {/* Aiguillage seul : cette route ne garde rien et n'est pas gardée. Les

@@ -13,6 +13,7 @@ const LIENS = [
   { to: "/admin/chateaux", label: "Châteaux" },
   { to: "/admin/personnages", label: "Personnages" },
   { to: "/admin/reservations", label: "Réservations" },
+  { to: "/admin/commissions", label: "Commissions" },
 ];
 
 export default function AdminLayout() {
