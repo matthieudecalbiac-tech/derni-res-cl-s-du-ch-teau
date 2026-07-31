@@ -134,8 +134,11 @@ export default function BarreLaterale({
             </ul>
           </nav>
 
+          {/* Fleur de lys clé — l'ornement de marque (/FDL-transparent.png). */}
           <div className="bl-sep" aria-hidden="true">
-            <span className="bl-sep-l" /><span className="bl-sep-lys">⚜</span><span className="bl-sep-l" />
+            <span className="bl-sep-l" />
+            <img src="/FDL-transparent.png" alt="" className="bl-sep-lys" />
+            <span className="bl-sep-l" />
           </div>
 
           {/* ── EXPLORER LE CHÂTEAU ──

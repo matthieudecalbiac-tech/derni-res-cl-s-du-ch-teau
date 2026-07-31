@@ -44,13 +44,21 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(ongletPermanent).toBeVisible();
     await expect(ongletPermanent).toHaveClass(/bl-offre--actif/);
 
-    // Phrase d'intro présente
-    await expect(page.locator('.vc4-permanent-intro')).toBeVisible();
-
-    // Au moins 2 chambres affichées (Briottières en a plusieurs)
+    // Le contenu du module est DANS LE DOM (bloc SEO crawlable) mais invisible
+    // avant clic. On verifie donc la PRESENCE ici, et la visibilite apres
+    // ouverture de la modale — deux assertions la ou il y en avait une.
+    await expect(page.locator('.vc4-permanent-intro')).toBeAttached();
     const chambres = page.locator('.vc4-permanent-chambre');
-    await expect(chambres.first()).toBeVisible();
+    await expect(chambres.first()).toBeAttached();
     expect(await chambres.count()).toBeGreaterThanOrEqual(2);
+    await expect(page.locator('.vc4-permanent-intro')).not.toBeVisible();
+
+    // Ouverture de la modale Permanent : le meme contenu devient visible.
+    await ongletPermanent.click();
+    const modale = page.locator('.mdl-panneau');
+    await expect(modale).toBeVisible({ timeout: 5000 });
+    await expect(modale.locator('.vc4-permanent-intro')).toBeVisible();
+    expect(await modale.locator('.vc4-permanent-chambre').count()).toBeGreaterThanOrEqual(2);
   });
 
   test('Test 2 · ?onglet=dernieresCles : offre B affichée', async ({ page }) => {
@@ -108,19 +116,26 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     const ongletClub = page.locator('.bl-offre[data-module="club"]');
     await expect(ongletClub).toBeVisible({ timeout: 5000 });
 
-    // Click sur Club non-membre → modale stub auth s'ouvre
+    // Click sur Club non-membre → le verrou s'ouvre. Il passe desormais par
+    // Modale.jsx (.mdl-panneau) comme les modules et les themes, au lieu de son
+    // ancien overlay maison .vc3-reserve-modal.
     await ongletClub.click();
-    const modaleAuth = page.locator('.vc3-reserve-modal').filter({ hasText: /Club Châtelain/i });
+    const modaleAuth = page.locator('.mdl-panneau').filter({ hasText: /Club Châtelain/i });
     await expect(modaleAuth).toBeVisible({ timeout: 5000 });
     await expect(modaleAuth).toContainText(/Connectez-vous/i);
 
-    // ContenuClub PAS rendu (state moduleActif n'a pas bougé)
+    // ContenuClub PAS rendu du tout — ni en modale, ni dans le bloc SEO : le
+    // Module C reste invisible aux non-membres, le SEO ne doit pas devenir la
+    // porte derobee qui publierait un contenu reserve.
     await expect(page.locator('[data-onglet-contenu="club"]')).toHaveCount(0);
-    await expect(page.locator('[data-onglet-contenu="permanent"]')).toBeVisible();
+    // Le clic sur Club n'a PAS ouvert de modale de module : Permanent reste
+    // dans le bloc crawlable, invisible.
+    await expect(page.locator('[data-onglet-contenu="permanent"]')).toBeAttached();
+    await expect(page.locator('[data-onglet-contenu="permanent"]')).not.toBeVisible();
 
-    // Fermer la modale via bouton Fermer
+    // Fermer le verrou via son bouton Fermer
     await modaleAuth.locator('button').filter({ hasText: /^Fermer$/ }).click();
-    await expect(modaleAuth).not.toBeVisible({ timeout: 3000 });
+    await expect(modaleAuth).toHaveCount(0, { timeout: 3000 });
 
     // L'onglet Permanent reste actif après fermeture
     await expect(page.locator('.bl-offre[data-module="permanent"]')).toHaveClass(/bl-offre--actif/);
@@ -135,8 +150,14 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await ongletHistoire.click();
 
     await expect(page).toHaveURL(/[?&]theme=histoire/, { timeout: 5000 });
-    await expect(page.locator('[data-theme-contenu="histoire"]')).toBeVisible();
-    await expect(page.locator('.vc4-theme-timeline')).toBeVisible();
+
+    // Le contenu n'est plus inséré sous le journal : il s'ouvre en MODALE.
+    // L'assertion est RENFORCÉE, pas relâchée — on exige désormais que le
+    // contenu soit visible ET contenu dans le panneau de la modale.
+    const modale = page.locator('.mdl-panneau');
+    await expect(modale).toBeVisible({ timeout: 5000 });
+    await expect(modale.locator('[data-theme-contenu="histoire"]')).toBeVisible();
+    await expect(modale.locator('.vc4-theme-timeline')).toBeVisible();
   });
 
   test('Test 7 · Cycle sur les 6 thèmes niveau 2', async ({ page }) => {
@@ -144,11 +165,19 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await page.waitForLoadState('domcontentloaded');
 
     const themes = ['apercu', 'histoire', 'famille', 'lieu', 'services', 'chambres'];
+    const modale = page.locator('.mdl-panneau');
+
     for (const t of themes) {
       const onglet = page.locator(`.bl-theme[data-theme="${t}"]`);
       await onglet.scrollIntoViewIfNeeded();
       await onglet.click();
-      await expect(page.locator(`[data-theme-contenu="${t}"]`)).toBeVisible({ timeout: 3000 });
+      await expect(modale.locator(`[data-theme-contenu="${t}"]`)).toBeVisible({ timeout: 3000 });
+
+      // On REFERME avant le thème suivant. Ce n'est pas une commodité de test :
+      // la modale couvre la page, son overlay intercepte le clic sur la barre.
+      // Un visiteur fait exactement ce geste — il ferme, puis rouvre ailleurs.
+      await page.keyboard.press('Escape');
+      await expect(modale).toHaveCount(0, { timeout: 3000 });
     }
   });
 
@@ -210,21 +239,34 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await page.goto('/chateau/les-briottieres');
     await page.waitForLoadState('domcontentloaded');
 
-    // Permanent par défaut : hero + N2 attachés au DOM
+    const modale = page.locator('.mdl-panneau');
+
+    // AU CHARGEMENT : le contenu du module est DANS LE DOM — bloc SEO crawlable,
+    // decision Matthieu — mais PAS visible. Rien ne s'insere plus sous le
+    // journal. L'assertion est donc DEDOUBLEE, pas relachee : on exige a la fois
+    // la presence (SEO) et l'invisibilite (mise en page).
+    const permanent = page.locator('[data-onglet-contenu="permanent"]');
+    await expect(permanent).toBeAttached({ timeout: 8000 });
+    await expect(permanent).not.toBeVisible();
+    await expect(modale).toHaveCount(0);
+
+    // Hero + navigation des themes attaches au DOM
     await expect(page.locator('.vc3-hero2')).toBeAttached();
     await expect(page.locator('.bl-themes')).toBeAttached();
-    await expect(page.locator('[data-onglet-contenu="permanent"]')).toBeVisible({ timeout: 8000 });
 
-    // Switch vers Dernières Clés
+    // Switch vers Dernieres Cles : la modale REVELE ce module.
     await page.locator('.bl-offre[data-module="dernieresCles"]').click();
-    await expect(page.locator('[data-onglet-contenu="dernieresCles"]')).toBeVisible({ timeout: 8000 });
+    await expect(modale).toBeVisible({ timeout: 8000 });
+    await expect(modale.locator('[data-onglet-contenu="dernieresCles"]')).toBeVisible({ timeout: 8000 });
 
-    // Hero + N2 TOUJOURS attachés (jamais unmounted)
+    // Hero + themes TOUJOURS attaches (jamais unmounted)
     await expect(page.locator('.vc3-hero2')).toBeAttached();
     await expect(page.locator('.bl-themes')).toBeAttached();
 
-    // ContenuPermanent disparaît, ContenuDernieresCles apparaît (seule la section module change)
-    await expect(page.locator('[data-onglet-contenu="permanent"]')).toHaveCount(0);
+    // Seul le module ACTIF est dans la modale : Permanent n'y figure pas. Il
+    // reste dans le bloc SEO — d'ou l'assertion portee sur la modale et non sur
+    // la page, sinon elle nierait le SEO qu'on vient d'exiger.
+    await expect(modale.locator('[data-onglet-contenu="permanent"]')).toHaveCount(0);
   });
 
   test('Test 13 · FIX D : DernieresCles overlay → click château → /chateau/:slug?onglet=dernieresCles', async ({ page, browserName, isMobile }) => {

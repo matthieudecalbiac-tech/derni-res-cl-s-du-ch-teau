@@ -64,10 +64,15 @@
   height: 1px;
   background: rgba(192, 152, 64, 0.45);
 }
+/* Fleur de lys clé — image et non glyphe. background:transparent neutralise le
+   `background: var(--bleu-carte)` que global.css pose sur TOUS les img : sans
+   lui, un rectangle bleu apparaît derrière l'ornement. */
 .vj-orn-lys {
-  font-size: 0.95rem;
-  line-height: 1;
-  color: var(--or);
+  height: 30px;
+  width: auto;
+  display: block;
+  flex-shrink: 0;
+  background: transparent;
 }
 
 /* ── La composition ──

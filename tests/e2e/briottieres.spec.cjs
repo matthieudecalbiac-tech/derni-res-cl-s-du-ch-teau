@@ -75,10 +75,14 @@ test.describe('Vitrine Briottières · parcours critiques', () => {
   test('Modal de réservation s\'ouvre, sélectionne et se ferme', async ({ page }) => {
     await ouvrirBriottieres(page);
 
-    // Route mode : le module Permanent est rendu inline (.vc3-module-inline), pas
-    // d'overlay .vc3-module-panel (celui-ci n'existe qu'en mode modal depuis la
-    // home). On clique directement le CTA d'une chambre.
-    const cta = page.locator('.vc4-permanent-chambre-cta').first();
+    // Le module Permanent n'est plus inline : son contenu reste dans le DOM
+    // (bloc SEO) mais invisible, et s'ouvre en modale — meme mecanisme en mode
+    // route et en mode overlay, la ou il y avait deux comportements.
+    await page.locator('.bl-offre[data-module="permanent"]').click();
+    const modaleModule = page.locator('.mdl-panneau');
+    await expect(modaleModule).toBeVisible({ timeout: 5000 });
+
+    const cta = modaleModule.locator('.vc4-permanent-chambre-cta').first();
     await cta.scrollIntoViewIfNeeded();
     await cta.click();
     await expect(page.locator('.vc3-reserve-modal')).toBeVisible();

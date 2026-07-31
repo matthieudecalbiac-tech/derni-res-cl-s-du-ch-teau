@@ -37,14 +37,22 @@
 .vc3-retour{background:transparent;border:none;font-family:'Crimson Pro',serif;font-size:0.88rem;color:var(--vc3-ink-40);cursor:pointer;letter-spacing:0.06em;transition:color 0.2s;display:flex;align-items:center;gap:8px}
 .vc3-retour:hover{color:var(--vc3-ink)}
 .vc3-header-centre{display:flex;flex-direction:column;align-items:center;gap:2px}
-.vc3-header-lys{color:var(--or);font-size:0.85rem}
+/* Fleur de lys cle — image et non glyphe. background:transparent neutralise le
+   fond navy que global.css pose sur tous les img. */
+.vc3-header-lys{height:22px;width:auto;display:block;background:transparent}
 .vc3-header-nom{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--vc3-ink);letter-spacing:0.04em}
 .vc3-header-region{font-family:'Crimson Pro',serif;font-size:0.7rem;color:#8B6914;letter-spacing:0.1em}
 .vc3-header-cta{padding:9px 22px;background:var(--or);border:none;font-family:'Crimson Pro',serif;font-size:0.78rem;letter-spacing:0.1em;color:var(--vc3-on-or);cursor:pointer;transition:all 0.25s;font-weight:500}
 .vc3-header-cta:hover{background:var(--or-c);transform:translateY(-1px)}
 
 /* ══ HERO 2 — COMPACT + CARTE SEJOUR ══ */
-.vc3-hero2{position:relative;min-height:600px;display:flex;align-items:center;overflow:hidden;flex-shrink:0}
+/* HERO PLEIN ECRAN. 100% de .vc3-corps, et non 100vh : le corps est le conteneur
+   de defilement, deja dimensionne par flex:1 a la hauteur ecran MOINS le header
+   sticky. Un 100vh depasserait de la hauteur du header et laisserait la barre
+   affleurer en bas. min-height (et non height) pour qu un hero au contenu plus
+   haut que l ecran puisse encore grandir.
+   Le repli 600px couvre le cas ou la hauteur du corps ne serait pas definie. */
+.vc3-hero2{position:relative;min-height:100%;display:flex;align-items:center;overflow:hidden;flex-shrink:0}
 .vc3-hero2-media{position:absolute;inset:0;background-size:cover;background-position:center}
 .vc3-hero2-iframe{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:177.78vh;min-width:100%;height:56.25vw;min-height:100%;border:none;pointer-events:none}
 .vc3-hero2-vign{position:absolute;inset:0;background:linear-gradient(105deg,rgba(7,16,30,0.78) 0%,rgba(7,16,30,0.45) 42%,rgba(7,16,30,0.12) 70%,rgba(7,16,30,0.05) 100%)}
@@ -88,10 +96,10 @@
    Deux colonnes sur un meme fond creme : le journal a gauche, la barre a droite.
    La reserve d'espace n'est plus un padding du journal (approche du panneau
    abandonne) mais une vraie colonne — la barre l'occupe pour de bon.
-   clamp : 20 % de la zone, borne pour qu'elle ne devienne ni un ruban sur grand
+   clamp : 23 % de la zone (elargie pour les vignettes carrees), borne pour qu'elle ne devienne ni un ruban sur grand
    ecran ni une gouttiere sur petit. align-items: stretch (defaut) pour que le
    creme chaud de la barre descende sur toute la hauteur de la zone. */
-.vc3-zone-journal{display:grid;grid-template-columns:minmax(0,1fr) clamp(238px,20%,320px);background:var(--lcc-creme)}
+.vc3-zone-journal{display:grid;grid-template-columns:minmax(0,1fr) clamp(288px,23%,372px);background:var(--lcc-creme)}
 /* LA GOUTTIERE EST SUPPRIMEE, pas reduite. Le journal porte un padding lateral
    de 64 px qui, cote droit, s'ajoutait aux 38 px de la barre : pres de 100 px de
    vide au milieu. Ici son padding droit tombe a 24 px — le journal et la barre
@@ -105,17 +113,37 @@
    atteignable en defilant — pas de declencheur a trouver. */
 @media(max-width:1000px){.vc3-zone-journal{grid-template-columns:minmax(0,1fr)}.vc3-zone-journal .vj-journal{padding-right:clamp(20px,5vw,64px)}}
 
+/* ══ BLOC SEO DES SEPT THEMES ══
+   Le contenu editorial reste DANS LE DOM pour etre lu par les moteurs, mais il
+   ne s'insere plus visuellement sous le journal.
+   clip-path et non display:none : decision Matthieu, prudence SEO d'OTA.
+   Le couple height:0 + overflow:hidden empeche le bloc de pousser la page, et
+   position:absolute le sort du flux. L'attribut `inert` (pose en JSX) le retire
+   du focus ET de l'arbre d'accessibilite — sans lui, un lecteur d'ecran
+   traverserait sept sections completes sans contexte. */
+/* visibility:hidden et NON clip-path. Les deux gardent le texte dans le DOM,
+   mais clip-path laisse a l'element une boite de 1x1 non vide : l'outillage (et
+   Playwright) le considere donc VISIBLE, et on ne peut plus prouver qu'il est
+   cache. visibility:hidden le retire pour de bon de l'oeil, de l'outillage et
+   de l'arbre d'accessibilite, sans le retirer du document.
+   Toujours pas display:none, conformement a la consigne SEO. */
+.vc3-themes-seo{position:absolute;width:1px;height:1px;overflow:hidden;visibility:hidden;pointer-events:none}
+
+/* ══ VERROU CLUB (contenu de la Modale) ══
+   Remplace les styles inline qui posaient du texte creme sur le fond clair de
+   Modale — illisible depuis la migration en palette claire. */
+.vc3-clublock{display:flex;flex-direction:column;align-items:center;text-align:center}
+.vc3-clublock-sur{margin:0 0 18px;font-family:'Crimson Pro',serif;font-size:0.7rem;letter-spacing:0.22em;text-transform:uppercase;color:#8B6914}
+.vc3-clublock-txt{margin:0 0 28px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;line-height:1.6;color:var(--vc3-ink-55);max-width:420px}
+.vc3-clublock-fermer{margin-top:12px;width:100%;padding:12px 28px;background:transparent;border:1px solid var(--or55);color:var(--vc3-ink-40);font-family:'Crimson Pro',serif;font-size:0.78rem;letter-spacing:0.08em;cursor:pointer;transition:all 0.25s ease}
+.vc3-clublock-fermer:hover{border-color:var(--or);color:var(--vc3-ink)}
+
 /* ══ MODALE ══ */
-/* ══ OVERLAY MODULE (contenu Permanent/Dernieres/Club en superposition) ══ */
-.vc3-module-overlay{position:fixed;inset:0;z-index:9050;background:var(--vc3-scrim);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding:48px 24px;overflow-y:auto}
-.vc3-module-panel{position:relative;background:var(--vc3-bg);border:1px solid var(--or20);border-radius:8px;max-width:1080px;width:100%;margin:auto;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(7,16,30,0.45)}
-.vc3-module-panel::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--or),transparent);z-index:2}
-.vc3-module-close{position:absolute;top:18px;right:18px;z-index:5;width:36px;height:36px;border-radius:50%;background:var(--vc3-bg);border:1px solid var(--or20);color:var(--vc3-ink-55);font-size:1rem;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center}
-.vc3-module-close:hover{border-color:var(--or);color:var(--vc3-ink);background:var(--or05)}
-/* Contenu module INLINE — mode route (/chateau/:slug), dans le flux, pas d'overlay.
-   Les composants ContenuX gerent deja max-width + centrage + padding interne ;
-   ce wrapper ne fait que separer visuellement le contenu des cartes N1. */
-.vc3-module-inline{border-top:1px solid var(--or20);margin-top:8px}
+/* L'OVERLAY MAISON DES MODULES EST RETIRE (.vc3-module-overlay / -panel /
+   -panel::before / -close), ainsi que le wrapper .vc3-module-inline du mode
+   route. Les modules passent par Modale.jsx, comme les themes : un seul
+   mecanisme, un seul comportement dans les deux modes. Aucun markup ne portait
+   plus ces classes — pas de regle orpheline laissee sans mention. */
 
 .vc3-reserve-overlay{position:fixed;inset:0;z-index:9100;background:var(--vc3-scrim);display:flex;align-items:center;justify-content:center;padding:24px}
 .vc3-reserve-modal{background:var(--vc3-surface-modal);border:1px solid var(--or20);padding:40px;max-width:460px;width:100%;position:relative;max-height:90vh;overflow-y:auto}

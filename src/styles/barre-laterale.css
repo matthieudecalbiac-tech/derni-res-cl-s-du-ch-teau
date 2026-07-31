@@ -80,7 +80,9 @@
 
 /* La vignette : verticale, format portrait, elle donne son assise à la carte. */
 .bl-offre-media {
-  flex: 0 0 clamp(58px, 6vw, 76px);
+  flex: 0 0 clamp(92px, 9vw, 124px);
+  align-self: flex-start;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   border: 1px solid var(--bl-filet-tenu);
 }
@@ -88,7 +90,6 @@
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 66px;
   background-size: cover;
   background-position: center;
   transition: transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -164,7 +165,9 @@
   margin: 22px 0 20px;
 }
 .bl-sep-l { flex: 1 1 auto; height: 1px; background: var(--bl-filet-tenu); }
-.bl-sep-lys { font-size: 0.78rem; line-height: 1; color: var(--bl-or); }
+/* Fleur de lys cle — image. background:transparent neutralise le fond navy que
+   global.css pose sur tous les img. */
+.bl-sep-lys { height: 26px; width: auto; display: block; flex-shrink: 0; background: transparent; }
 
 /* ══ LES SEPT THÈMES — grille à deux colonnes ══
    Quatre rangs au lieu de sept : c'est ce qui garde la barre courte. Aucun

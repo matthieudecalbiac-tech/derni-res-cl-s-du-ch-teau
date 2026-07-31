@@ -177,10 +177,13 @@ export default function JournalApercus({ chateau, onOuvrirTheme }) {
           <h2 id="vj-journal-titre" className="vj-titre">
             {chateau?.nom ? `Découvrir ${chateau.nom}` : "Découvrir le domaine"}
           </h2>
-          {/* Ornement ⚜ : le glyphe du hero et de ThemeHeader. Rien de neuf. */}
+          {/* Ornement : la FLEUR DE LYS CLÉ (/FDL-transparent.png), et non le ⚜
+              unicode — la clé fait partie de la marque, le glyphe ne l'a pas.
+              Même patron que PageHistoire / PagePersonnage : alt="" et
+              aria-hidden, c'est décoratif. */}
           <div className="vj-orn" aria-hidden="true">
             <span className="vj-orn-l" />
-            <span className="vj-orn-lys">⚜</span>
+            <img src="/FDL-transparent.png" alt="" className="vj-orn-lys" />
             <span className="vj-orn-l" />
           </div>
         </header>
