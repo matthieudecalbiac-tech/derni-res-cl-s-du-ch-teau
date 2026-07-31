@@ -28,6 +28,7 @@ import {
   MODULE_B_ID,
 } from "../_mapping.js";
 import { EMPLACEMENTS_PHOTO } from "../../utils/photosEmplacements.js";
+import { ACCROCHES_EMPLACEMENT } from "../../utils/accrochesEmplacements.js";
 import {
   FIXTURE_BRIOTTIERES,
   FIXTURE_VAUX,
@@ -97,6 +98,40 @@ describe("mapChateauBase", () => {
       expect(out[champ]).toBeNull();
     }
     expect(EMPLACEMENTS_PHOTO).toHaveLength(7);
+  });
+
+  it("accroches d'emplacement : les 6 colonnes remontent en camelCase", () => {
+    const out = mapChateauBase(FIXTURE_BRIOTTIERES);
+    expect(out.accrocheJournalHistoire).toBe("Sept generations, une seule maison.");
+    expect(out.accrocheJournalProprietaires).toBe("Arnaud et Madeleine recoivent eux-memes.");
+    expect(out.accrocheJournalServices).toBe("La table d'hotes se tient a la chandelle.");
+    expect(out.accrocheBarrePermanent).toBe("Cinq chambres ouvertes toute l'annee.");
+    expect(out.accrocheBarreDernieresCles).toBe("Deux dates encore libres ce printemps.");
+    expect(out.accrocheBarreClub).toBe("Le Club y dispose de ses propres nuitees.");
+  });
+
+  it("accroches d'emplacement : colonne absente → null (le cas REPLI)", () => {
+    // Même contrat que les photos : null n'est pas une donnée manquante, c'est
+    // l'instruction « garde le texte automatique ».
+    const out = mapChateauBase(FIXTURE_MINIMAL);
+    for (const { champ } of ACCROCHES_EMPLACEMENT) {
+      expect(out[champ]).toBeNull();
+    }
+    expect(ACCROCHES_EMPLACEMENT).toHaveLength(6);
+  });
+
+  it("les 6 accroches n'ont AUCUN emplacement de photo en commun", () => {
+    // Deux listes distinctes, donc deux risques : un champ dupliqué (le mapper
+    // écraserait silencieusement l'un des deux) ou une colonne partagée. Le hero
+    // a une photo mais pas d'accroche — les cardinalités DOIVENT différer.
+    const champsPhoto = EMPLACEMENTS_PHOTO.map((e) => e.champ);
+    const champsAccroche = ACCROCHES_EMPLACEMENT.map((e) => e.champ);
+    expect(champsAccroche.filter((c) => champsPhoto.includes(c))).toEqual([]);
+    const colonnes = [
+      ...EMPLACEMENTS_PHOTO.map((e) => e.colonne),
+      ...ACCROCHES_EMPLACEMENT.map((e) => e.colonne),
+    ];
+    expect(new Set(colonnes).size).toBe(13);
   });
 
   it("input null → null (zéro crash)", () => {
@@ -392,6 +427,8 @@ describe("chateauToRow (mapper inverse — colonnes chateaux)", () => {
     "une_de_la_semaine", "ordre_home", "mode_paiement",
     "img_hero", "img_journal_histoire", "img_journal_proprietaires", "img_journal_services",
     "img_barre_permanent", "img_barre_dernieres_cles", "img_barre_club",
+    "accroche_journal_histoire", "accroche_journal_proprietaires", "accroche_journal_services",
+    "accroche_barre_permanent", "accroche_barre_dernieres_cles", "accroche_barre_club",
     "couleur_theme", "accent_theme", "coordonnees_lat", "coordonnees_lng",
     "prop_nom", "prop_depuis", "prop_initiale", "prop_nom_affiche", "prop_portrait",
     "prop_citation", "prop_description",

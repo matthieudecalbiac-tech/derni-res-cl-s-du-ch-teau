@@ -56,6 +56,15 @@ export const FIXTURE_BRIOTTIERES = {
   img_barre_permanent: "/bri-empl-permanent.avif",
   img_barre_dernieres_cles: "/bri-empl-dernieres-cles.avif",
   img_barre_club: "/bri-empl-club.avif",
+  // Accroches par emplacement. Toutes ecrites, et volontairement SANS rapport
+  // avec histoire / prop_description / amenities : c'est ce qui prouve que la
+  // vitrine sert l'accroche et non la decoupe. FIXTURE_MINIMAL couvre l'inverse.
+  accroche_journal_histoire: "Sept generations, une seule maison.",
+  accroche_journal_proprietaires: "Arnaud et Madeleine recoivent eux-memes.",
+  accroche_journal_services: "La table d'hotes se tient a la chandelle.",
+  accroche_barre_permanent: "Cinq chambres ouvertes toute l'annee.",
+  accroche_barre_dernieres_cles: "Deux dates encore libres ce printemps.",
+  accroche_barre_club: "Le Club y dispose de ses propres nuitees.",
   prop_nom: "Arnaud & Madeleine de Valbray",
   prop_depuis: "2010",
   prop_initiale: "A",
