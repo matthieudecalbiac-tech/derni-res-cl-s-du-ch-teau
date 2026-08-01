@@ -6,6 +6,7 @@ import { CATEGORIES as AMENITY_CATEGORIES } from "../../utils/categories";
 import { NATURES } from "../../utils/personnages";
 import { EMPLACEMENTS_PHOTO } from "../../utils/photosEmplacements";
 import { ACCROCHES_EMPLACEMENT } from "../../utils/accrochesEmplacements";
+import { TITRES_EMPLACEMENT } from "../../utils/titresEmplacements";
 import BoutonTeleverser from "./BoutonTeleverser";
 import ChampCase from "../ChampCase";
 import ChampEquipements from "../ChampEquipements";
@@ -111,6 +112,8 @@ function formFromChateau(c) {
     ...Object.fromEntries(EMPLACEMENTS_PHOTO.map(({ champ }) => [champ, c[champ] ?? ""])),
     // Idem pour les 6 accroches : "" au chargement, null à l'envoi.
     ...Object.fromEntries(ACCROCHES_EMPLACEMENT.map(({ champ }) => [champ, c[champ] ?? ""])),
+    // Idem pour les 2 titres éditoriaux.
+    ...Object.fromEntries(TITRES_EMPLACEMENT.map(({ champ }) => [champ, c[champ] ?? ""])),
     couleurTheme: c.couleurTheme ?? "",
     accentTheme: c.accentTheme ?? "",
     estLaUne: c.estLaUne === true,
@@ -183,6 +186,8 @@ function preparerBase(form) {
     // Vider une accroche est le seul moyen de RENDRE LA MAIN au texte
     // automatique : "" -> null, et null est le cas repli.
     ...Object.fromEntries(ACCROCHES_EMPLACEMENT.map(({ champ }) => [champ, videOuNull(form[champ])])),
+    // Vider un titre rend la main au titre par défaut : "" -> null.
+    ...Object.fromEntries(TITRES_EMPLACEMENT.map(({ champ }) => [champ, videOuNull(form[champ])])),
     couleurTheme: videOuNull(form.couleurTheme),
     accentTheme: videOuNull(form.accentTheme),
     estLaUne: form.estLaUne === true,
@@ -763,6 +768,28 @@ export default function AdminChateauEdition() {
                 <span className="adm-section-note">{aide}</span>
               </div>
               <ChampZone label="Texte affiché" value={form[champ]} onChange={setChamp(champ)} rows={3} />
+            </div>
+          ))}
+        </section>
+
+        {/* ── Titres éditoriaux ──
+            <Champ> et non <ChampZone> : ce sont des titres d'une ligne, pas des
+            phrases. Divergence assumée avec la section ci-dessus.
+            ⚠ Le contrat n'est PAS tout à fait celui des accroches. Laissé vide,
+            le titre du thème Histoire ne « garde pas l'existant » : il remplace
+            un « Sept siècles » codé en dur, faux pour dix châteaux sur onze. La
+            note de section le dit plutôt que de laisser croire à un no-op. */}
+        <section className="adm-section">
+          <h2 className="adm-section-titre">
+            Titres éditoriaux <span className="adm-section-note">(facultatif — vide = titre par défaut)</span>
+          </h2>
+          {TITRES_EMPLACEMENT.map(({ champ, label, aide }) => (
+            <div className="adm-fille" key={champ}>
+              <div className="adm-fille-tete">
+                <span className="adm-fille-num">{label}</span>
+                <span className="adm-section-note">{aide}</span>
+              </div>
+              <Champ label="Titre affiché" value={form[champ]} onChange={setChamp(champ)} />
             </div>
           ))}
         </section>

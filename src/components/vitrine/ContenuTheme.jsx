@@ -53,7 +53,15 @@ function ThemeApercu({ chateau, onChange }) {
 function ThemeHistoire({ chateau }) {
   return (
     <>
-    <ThemeHeader eyebrow="Histoire" titre="Sept siècles" />
+    {/* « Sept siècles » vivait ici, en dur, pour les onze châteaux. C'était la
+        copie du Blanc Buisson (fondé 1290) — exacte pour lui, fausse pour les
+        dix autres : La Rivière date de 1617, soit quatre siècles.
+        Le repli est chateau.siecle, le champ que le hero affiche déjà quelques
+        centaines de pixels plus haut (VitrineChateau.jsx:400). Rien n'est
+        calculé : `siecle` existe en quatre formats et contredit la timeline
+        (Briottières, XVIIIe au bâti, démarre en 1485), donc toute dérivation
+        produirait un nouveau chiffre faux. */}
+    <ThemeHeader eyebrow="Histoire" titre={chateau.titreThemeHistoire || chateau.siecle} />
     <div className="vc4-theme-histoire">
       {chateau.histoire && (
         <p className="vc4-theme-paragraphe vc4-theme-histoire-intro">

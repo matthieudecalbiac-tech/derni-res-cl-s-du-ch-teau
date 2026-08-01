@@ -1,3 +1,4 @@
+import { TITRE_JOURNAL_HISTOIRE_DEFAUT } from "../../utils/titresEmplacements";
 import "../../styles/vitrine-journal.css";
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -141,7 +142,10 @@ export default function JournalApercus({ chateau, onOuvrirTheme }) {
       variante: "affiche",
       taille: "grande",
       eyebrow: "Le récit",
-      titre: "L'histoire du domaine",
+      // L'eyebrow reste constant — il ponctue, il ne raconte pas. Le TITRE, lui,
+      // est la porte d'entrée du récit sur la plus grande carte de la page :
+      // c'est le seul du journal qui mérite d'être écrit par château.
+      titre: chateau?.titreJournalHistoire || TITRE_JOURNAL_HISTOIRE_DEFAUT,
       // 4 phrases : l affiche porte le recit, et cette longueur equilibre sa
       // colonne face aux deux breves empilees en face.
       texte: chateau?.accrocheJournalHistoire || premieresPhrases(chateau?.histoire, 4, 460),
