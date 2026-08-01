@@ -196,6 +196,13 @@ CREATE TABLE IF NOT EXISTS public.chateaux (
   accroche_barre_dernieres_cles  text,
   accroche_barre_club            text,
 
+  -- Titres editoriaux par EMPLACEMENT (migration 2026-08-02). Optionnels, mais
+  -- leur repli n'est PAS la conservation de l'existant : titre_theme_histoire
+  -- remplace un « Sept siecles » code en dur (la copie du Blanc Buisson, servie
+  -- aux 11 chateaux et fausse pour 10). NULL = repli sur chateaux.siecle.
+  titre_theme_histoire           text,
+  titre_journal_histoire         text,
+
   -- Propriétaires (flatten 1:1, 7 colonnes)
   prop_nom                    text,
   prop_depuis                 text,

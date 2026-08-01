@@ -29,6 +29,7 @@ import {
 } from "../_mapping.js";
 import { EMPLACEMENTS_PHOTO } from "../../utils/photosEmplacements.js";
 import { ACCROCHES_EMPLACEMENT } from "../../utils/accrochesEmplacements.js";
+import { TITRES_EMPLACEMENT } from "../../utils/titresEmplacements.js";
 import {
   FIXTURE_BRIOTTIERES,
   FIXTURE_VAUX,
@@ -132,6 +133,40 @@ describe("mapChateauBase", () => {
       ...ACCROCHES_EMPLACEMENT.map((e) => e.colonne),
     ];
     expect(new Set(colonnes).size).toBe(13);
+  });
+
+  it("titres d'emplacement : les 2 colonnes remontent en camelCase", () => {
+    const out = mapChateauBase(FIXTURE_BRIOTTIERES);
+    expect(out.titreThemeHistoire).toBe("Cinq cents ans d'une seule famille");
+    expect(out.titreJournalHistoire).toBe("Le fil des Valbray");
+  });
+
+  it("titres d'emplacement : colonne absente → null (le cas REPLI)", () => {
+    const out = mapChateauBase(FIXTURE_MINIMAL);
+    for (const { champ } of TITRES_EMPLACEMENT) {
+      expect(out[champ]).toBeNull();
+    }
+    expect(TITRES_EMPLACEMENT).toHaveLength(2);
+  });
+
+  it("les 3 listes d'emplacement sont disjointes — 15 colonnes distinctes", () => {
+    // Trois listes, donc trois risques de collision : un champ duplique ferait
+    // qu'une entree ecrase silencieusement l'autre dans le mapper.
+    const listes = [EMPLACEMENTS_PHOTO, ACCROCHES_EMPLACEMENT, TITRES_EMPLACEMENT];
+    const champs = listes.flatMap((l) => l.map((e) => e.champ));
+    const colonnes = listes.flatMap((l) => l.map((e) => e.colonne));
+    expect(new Set(champs).size).toBe(champs.length);
+    expect(new Set(colonnes).size).toBe(15);
+  });
+
+  it("« Sept siecles » n'est plus servi par le mapper", () => {
+    // Garde anti-retour : la chaine ne doit reapparaitre dans AUCUN champ du
+    // chateau mappe. Le seul endroit ou elle est legitime est le RECIT du Blanc
+    // Buisson (chateaux.histoire), pas un titre.
+    const out = mapChateauBase(FIXTURE_BRIOTTIERES);
+    for (const { champ } of TITRES_EMPLACEMENT) {
+      expect(String(out[champ] ?? "")).not.toMatch(/sept si[eè]cles/i);
+    }
   });
 
   it("input null → null (zéro crash)", () => {
@@ -429,6 +464,7 @@ describe("chateauToRow (mapper inverse — colonnes chateaux)", () => {
     "img_barre_permanent", "img_barre_dernieres_cles", "img_barre_club",
     "accroche_journal_histoire", "accroche_journal_proprietaires", "accroche_journal_services",
     "accroche_barre_permanent", "accroche_barre_dernieres_cles", "accroche_barre_club",
+    "titre_theme_histoire", "titre_journal_histoire",
     "couleur_theme", "accent_theme", "coordonnees_lat", "coordonnees_lng",
     "prop_nom", "prop_depuis", "prop_initiale", "prop_nom_affiche", "prop_portrait",
     "prop_citation", "prop_description",

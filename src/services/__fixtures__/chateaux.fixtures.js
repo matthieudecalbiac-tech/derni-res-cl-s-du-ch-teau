@@ -65,6 +65,11 @@ export const FIXTURE_BRIOTTIERES = {
   accroche_barre_permanent: "Cinq chambres ouvertes toute l'annee.",
   accroche_barre_dernieres_cles: "Deux dates encore libres ce printemps.",
   accroche_barre_club: "Le Club y dispose de ses propres nuitees.",
+  // Titres editoriaux. Volontairement differents de `siecle` et du libelle par
+  // defaut : c'est ce qui prouve que la vitrine sert le titre ecrit et non le
+  // repli. FIXTURE_MINIMAL couvre le cas inverse.
+  titre_theme_histoire: "Cinq cents ans d'une seule famille",
+  titre_journal_histoire: "Le fil des Valbray",
   prop_nom: "Arnaud & Madeleine de Valbray",
   prop_depuis: "2010",
   prop_initiale: "A",
