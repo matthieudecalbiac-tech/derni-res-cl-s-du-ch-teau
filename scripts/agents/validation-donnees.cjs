@@ -54,13 +54,20 @@ const stats = {
   imagesInaccessibles: 0,
 };
 
-// ── Table région → départements (minimale, couvre les régions publiées) ──
+// ── Table région → départements ──
+// LISTE BLANCHE, PAS RÉFÉRENTIEL. Elle ne contient que les départements où LCC
+// a effectivement un château ; elle ne prétend pas décrire le découpage
+// administratif français. Un rattachement correct mais absent d'ici lève un
+// faux positif « incohérence region/departement » — c'est ce qui est arrivé à
+// Eure-et-Loir, Sarthe et Indre-et-Loire, tous trois exacts.
+// ⚠ TOUT NOUVEAU DÉPARTEMENT DOIT ÊTRE AJOUTÉ ICI, sinon le château qui
+//   l'inaugure fera rougir la CI le jour de sa publication.
 const REGIONS_DEPTS = {
   'Île-de-France': ['Seine-et-Marne'],
   'Hauts-de-France': ['Oise'],
-  'Centre-Val de Loire': ['Loiret'],
+  'Centre-Val de Loire': ['Loiret', 'Eure-et-Loir', 'Indre-et-Loire'],
   'Bourgogne-Franche-Comté': ['Saône-et-Loire'],
-  'Pays de la Loire': ['Maine-et-Loire'],
+  'Pays de la Loire': ['Maine-et-Loire', 'Sarthe'],
   'Normandie': ['Eure'],
 };
 
