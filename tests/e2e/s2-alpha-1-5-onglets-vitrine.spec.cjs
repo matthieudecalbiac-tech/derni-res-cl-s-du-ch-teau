@@ -215,7 +215,25 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(itemVitrines).toBeVisible({ timeout: 5000 });
     await itemVitrines.click();
 
-    // Cliquer sur la carte Briottières (estLaUne: true) dans VitrinePermanente
+    // DEUX attentes distinctes, et c'est volontaire.
+    //
+    // 1. La donnée arrive. VitrinePermanente monte son chrome immédiatement
+    //    (titre, fil d'Ariane, carte de France) puis rend une grille VIDE tant
+    //    que le fetch Supabase n'a pas répondu — `useChateaux` expose bien
+    //    { loading, error }, mais VitrinePermanente.jsx:27 les déstructure sans
+    //    jamais les rendre : ni skeleton, ni aria-busy, ni état vide. Il n'existe
+    //    donc aucun marqueur d'état plus fin que « la grille est peuplée ».
+    //    Budget généreux : la mesure sur 12 tirages donne 1,3 à 8,1 s pour ce
+    //    parcours, dont 0,8 à 3,0 s pour l'aller-retour Supabase seul. Ce n'est
+    //    pas une lenteur qu'on accepte, c'est la variance d'un test qui traverse
+    //    le réseau — et le lot ne cesse de croître (5 → 7 châteaux au 2 août,
+    //    +17 chambres, +22 lignes de chronologie, chacune tirée par SELECT_FULL).
+    //    ⚠ À remplacer par une vraie attente d'état le jour où VitrinePermanente
+    //      exposera son `loading` (aria-busy, data-attribut ou skeleton).
+    await expect(page.locator('.vit-carte').first()).toBeVisible({ timeout: 20000 });
+
+    // 2. Briottières est bien servie. Ici le réseau a déjà répondu : un échec
+    //    signale une vraie régression métier, pas un aléa, et il tombe vite.
     const carteBri = page.locator('.vit-carte').filter({ hasText: /Briotti[èe]res/i }).first();
     await expect(carteBri).toBeVisible({ timeout: 5000 });
     await carteBri.click();
