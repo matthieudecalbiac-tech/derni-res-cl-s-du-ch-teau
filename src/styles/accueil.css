@@ -62,6 +62,11 @@
   width: 100%;
   display: flex;
   justify-content: center;
+  /* Parent reel de .hero-illus-img, qui entre en translateX(60px) (keyframe
+     heroFadeRight, hero.css). Sans clip, ~600ms de scroll horizontal a chaque
+     chargement : +10px mesures a 375px. `clip` et non `hidden` — cf. commentaire
+     dans heure-aux-demeures.css. */
+  overflow-x: clip;
 }
 
 /* ── Neutralise les enveloppes pleine largeur des composants dans les colonnes ── */

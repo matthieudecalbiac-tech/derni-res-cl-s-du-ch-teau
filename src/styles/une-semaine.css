@@ -4,6 +4,10 @@
 .une-semaine-wrap {
   max-width: 1320px; margin: 0 auto; padding: 62px 48px 68px;
   display: grid; grid-template-columns: 0.82fr 1.55fr; gap: 64px; align-items: start;
+  /* Meme motif que .da-wrap : .une-semaine-carte entre en translateX(44px) et
+     depasse de 16px avant sa revelation. Cf. commentaire dans
+     heure-aux-demeures.css pour le choix de `clip` plutot que `hidden`. */
+  overflow-x: clip;
 }
 
 .une-semaine-intro { position: relative; display: flex; flex-direction: column; align-items: flex-start; padding-bottom: 40px; }

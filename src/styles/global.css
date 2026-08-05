@@ -74,6 +74,12 @@ body {
   color: var(--blanc-casse);
   background-color: var(--bleu-nuit);
   line-height: 1.7;
+  /* ⚠ CACHE-MISERE, A REEVALUER. Cette ligne masque les debordements
+     horizontaux sur Chrome desktop mais FUIT sur iOS Safari — c'est ce qui a
+     permis au debordement de .hero-illus-img (largeur en dur de 520px) de vivre
+     des mois sans etre vu en dev. Les causes connues sont corrigees ; le jour ou
+     on voudra retirer cette ligne, mesurer d'abord que
+     documentElement.scrollWidth === clientWidth a 320/375/414px. */
   overflow-x: hidden;
 }
 

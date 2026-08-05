@@ -83,7 +83,12 @@
   }
   .hero-inner { grid-template-columns: 1fr; gap: 24px; }
   .hero-illus { justify-content: center; }
-  .hero-illus-img { max-height: none; max-width: 520px; margin: 0 auto; }
+  /* min() et non 520px sec : l'image fait 1448px de large, un plafond en dur la
+     posait a 520px meme sur un ecran de 320px — centree, elle debordait alors de
+     100px a droite et ouvrait un scroll horizontal sur toute la home. Le 520px
+     reste la borne haute voulue par la DA, mais ne peut plus depasser le
+     conteneur. */
+  .hero-illus-img { max-height: none; max-width: min(520px, 100%); margin: 0 auto; }
 }
 
 /* ── Animation d'entree orchestree (au montage) ── */

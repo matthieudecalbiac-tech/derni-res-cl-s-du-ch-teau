@@ -1,7 +1,12 @@
 .journal-demeures { background: var(--lcc-creme); }
 .journal-demeures img { background: transparent; }
 
-.da-wrap { position: relative; max-width: 1320px; margin: 0 auto; padding: 58px 56px 62px; }
+/* overflow-x: clip — les medaillons entrent en translateX(±40px) ; tant que
+   l'IntersectionObserver n'a pas revele la section, ceux de droite depassent de
+   18px et ouvrent un scroll horizontal sur toute la page. `clip` et non `hidden` :
+   `hidden` ferait passer overflow-y a `auto` et creerait un conteneur de
+   defilement parasite. `clip` coupe sans rien rendre defilable. */
+.da-wrap { position: relative; max-width: 1320px; margin: 0 auto; padding: 58px 56px 62px; overflow-x: clip; }
 
 .da-tete { text-align: center; margin-bottom: 34px; position: relative; z-index: 1; }
 .da-titre { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2.4rem, 4.5vw, 4rem); font-weight: 400; color: #1A2D5A; margin: 0 0 18px; letter-spacing: 0.01em; }
