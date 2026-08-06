@@ -109,3 +109,12 @@
     transition: none;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HOME MOBILE — seuil 768 px. « Decouvrez aussi » quitte l'ecran en mobile.
+   Meme decision et memes contreparties que .bandeau-offres — cf. le
+   commentaire de bandeau-offres.css. Desktop INTACT.
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .journal-demeures { display: none; }
+}

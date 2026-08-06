@@ -125,3 +125,57 @@
   .insp-pastille { padding: 10px 18px; }
   .insp-pastille-label { font-size: 0.9rem; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HOME MOBILE — seuil 768 px (convention posee dans accueil.css).
+   ══════════════════════════════════════════════════════════════════════════
+   GRILLE 2x2 ET NON UNE RANGEE. Mesure a 375 px : 339 px utiles, moins les
+   3 gouttieres, laisse ~78 px par puce pour quatre sur une ligne — « Histoire
+   des lieux » en demande 120 a lui seul. Une rangee unique n'existe pas a cette
+   largeur autrement qu'en tronquant. La grille 2x2 donne ~164 px par puce, et
+   `align-items: stretch` les rend toutes de MEME hauteur : c'est ce qui les
+   sort du « vrac » actuel, ou chaque puce prenait la largeur de son texte. */
+@media (max-width: 768px) {
+  .insp { padding: 2px 16px var(--hm-gap-sect); }
+  .insp-inner { gap: 12px; align-items: stretch; }
+  .insp-eyebrow {
+    text-align: center; font-size: var(--hm-t-eyebrow); letter-spacing: 0.32em;
+  }
+
+  .insp-pastilles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .insp-pastille {
+    /* justify-content: center -> le contenu est centre dans une puce dont la
+       largeur ne depend plus de son texte. C'est la regularite de la grille. */
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 9px;
+    min-height: var(--hm-tap);
+    border-radius: var(--hm-r-s);
+    border-color: var(--hm-bord);
+    white-space: normal;
+    text-align: center;
+    /* Pas de translateY au survol en tactile : il n'y a pas de survol, et le
+       :active le rendrait sautillant. */
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .insp-pastille:hover:not(:disabled) { transform: none; box-shadow: none; }
+
+  .insp-pastille-label { font-size: var(--hm-t-corps); line-height: 1.22; }
+  .insp-pastille-ico { font-size: 0.85rem; }
+
+  /* Chevron retire : il n'ouvrait qu'une seule des quatre puces (Siecle) et
+     laissait croire que les trois autres etaient repliables. */
+  .insp-pastille-chevron { display: none; }
+
+  /* « Bientot » passe SOUS le libelle plutot que de l'allonger : dans une puce
+     de 164 px, l'inline poussait « Distance de chez vous » a trois lignes. */
+  .insp-pastille--bientot { flex-direction: column; gap: 1px; }
+  .insp-pastille--bientot .insp-pastille-ico { margin-bottom: 1px; }
+  .insp-pastille-bientot { margin-left: 0; font-size: 0.54rem; }
+}
