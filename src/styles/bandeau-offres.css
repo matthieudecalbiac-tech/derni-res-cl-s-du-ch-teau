@@ -111,3 +111,19 @@
     transition: none;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HOME MOBILE — seuil 768 px (convention posee dans accueil.css).
+   ══════════════════════════════════════════════════════════════════════════
+   « Franchir le seuil » quitte l'ecran en mobile — decision Matthieu du
+   6 aout 2026, pour coller a la maquette : la home mobile va du hero a la
+   banniere app, sans detour. La section reste INTACTE en desktop.
+
+   display:none et non un retrait du JSX : le bloc est toujours monte, ses
+   donnees (useCompteurs) sont toujours chargees, et le desktop ne bouge pas
+   d'un pixel. Le jour ou l'on veut le remontrer en mobile, c'est une ligne.
+   ⚠ Contrepartie assumee : le contenu reste dans le DOM mobile, donc lu par
+   les moteurs et les lecteurs d'ecran alors qu'il n'est pas a l'ecran. */
+@media (max-width: 768px) {
+  .bandeau-offres { display: none; }
+}

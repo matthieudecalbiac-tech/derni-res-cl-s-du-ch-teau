@@ -123,3 +123,71 @@
   .tcl-row { justify-content: center; }
   .tcl-onglet { padding: 8px 16px; font-size: 0.85rem; }
 }
+
+/* ⚠ ENCART « EXPLORER PAR REGION » : MOBILE UNIQUEMENT.
+   ToggleCarteListe.jsx le rend en permanence ; masque ici pour que le desktop
+   soit STRICTEMENT inchange. Ne reapparait que sous le seuil. */
+.tcl-region { display: none; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HOME MOBILE — seuil 768 px (convention posee dans accueil.css).
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .tcl { width: 100%; }
+
+  .tcl-region {
+    display: grid;
+    /* Texte a gauche, carte a droite : deux tiers / un tiers. La carte n'est
+       pas un contenu a lire, c'est un signal — d'ou la part mineure. */
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+    /* Creme CHAUD (#F4EDDF), plus soutenu que le creme de fond : c'est ce qui
+       detache l'encart de la section sans poser de bordure. Meme valeur que
+       --bl-creme de la barre laterale vitrine. */
+    background: #F4EDDF;
+    border: 1px solid var(--hm-bord);
+    border-radius: var(--hm-r-m);
+    padding: var(--hm-pad-carte);
+    margin: 0 0 12px;
+  }
+
+  .tcl-region-txt { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; }
+  .tcl-region-eyebrow {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: var(--hm-t-eyebrow); letter-spacing: 0.30em; text-transform: uppercase;
+    color: #8B6914; margin-bottom: 7px;
+  }
+  .tcl-region-accroche {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: var(--hm-t-corps); font-style: italic; line-height: 1.4;
+    color: #3A4456; margin: 0 0 8px;
+  }
+  .tcl-region-lien {
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: var(--hm-t-micro); letter-spacing: 0.24em; text-transform: uppercase;
+    color: #8B6914; background: transparent; border: none; padding: 0;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+    /* Cible tactile : le texte fait 10 px de haut, on l'amene au plancher. */
+    min-height: var(--hm-tap);
+  }
+
+  .tcl-region-carte {
+    min-width: 0;
+    /* La carte ne capte rien : l'action est le lien. Sans ca, les points de
+       CarteChateaux resteraient cliquables pour un no-op. */
+    pointer-events: none;
+    opacity: 0.9;
+  }
+
+  /* Le toggle vient JUSTE SOUS l'encart, centre et discret : les trois entrees
+     carte/liste/region forment un bloc au lieu de flotter separement. */
+  .tcl-row { justify-content: center; margin: 0; }
+  /* min-height ajoute au passage : les onglets faisaient 34 px, sous le
+     plancher tactile. Le corps baisse, la cible monte. */
+  .tcl-onglet {
+    padding: 8px 16px; font-size: var(--hm-t-corps);
+    min-height: var(--hm-tap); align-items: center;
+  }
+  .tcl-onglet-ico { width: 14px; height: 14px; }
+}

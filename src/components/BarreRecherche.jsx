@@ -180,6 +180,10 @@ export default function BarreRecherche() {
               </svg>
               <span className="br-champ-txt">
                 <span className="br-label">Destination</span>
+                {/* Question : MOBILE UNIQUEMENT (barre-recherche.css la masque
+                    par defaut). Copie editoriale dans le JSX, pas dans un
+                    `content:` CSS. Cf. les deux champs suivants. */}
+                <span className="br-question">Où souhaitez-vous aller ?</span>
               </span>
               <svg className={"br-chevron" + (destOuvert ? " br-chevron--ouvert" : "")} width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -203,6 +207,7 @@ export default function BarreRecherche() {
               </svg>
               <span className="br-champ-txt">
                 <span className="br-label">Dates</span>
+                <span className="br-question">Quand partez-vous ?</span>
               </span>
               <svg className={"br-chevron" + (datesOuvert ? " br-chevron--ouvert" : "")} width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
@@ -228,6 +233,10 @@ export default function BarreRecherche() {
               </svg>
               <span className="br-champ-txt">
                 <span className="br-label">Invités</span>
+                {/* « Invités » est conserve : la maquette dit « Voyageurs », mais
+                    changer un libelle est une decision editoriale, pas technique.
+                    La question, elle, reprend le mot de la maquette. */}
+                <span className="br-question">Combien de voyageurs ?</span>
               </span>
               <svg className={"br-chevron" + (invOuvert ? " br-chevron--ouvert" : "")} width="14" height="14" viewBox="0 0 14 14" fill="none">
                 <path d="M3.5 5.5 7 9l3.5-3.5" stroke="#A8884E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>

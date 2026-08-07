@@ -29,7 +29,7 @@ Ton général : **patrimonial / éditorial**, jamais promotionnel. Pas de superl
 ### Stack technique
 
 - **Frontend** : React 19.2, Vite 6.4, JavaScript (pas de TypeScript pour l'instant)
-- **Cartes** : Leaflet 1.9 (CDN dans `index.html`) — `react-leaflet` (npm) retiré en Chantier 2.2 avec la suppression de `CarteExplorer`
+- **Cartes** : Leaflet 1.9 **en npm** (`leaflet ^1.9.4`) + `leaflet.markercluster ^1.5.3` — `react-leaflet` retiré en Chantier 2.2 avec la suppression de `CarteExplorer`
 - **Tests** : Playwright 1.59 + axe-core 4.11 (E2E, visuels, a11y)
 - **Performance** : Lighthouse 13 via scripts QA
 - **Backend** : Supabase **planifié** (couche services async-ready depuis Phase 2.3 / 6 mai 2026, swap data layer trivial)
@@ -118,7 +118,8 @@ Source unique : `src/data/chateaux.js` (tableau exporté `chateaux`). Aucun back
 
 - Un fichier CSS par composant dans `src/styles/`, importé directement depuis le composant.
 - `src/styles/global.css` détient les design tokens (CSS custom properties sur `:root`, échelles d'espacement et d'ombre). Réutiliser ces tokens plutôt que d'introduire des couleurs ou polices nouvelles.
-- Les polices et CSS/JS Leaflet sont chargés via CDN dans `index.html` (pas d'imports npm).
+- Les **polices** sont chargées via CDN dans `index.html` (Google Fonts), pas en npm.
+  ⚠ Leaflet, lui, **n'est pas dans `index.html`** : il vient de npm et son CSS est importé depuis `CarteInteractive.jsx`. Cette ligne l'affirmait jusqu'au 7 août 2026 — cf. Architecture § Cartes (Leaflet).
 
 #### Palette canonique
 
@@ -140,9 +141,16 @@ Les classes CSS dans les composants vitrines (`VitrineChateau`, `VitrinePermanen
 
 ### Cartes (Leaflet)
 
-- `DernieresCles` est le **seul** consommateur actuel — utilise Leaflet via `window.L` (CDN dans `index.html`), pas via npm.
-- `react-leaflet` (npm) **retiré en Chantier 2.2** avec la suppression de `CarteExplorer.jsx` (seul consommateur historique).
-- `CarteFrance.jsx` supprimé en Chantier 1.2 ; `CarteExplorer.jsx` supprimé en Chantier 2.2.
+> ⚠ **Section réécrite le 7 août 2026.** Elle affirmait trois choses fausses : que Leaflet
+> venait d'un CDN, qu'il avait été désinstallé de npm, et que `DernieresCles` en était le
+> consommateur. Vérifié dans le code : aucune de ces trois affirmations ne tenait.
+
+- **Leaflet vient de npm**, pas d'un CDN : `leaflet ^1.9.4` est une dépendance de `package.json`, et `index.html` **ne mentionne Leaflet nulle part** (ni script, ni feuille de style). Aucun `window.L` dans `src/`.
+- **`CarteInteractive.jsx` est le seul consommateur** — `import L from "leaflet"` (ligne 2) et `import "leaflet/dist/leaflet.css"` (ligne 3). `DernieresCles` n'utilise plus Leaflet.
+- **`leaflet.markercluster ^1.5.3`** ajouté le 7 août 2026 pour le regroupement des marqueurs en mobile. Import du JS + de `MarkerCluster.css` (positionnement seul).
+  ⚠ `MarkerCluster.Default.css` est **volontairement omis** : c'est lui qui porte les cercles bleus de Leaflet. Le rendu des clusters est écrit dans `carte-interactive.css`, à la palette LCC (navy + anneau or). Ne pas l'importer « pour compléter » — il écraserait le style de marque.
+- Le regroupement n'est actif que **sous 768 px**, décidé en JS (`matchMedia`) et non en CSS : un regroupement de marqueurs n'a aucune expression en feuille de style. C'est le seul endroit du projet où une bascule mobile se joue en JS.
+- `CarteFrance.jsx` supprimé en Chantier 1.2 ; `CarteExplorer.jsx` supprimé en Chantier 2.2. `CarteChateaux.jsx` (SVG France, fluide) n'utilise **pas** Leaflet — il est monté dans `VitrinePermanente` et, depuis le 6 août 2026, dans l'encart « Explorer par région » de la home mobile.
 
 ### Animations
 
@@ -553,7 +561,7 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - ~~**[Phase 1.x] CI workflow `validate:chateaux` pre-build**~~ ✅ Résolue (Chantier 1.X, 4 mai 2026, PR #12 `e0407fb`) — step ajouté dans `qa.yml` aux 2 jobs (qa-fast + qa-full), fail-fast en ~30s avant install Playwright.
 
-- ~~**[Phase 1.x] Désinstaller `react-leaflet` + `leaflet` npm**~~ ✅ Résolue (Chantier 1.6, 3 mai 2026, commit `fc6e022`) — `npm uninstall react-leaflet leaflet`, package.json/lock allégés, build inchangé (tree-shake déjà fait).
+- ~~**[Phase 1.x] Désinstaller `react-leaflet` + `leaflet` npm**~~ ✅ Résolue **partiellement** (Chantier 1.6, 3 mai 2026, commit `fc6e022`) — `react-leaflet` bien retiré. ⚠ **`leaflet` est revenu depuis** : `CarteInteractive.jsx` l'importe en npm (`leaflet ^1.9.4`), rejoint par `leaflet.markercluster ^1.5.3` le 7 août 2026. Cette ligne prétendait le contraire jusqu'au 7 août ; elle a induit en erreur pendant le chantier mobile. Ce n'est plus une dette : c'est l'architecture retenue, décrite dans Architecture § Cartes (Leaflet).
 
 - ~~**[Phase 1.x] Suppression `src/styles/carte-explorer.css`**~~ ✅ Résolue (Chantier 1.6, 3 mai 2026, commit `fc6e022`) — `git rm` du fichier orphelin.
 

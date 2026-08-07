@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import Modale from "./Modale";
 import CarteInteractive from "./CarteInteractive";
+import CarteChateaux from "./CarteChateaux";
 import "../styles/toggle-carte-liste.css";
 
 // Toggle Carte / Liste (DA : sous la carte illustree du hero, aligne a droite).
@@ -76,6 +77,34 @@ export default function ToggleCarteListe({ onEntrerChateau }) {
 
   return (
     <div className="tcl">
+      {/* ENCART « Explorer par region » — MOBILE UNIQUEMENT.
+          toggle-carte-liste.css le masque au-dessus du seuil : le desktop ne le
+          voit jamais.
+          POURQUOI ICI et pas dans un composant a part : c'est ToggleCarteListe
+          qui possede deja la modale CarteInteractive. Le CTA reutilise donc son
+          `setCarteOuvert` — aucun etat duplique, aucune remontee de prop dans
+          App.jsx. Et l'encart se retrouve naturellement JUSTE AU-DESSUS du
+          toggle, ce qui les groupe au lieu de laisser le toggle flotter.
+          La carte est CarteChateaux, le composant existant (celui de la vitrine
+          permanente) — non modifie, simplement monte en petit. */}
+      <div className="tcl-region">
+        <div className="tcl-region-txt">
+          <span className="tcl-region-eyebrow">Explorer par région</span>
+          <p className="tcl-region-accroche">
+            Inspirez-vous des plus belles demeures dans chaque région de France.
+          </p>
+          <button type="button" className="tcl-region-lien" onClick={() => setCarteOuvert(true)}>
+            Ouvrir la carte <span aria-hidden="true">→</span>
+          </button>
+        </div>
+        {/* Decorative ici : l'action est le lien ci-dessus, pas les points.
+            Sans `survolId`, CarteChateaux ne rend aucun label — le point signale
+            par l'audit comme illisible en petit ne peut donc pas apparaitre. */}
+        <div className="tcl-region-carte" aria-hidden="true">
+          <CarteChateaux chateaux={reels} />
+        </div>
+      </div>
+
       <div className="tcl-row">
         <div className="tcl-pill" role="tablist" aria-label="Vue carte ou liste">
           <button

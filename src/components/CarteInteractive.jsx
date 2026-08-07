@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+// Regroupement des marqueurs — MOBILE UNIQUEMENT (cf. l'effet de creation de
+// la carte). Le paquet s'enregistre sur le L global au chargement : il faut
+// donc l'importer APRES leaflet, et il ajoute L.markerClusterGroup.
+// Seul le CSS de base est importe ; MarkerCluster.Default.css (le bleu Leaflet)
+// est volontairement OMIS — le style des clusters est repris dans
+// carte-interactive.css, a la palette LCC.
+import "leaflet.markercluster";
+import "leaflet.markercluster/dist/MarkerCluster.css";
 import { formatDate } from "../utils/dates";
 import { prixAffiche } from "../utils/derivePrix";
 import { capaciteSuffisante } from "../utils/capacite";
@@ -18,6 +26,43 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
   const [voyOuvert, setVoyOuvert] = useState(false);
   const [apercuChateau, setApercuChateau] = useState(null);
   const [photoZoom, setPhotoZoom] = useState(null);
+
+  // Liste des vignettes en MOBILE : repli, pas defaut. Sous 768 la carte est
+  // plein ecran et la liste remonte du bas a la demande (carte-interactive.css
+  // la reduit a un panneau escamotable ; au-dessus du seuil cet etat n'a aucun
+  // effet, la liste reste la colonne de gauche du split).
+  const [listeMobile, setListeMobile] = useState(false);
+
+  // ── Drapeau mobile, au niveau du composant ───────────────────────────────
+  // Le rendu lui-meme differe sous le seuil : en desktop l'apercu REMPLACE la
+  // carte (ternaire historique, inchange) ; en mobile il monte du bas en fiche
+  // compacte AU-DESSUS d'une carte qui reste vivante. Aucune feuille de style ne
+  // peut exprimer ca — il faut le savoir en JS.
+  // Reactif (listener) et non lu une seule fois : un changement d'orientation
+  // doit rebasculer le rendu, sinon on garderait une fiche de travers.
+  const [estMobile, setEstMobile] = useState(
+    () => typeof window !== "undefined" && typeof window.matchMedia === "function"
+      && window.matchMedia("(max-width: 768px)").matches
+  );
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(max-width: 768px)");
+    const surChangement = (e) => setEstMobile(e.matches);
+    mq.addEventListener("change", surChangement);
+    return () => mq.removeEventListener("change", surChangement);
+  }, []);
+
+  // La carte est-elle MONTEE ? En desktop elle disparait quand l'apercu s'ouvre
+  // (le conteneur est demonte par le ternaire) ; en mobile elle reste toujours
+  // la. Cette valeur pilote l'effet de creation : sans elle, chaque tap sur un
+  // marqueur detruirait et reconstruirait la carte en mobile — et le cadrage
+  // reviendrait a zero a chaque fiche ouverte.
+  const carteMontee = estMobile || !apercuChateau;
+
+  // Glissement vers le bas pour refermer la fiche mobile. Etat purement gestuel :
+  // il n'existe que le temps du doigt sur l'ecran.
+  const toucheY = useRef(null);
+  const [glissement, setGlissement] = useState(0);
 
   // Filtre "Sur place" (equipements) — etat LOCAL, meme grain que dates/invites.
   const [equipOuvert, setEquipOuvert] = useState(false);
@@ -74,6 +119,46 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
       maxZoom: 19,
     }).addTo(carte);
 
+    // ── REGROUPEMENT DES MARQUEURS : MOBILE UNIQUEMENT ──────────────────────
+    // Mesure du 6 aout 2026 a 375 px : les 7 demeures, toutes a moins de 3 h de
+    // Paris, tiennent dans une zone de 43x77 px. CINQ marqueurs sur sept etaient
+    // recouverts par un autre a leur centre — physiquement intapables.
+    //
+    // Le desktop n'a pas ce probleme (la carte y fait plus de 900 px de large) et
+    // ne doit RIEN changer : d'ou la condition. C'est le seul endroit du projet
+    // ou une bascule mobile se joue en JS plutot qu'en CSS, parce qu'un
+    // regroupement de marqueurs n'a aucune expression en feuille de style.
+    //
+    // ⚠ Lu UNE FOIS a la creation de la carte. Une rotation d'ecran ne rebascule
+    //   pas : la carte se recree a l'ouverture de la modale, ce qui couvre le cas
+    //   reel (on ouvre la carte dans l'orientation ou on la consulte).
+    const estMobile =
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(max-width: 768px)").matches;
+
+    // Garde : si le paquet n'a pas charge, on retombe sur les marqueurs nus
+    // plutot que de casser la carte.
+    const clusterDispo = typeof L.markerClusterGroup === "function";
+
+    const groupe = estMobile && clusterDispo
+      ? L.markerClusterGroup({
+          // 45 px : deux pastilles de prix cote a cote en font ~120 ; en dessous
+          // de ce rayon elles se chevauchent encore.
+          maxClusterRadius: 45,
+          showCoverageOnHover: false,
+          spiderfyOnMaxZoom: true,
+          // Le zoom max de regroupement est laisse au defaut : en zoomant, les
+          // clusters se defont d'eux-memes jusqu'aux marqueurs individuels.
+          iconCreateFunction: (cluster) =>
+            L.divIcon({
+              className: "ci-cluster-wrap",
+              html: `<span class="ci-cluster">${cluster.getChildCount()}</span>`,
+              iconSize: null,
+            }),
+        })
+      : null;
+
     reels.forEach((c) => {
       const lat = c.coordonnees?.lat;
       const lng = c.coordonnees?.lng;
@@ -85,31 +170,83 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
         html: `<button type="button" class="ci-pastille" data-id="${c.id}">${label}</button>`,
         iconSize: null,
       });
-      const marqueur = L.marker([lat, lng], { icon: icone }).addTo(carte);
+      const marqueur = L.marker([lat, lng], { icon: icone });
       marqueur.on("click", () => setApercuChateau(c));
       marqueur.on("mouseover", () => setSurvolId(c.id));
       marqueur.on("mouseout", () => setSurvolId(null));
+      if (groupe) groupe.addLayer(marqueur);
+      else marqueur.addTo(carte);
     });
+    if (groupe) carte.addLayer(groupe);
+
+    // Taper le fond de carte referme la fiche. Leaflet n'emet `click` sur la
+    // carte que HORS marqueur : taper un autre chateau enchaine donc d'une fiche
+    // a l'autre sans fermeture intermediaire, ce qui est tout l'interet d'avoir
+    // garde la carte vivante derriere.
+    carte.on("click", () => setApercuChateau(null));
 
     // Bornes de la France metropolitaine : garantit que le pays entier tient
     // dans le conteneur, quelle que soit sa taille (un zoom fixe ne le peut pas).
     const BORNES_FRANCE = L.latLngBounds([42.3, -5.2], [51.1, 8.3]);
-    const t = setTimeout(() => {
+
+    // ── CADRAGE ────────────────────────────────────────────────────────────
+    // DESKTOP : les bornes de la France, inchangé.
+    //
+    // MOBILE : les bornes des DEMEURES. Un ecran de 375x735 est deux fois plus
+    // haut que large, alors que la France est a peu pres carree en distances
+    // reelles. Ajuster sa largeur dans 343 px impose un zoom si faible que la
+    // hauteur deborde de Glasgow a Gibraltar — la France se retrouve minuscule
+    // au centre. Cadrer sur les demeures (toutes a moins de 3 h de Paris) donne
+    // le nord-centre de la France en plein cadre : c'est ce qu'on est venu voir.
+    const bornesDemeures = () => {
+      const pts = reels
+        .map((c) => [c.coordonnees?.lat, c.coordonnees?.lng])
+        .filter(([a, b]) => typeof a === "number" && typeof b === "number");
+      return pts.length ? L.latLngBounds(pts) : null;
+    };
+
+    // Le recadrage automatique n'a lieu QU'UNE FOIS. Les appels suivants du
+    // ResizeObserver se contentent d'invalidateSize : sans ce garde-fou, une
+    // rotation d'ecran ramenerait brutalement le visiteur au cadrage initial et
+    // effacerait son exploration.
+    let cadrageFait = false;
+    const cadrer = () => {
       carte.invalidateSize();
-      carte.fitBounds(BORNES_FRANCE, { padding: [20, 20] });
-    }, 120);
+      if (cadrageFait) return;
+      const cible = estMobile ? (bornesDemeures() || BORNES_FRANCE) : BORNES_FRANCE;
+      // Padding genereux en mobile : les pastilles de prix depassent du point,
+      // et le rappel « Liste » occupe le bas de l'ecran.
+      carte.fitBounds(cible, { padding: estMobile ? [46, 70] : [20, 20] });
+      cadrageFait = true;
+    };
+    const t = setTimeout(cadrer, 120);
+
+    // ⚠ UN SEUL invalidateSize A 120 ms NE SUFFIT PAS.
+    // En plein ecran mobile, la hauteur du conteneur vient d'un flex:1 dans un
+    // parent en 100dvh : elle se stabilise APRES ce delai. Leaflet gardait alors
+    // la taille d'avant — mesure du 6 aout : 8 tuiles demandees pour un
+    // conteneur de 735 px de haut (il en faut une douzaine), et la carte
+    // s'affichait en aplat gris, tuiles chargees mais posees hors du cadre.
+    // Le ResizeObserver recadre a CHAQUE changement de taille reel : il couvre
+    // ce cas, la rotation d'ecran, et l'ouverture du panneau liste.
+    const ro = typeof ResizeObserver === "function"
+      ? new ResizeObserver(() => cadrer())
+      : null;
+    if (ro && conteneurRef.current) ro.observe(conteneurRef.current);
 
     return () => {
       clearTimeout(t);
+      if (ro) ro.disconnect();
       carte.remove();
       carteRef.current = null;
     };
     // Depend de la liste FILTREE (reels), pas de `chateaux` brut ni de la
     // reference instable `onVoirChateau` (non utilisee dans cet effet) : un
     // useCallback pose un jour sur onVoirChateau ne pourrait plus casser le
-    // filtrage en silence. `apercuChateau` reste : le conteneur .ci-carte
-    // monte/demonte avec la bascule apercu, la carte doit se (re)creer.
-  }, [reels, apercuChateau]);
+    // filtrage en silence. `carteMontee` remplace `apercuChateau` : en desktop
+    // il en est l'inverse exact (meme comportement qu'avant), mais en mobile il
+    // reste vrai en permanence — la carte n'est plus detruite a chaque fiche.
+  }, [reels, carteMontee]);
 
   // Sens vignette -> pastille : au survol d'une vignette (survolId), surligne la
   // pastille correspondante. Les pastilles portent data-id ; querySelector no-op
@@ -146,7 +283,10 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
 
   return (
     <div className="ci-conteneur">
-      {apercuChateau ? (
+      {/* DESKTOP : l'apercu REMPLACE la carte — ternaire historique, inchange.
+          MOBILE : on ne bascule plus. La fiche compacte monte du bas au-dessus
+          d'une carte qui reste vivante (cf. .ci-fiche plus bas). */}
+      {!estMobile && apercuChateau ? (
         <div className="ci-apercu">
           <div className="ci-apercu-barre">
             <button type="button" className="ci-apercu-retour" onClick={() => setApercuChateau(null)}>
@@ -353,12 +493,22 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
       </div>
 
       {/* SPLIT liste + carte */}
-      <div className="ci-split">
+      <div className={"ci-split" + (listeMobile ? " ci-split--liste" : "")}>
       {/* LISTE DE VIGNETTES */}
       <div className="ci-liste">
         <div className="ci-liste-tete">
           <span className="ci-liste-nb">{reels.length}</span> demeure{reels.length > 1 ? "s" : ""}
           {rappelSejour() && <span className="ci-liste-sejour"> · {rappelSejour()}</span>}
+          {/* Fermeture du panneau — MOBILE UNIQUEMENT (masquee au-dessus du
+              seuil, ou la liste est une colonne permanente). */}
+          <button
+            type="button"
+            className="ci-liste-fermer"
+            onClick={() => setListeMobile(false)}
+            aria-label="Revenir à la carte"
+          >
+            ✕
+          </button>
         </div>
         {reels.length === 0 && (
           <div className="ci-liste-vide">
@@ -435,6 +585,101 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
 
         {/* CARTE */}
         <div className="ci-carte" ref={conteneurRef} />
+
+        {/* Rappel flottant vers la liste — MOBILE UNIQUEMENT.
+            Pastille en bas, sous le pouce, plutot qu'un onglet en haut : elle ne
+            vole aucune hauteur a la carte, et c'est l'idiome des applications de
+            voyage. Masquee au-dessus du seuil, ou la liste est toujours la. */}
+        <button
+          type="button"
+          className="ci-liste-rappel"
+          onClick={() => setListeMobile(true)}
+          aria-expanded={listeMobile}
+        >
+          <svg width="15" height="15" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <path d="M6 5h9M6 9h9M6 13h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <circle cx="3" cy="5" r="1" fill="currentColor"/>
+            <circle cx="3" cy="9" r="1" fill="currentColor"/>
+            <circle cx="3" cy="13" r="1" fill="currentColor"/>
+          </svg>
+          Liste
+          <span className="ci-liste-rappel-nb">{reels.length}</span>
+        </button>
+
+        {/* ── FICHE COMPACTE — MOBILE UNIQUEMENT ────────────────────────────
+            PAS de Modale.jsx ici, et c'est deliberé : Modale pose un voile
+            plein ecran qui capte les clics. Or la consigne est que la carte
+            reste TAPABLE derriere, pour passer d'un chateau a l'autre sans
+            fermer. Un voile l'interdirait. On reprend donc le patron du panneau
+            liste : panneau absolu en bas de .ci-split, sans scrim.
+            Le detail complet (chambres, services, chronologie) n'est PAS
+            duplique ici — il vit dans la vitrine, ou mene le bouton. */}
+        {estMobile && apercuChateau && (
+          <div
+            className="ci-fiche"
+            style={glissement ? { transform: `translateY(${glissement}px)` } : undefined}
+            role="dialog"
+            aria-label={apercuChateau.nom}
+            onTouchStart={(e) => { toucheY.current = e.touches[0].clientY; }}
+            onTouchMove={(e) => {
+              if (toucheY.current == null) return;
+              const dy = e.touches[0].clientY - toucheY.current;
+              // Vers le bas seulement : un glissement vers le haut ne doit pas
+              // decoller la fiche de son bord.
+              if (dy > 0) setGlissement(dy);
+            }}
+            onTouchEnd={() => {
+              // 70 px : au-dessous, c'est un frolement, pas une intention.
+              if (glissement > 70) setApercuChateau(null);
+              setGlissement(0);
+              toucheY.current = null;
+            }}
+          >
+            <span className="ci-fiche-poignee" aria-hidden="true" />
+            <button
+              type="button"
+              className="ci-fiche-fermer"
+              onClick={() => setApercuChateau(null)}
+              aria-label="Fermer la fiche"
+            >
+              ✕
+            </button>
+
+            {apercuChateau.images?.[0] && (
+              <div
+                className="ci-fiche-photo"
+                style={{ backgroundImage: `url('${apercuChateau.images[0]}')` }}
+                role="img"
+                aria-label={apercuChateau.nom}
+              />
+            )}
+
+            <div className="ci-fiche-corps">
+              <p className="ci-fiche-region">
+                {apercuChateau.region}
+                {apercuChateau.departement ? ` · ${apercuChateau.departement}` : ""}
+              </p>
+              <h2 className="ci-fiche-nom">{apercuChateau.nom}</h2>
+              {apercuChateau.accroche && (
+                <p className="ci-fiche-accroche">{apercuChateau.accroche}</p>
+              )}
+              <div className="ci-fiche-pied">
+                {prix && (
+                  <span className="ci-fiche-prix">
+                    à partir de <strong>{prix} €</strong> <span className="ci-fiche-nuit">/ nuit</span>
+                  </span>
+                )}
+                <button
+                  type="button"
+                  className="ci-fiche-cta"
+                  onClick={() => onVoirChateau(apercuChateau)}
+                >
+                  Voir la vitrine <span aria-hidden="true">→</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
         </>
       )}

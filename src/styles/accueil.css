@@ -98,3 +98,92 @@
   .acc-gauche .insp-inner { align-items: center; }
   .acc-slogan::before { display: none; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HOME MOBILE — SEUIL UNIQUE : 768 px.
+   ══════════════════════════════════════════════════════════════════════════
+   POURQUOI 768 ET PAS AUTRE CHOSE :
+     - global.css bascule DEJA son echelle typographique a 768 (--t-3xl,
+       --t-4xl, --s-xl) ;
+     - header.css bascule DEJA a 768 (CTA et Connexion masques, burger seul) ;
+     - la home s'effondre deja en UNE colonne a 900. Poser le design mobile a
+       768 laisse donc la bande 768-900 EXACTEMENT telle qu'aujourd'hui : on
+       n'ajoute rien dans un intervalle deja reglé, on ne peut pas y regresser.
+   Tout le chantier home mobile s'ecrit sous ce seuil, et sous lui seul. On
+   n'ajoute pas de 620/600/560/480 supplementaire.
+
+   ⚠ COUTURE CONNUE : modale.css passe en feuille plein ecran a 620 px, pas 768.
+     Entre 620 et 768 la home est donc en mobile mais les feuilles restent des
+     cartes centrees. Aligner modale.css changerait le rendu dans cet
+     intervalle : hors perimetre de cette etape, a trancher separement.
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* ── ECHELLE MOBILE — le reglage se fait ICI, pas dans chaque fichier ──────
+     Pass de raffinement du 6 aout 2026 : la home mobile paraissait massive.
+     Plutot que de rapetisser element par element, on descend l'echelle d'un
+     cran EN CONSERVANT LES RAPPORTS — la hierarchie est intacte, seul le
+     niveau general baisse.
+
+     Ces variables ne sont definies QUE sous le seuil : au-dessus, elles
+     n'existent pas, et aucune regle desktop ne peut les lire. C'est ce qui
+     garantit l'invariant sans avoir a le verifier fichier par fichier.
+
+     Pour re-regler l'ensemble plus tard : toucher ces onze lignes suffit. */
+  :root {
+    --hm-t-eyebrow: 0.56rem;   /* petites capitales, franchement fines */
+    --hm-t-micro:   0.60rem;   /* labels de champ, liens en capitales */
+    /* 0.78 et non 0.84 : a 0.84 le libelle des puces (0.80 avant la passe)
+       REMONTAIT, seule valeur de la home a contredire le sens du raffinement.
+       Verifie a la mesure, pas a l'oeil. */
+    --hm-t-corps:   0.78rem;   /* texte courant */
+    --hm-t-lead:    0.92rem;   /* accroches, questions de la barre */
+    --hm-t-titre-s: 1.12rem;   /* nom de chateau en carte */
+    --hm-t-titre-m: 1.42rem;   /* titre de section */
+    --hm-t-titre-l: clamp(1.72rem, 7.2vw, 2.1rem);  /* titre hero */
+
+    /* Filets plus legers : 0.16-0.20 d'opacite la ou on etait a 0.22-0.30. */
+    --hm-filet: rgba(192, 152, 64, 0.16);
+    --hm-bord:  rgba(192, 152, 64, 0.20);
+
+    /* Coins moins "bulle" : 10-12 px au lieu de 14-18. */
+    --hm-r-s: 9px;
+    --hm-r-m: 12px;
+
+    --hm-pad-carte: 16px;      /* padding interne des cartes et encarts */
+    --hm-gap-sect:  20px;      /* respiration entre blocs */
+
+    /* Plancher de cible tactile. Toute zone cliquable s'y adosse : le
+       raffinement ne doit jamais descendre sous ce seuil. */
+    --hm-tap: 44px;
+  }
+
+  /* La carte illustree quitte le flux : en mobile elle n'est plus un contenu,
+     elle devient un filigrane derriere le titre (cf. .acc-slogan::after).
+     Bonus non accessoire : l'image de 1448 px disparait du flux, donc toute la
+     classe de bug « debordement horizontal » s'eteint a la source. */
+  .acc-carte { display: none; }
+
+  /* Filigrane : l'illustration en fond, cote droit, tres attenuee.
+     `overflow-x: clip` sur le parent + `right` negatif : le filigrane deborde
+     volontairement de .acc-slogan mais est COUPE, jamais scrollable. */
+  .acc-slogan { overflow-x: clip; }
+  .acc-slogan::after {
+    content: "";
+    position: absolute;
+    right: -14%;
+    top: 52%;
+    transform: translateY(-50%);
+    width: 88%;
+    height: 230px;
+    background: url('/homedessin14-detouree.png') right center / contain no-repeat;
+    opacity: 0.11;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .accueil-hero {
+    padding: calc(var(--lcc-header-h, 105px) + 4px) 0 var(--hm-gap-sect);
+  }
+  .accueil-hero-inner { padding: 0 16px; row-gap: var(--hm-gap-sect); }
+  .acc-gauche { gap: var(--hm-gap-sect); }
+}

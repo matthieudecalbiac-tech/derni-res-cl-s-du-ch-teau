@@ -83,6 +83,11 @@
   color: #8B6914;
   letter-spacing: 0.02em;
 }
+/* ⚠ QUESTION : MOBILE UNIQUEMENT. BarreRecherche.jsx la rend en permanence ;
+   masquee ici pour que le desktop soit STRICTEMENT inchange. Elle ne reapparait
+   que dans le bloc @media du seuil mobile, en bas de ce fichier. */
+.br-question { display: none; }
+
 .br-chevron { color: #A8884E; font-size: 0.85rem; margin-left: auto; flex-shrink: 0; }
 .br-sep { width: 1px; height: 40px; background: rgba(192,152,64,0.25); }
 .br-cta {
@@ -104,6 +109,80 @@
      les pastilles d'inspiration, elles aussi centrees sous 900 px
      (accueil.css : .acc-gauche .insp-inner { align-items: center }). */
   .br-recap { margin: 12px 0 0; text-align: center; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HOME MOBILE — seuil unique 768 px (convention posee dans accueil.css).
+   La LOGIQUE ne bouge pas : chaque champ ouvre deja sa Modale. On habille.
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .barre-recherche { padding: 0 16px; }
+
+  /* Trois lignes pleine largeur separees par des filets fins, plus le CTA.
+     Le gap reste a 0 : ce sont les .br-sep qui dessinent les separations. */
+  .br-carte {
+    grid-template-columns: 1fr;
+    gap: 0;
+    padding: 0 0 8px;
+    border-radius: var(--hm-r-m);
+    border-color: var(--hm-bord);
+    /* Ombre allegee : 44 px de diffusion et 10 % d'encre faisaient flotter la
+       carte comme un bloc lourd. */
+    box-shadow: 0 8px 24px rgba(26, 45, 90, 0.06);
+  }
+
+  /* Le padding passe du .br-champ (devenu une simple piste de grille) au
+     bouton, pour que TOUTE la ligne soit cliquable et non le seul texte.
+     min-height adosse a --hm-tap : le raffinement descend le padding, jamais
+     la cible sous 44 px. */
+  .br-champ { padding: 0; }
+  .br-champ-btn { padding: 11px 16px; gap: 13px; min-height: var(--hm-tap); align-items: center; }
+  .br-ico { width: 18px; height: 18px; }
+
+  .br-champ-txt { gap: 2px; }
+  .br-label { font-size: var(--hm-t-eyebrow); letter-spacing: 0.22em; }
+
+  /* La question sort de son display:none. Playfair navy : c'est elle qui porte
+     la voix, le label au-dessus n'est plus qu'une etiquette. */
+  .br-question {
+    display: block;
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: var(--hm-t-lead);
+    font-weight: 400;
+    color: #1A2D5A;
+    line-height: 1.3;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .br-chevron { font-size: 0.85rem; }
+
+  /* Filets en retrait des bords, comme sur la maquette : ils separent les
+     champs sans toucher le contour de la carte. */
+  .br-sep { width: auto; height: 1px; margin: 0 16px; background: var(--hm-filet); }
+
+  /* CTA pleine largeur : c'est l'action de la page, mais elle n'a pas besoin
+     d'etre epaisse pour se voir — le navy plein suffit. */
+  .br-cta {
+    justify-content: center;
+    margin: 10px 16px 0; width: calc(100% - 32px);
+    min-height: var(--hm-tap);
+    padding: 13px 18px; border-radius: var(--hm-r-s);
+    font-size: 0.68rem; letter-spacing: 0.18em;
+  }
+
+  /* FILTRES : centre sous la carte, plus colle a gauche.
+     DECISION — la maquette ne le montre pas, mais la fonction existe et marche
+     (elle ouvre PanneauFiltres). Le supprimer retirerait une entree vivante ;
+     le laisser aligne a gauche le faisait flotter, orphelin, sous une carte
+     centree. Il reste donc ou il est — sous la recherche, dont il est le
+     complement — mais centre, dans le rythme de la colonne. */
+  /* min-height ajoute au passage : il faisait 32 px, sous le plancher tactile.
+     Le raffinement ne pouvait pas le laisser dans cet etat. */
+  .br-filtres-lien {
+    display: inline-flex; margin: 12px auto 0;
+    min-height: var(--hm-tap); padding: 7px 16px;
+    font-size: var(--hm-t-corps); border-color: var(--hm-bord);
+  }
+  .br-recap { margin: 10px 0 0; font-size: var(--hm-t-corps); }
 }
 
 /* ── Champ Destination (bouton declencheur de modale) ── */

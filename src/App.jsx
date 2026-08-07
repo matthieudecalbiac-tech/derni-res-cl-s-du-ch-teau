@@ -9,6 +9,7 @@ import PastillesInspiration from "./components/PastillesInspiration";
 import "./styles/accueil.css";
 import UneDeLaSemaine from "./components/UneDeLaSemaine";
 import HeureAuxDemeures from "./components/HeureAuxDemeures";
+import BanniereApp from "./components/BanniereApp";
 import PiedPatrimoine from "./components/PiedPatrimoine";
 import Conciergerie from "./components/Services";
 import VitrineChateau from "./components/VitrineChateau";
@@ -105,11 +106,20 @@ function App() {
           onOuvrirDernieres={() => setDernieresOuvert(true)}
           onOuvrirVitrines={() => setVitrinesOuvert(true)}
         />
-        <UneDeLaSemaine onOuvrirChateau={ouvrirChateau} />
+        <UneDeLaSemaine
+          onOuvrirChateau={ouvrirChateau}
+          /* « Voir tout » du carrousel mobile -> catalogue complet. Le lien est
+             masque au-dessus du seuil (une-semaine.css), la prop est inerte en
+             desktop. */
+          onVoirTout={() => setVitrinesOuvert(true)}
+        />
         <HeureAuxDemeures
           onOuvrirChateau={ouvrirChateau}
           onOuvrirDernieres={() => setDernieresOuvert(true)}
         />
+        {/* Bandeau « Bientot l'application » : rendu en permanence, masque
+            au-dessus du seuil par banniere-app.css. */}
+        <BanniereApp />
       </main>
       <PiedPatrimoine />
 

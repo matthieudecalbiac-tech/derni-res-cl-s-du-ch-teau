@@ -40,12 +40,110 @@
   .une-semaine-intro-sep { align-self: center; }
   .une-semaine-intro-txt { max-width: 460px; }
 }
+/* ⚠ « Voir tout » et points de pagination : MOBILE UNIQUEMENT.
+   UneDeLaSemaine.jsx les rend en permanence ; masques ici pour que le desktop
+   soit STRICTEMENT inchange. */
+.une-semaine-voirtout,
+.une-semaine-points { display: none; }
+
 @media (max-width: 760px) {
   .une-semaine-carte { grid-template-columns: 1fr; }
   .une-semaine-photo { min-height: 240px; }
   .une-semaine-infos { padding: 30px 26px; }
   .une-semaine-pied { flex-direction: column; align-items: flex-start; gap: 16px; }
   .une-semaine-nom, .une-semaine-accroche { max-width: none; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HOME MOBILE — seuil 768 px : la liste devient un CARROUSEL horizontal.
+   ══════════════════════════════════════════════════════════════════════════
+   scroll-snap natif : le defilement est celui du navigateur, tactile et fluide,
+   avec l'inertie du systeme. Aucune librairie, aucun gestionnaire de geste —
+   le JS ne sert qu'a colorer le point actif. */
+@media (max-width: 768px) {
+  .une-semaine-wrap { padding: 24px 0 28px; gap: 14px; }
+
+  /* L'intro redevient une ligne d'en-tete : eyebrow + titre a gauche, « Voir
+     tout » a droite. Les deux paragraphes et le filet quittent l'ecran — en
+     mobile ils repoussaient le carrousel sous la ligne de flottaison. */
+  .une-semaine-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    text-align: left;
+    padding: 0 16px 12px;
+  }
+  .une-semaine-embleme { display: none; }
+  .une-semaine-intro-sep,
+  .une-semaine-intro-txt { display: none; }
+  .une-semaine-eyebrow { grid-column: 1; margin-bottom: 4px; font-size: var(--hm-t-eyebrow); letter-spacing: 0.32em; }
+  .une-semaine-titre { grid-column: 1; font-size: var(--hm-t-titre-m); line-height: 1.06; margin: 0; }
+  .une-semaine-voirtout {
+    display: inline-flex; align-items: center; gap: 6px;
+    grid-column: 2; grid-row: 1 / span 2; align-self: center;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: var(--hm-t-micro); letter-spacing: 0.18em; text-transform: uppercase;
+    color: #8B6914; background: transparent; border: none; padding: 0;
+    cursor: pointer; white-space: nowrap; min-height: var(--hm-tap);
+  }
+
+  .une-semaine-liste {
+    flex-direction: row;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    /* Le padding lateral fait respirer la premiere et la derniere carte : sans
+       lui, elles collent au bord de l'ecran une fois calees par le snap. */
+    padding: 2px 16px 4px;
+    scrollbar-width: none;
+    /* Le translateX(44px) d'entree n'a plus lieu d'etre : dans un conteneur
+       defilant il decalerait le point de depart du snap. */
+    scroll-padding: 0 16px;
+  }
+  .une-semaine-liste::-webkit-scrollbar { display: none; }
+
+  .une-semaine-carte {
+    /* 76 % et non 82 : la carte suivante se devine davantage sur le bord droit,
+       ce qui annonce le defilement sans fleche ni consigne. */
+    flex: 0 0 76%;
+    scroll-snap-align: center;
+    grid-template-columns: 1fr;
+    border-radius: var(--hm-r-s);
+    border-color: var(--hm-filet);
+    /* Neutralise l'entree laterale : elle est incompatible avec le scroll-snap
+       (la carte arriverait decalee dans son propre conteneur defilant). */
+    transform: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+  /* Photo nettement moins haute : c'est elle qui donnait a la carte son air
+     encombrant. 150 px suffisent a poser la demeure sans occuper l'ecran. */
+  .une-semaine-photo { min-height: 150px; }
+  .une-semaine-infos { padding: 14px 15px 15px; }
+  .une-semaine-meta { font-size: 9px; letter-spacing: 0.24em; margin-bottom: 9px; }
+  .une-semaine-nom { font-size: var(--hm-t-titre-s); margin-bottom: 8px; line-height: 1.12; }
+  .une-semaine-accroche { font-size: var(--hm-t-corps); line-height: 1.45; margin-bottom: 11px; }
+  .une-semaine-filet { width: 44px; margin-bottom: 11px; background: var(--hm-filet); }
+  .une-semaine-pied { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .une-semaine-prix-prefix { font-size: 8.5px; letter-spacing: 0.22em; }
+  .une-semaine-prix-val { font-size: 18px; }
+  .une-semaine-prix-nuit { font-size: 11px; }
+  /* min-height ajoute au passage : le lien faisait 11 px de haut, tres loin du
+     plancher tactile. Le corps baisse, la cible monte. */
+  .une-semaine-cta {
+    font-size: 9px; letter-spacing: 0.20em;
+    min-height: var(--hm-tap); display: inline-flex; align-items: center;
+  }
+
+  .une-semaine-points {
+    display: flex; justify-content: center; gap: 6px; margin-top: 10px;
+  }
+  .une-semaine-point {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: rgba(192, 152, 64, 0.30);
+    transition: background 0.25s, transform 0.25s;
+  }
+  .une-semaine-point--actif { background: #C09840; transform: scale(1.35); }
 }
 
 /* ── Animation au scroll : intro depuis la gauche, cartes depuis la droite (one-shot) ── */

@@ -1,0 +1,74 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   Bandeau « Bientot l'application » — MOBILE UNIQUEMENT (seuil 768 px).
+   ══════════════════════════════════════════════════════════════════════════
+   Masque par defaut : BanniereApp.jsx est monte en permanence dans App.jsx,
+   mais le desktop ne doit RIEN voir (invariant SHA-256). Il n'apparait que
+   sous le seuil. */
+.bapp { display: none; }
+
+@media (max-width: 768px) {
+  .bapp {
+    display: block;
+    background: var(--lcc-creme);
+    padding: 0 16px 24px;
+  }
+
+  .bapp-inner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 3px 12px;
+    /* Creme chaud + filet or : meme registre que l'encart « Explorer par
+       region », pour que les deux blocs encadres de la page se repondent —
+       memes tokens de bordure, de rayon et de padding. */
+    background: #F4EDDF;
+    border: 1px solid var(--hm-bord);
+    border-radius: var(--hm-r-m);
+    padding: var(--hm-pad-carte);
+  }
+
+  .bapp-lys {
+    grid-row: 1 / span 2;
+    /* align-self: start et non le centrage par defaut : centre sur toute la
+       hauteur du bloc, le lys tombait a cote de la ligne italique au lieu de
+       repondre au titre. */
+    align-self: start;
+    margin-top: 2px;
+    color: #C09840;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .bapp-txt { grid-column: 2; margin: 0; display: flex; flex-direction: column; gap: 3px; }
+  .bapp-titre {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: var(--hm-t-lead); line-height: 1.28; color: #1A2D5A;
+  }
+  .bapp-sous {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: var(--hm-t-corps); font-style: italic; color: #3A4456;
+  }
+
+  .bapp-cta {
+    grid-column: 2;
+    justify-self: start;
+    margin-top: 11px;
+    display: inline-flex; align-items: center; gap: 8px;
+    min-height: var(--hm-tap);
+    padding: 9px 17px;
+    background: #FEFCF8;
+    border: 1px solid var(--hm-bord);
+    border-radius: 999px;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: var(--hm-t-micro); letter-spacing: 0.20em; text-transform: uppercase;
+    color: #8B6914;
+    /* Non cable (cf. BanniereApp.jsx) : meme traitement que la pastille
+       « Distance de chez vous » — grise subtil, pas de badge criard. */
+    opacity: 0.62;
+    cursor: not-allowed;
+  }
+  .bapp-cta-bientot {
+    font-size: 0.6rem; font-style: italic; letter-spacing: 0.04em;
+    text-transform: lowercase; color: #A8884E;
+  }
+}

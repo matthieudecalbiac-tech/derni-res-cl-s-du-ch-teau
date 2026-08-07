@@ -1,11 +1,24 @@
+import { useRef, useState } from "react";
 import { useChateaux } from "../hooks/useChateaux";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { derivePrix } from "../utils/derivePrix";
 import "../styles/une-semaine.css";
 
-export default function UneDeLaSemaine({ onOuvrirChateau }) {
+export default function UneDeLaSemaine({ onOuvrirChateau, onVoirTout }) {
   const { chateaux, loading, error } = useChateaux();
   const [ref, visible] = useScrollAnimation(0.2);
+  // Index de la carte au centre du carrousel MOBILE. Purement presentationnel :
+  // il n'alimente que les points de pagination, masques au-dessus du seuil. En
+  // desktop la liste est une colonne non defilable — le handler ne se declenche
+  // jamais et l'etat reste a 0.
+  const listeRef = useRef(null);
+  const [actif, setActif] = useState(0);
+  const surDefilement = () => {
+    const el = listeRef.current;
+    if (!el || el.scrollWidth <= el.clientWidth) return;
+    const pas = el.scrollWidth / Math.max(1, el.children.length);
+    setActif(Math.round(el.scrollLeft / pas));
+  };
   // Vedettes curatées par l'admin (case "Une de la semaine"). Fallback si aucune
   // n'est cochée : les publiés non-démo (4 premiers) — la section n'est jamais vide.
   const vedettes = chateaux.filter((c) => c.uneDeLaSemaine && !c.isDemoMock);
@@ -22,9 +35,16 @@ export default function UneDeLaSemaine({ onOuvrirChateau }) {
           <div className="une-semaine-intro-sep" />
           <p className="une-semaine-intro-txt">Des demeures d'exception, chacune porteuse d'une histoire, d'un art de vivre et d'émotions à partager.</p>
           <p className="une-semaine-intro-txt">Des lieux où le temps suspend son cours, pour des séjours et des expériences inoubliables.</p>
+          {/* « Voir tout » : MOBILE UNIQUEMENT (une-semaine.css le masque
+              au-dessus du seuil). Mene au catalogue complet. */}
+          {onVoirTout && (
+            <button type="button" className="une-semaine-voirtout" onClick={onVoirTout}>
+              Voir tout <span aria-hidden="true">→</span>
+            </button>
+          )}
         </aside>
 
-        <div className="une-semaine-liste">
+        <div className="une-semaine-liste" ref={listeRef} onScroll={surDefilement}>
           {selection.map((chateau, i) => {
             const prix = derivePrix(chateau);
             return (
@@ -58,6 +78,18 @@ export default function UneDeLaSemaine({ onOuvrirChateau }) {
             );
           })}
         </div>
+
+        {/* Points de pagination : MOBILE UNIQUEMENT. Indicateurs, pas des
+            commandes — d'ou aria-hidden et l'absence de bouton : le carrousel se
+            manipule au doigt, et le lecteur d'ecran parcourt les cartes
+            elles-memes, qui sont deja dans le flux. */}
+        {selection.length > 1 && (
+          <div className="une-semaine-points" aria-hidden="true">
+            {selection.map((c, i) => (
+              <span key={c.id} className={"une-semaine-point" + (i === actif ? " une-semaine-point--actif" : "")} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

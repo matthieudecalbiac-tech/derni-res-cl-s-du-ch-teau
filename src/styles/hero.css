@@ -48,7 +48,15 @@
   animation-delay: 0.30s;
 }
 
-.hero-orn { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+/* ⚠ EYEBROW + ORNEMENT : MOBILE UNIQUEMENT.
+   Hero.jsx les rend en permanence ; on les masque ici pour que le desktop soit
+   STRICTEMENT inchange. Ils ne reapparaissent que dans le bloc @media du seuil
+   mobile, en bas de ce fichier. Ne pas retirer ce display:none sans mesurer le
+   desktop avant/apres. */
+.hero-eyebrow,
+.hero-orn { display: none; }
+
+.hero-orn { align-items: center; gap: 12px; margin-bottom: 18px; }
 .hero-orn-l { width: 40px; height: 1px; background: rgba(192,152,64,0.5); }
 .hero-orn-lys { color: #C09840; font-size: 0.9rem; }
 
@@ -89,6 +97,36 @@
      reste la borne haute voulue par la DA, mais ne peut plus depasser le
      conteneur. */
   .hero-illus-img { max-height: none; max-width: min(520px, 100%); margin: 0 auto; }
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   HOME MOBILE — seuil unique 768 px (cf. accueil.css pour la convention).
+   Tout ce qui suit est SOUS le seuil : le desktop n'est pas concerne.
+   ══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* L'eyebrow et l'ornement sortent de leur display:none. */
+  .hero-eyebrow {
+    display: block;
+    margin: 0 0 10px;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: var(--hm-t-eyebrow);
+    /* L'interlettrage MONTE quand le corps baisse : c'est ce qui garde a
+       l'eyebrow sa presence de filet grave malgre les 9 px. */
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    /* Or fonce #8B6914 et non l'or de charte #C09840 : sur creme, le second
+       plafonne a ~3.4:1 et echoue l'AA. Meme arbitrage que .da-num et
+       .br-label, deja poses ailleurs. */
+    color: #8B6914;
+  }
+  .hero-orn { display: flex; margin-bottom: 14px; gap: 10px; }
+  .hero-orn-l { width: 32px; }
+  .hero-orn-lys { font-size: 0.8rem; }
+
+  /* Le titre reprend la main sur le clamp desktop (3.8vw = 14px a 375 px).
+     Il reste le point fort de la page, mais d'un cran moins massif. */
+  .hero-titre { font-size: var(--hm-t-titre-l); line-height: 1.14; }
+  .hero-sep { width: 72px; margin-top: 16px; background: var(--hm-filet); }
 }
 
 /* ── Animation d'entree orchestree (au montage) ── */
