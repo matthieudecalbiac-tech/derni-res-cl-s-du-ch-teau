@@ -127,17 +127,46 @@ async function lancerViteSiBesoin() {
 }
 
 // ── Helpers parcours ──
-// Decouverte DOM : liste des chateaux servis, lue depuis les medaillons de la
-// home (.da-medaillon[data-slug], attribut stable pose en piece 3). Aucune
-// lecture de fichier, aucune cle : le navigateur charge la base via le bundle.
+// Decouverte DOM : liste des chateaux servis, lue depuis la modale "Liste" du
+// toggle Carte/Liste (.tcl-item[data-slug]). Aucune lecture de fichier, aucune
+// cle : le navigateur charge la base via le bundle.
+//
+// POURQUOI CETTE SOURCE, et plus les medaillons de HeureAuxDemeures : ce
+// catalogue est INTEGRAL par contrat et visible aux deux tailles. Les
+// medaillons sont masques sous 768 px depuis le design mobile - presents dans
+// le DOM, jamais visibles - ce qui faisait echouer le parcours mobile-safari.
+// Le carrousel "a la une" n'exposerait que 2 chateaux sur 7 : couverture
+// partielle en silence, ecarte.
+async function ouvrirCatalogue(page) {
+  const onglet = page.locator('.tcl-onglet').filter({ hasText: 'Liste' });
+  const items = page.locator('.tcl-item[data-slug]');
+
+  let derniereErreur;
+  for (let essai = 0; essai < 3; essai++) {
+    // Ne reclique QUE si la modale n'est pas deja ouverte (sinon elle recouvre
+    // le toggle et le clic serait intercepte). Retry car a l'arrivee des
+    // donnees Supabase, le sous-arbre .tcl se re-rend et remplace le noeud du
+    // bouton : un clic parti au mauvais moment atterrit sur un noeud detache.
+    // Un delai plus long n'y changerait rien - le clic est perdu, pas en retard.
+    if ((await page.locator('.tcl-liste').count()) === 0) await onglet.click();
+    try {
+      await items.first().waitFor({ state: 'visible', timeout: 8000 });
+      return;
+    } catch (e) {
+      derniereErreur = e;
+    }
+  }
+  throw derniereErreur;
+}
+
 async function decouvrirChateauxServis(page) {
   await page.goto(BASE_URL);
   await page.waitForLoadState('domcontentloaded');
-  await page.locator('.da-medaillon[data-slug]').first().waitFor({ state: 'visible', timeout: 10000 });
-  return page.locator('.da-medaillon[data-slug]').evaluateAll((els) =>
+  await ouvrirCatalogue(page);
+  return page.locator('.tcl-item[data-slug]').evaluateAll((els) =>
     els.map((e) => ({
       slug: e.getAttribute('data-slug'),
-      nom: e.querySelector('.da-nom')?.textContent?.trim() || '',
+      nom: e.querySelector('.tcl-item-nom')?.textContent?.trim() || '',
     })).filter((c) => c.slug)
   );
 }
@@ -164,22 +193,35 @@ async function scrollVitrine(page) {
   await page.waitForTimeout(600);
 }
 
-// Ouvre la vitrine par slug, via son medaillon (meme section que la decouverte).
+// Ouvre la vitrine par slug, via son item de catalogue (meme source que la
+// decouverte, et meme parcours qu'un visiteur : versVitrine() passe par
+// onEntrerChateau, donc par la TransitionPorte).
 // Patron piece 5 : retry click (mobile-safari) + attente TransitionPorte.
 async function ouvrirVitrineParSlug(page, slug) {
   await page.goto(BASE_URL);
   await page.waitForLoadState('domcontentloaded');
-  const medaillon = page.locator(`.da-medaillon[data-slug="${slug}"]`);
-  await medaillon.scrollIntoViewIfNeeded();
+  const item = page.locator(`.tcl-item[data-slug="${slug}"]`);
 
   let derniereErreur;
   for (let essai = 0; essai < 3; essai++) {
-    await medaillon.click();
+    // versVitrine() REFERME la modale a chaque clic : la rouvrir avant de
+    // reessayer, sinon le 2e essai cliquerait dans le vide.
+    if (!(await item.isVisible().catch(() => false))) await ouvrirCatalogue(page);
+    await item.scrollIntoViewIfNeeded();
+    await item.click();
     try {
-      await page.locator('.vc3-overlay').first().waitFor({ state: 'visible', timeout: 3000 });
+      // 12 s, et non 3 : depuis le catalogue, versVitrine() joue la porte PUIS
+      // navigue vers /chateau/<slug> - l'overlay n'est monte qu'a l'arrivee
+      // (~4,3 s mesures, contre ~0,5 s par les medaillons). Le total jusqu'a
+      // .vc3-visible est inchange : seul l'ordre des jalons change.
+      await page.locator('.vc3-overlay').first().waitFor({ state: 'visible', timeout: 12000 });
       derniereErreur = null;
       break;
-    } catch (e) { derniereErreur = e; }
+    } catch (e) {
+      derniereErreur = e;
+      // Ne JAMAIS reessayer pendant la porte : .tp-fond intercepte les clics.
+      await page.locator('.tp-wrap').waitFor({ state: 'detached', timeout: 10000 }).catch(() => {});
+    }
   }
   if (derniereErreur) throw derniereErreur;
 

@@ -151,7 +151,13 @@ export default function ToggleCarteListe({ onEntrerChateau }) {
         />
       </Modale>
 
-      {/* LISTE — catalogue integral des chateaux publies non-demo, chacun -> vitrine. */}
+      {/* LISTE — catalogue integral des chateaux publies non-demo, chacun -> vitrine.
+          `data-slug` sur chaque item : attribut stable, meme role que celui pose
+          sur .da-medaillon. C'est desormais LA source de decouverte des harnais
+          QA (spec vitrines + agents console-errors et a11y-axe). Raison : cette
+          liste est integrale PAR CONTRAT et visible aux deux tailles, alors que
+          les medaillons de HeureAuxDemeures sont masques sous 768 px depuis le
+          design mobile. Ne pas retirer cet attribut sans adapter les 3 harnais. */}
       <Modale ouvert={listeOuvert} onClose={() => setListeOuvert(false)} titre="Tous nos châteaux" largeur={720}>
         <div className="tcl-liste">
           {reels.length === 0 && (
@@ -162,6 +168,7 @@ export default function ToggleCarteListe({ onEntrerChateau }) {
               type="button"
               key={c.id}
               className="tcl-item"
+              data-slug={c.slug}
               onClick={() => versVitrine(c)}
             >
               <span

@@ -41,6 +41,13 @@ playwright-report/
 # Artefacts CI temporaires (telecharges manuellement pour debug/calibration)
 tmp-ci-artifacts/
 
+# Bac a sable local : SQL de test, releves CI, captures, scripts jetables.
+# Meme nature que qa-reports/ et tmp-ci-artifacts/ ci-dessus — du materiel de
+# travail, pas du code du produit. Il trainait dans `git status` depuis des
+# semaines, au risque qu'on finisse par ne plus voir les vrais fichiers non
+# suivis a cote.
+scratchpad/
+
 # Variables d'environnement
 .env
 .env.local
