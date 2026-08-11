@@ -198,12 +198,18 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(page.locator('.une-semaine-carte').first()).toBeVisible();
   });
 
-  test('Test 10 · Dette 2 : VitrinePermanente → VitrineChateau si estLaUne', async ({ page, browserName, isMobile }) => {
-    test.skip(
-      browserName === 'webkit' && isMobile,
-      'S2-α.1.5 Test 10 — non testé sur mobile-safari : dette responsive (header z-index intercepte le pointer event sur .hm-item, le handler React onClick ne se déclenche pas même avec force:true). Bug pré-existant, à corriger Sprint S5 (Tanguy). Couverture Dette 2 maintenue sur chromium-desktop + webkit-desktop. PR #23.'
-    );
-
+  // Ce test tourne désormais sur LES TROIS navigateurs, mobile-safari compris.
+  // Il en était exclu depuis la PR #23 par un test.skip dont le motif était :
+  // « header z-index intercepte le pointer event sur .hm-item, le handler React
+  // onClick ne se déclenche pas même avec force:true — bug pré-existant, à
+  // corriger Sprint S5 ». Le diagnostic accusait le z-index ; la cause réelle
+  // était ailleurs, et le chantier Sommaire mobile l'a corrigée. Les pistes de
+  // la grille .hm-item étaient inversées — le texte héritait d'une piste FIXE
+  // de 20 à 24 px pendant que le filet décoratif de 1 px prenait la piste
+  // flexible — et la grille externe ne s'effondrait jamais sous 768 px. Les
+  // entrées débordaient donc d'un conteneur non défilable : Playwright ne
+  // pouvait pas cliquer ce qu'aucun doigt n'aurait pu atteindre non plus.
+  test('Test 10 · Dette 2 : VitrinePermanente → VitrineChateau si estLaUne', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
 
@@ -287,16 +293,16 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(modale.locator('[data-onglet-contenu="permanent"]')).toHaveCount(0);
   });
 
-  test('Test 13 · FIX D : DernieresCles overlay → click château → /chateau/:slug?onglet=dernieresCles', async ({ page, browserName, isMobile }) => {
+  test('Test 13 · FIX D : DernieresCles overlay → click château → /chateau/:slug?onglet=dernieresCles', async ({ page }) => {
     // Sprint S2-α.1.5 FIX D : depuis l'overlay DernieresCles (qui liste les
     // châteaux avec offres Module B), un click sur une carte doit ouvrir la
     // vitrine routée /chateau/:slug?onglet=dernieresCles (et pas l'overlay
     // legacy VitrineDernieresCle qui devient orphelin, dette S5).
-    test.skip(
-      browserName === 'webkit' && isMobile,
-      'S2-α.1.5 Test 13 — non testé sur mobile-safari : dette responsive header z-index (cf Test 10). Couverture maintenue sur chromium-desktop + webkit-desktop.'
-    );
-
+    //
+    // Tourne désormais sur les trois navigateurs. Son skip mobile-safari
+    // renvoyait à celui du Test 10 (« dette responsive header z-index, cf
+    // Test 10 ») : même passage par button.hm-item, même cause réelle, levée
+    // par le même chantier. Cf. le commentaire du Test 10 pour le détail.
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
 

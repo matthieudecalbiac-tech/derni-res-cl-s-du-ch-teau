@@ -211,28 +211,133 @@
 .hm-item--or .hm-item-titre { color: #1A2D5A; }
 .hm-item--subtil .hm-item-titre { color: #4A4640; }
 
+/* Barre d'acces du Sommaire — MOBILE UNIQUEMENT.
+   ⚠ CETTE REGLE DOIT RESTER AVANT LA MEDIA QUERY. Une media query n'ajoute
+   AUCUNE specificite : posee apres, cette declaration l'emporterait et
+   masquerait la barre jusque sur telephone. Precedent identique corrige sur
+   la carte interactive (.ci-liste-rappel).
+   En `display:none`, l'element sort completement de la grille : le Sommaire
+   desktop reste a deux colonnes, inchange. */
+.hm-acces { display: none; }
+
 /* ── RESPONSIVE ── */
+/* ═══ SOMMAIRE MOBILE — seuil unique 768 px (convention posee dans accueil.css)
+   Les tokens --hm-t-* / --hm-tap viennent d'accueil.css, importe globalement
+   dans App.jsx : ils existent donc sur toutes les routes, et UNIQUEMENT sous
+   le seuil. Aucune regle desktop ne peut les lire.
+
+   Deux bugs corriges ici, tous deux mesures avant correction :
+
+   1. LES PISTES DE .hm-item ETAIENT INVERSEES. Le JSX rend trois enfants —
+      num, barre, centre — mais les regles mobiles etaient ecrites comme s'il
+      existait une chevron finale. La piste flexible echoyait au filet
+      DECORATIF de 1 px, et le titre + la description atterrissaient dans la
+      piste fixe de 24 px (20 px sous 480). Independant de la largeur : a
+      767 px, le texte tenait dans 24 px avec 327 px vides a cote.
+      -> `auto 1px 1fr`, soit exactement la forme du desktop (`52px 1px 1fr`)
+         avec une premiere piste fluide. Le texte reprend la piste flexible,
+         le filet reprend son 1 px.
+
+   2. LA GRILLE EXTERNE N'ETAIT JAMAIS EFFONDREE. `.hm-contenu--sommaire`
+      declare `0.7fr 1.3fr` hors media query, et aucune media query ne la
+      reecrivait. A 390 px, la colonne gauche ne peut pas descendre sous son
+      min-content — le mot « Sommaire » en Playfair fait 220 px — et il ne
+      restait que 69 px pour toute la navigation.
+      -> une seule colonne.
+
+   Consequence des deux : la nav faisait 1441 px de haut dans un ecran de
+   844 px, et `.hm-overlay` etant en `overflow:hidden` + `align-items:center`,
+   les entrees 01 et 05 n'etaient pas seulement hors champ — elles etaient
+   INATTEIGNABLES, a toutes les largeurs. D'ou l'ancrage en haut + le
+   defilement ci-dessous.                                                    */
 @media (max-width: 768px) {
   .header-inner { padding: 1.2rem 1.5rem; }
   .header--solide .header-inner { padding: 0.9rem 1.5rem; }
   .header-cta { display: none; }
   .header-connexion { display: none; }
-  .hm-fermer { top: 1.2rem; right: 1.5rem; }
-  .hm-contenu { padding: 0 1.5rem; }
-  .hm-item { grid-template-columns: 36px 1fr 24px; gap: 14px; padding: 15px 0; }
-  .hm-item-titre { font-size: 1.05rem; }
-  .hm-item-desc { font-size: 0.82rem; }
   .header-logo-embleme { height: 48px; }
   .header-logo-wordmark { height: 38px; }
+
+  /* Le burger devient une croix a l'ouverture (.header-burger.ouvert) et vit
+     dans le header, au-dessus de l'overlay. La croix `.hm-fermer` se
+     superposait a lui au meme coin : deux commandes de fermeture empilees,
+     dont une qui volait les taps de l'autre. On garde celle qui est deja
+     animee pour ca. */
+  .hm-fermer { display: none; }
+
+  /* Ancre en haut et rend le debordement defilable : centrer un contenu plus
+     haut que l'ecran dans un conteneur `overflow:hidden` en perd les deux
+     extremites. */
+  .hm-overlay { align-items: flex-start; overflow-x: hidden; overflow-y: auto; }
+
+  .hm-contenu--sommaire {
+    grid-template-columns: 1fr;
+    gap: 0;
+    align-items: start;
+    padding: 104px 20px calc(20px + env(safe-area-inset-bottom));
+  }
+
+  .hm-sommaire-titre { font-size: 2.1rem; margin: 0 0 14px; }
+  .hm-ornement { margin-bottom: 18px; max-width: 150px; gap: 12px; }
+  /* L'intro et la baseline quittent l'ecran mobile : la maquette ne les porte
+     pas, et la hauteur qu'elles prennent est celle qui manque aux entrees.
+     Elles restent intactes en desktop. */
+  .hm-sommaire-intro { display: none; }
+  .hm-sommaire-bas { display: none; }
+
+  /* Entree « Proprietaires » retiree du menu MOBILE seulement — decision
+     Matthieu, 4 entrees 01-04. Cible par `data-id` et non par :nth-child(5) :
+     un simple reordonnancement de MENU_ITEMS masquerait sinon la mauvaise
+     entree en silence. C'est la DERNIERE du tableau, donc la numerotation
+     calculee (`0${i+1}`) reste juste : 01, 02, 03, 04.
+     Fait en CSS et non par un filtre JS : la convention du projet reserve les
+     bascules mobiles en JS aux cas SANS expression en feuille de style (le
+     regroupement de marqueurs de la carte est le seul). Masquer une entree en
+     a une. */
+  .hm-item[data-id="proprietaires"] { display: none; }
+
+  .hm-item {
+    grid-template-columns: auto 1px 1fr;
+    gap: 14px;
+    padding: 15px 0;
+    min-height: var(--hm-tap, 44px);
+  }
+  .hm-item:hover { padding-left: 0; }        /* pas de survol au doigt */
+  .hm-item-num { font-size: 1.15rem; }
+  .hm-item-barre { height: 24px; }
+  .hm-item-titre { font-size: var(--hm-t-titre-s, 1.12rem); }
+  .hm-item-desc { font-size: var(--hm-t-corps, 0.78rem); }
+
+  /* Reproduit la paire du header desktop, qui reste accessible par-dessus le
+     Sommaire en desktop mais passe en display:none sous 768. */
+  .hm-acces {
+    display: flex; gap: 10px; margin-top: 22px;
+    border-top: 1px solid var(--hm-filet, rgba(192, 152, 64, 0.16));
+    padding-top: 18px;
+  }
+  .hm-acces-btn {
+    flex: 1; min-height: var(--hm-tap, 44px);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Crimson Pro', serif; font-size: var(--hm-t-micro, 0.60rem);
+    font-weight: 300; letter-spacing: 0.18em; text-transform: uppercase;
+    color: #1A2D5A; background: none; cursor: pointer;
+    border: 1px solid var(--hm-bord, rgba(192, 152, 64, 0.20));
+    border-radius: var(--hm-r-s, 9px);
+  }
+  .hm-acces-btn--cta {
+    font-weight: 600; color: #07101E; border-color: transparent;
+    background: linear-gradient(135deg, #C09840 0%, #EDD880 100%);
+  }
 }
 @media (max-width: 480px) {
   .header-inner { padding: 1rem; }
   .logo-secondaire { display: none; }
-  .hm-fermer { top: 1rem; right: 1rem; }
-  .hm-contenu { padding: 0 1rem; }
-  .hm-item { grid-template-columns: 28px 1fr 20px; gap: 10px; padding: 13px 0; }
-  .hm-item-titre { font-size: 0.95rem; }
-  .hm-item-desc { font-size: 0.78rem; }
+  .hm-contenu--sommaire { padding: 96px 16px calc(18px + env(safe-area-inset-bottom)); }
+  .hm-sommaire-titre { font-size: 1.9rem; }
+  /* Meme forme de pistes qu'a 768 : seule l'echelle descend. Surtout PAS un
+     retour a `28px 1fr 20px`, qui reintroduirait l'inversion. */
+  .hm-item { gap: 12px; padding: 13px 0; }
+  .hm-item-num { font-size: 1.05rem; }
   .header-logo-wordmark { height: 30px; }
 }
 

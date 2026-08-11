@@ -155,6 +155,7 @@ export default function Header({
             {MENU_ITEMS.map((item, i) => (
               <button
                 key={item.id}
+                data-id={item.id}
                 className={`hm-item hm-item--${item.couleur}${itemSurvole === item.id ? " hm-item--actif" : ""}`}
                 onClick={() => handleAction(item.action)}
                 onMouseEnter={() => setItemSurvole(item.id)}
@@ -170,6 +171,43 @@ export default function Header({
               </button>
             ))}
           </nav>
+
+          {/* BARRE D'ACCES — MOBILE UNIQUEMENT (header.css la masque au-dessus
+              du seuil ; en `display:none` elle sort de la grille, donc le
+              Sommaire desktop reste a deux colonnes exactement comme avant).
+              POURQUOI ELLE EXISTE : en desktop, `.header` (z-index 5000) reste
+              AU-DESSUS du Sommaire (4900) et garde ses acces Connexion /
+              Rejoindre le Club — le CSS a meme des regles dediees a cet etat
+              (`.header--menu-ouvert .header-connexion`). Sous 768, ces deux
+              boutons sont en `display:none` : le mobile perdait donc le seul
+              chemin vers la connexion. On reproduit ici la MEME paire, avec la
+              MEME bascule sur `user`, plutot que d'inventer des destinations
+              (un « Journal » et un « Contact » n'existent nulle part). */}
+          <div className="hm-acces">
+            {user ? (
+              <button
+                className="hm-acces-btn hm-acces-btn--cta"
+                onClick={() => { fermer(); navigate("/club"); }}
+              >
+                Mon compte
+              </button>
+            ) : (
+              <>
+                <button
+                  className="hm-acces-btn"
+                  onClick={() => { fermer(); navigate("/connexion"); }}
+                >
+                  Connexion
+                </button>
+                <button
+                  className="hm-acces-btn hm-acces-btn--cta"
+                  onClick={() => { fermer(); navigate("/inscription"); }}
+                >
+                  Rejoindre le Club
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </>
