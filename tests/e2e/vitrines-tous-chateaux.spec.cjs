@@ -4,9 +4,18 @@ const { test, expect } = require('@playwright/test');
  * Tests E2E · Vitrines — comportement, decouverte DOM (piece 5).
  *
  * Zero lecture de fichier. La liste des chateaux servis est decouverte au
- * runtime depuis les medaillons de HeureAuxDemeures (.da-medaillon[data-slug],
- * attribut stable pose en piece 3). Pour chacun, on verifie que la vitrine
- * REND ses sections - jamais qu'une donnee vaut une valeur precise.
+ * runtime depuis la modale "Liste" du toggle Carte/Liste
+ * (.tcl-item[data-slug]). Pour chacun, on verifie que la vitrine REND ses
+ * sections - jamais qu'une donnee vaut une valeur precise.
+ *
+ * POURQUOI CETTE SOURCE, et plus les medaillons de HeureAuxDemeures : cette
+ * liste est le catalogue INTEGRAL des chateaux publies non-demo (c'est son
+ * contrat, pas un effet de bord), et elle est visible aux DEUX tailles. Les
+ * medaillons, eux, sont masques sous 768 px depuis le design mobile
+ * (heure-aux-demeures.css) : ils restaient dans le DOM mais invisibles, ce qui
+ * faisait echouer ce fichier sur mobile-safari de facon deterministe.
+ * Le carrousel "Les clefs a la une" a ete ecarte : il n'expose que 2 chateaux
+ * sur 7, la couverture serait devenue partielle en silence.
  *
  * Robustesse : un ajout de chambre, une timeline plus longue, une citation
  * reecrite ne cassent rien. Seule une vitrine qui cesse de rendre une section,
@@ -15,22 +24,63 @@ const { test, expect } = require('@playwright/test');
  * qui n'en a pas n'echoue pas.
  */
 
-// Ouvre la vitrine d'un chateau par son slug, via son medaillon (meme section
-// que la decouverte). Patron eprouve : retry click mobile-safari + attente de
-// la TransitionPorte avant l'overlay visible.
-async function ouvrirVitrineParSlug(page, slug) {
-  const medaillon = page.locator(`.da-medaillon[data-slug="${slug}"]`);
-  await medaillon.scrollIntoViewIfNeeded();
+// Ouvre la modale "Liste" du toggle Carte/Liste (catalogue integral) et attend
+// que ses items soient reellement VISIBLES - pas seulement presents.
+async function ouvrirCatalogue(page) {
+  const onglet = page.locator('.tcl-onglet').filter({ hasText: 'Liste' });
+  const items = page.locator('.tcl-item[data-slug]');
 
   let derniereErreur;
   for (let essai = 0; essai < 3; essai++) {
-    await medaillon.click();
+    // Ne reclique QUE si la modale n'est pas deja ouverte : une fois ouverte,
+    // elle recouvre le toggle et le clic serait intercepte.
+    // Pourquoi ce retry : a l'arrivee des donnees Supabase, useChateaux fait
+    // re-rendre tout le sous-arbre .tcl et remplace le noeud du bouton. Si le
+    // clic part entre le controle d'actionnabilite de Playwright et sa
+    // dispatch, il atterrit sur un noeud detache et n'ouvre rien - observe une
+    // fois sur mobile-safari en suite complete, jamais en isole. Un delai plus
+    // long n'y changerait rien : le clic est perdu, pas en retard.
+    if ((await page.locator('.tcl-liste').count()) === 0) await onglet.click();
     try {
-      await expect(page.locator('.vc3-overlay')).toBeVisible({ timeout: 3000 });
+      await expect(items.first()).toBeVisible({ timeout: 8000 });
+      return;
+    } catch (e) {
+      derniereErreur = e;
+    }
+  }
+  throw derniereErreur;
+}
+
+// Ouvre la vitrine d'un chateau par son slug, via son item de catalogue (meme
+// source que la decouverte, et meme parcours qu'un visiteur : versVitrine()
+// passe par onEntrerChateau, donc par la TransitionPorte). Patron eprouve :
+// retry click mobile-safari + attente de la transition avant l'overlay visible.
+async function ouvrirVitrineParSlug(page, slug) {
+  const item = page.locator(`.tcl-item[data-slug="${slug}"]`);
+
+  let derniereErreur;
+  for (let essai = 0; essai < 3; essai++) {
+    // versVitrine() REFERME la modale a chaque clic. Sans cette reouverture, un
+    // 2e essai cliquerait dans le vide - ce que les medaillons, eux, ne
+    // demandaient pas.
+    if (!(await item.isVisible().catch(() => false))) await ouvrirCatalogue(page);
+    await item.scrollIntoViewIfNeeded();
+    await item.click();
+    try {
+      // 12 s, et non 3 : depuis le catalogue, versVitrine() joue la porte PUIS
+      // navigue vers /chateau/<slug> - l'overlay n'est monte qu'a l'arrivee.
+      // Mesure : ~4,3 s ici, contre ~0,5 s par les medaillons, qui montaient
+      // l'overlay tout de suite et jouaient la porte par-dessus. Le total, lui,
+      // est inchange (~4,2 s jusqu'a .vc3-visible) : seul l'ordre des jalons
+      // change. Un timeout de 3 s echouait donc a TOUS les coups.
+      await expect(page.locator('.vc3-overlay')).toBeVisible({ timeout: 12000 });
       derniereErreur = null;
       break;
     } catch (e) {
       derniereErreur = e;
+      // Ne JAMAIS reessayer pendant la porte : son voile .tp-fond intercepte
+      // les clics, et le retry echouerait sur le catalogue au lieu du chateau.
+      await page.locator('.tp-wrap').waitFor({ state: 'detached', timeout: 10000 }).catch(() => {});
     }
   }
   if (derniereErreur) throw derniereErreur;
@@ -39,12 +89,12 @@ async function ouvrirVitrineParSlug(page, slug) {
   await expect(page.locator('.vc3-overlay.vc3-visible')).toBeVisible({ timeout: 3000 });
 }
 
-// Charge la home et retourne les slugs des chateaux servis (medaillons stables).
+// Charge la home et retourne les slugs des chateaux servis (catalogue integral).
 async function decouvrirSlugs(page) {
   await page.goto('/');
   await page.waitForLoadState('domcontentloaded');
-  await expect(page.locator('.da-medaillon[data-slug]').first()).toBeVisible({ timeout: 10000 });
-  return page.locator('.da-medaillon[data-slug]').evaluateAll(
+  await ouvrirCatalogue(page);
+  return page.locator('.tcl-item[data-slug]').evaluateAll(
     (els) => els.map((e) => e.getAttribute('data-slug')).filter(Boolean)
   );
 }
@@ -54,15 +104,20 @@ test.describe('Vitrines · comportement (decouverte DOM)', () => {
   test('Au moins un chateau est servi et decouvrable sur la home', async ({ page }) => {
     const slugs = await decouvrirSlugs(page);
     // Seule alarme si le catalogue public se vide : plus aucune vitrine a tester.
-    expect(slugs.length, 'Aucun medaillon [data-slug] rendu sur la home').toBeGreaterThan(0);
+    expect(slugs.length, 'Aucun item [data-slug] dans le catalogue').toBeGreaterThan(0);
   });
 
   test('Chaque vitrine servie rend ses sections', async ({ page }) => {
     // Sweep O(nombre de chateaux publies) : ouvre CHAQUE vitrine avec parcours
-    // complet. Le catalogue public grandit (nouveaux partenaires) → le budget doit
-    // suivre. test.slow() triple le timeout (30s -> 90s) plutot qu'un timeout fixe
-    // qui casserait au prochain chateau ajoute.
-    test.slow();
+    // complet. Le catalogue public grandit (nouveaux partenaires) → le budget
+    // doit suivre. C'etait l'intention affichee ici, mais test.slow() ne la
+    // tenait pas : son x3 est FIXE (30 -> 90 s) et ne suit rien. Mesure sur
+    // webkit : ~12 s par chateau, dont ~4,3 s de TransitionPorte. A 7 demeures
+    // le sweep touchait donc deja le plafond AVANT ce chantier - verifie en
+    // relancant la version d'origine, qui meurt sur la 7e. Le budget devient
+    // explicite et reellement proportionnel (cf. test.setTimeout plus bas).
+    // Aucun timeout d'assertion n'est touche : une vraie panne echoue toujours
+    // aussi vite qu'avant.
 
     // 4xx d'images collectees sur tout le parcours, asserees a la fin.
     const imagesEnErreur = [];
@@ -75,11 +130,15 @@ test.describe('Vitrines · comportement (decouverte DOM)', () => {
     const slugs = await decouvrirSlugs(page);
     expect(slugs.length).toBeGreaterThan(0);
 
+    // 30 s de socle + 20 s par chateau (12 s mesures, ~65 % de marge). A 7
+    // demeures : 170 s. Le 8e partenaire ajoutera son budget tout seul.
+    test.setTimeout(30_000 + slugs.length * 20_000);
+
     for (const slug of slugs) {
       await test.step(`Vitrine ${slug}`, async () => {
         await page.goto('/');
         await page.waitForLoadState('domcontentloaded');
-        await expect(page.locator('.da-medaillon[data-slug]').first()).toBeVisible({ timeout: 10000 });
+        // ouvrirVitrineParSlug ouvre le catalogue lui-meme : rien a attendre ici.
         await ouvrirVitrineParSlug(page, slug);
 
         // — Nom : present et non vide.
