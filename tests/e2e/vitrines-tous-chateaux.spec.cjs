@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { selModule, selTheme, ouvrirNavVitrine } = require('./_navVitrine.cjs');
 
 /**
  * Tests E2E · Vitrines — comportement, decouverte DOM (piece 5).
@@ -161,7 +162,12 @@ test.describe('Vitrines · comportement (decouverte DOM)', () => {
 
         // — Theme Histoire : timeline gardee par sa presence (chateau sans
         //   timeline = pas de .vc4-theme-timeline, on ne teste rien).
-        await page.locator('[data-theme="histoire"]').click();
+        // selTheme() et non `[data-theme="histoire"]` nu : depuis que la feuille
+        // mobile porte les MEMES attributs que la barre laterale, le selecteur
+        // nu resout deux elements et Playwright refuse en mode strict. Le helper
+        // filtre par `:visible` — une seule des deux sources repond.
+        await ouvrirNavVitrine(page, 'themes');
+        await page.locator(selTheme('histoire')).click();
         await expect(modaleTheme).toBeVisible({ timeout: 5000 });
         if (await modaleTheme.locator('.vc4-theme-timeline').count() > 0) {
           expect(
@@ -173,7 +179,8 @@ test.describe('Vitrines · comportement (decouverte DOM)', () => {
         await expect(modaleTheme).toHaveCount(0, { timeout: 3000 });
 
         // — Theme Famille : citation gardee par sa presence.
-        await page.locator('[data-theme="famille"]').click();
+        await ouvrirNavVitrine(page, 'themes');
+        await page.locator(selTheme('famille')).click();
         await expect(modaleTheme).toBeVisible({ timeout: 5000 });
         const citation = modaleTheme.locator('.vc4-theme-famille-citation');
         if (await citation.count() > 0) {
@@ -183,9 +190,11 @@ test.describe('Vitrines · comportement (decouverte DOM)', () => {
         await expect(modaleTheme).toHaveCount(0, { timeout: 3000 });
 
         // — Module Permanent : meme regime que les themes desormais. La bande de
-        //   cartes Niveau 1 a quitte le flux (barre laterale = seul acces), et
-        //   l'overlay maison .vc3-module-panel a fait place a Modale.jsx.
-        await page.locator('.bl-offre[data-module="permanent"]').click();
+        //   cartes Niveau 1 a quitte le flux, et l'overlay maison
+        //   .vc3-module-panel a fait place a Modale.jsx. L'acces passe par la
+        //   barre laterale en desktop, par la feuille « Explorer » en mobile.
+        await ouvrirNavVitrine(page, 'offres');
+        await page.locator(selModule('permanent')).click();
         await expect(modaleTheme).toBeVisible({ timeout: 5000 });
         expect(
           await modaleTheme.locator('.vc4-permanent-chambre').count(),

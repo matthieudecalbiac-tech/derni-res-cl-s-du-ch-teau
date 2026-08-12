@@ -1,11 +1,16 @@
+// `sous` — sous-titre éditorial, ajouté pour la feuille « Explorer le château »
+// du mobile, qui donne une ligne de contexte sous chaque thème. Champ OPTIONNEL
+// et ignoré partout ailleurs : ni la barre latérale ni ce composant ne le
+// rendent, donc le desktop est inchangé. Il vit ici, avec les libellés, plutôt
+// que dans une seconde liste qu'il faudrait garder en phase.
 export const THEMES = [
-  { code: "apercu", label: "Aperçu" },
-  { code: "histoire", label: "Histoire" },
-  { code: "famille", label: "Famille & propriétaires" },
-  { code: "lieu", label: "Lieu & région" },
-  { code: "services", label: "Services" },
-  { code: "chambres", label: "Chambres" },
-  { code: "photos", label: "Photos" },
+  { code: "apercu", label: "Aperçu", sous: "Le domaine en un regard" },
+  { code: "histoire", label: "Histoire", sous: "Des origines à aujourd'hui" },
+  { code: "famille", label: "Famille & propriétaires", sous: "Ceux qui font vivre les lieux" },
+  { code: "lieu", label: "Lieu & région", sous: "Le territoire alentour" },
+  { code: "services", label: "Services", sous: "La table et les attentions" },
+  { code: "chambres", label: "Chambres", sous: "Les chambres et leurs tarifs" },
+  { code: "photos", label: "Photos", sous: "La demeure en images" },
 ];
 
 export default function OngletsNiveau2({ actif, onChange }) {

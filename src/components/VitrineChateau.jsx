@@ -6,7 +6,8 @@ import ContenuDernieresCles from "./vitrine/ContenuDernieresCles";
 import ContenuClub from "./vitrine/ContenuClub";
 import ContenuTheme from "./vitrine/ContenuTheme";
 import { THEMES } from "./vitrine/OngletsNiveau2";
-import { LIBELLES as LIBELLES_MODULES } from "./vitrine/OngletsNiveau1";
+import { LIBELLES as LIBELLES_MODULES, ICONES } from "./vitrine/OngletsNiveau1";
+import { MODULES, useCompteursOffres, detailModule } from "./vitrine/offresResume";
 import Modale from "./Modale";
 import JournalApercus from "./vitrine/JournalApercus";
 import BarreLaterale from "./vitrine/BarreLaterale";
@@ -14,6 +15,10 @@ import { useClubMember } from "../hooks/useClubMember";
 import { useAuth } from "../contexts/AuthContext";
 import "../styles/vitrine-chateau.css";
 import "../styles/vitrine-onglets.css";
+
+// Numérotation des sept thèmes dans la feuille mobile. En chiffres romains :
+// c'est la numérotation d'un sommaire d'ouvrage, pas d'une liste de courses.
+const ROMAINS = ["I", "II", "III", "IV", "V", "VI", "VII"];
 
 export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const isClubMember = useClubMember();
@@ -104,6 +109,18 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   // aperçus du journal, qui ouvrent le thème correspondant.
   const themesRef = useRef(null);
   const arriveeRef = useRef(null);
+  const journalRef = useRef(null);
+
+  // ── Feuille « Explorer le château » — MOBILE UNIQUEMENT ──
+  // Elle remplace la barre latérale, éteinte sous 768 : mêmes trois modules,
+  // mêmes sept thèmes, mêmes callbacks. Aucune logique de navigation nouvelle.
+  const [sheetOuvert, setSheetOuvert] = useState(false);
+  const [sheetOnglet, setSheetOnglet] = useState("themes");
+  const [sheetDrag, setSheetDrag] = useState(0);
+  const sheetDepart = useRef(null);
+  // Même comptage que la barre latérale, un seul aller-retour : offresService
+  // mémorise ses réponses (Map, TTL 5 min).
+  const { nbB, nbC } = useCompteursOffres(chateau.slug);
 
   const fermerClubLock = () => setClubLockOpen(false);
 
@@ -194,11 +211,15 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
     const onKey = (e) => {
       if (e.key !== "Escape") return;
       if (themeOuvert || moduleOuvert || clubLockOpen) return;   // Modale.jsx s'en charge
+      // La feuille « Explorer » s'intercale entre les modales et la vitrine :
+      // elle est sous elles, au-dessus d'elle. Meme regle — on ferme la couche
+      // la plus haute, jamais deux a la fois.
+      if (sheetOuvert) { setSheetOuvert(false); return; }
       onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [moduleOuvert, themeOuvert, clubLockOpen, onClose]);
+  }, [moduleOuvert, themeOuvert, clubLockOpen, sheetOuvert, onClose]);
 
   // Reinitialise la verification de dispo si les criteres changent (libelle jamais perime)
   useEffect(() => {
@@ -456,7 +477,7 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
             (collante au défilement), pas un panneau — et elle s'ajoute aux
             onglets N1/N2, qui restent en place le temps de vérifier qu'elle
             reprend bien tout. */}
-        <div className="vc3-zone-journal">
+        <div className="vc3-zone-journal" ref={journalRef}>
           <JournalApercus
             chateau={chateau}
             // Les aperçus du journal ouvrent la même modale que la barre : plus
@@ -516,6 +537,177 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
           ))}
         </div>
 
+      </div>
+
+      {/* ══ BARRE D'ACTION — MOBILE UNIQUEMENT ══
+          vitrine-chateau.css l'éteint au-dessus du seuil ; en `display:none`
+          elle sort de la mise en page, donc la vitrine desktop ne bouge pas
+          d'un pixel. Mécanisme éprouvé sur le Sommaire (`.hm-acces`), vérifié
+          au SHA-256.
+
+          ⚠ ELLE EST SŒUR DE .vc3-corps, PAS DEDANS. `.vc3-corps` est le
+          conteneur de défilement (`flex:1; overflow-y:auto`) : une barre montée
+          à l'intérieur serait emportée par le défilement. Ici son parent est
+          `.vc3-overlay`, en `position:fixed` et colonne flex — elle reste donc
+          collée en bas sans avoir besoin d'être elle-même fixed.
+
+          POURQUOI ELLE EXISTE : sous 768, la barre latérale — seul point
+          d'accès aux offres et aux sept thèmes — passe sous le journal et se
+          retrouve à 2752 px du haut, soit 3,4 écrans de défilement. Elle est
+          éteinte en mobile ; ses deux fonctions remontent ici.
+
+          « Réserver » réutilise EXACTEMENT le geste du CTA d'en-tête : défiler
+          jusqu'au bloc séjour puis donner le focus à la date d'arrivée. Aucune
+          logique nouvelle. « Explorer » ouvrira le bottom sheet à l'étape 2 ;
+          en attendant il mène au journal, qui est la découverte disponible. */}
+      <div className="vc3-actions">
+        <button
+          type="button"
+          className="vc3-actions-btn"
+          onClick={() => setSheetOuvert(true)}
+        >
+          Explorer
+        </button>
+        <button
+          type="button"
+          className="vc3-actions-btn vc3-actions-btn--cta"
+          onClick={() => {
+            sejourRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+            setTimeout(() => arriveeRef.current?.focus(), 400);
+          }}
+        >
+          Réserver
+        </button>
+      </div>
+
+      {/* ══ FEUILLE « EXPLORER LE CHÂTEAU » — MOBILE UNIQUEMENT ══
+          Elle remplace la barre latérale, éteinte sous 768 (elle y tombait à
+          2752 px du haut, soit 3,4 écrans de défilement).
+
+          FEUILLE MAISON ET NON Modale.jsx, pour quatre raisons :
+            1. elle doit MONTER DU BAS et se fermer au glissement — Modale ne
+               fait ni l'un ni l'autre (elle apparaît en fondu + échelle) ;
+            2. elle OUVRE des Modale (thème, module) : l'imbriquer donnerait
+               deux verrous de défilement, deux pièges à focus et un Échap
+               ambigu ;
+            3. aligner le seuil 620 de Modale sur 768 changerait TOUTES les
+               modales du site entre ces largeurs — hors périmètre ;
+            4. le précédent `.ci-fiche` de la carte interactive a déjà posé
+               cette grammaire dans le projet.
+
+          AUCUNE LOGIQUE DE NAVIGATION NOUVELLE. Les items rappellent les mêmes
+          callbacks que la barre latérale et le journal : setTheme/setThemeOuvert
+          et setModule/setModuleOuvert. Les données viennent des mêmes
+          constantes exportées (THEMES, LIBELLES, ICONES) et du même comptage
+          (offresResume). On ferme la feuille AVANT d'ouvrir la modale : deux
+          couches empilées n'apporteraient rien et brouilleraient Échap.
+
+          `data-theme` et `data-module` reprennent les attributs de la barre
+          latérale, et `aria-current` marque l'actif comme elle : un harnais
+          peut viser `[data-theme="x"]` sans savoir sur quelle largeur il
+          tourne — une seule des deux sources est visible à la fois. */}
+      <div
+        className={"vcs-fond" + (sheetOuvert ? " vcs-fond--ouvert" : "")}
+        onClick={() => setSheetOuvert(false)}
+        aria-hidden="true"
+      />
+      <div
+        className={"vcs-sheet" + (sheetOuvert ? " vcs-sheet--ouvert" : "")}
+        style={sheetDrag ? { transform: `translateY(${sheetDrag}px)`, transition: "none" } : undefined}
+        role="dialog"
+        aria-label="Explorer le château"
+        aria-modal="true"
+        inert={!sheetOuvert}
+      >
+        {/* Le glissement est capté par la TÊTE seule. Sur la feuille entière il
+            entrerait en conflit avec le défilement de la liste : un doigt qui
+            descend dans une liste déjà défilée fermerait la feuille au lieu de
+            la parcourir. Seuil de 70 px, comme la fiche château de la carte. */}
+        <div
+          className="vcs-tete"
+          onTouchStart={(e) => { sheetDepart.current = e.touches[0].clientY; }}
+          onTouchMove={(e) => {
+            if (sheetDepart.current == null) return;
+            const d = e.touches[0].clientY - sheetDepart.current;
+            if (d > 0) setSheetDrag(d);
+          }}
+          onTouchEnd={() => {
+            if (sheetDrag > 70) setSheetOuvert(false);
+            setSheetDrag(0);
+            sheetDepart.current = null;
+          }}
+        >
+          <span className="vcs-poignee" aria-hidden="true" />
+          <p className="vcs-titre">Explorer le château</p>
+          <div className="vcs-orn" aria-hidden="true">
+            <span className="vcs-orn-l" />
+            <img src="/FDL-transparent.png" alt="" className="vcs-orn-lys" />
+            <span className="vcs-orn-l" />
+          </div>
+          <div className="vcs-toggle" role="tablist" aria-label="Thèmes ou offres">
+            {[["themes", "Thèmes"], ["offres", "Offres"]].map(([code, label]) => (
+              <button
+                key={code}
+                type="button"
+                role="tab"
+                aria-selected={sheetOnglet === code}
+                className={"vcs-toggle-btn" + (sheetOnglet === code ? " vcs-toggle-btn--actif" : "")}
+                data-onglet={code}
+                onClick={() => setSheetOnglet(code)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="vcs-liste">
+          {sheetOnglet === "themes"
+            ? THEMES.map((t, i) => (
+                <button
+                  key={t.code}
+                  type="button"
+                  className="vcs-item"
+                  data-theme={t.code}
+                  aria-current={themeActif === t.code ? "true" : undefined}
+                  onClick={() => { setSheetOuvert(false); setTheme(t.code); setThemeOuvert(true); }}
+                >
+                  <span className="vcs-item-num" aria-hidden="true">{ROMAINS[i]}</span>
+                  <span className="vcs-item-txt">
+                    <span className="vcs-item-titre">{t.label}</span>
+                    <span className="vcs-item-sous">{t.sous}</span>
+                  </span>
+                  <span className="vcs-item-chev" aria-hidden="true">→</span>
+                </button>
+              ))
+            : MODULES.map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  className="vcs-item"
+                  data-module={m}
+                  aria-current={moduleEffectif === m ? "true" : undefined}
+                  onClick={() => {
+                    setSheetOuvert(false);
+                    // Même règle que la barre latérale : le Club n'est pas
+                    // masqué aux non-membres, il est verrouillé au clic. Le
+                    // masquer laisserait croire qu'il n'existe pas.
+                    if (m === "club" && !isClubMember) { setClubLockOpen(true); return; }
+                    setModule(m);
+                    setModuleOuvert(true);
+                  }}
+                >
+                  <img className="vcs-item-ico" src={ICONES[m]} alt="" aria-hidden="true" />
+                  <span className="vcs-item-txt">
+                    <span className="vcs-item-titre">{LIBELLES_MODULES[m]}</span>
+                    <span className="vcs-item-sous">
+                      {detailModule(m, { chateau, prixAPartir, isClubMember, nbB, nbC }) || " "}
+                    </span>
+                  </span>
+                  <span className="vcs-item-chev" aria-hidden="true">→</span>
+                </button>
+              ))}
+        </div>
       </div>
 
       {/* MODALE RÉSERVE — câblée sur l'Edge Function demande-reservation.

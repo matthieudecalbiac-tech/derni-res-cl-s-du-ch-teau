@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
-import { getOffresPourChateau } from "../../services/offresService";
-import { formaterPrix } from "../../services/_mapping";
+import { MODULES, useCompteursOffres, detailModule } from "./offresResume";
 import { LIBELLES, PHRASES_BANDEAU, ICONES } from "./OngletsNiveau1";
 import { THEMES } from "./OngletsNiveau2";
 import { CHAMP_PHOTO_BARRE } from "../../utils/photosEmplacements";
@@ -30,8 +28,6 @@ import "../../styles/barre-laterale.css";
 //   index) : sans assignation, la même photo paraît deux fois par écran.
 // ═══════════════════════════════════════════════════════════════════════════
 
-const MODULES = ["permanent", "dernieresCles", "club"];
-
 export default function BarreLaterale({
   chateau,
   moduleActif,
@@ -42,22 +38,9 @@ export default function BarreLaterale({
   onChoisirTheme,
   onClubLock,
 }) {
-  const [nbB, setNbB] = useState(null);
-  const [nbC, setNbC] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    // Fetchs inconditionnels : on interroge la base pour chaque module. Un
-    // module sans offre affiche son état parce qu'on a cherché et rien trouvé,
-    // pas parce qu'on s'est abstenu.
-    getOffresPourChateau(chateau.slug, "dernieresCles", null).then((o) => {
-      if (!cancelled) setNbB({ n: o.length, min: o.length ? Math.min(...o.map((x) => x.prixOffre)) : null });
-    });
-    getOffresPourChateau(chateau.slug, "club", null).then((o) => {
-      if (!cancelled) setNbC({ n: o.length, min: o.length ? Math.min(...o.map((x) => x.prixOffre)) : null });
-    });
-    return () => { cancelled = true; };
-  }, [chateau.slug]);
+  // Comptage partagé avec la feuille « Explorer » du mobile (offresResume.js) :
+  // même logique, un seul aller-retour grâce au cache d'offresService.
+  const { nbB, nbC } = useCompteursOffres(chateau.slug);
 
   // La photo d'une carte, par ordre de priorité :
   //   1. l'emplacement ASSIGNÉ en admin (chateau.imgBarre*) — il tranche ;
@@ -76,27 +59,10 @@ export default function BarreLaterale({
   // précisément ce que l'accroche permet de particulariser, domaine par domaine.
   const phraseCarte = (m) => chateau?.[CHAMP_ACCROCHE_BARRE[m]] || PHRASES_BANDEAU[m];
 
-  // Le détail distinctif : prix d'appel, compte, ou invitation. Rien tant que le
-  // comptage n'est pas revenu — un « 0 offre » qui apparaît puis se corrige
-  // serait pire que le silence.
-  const detail = (m) => {
-    if (m === "permanent") {
-      const n = chateau.chambres?.length || 0;
-      if (!n) return null;
-      return prixAPartir ? `À partir de ${prixAPartir} €` : `${n} chambre${n > 1 ? "s" : ""}`;
-    }
-    if (m === "dernieresCles") {
-      if (nbB === null) return null;
-      if (nbB.n === 0) return "Aucune offre en cours";
-      return nbB.min ? `Dès ${formaterPrix(nbB.min)} €` : `${nbB.n} offre${nbB.n > 1 ? "s" : ""}`;
-    }
-    if (m === "club") {
-      if (!isClubMember) return "Découvrir les privilèges";
-      if (nbC === null) return null;
-      return nbC.n === 0 ? "Aucune offre en cours" : `${nbC.n} offre${nbC.n > 1 ? "s" : ""}`;
-    }
-    return null;
-  };
+  // Le détail distinctif : prix d'appel, compte, ou invitation. Extrait dans
+  // offresResume.js pour être partagé avec la feuille mobile — même chaîne
+  // affichée des deux côtés, écrite une seule fois.
+  const detail = (m) => detailModule(m, { chateau, prixAPartir, isClubMember, nbB, nbC });
 
   // Même règle qu'OngletsNiveau1 : le Club n'est pas masqué aux non-membres, il
   // est verrouillé au clic. Le masquer laisserait croire qu'il n'existe pas.
