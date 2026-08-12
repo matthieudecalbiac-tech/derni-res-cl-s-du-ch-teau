@@ -184,3 +184,199 @@
 .vc3-reserve-erreur{font-size:0.8rem;color:#8a2f2f;text-align:center;margin:0 0 12px;font-family:'Crimson Pro',serif}
 /* Succès — ton patrimonial, crème/navy */
 .vc3-reserve-succes{font-size:0.95rem;line-height:1.6;color:var(--vc3-ink);text-align:center;margin:8px 0 22px;font-family:'Crimson Pro',serif}
+
+/* Barre d'action de la vitrine — MOBILE UNIQUEMENT.
+   ⚠ CETTE REGLE DOIT RESTER AVANT LA MEDIA QUERY. Une media query n'ajoute
+   AUCUNE specificite : posee apres, cette declaration l'emporterait et
+   masquerait la barre jusque sur telephone. Precedents corriges deux fois
+   (.ci-liste-rappel sur la carte, .hm-acces sur le Sommaire).
+   En display:none l'element sort de la mise en page : la vitrine desktop est
+   invariante par construction, pas par verification. */
+.vc3-actions{display:none}
+/* Meme regime pour la feuille « Explorer » : declaree eteinte ICI, AVANT la
+   media query, donc absente de la mise en page desktop par construction. */
+.vcs-fond,.vcs-sheet{display:none}
+
+/* ═══ VITRINE MOBILE — seuil unique 768 px (convention posee dans accueil.css)
+   Premier seuil 768 de ce fichier : les points de rupture existants sont a
+   1000 et 900, donc ce bloc n'ecrase rien, il ajoute une bande sous eux.    */
+@media (max-width: 768px) {
+
+  /* ── L'EN-TETE, DE 145 A ~70 PX ──
+     Il montait a 145 px alors que le desktop tient en 100 : sa colonne
+     centrale passait a DEUX LIGNES sur chacun de ses deux textes (nom 152x52,
+     region 152x38), coincee dans les 151 px que lui laissaient « Retour » a
+     gauche et « Reserver » a droite. Mesure, pas supposition.
+     Trois gestes, aucun cosmetique :
+       - le CTA « Reserver » s'en va : la barre d'action du bas le porte
+         desormais EN PERMANENCE, il faisait double emploi ;
+       - la ligne region s'en va : le surtitre du hero porte deja
+         region · departement · siecle, juste en dessous ;
+       - le rembourrage lateral tombe de 36 a 14 px.
+     La colonne centrale passe ainsi de 151 a ~293 px : le nom tient sur une
+     ligne, et l'en-tete redevient plus court que son homologue desktop. */
+  .vc3-header{padding:10px 14px}
+  .vc3-header-cta{display:none}
+  .vc3-header-region{display:none}
+  .vc3-header-lys{height:18px}
+  .vc3-retour{font-size:0.8rem}
+  /* Le CTA parti, `.vc3-header` n'a plus que DEUX enfants : son
+     `justify-content:space-between` poussait le bloc central contre le bord
+     droit (centre mesure a x=274 pour un ecran de 375).
+     Grille a trois colonnes plutot que centrage absolu : la troisieme reste
+     vide et fait CONTREPOIDS au bouton « Retour », ce qui centre exactement
+     sans sortir le bloc du flux. Un centrage absolu marchait au pixel, mais
+     l'en-tete ne mesurait plus que la hauteur du bouton — 36 px — et le nom
+     debordait sur le hero. Ici la hauteur suit son contenu.
+     Le nom passe en ellipse : un nom plus long que « Chateau des
+     Briottieres » se coupe proprement au lieu de deborder. */
+  .vc3-header{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+  .vc3-retour{justify-self:start}
+  .vc3-header-nom{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+
+  /* ── LE HERO RESPIRE ──
+     `.vc3-hero2-inner` porte un rembourrage lateral de 48 px, dimensionne
+     pour le desktop : sur 375 px il ne laissait que 279 px de contenu.
+     Et surtout, `.vc3-sejour-dates` est en `1fr 1fr` — or `fr` ne descend
+     JAMAIS sous le min-content de sa piste. Un champ `input[type=date]` mesure
+     141 px sur Chromium (« jj/mm/aaaa » plus l'icone calendrier) contre 106 sur
+     WebKit : le bloc sejour gonflait a 345 px et sortait a x=393 pour un ecran
+     de 375. Le debordement etait INVISIBLE parce que `.vc3-corps` est en
+     `overflow-x:hidden` — il coupait au lieu de deborder. Mesure sur les deux
+     moteurs, pas sur un seul : Safari cachait le defaut, Chrome Android le
+     subissait.
+     Meme famille de bug que la grille du Sommaire. Les deux causes sont
+     traitees : le rembourrage descend, et les pistes recoivent `minmax(0,1fr)`
+     pour pouvoir enfin se comprimer. */
+  .vc3-hero2-inner{padding:40px 20px}
+  .vc3-sejour{padding:22px 18px}
+  .vc3-sejour-dates{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .vc3-sejour-field{min-width:0}
+  .vc3-sejour-field input{min-width:0;width:100%}
+
+  /* ── LA BARRE LATERALE S'ETEINT ──
+     Sous 1000 px elle quittait la colonne de droite pour passer sous le
+     journal : mesuree a y=2752 px sur un ecran de 812, soit 3,4 ecrans de
+     defilement avant d'atteindre le seul acces aux offres et aux sept themes.
+     ⚠ Cette ligne n'a ete posee QU'AVEC la feuille « Explorer » qui la
+     remplace, et avec le rebranchement des harnais. Posee a l'etape 1, elle
+     laissait le mobile SANS aucun chemin vers les modules et les themes, et
+     faisait tomber 10 tests mobile-safari — l'incident `.journal-demeures`
+     a l'identique : on masque une section, l'unique acces qu'elle portait
+     disparait avec elle. */
+  .bl{display:none}
+
+  /* ── LA BARRE D'ACTION ──
+     Elle n'est PAS en position:fixed, et c'est voulu. Son parent
+     `.vc3-overlay` est deja `position:fixed` en colonne flex, avec
+     `.vc3-corps` en `flex:1`. En posant `flex-shrink:0` ici, la mise en page
+     RESERVE sa hauteur : le corps defile dans ce qui reste, et aucun contenu
+     ne peut passer dessous. Pas besoin d'un padding-bottom compensatoire sur
+     `.vc3-corps` — il n'y a rien a compenser. */
+  .vc3-actions{
+    display:flex;gap:10px;flex-shrink:0;z-index:210;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));
+    background:var(--vc3-bg);border-top:1px solid var(--or20)
+  }
+  .vc3-actions-btn{
+    flex:1;min-height:var(--hm-tap,44px);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Crimson Pro',serif;font-size:var(--hm-t-micro,0.60rem);
+    font-weight:300;letter-spacing:0.18em;text-transform:uppercase;
+    color:var(--vc3-ink);background:none;cursor:pointer;
+    border:1px solid var(--or20);border-radius:var(--hm-r-s,9px)
+  }
+  .vc3-actions-btn--cta{
+    font-weight:600;color:var(--vc3-on-or);border-color:transparent;
+    background:linear-gradient(135deg,var(--or) 0%,var(--or-c) 100%)
+  }
+
+  /* ══ LA FEUILLE « EXPLORER LE CHATEAU » ══
+     Elle est ABSOLUE dans `.vc3-overlay` (position:fixed) et non `fixed`
+     elle-meme : elle appartient a la vitrine, pas a la page. Elle passe donc
+     par-dessus la barre d'action, qui est son declencheur — d'ou z-index 240
+     contre 210. */
+  .vcs-fond{
+    display:block;position:absolute;inset:0;z-index:230;
+    background:var(--vc3-scrim);backdrop-filter:blur(2px);
+    opacity:0;pointer-events:none;transition:opacity 0.28s ease
+  }
+  .vcs-fond--ouvert{opacity:1;pointer-events:auto}
+
+  .vcs-sheet{
+    display:flex;flex-direction:column;
+    position:absolute;left:0;right:0;bottom:0;z-index:240;
+    max-height:82%;
+    background:var(--vc3-surface-modal);
+    border-top:1px solid var(--or20);
+    border-radius:16px 16px 0 0;
+    box-shadow:0 -18px 50px rgba(7,16,30,0.28);
+    transform:translateY(100%);
+    transition:transform 0.34s cubic-bezier(0.22,0.61,0.36,1);
+    padding-bottom:env(safe-area-inset-bottom)
+  }
+  .vcs-sheet--ouvert{transform:translateY(0)}
+
+  /* La tete ne defile pas : elle porte le glissement de fermeture. */
+  .vcs-tete{flex-shrink:0;padding:10px 18px 14px;touch-action:none}
+  .vcs-poignee{
+    display:block;width:38px;height:4px;margin:0 auto 14px;border-radius:2px;
+    background:var(--or20)
+  }
+  .vcs-titre{
+    margin:0;text-align:center;font-family:'Playfair Display',serif;
+    font-size:1.24rem;color:var(--vc3-ink);letter-spacing:0.01em
+  }
+  .vcs-orn{display:flex;align-items:center;justify-content:center;gap:12px;margin:10px 0 14px}
+  .vcs-orn-l{display:block;width:44px;height:1px;background:var(--or20)}
+  .vcs-orn-lys{height:16px;width:auto;display:block;background:transparent}
+
+  /* Bascule Themes | Offres — navy plein pour l'actif, filet or pour l'autre. */
+  .vcs-toggle{display:flex;gap:8px}
+  .vcs-toggle-btn{
+    flex:1;min-height:var(--hm-tap,44px);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Crimson Pro',serif;font-size:var(--hm-t-micro,0.60rem);
+    letter-spacing:0.18em;text-transform:uppercase;font-weight:300;
+    color:var(--vc3-ink);background:none;cursor:pointer;
+    border:1px solid var(--or20);border-radius:var(--hm-r-s,9px);
+    transition:background 0.2s,color 0.2s,border-color 0.2s
+  }
+  .vcs-toggle-btn--actif{
+    background:var(--vc3-ink);color:#F7F2E8;border-color:var(--vc3-ink);font-weight:500
+  }
+
+  .vcs-liste{flex:1;overflow-y:auto;overscroll-behavior:contain;padding:4px 18px 18px}
+  .vcs-item{
+    display:grid;grid-template-columns:38px minmax(0,1fr) 18px;
+    align-items:center;gap:14px;width:100%;
+    min-height:var(--hm-tap,44px);padding:13px 0;
+    background:none;border:none;border-bottom:1px solid var(--or15);
+    cursor:pointer;text-align:left
+  }
+  .vcs-item:last-child{border-bottom:none}
+  /* Numero romain cercle — l'ornement d'un sommaire d'ouvrage. */
+  .vcs-item-num{
+    display:flex;align-items:center;justify-content:center;
+    width:34px;height:34px;border-radius:50%;
+    border:1px solid var(--or20);
+    font-family:'Playfair Display',serif;font-size:0.82rem;color:var(--or);
+    letter-spacing:0.02em
+  }
+  .vcs-item-ico{width:34px;height:34px;object-fit:contain;background:transparent}
+  .vcs-item-txt{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .vcs-item-titre{
+    font-family:'Playfair Display',serif;font-size:var(--hm-t-titre-s,1.12rem);
+    color:var(--vc3-ink);line-height:1.2
+  }
+  .vcs-item-sous{
+    font-family:'Crimson Pro',serif;font-style:italic;font-weight:300;
+    font-size:var(--hm-t-corps,0.78rem);color:var(--vc3-ink-40);line-height:1.4
+  }
+  .vcs-item-chev{color:var(--or);font-size:0.9rem;justify-self:end}
+  .vcs-item[aria-current="true"] .vcs-item-titre{color:var(--or)}
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vcs-fond,.vcs-sheet{transition:none}
+}

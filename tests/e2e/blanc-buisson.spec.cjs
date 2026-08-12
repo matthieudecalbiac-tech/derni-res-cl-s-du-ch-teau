@@ -10,6 +10,7 @@
  * voir briottieres.spec.cjs — côté Blanc Buisson ces valeurs sont justes par hasard.
  */
 const { test, expect } = require('@playwright/test');
+const { selModule, ouvrirNavVitrine } = require('./_navVitrine.cjs');
 
 async function ouvrirBlancBuisson(page) {
   // Accès par URL directe (voie SEO /chateau/:slug) : robuste au choix éditorial
@@ -66,9 +67,12 @@ test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
   test('Modal de réservation propose les 2 hébergements', async ({ page }) => {
     await ouvrirBlancBuisson(page);
     // Le module Permanent n'est plus inline : son contenu reste dans le DOM
-    // (bloc SEO) mais invisible. On ouvre donc sa MODALE depuis la barre
-    // laterale avant de cliquer le CTA d'une chambre — c'est le parcours reel.
-    await page.locator('.bl-offre[data-module="permanent"]').click();
+    // (bloc SEO) mais invisible. On ouvre donc sa MODALE depuis la navigation
+    // avant de cliquer le CTA d'une chambre — c'est le parcours reel.
+    // La navigation, c'est la barre laterale en desktop et la feuille
+    // « Explorer » en mobile : le helper prend la voie de la largeur courante.
+    await ouvrirNavVitrine(page, 'offres');
+    await page.locator(selModule('permanent')).click();
     const modaleModule = page.locator('.mdl-panneau');
     await expect(modaleModule).toBeVisible({ timeout: 5000 });
 

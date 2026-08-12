@@ -14,6 +14,7 @@
  *   - portrait typo lit proprietaires.initiale + nomAffiche (ex-découpe nom[0] + slice)
  */
 const { test, expect } = require('@playwright/test');
+const { selModule, ouvrirNavVitrine } = require('./_navVitrine.cjs');
 
 async function ouvrirBriottieres(page) {
   // Accès par URL directe (voie SEO /chateau/:slug) : robuste au choix éditorial
@@ -78,7 +79,9 @@ test.describe('Vitrine Briottières · parcours critiques', () => {
     // Le module Permanent n'est plus inline : son contenu reste dans le DOM
     // (bloc SEO) mais invisible, et s'ouvre en modale — meme mecanisme en mode
     // route et en mode overlay, la ou il y avait deux comportements.
-    await page.locator('.bl-offre[data-module="permanent"]').click();
+    // Navigation : barre laterale en desktop, feuille « Explorer » en mobile.
+    await ouvrirNavVitrine(page, 'offres');
+    await page.locator(selModule('permanent')).click();
     const modaleModule = page.locator('.mdl-panneau');
     await expect(modaleModule).toBeVisible({ timeout: 5000 });
 

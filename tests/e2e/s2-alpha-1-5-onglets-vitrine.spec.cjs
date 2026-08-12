@@ -18,10 +18,20 @@
  * ── SÉLECTEURS RÉÉCRITS (retrait des onglets N1/N2 du flux) ──────────────────
  * La bande de cartes Niveau 1 et la barre d'onglets Niveau 2 ont quitté la page :
  * la BARRE LATÉRALE est le seul point d'accès. Les tests visent donc désormais
- *   .vc4-offre-card[data-onglet="X"]  →  .bl-offre[data-module="X"]
- *   .vc4-offre-card--actif            →  .bl-offre--actif
- *   .vc4-onglet-n2[data-theme="X"]    →  .bl-theme[data-theme="X"]
+ *   .vc4-offre-card[data-onglet="X"]  →  selModule("X")
+ *   .vc4-offre-card--actif            →  aria-current="true"
+ *   .vc4-onglet-n2[data-theme="X"]    →  selTheme("X")
  *   .vc4-onglets-n2-wrap              →  .bl-themes
+ *
+ * ── ET DEPUIS LE MOBILE (feuille « Explorer ») ──────────────────────────────
+ * Sous 768 px la barre laterale est eteinte : la navigation passe par la
+ * feuille « Explorer le chateau ». Les tests ne visent donc plus `.bl-*` en
+ * dur mais `selModule()` / `selTheme()` de `_navVitrine.cjs`, qui interrogent
+ * LES DEUX sources filtrees par `:visible` — une seule repond, celle de la
+ * largeur courante. `ouvrirNavVitrine(page, 'offres'|'themes')` ouvre la
+ * feuille si l'on est en mobile, et ne fait rien en desktop.
+ * L'etat actif se lit sur `aria-current="true"` et non sur `.bl-offre--actif` :
+ * l'attribut existe des deux cotes, la classe non.
  * Ce qu'ils VÉRIFIENT est inchangé — seul le chemin d'accès a bougé. Aucune
  * assertion n'a été relâchée, aucun test neutralisé pour faire passer la suite.
  * Le Test 11 (sticky de la bande N1) est SUPPRIMÉ : son sujet n'existe plus.
@@ -29,6 +39,7 @@
  * URL params en camelCase (alignés sur chateau.modules.dernieresCles).
  */
 const { test, expect } = require('@playwright/test');
+const { selModule, selTheme, ouvrirNavVitrine } = require('./_navVitrine.cjs');
 
 test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
 
@@ -40,9 +51,10 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(page.locator('.vc3-hero2').first()).toBeVisible({ timeout: 8000 });
 
     // Onglet Permanent actif par défaut
-    const ongletPermanent = page.locator('.bl-offre[data-module="permanent"]');
+    await ouvrirNavVitrine(page, 'offres');
+    const ongletPermanent = page.locator(selModule('permanent'));
     await expect(ongletPermanent).toBeVisible();
-    await expect(ongletPermanent).toHaveClass(/bl-offre--actif/);
+    await expect(ongletPermanent).toHaveAttribute('aria-current', 'true');
 
     // Le contenu du module est DANS LE DOM (bloc SEO crawlable) mais invisible
     // avant clic. On verifie donc la PRESENCE ici, et la visibilite apres
@@ -65,9 +77,16 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await page.goto('/chateau/les-briottieres?onglet=dernieresCles');
     await page.waitForLoadState('domcontentloaded');
 
+    // PAS de feuille « Explorer » ici : `?onglet=` ouvre DEJA la modale du
+    // module (VitrineChateau.jsx:196), et elle recouvre la barre d'action —
+    // le clic sur « Explorer » serait intercepte.
+    // On lit donc l'etat actif sur le markup de la barre laterale, qui reste
+    // RENDU sous 768 px (elle y est en display:none, pas demontee) et porte le
+    // meme `aria-current` que la feuille. L'assertion vaut a toutes les
+    // largeurs, sans rien ouvrir — et elle ne depend plus de l'occlusion.
     const ongletDC = page.locator('.bl-offre[data-module="dernieresCles"]');
-    await expect(ongletDC).toBeVisible({ timeout: 8000 });
-    await expect(ongletDC).toHaveClass(/bl-offre--actif/);
+    await expect(ongletDC).toBeAttached({ timeout: 8000 });
+    await expect(ongletDC).toHaveAttribute('aria-current', 'true');
 
     // Au moins 1 offre listée (les services ne sont plus en base : la colonne
     // conditions est du texte libre, mapper renvoie servicesInclus: [], assume).
@@ -110,10 +129,11 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     // au click via modale stub (TODO α.2 : brancher Supabase auth).
     await page.goto('/chateau/les-briottieres');
     await page.waitForLoadState('domcontentloaded');
-    await page.locator('.bl-offre[data-module="permanent"]').waitFor({ timeout: 8000 });
+    await ouvrirNavVitrine(page, 'offres');
+    await page.locator(selModule('permanent')).waitFor({ timeout: 8000 });
 
     // L'onglet Club EST visible (modules.club=true via _mapping.js fallback)
-    const ongletClub = page.locator('.bl-offre[data-module="club"]');
+    const ongletClub = page.locator(selModule('club'));
     await expect(ongletClub).toBeVisible({ timeout: 5000 });
 
     // Click sur Club non-membre → le verrou s'ouvre. Il passe desormais par
@@ -138,14 +158,16 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(modaleAuth).toHaveCount(0, { timeout: 3000 });
 
     // L'onglet Permanent reste actif après fermeture
-    await expect(page.locator('.bl-offre[data-module="permanent"]')).toHaveClass(/bl-offre--actif/);
+    await ouvrirNavVitrine(page, 'offres');
+    await expect(page.locator(selModule('permanent'))).toHaveAttribute('aria-current', 'true');
   });
 
   test('Test 6 · Click onglet Histoire (niveau 2) → ?theme=histoire + timeline', async ({ page }) => {
     await page.goto('/chateau/les-briottieres');
     await page.waitForLoadState('domcontentloaded');
 
-    const ongletHistoire = page.locator('.bl-theme[data-theme="histoire"]');
+    await ouvrirNavVitrine(page, 'themes');
+    const ongletHistoire = page.locator(selTheme('histoire'));
     await ongletHistoire.scrollIntoViewIfNeeded();
     await ongletHistoire.click();
 
@@ -168,7 +190,10 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     const modale = page.locator('.mdl-panneau');
 
     for (const t of themes) {
-      const onglet = page.locator(`.bl-theme[data-theme="${t}"]`);
+      // Rappele a chaque tour : en mobile la feuille se referme des qu'on
+      // choisit un theme — c'est le geste du visiteur, pas une commodite.
+      await ouvrirNavVitrine(page, 'themes');
+      const onglet = page.locator(selTheme(t));
       await onglet.scrollIntoViewIfNeeded();
       await onglet.click();
       await expect(modale.locator(`[data-theme-contenu="${t}"]`)).toBeVisible({ timeout: 3000 });
@@ -279,7 +304,8 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(page.locator('.bl-themes')).toBeAttached();
 
     // Switch vers Dernieres Cles : la modale REVELE ce module.
-    await page.locator('.bl-offre[data-module="dernieresCles"]').click();
+    await ouvrirNavVitrine(page, 'offres');
+    await page.locator(selModule('dernieresCles')).click();
     await expect(modale).toBeVisible({ timeout: 8000 });
     await expect(modale.locator('[data-onglet-contenu="dernieresCles"]')).toBeVisible({ timeout: 8000 });
 
@@ -321,9 +347,16 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(page).toHaveURL(/\/chateau\/[^?]+\?onglet=dernieresCles/, { timeout: 5000 });
 
     // Onglet Dernières Clés actif à l'arrivée
+    // PAS de feuille « Explorer » ici : `?onglet=` ouvre DEJA la modale du
+    // module (VitrineChateau.jsx:196), et elle recouvre la barre d'action —
+    // le clic sur « Explorer » serait intercepte.
+    // On lit donc l'etat actif sur le markup de la barre laterale, qui reste
+    // RENDU sous 768 px (elle y est en display:none, pas demontee) et porte le
+    // meme `aria-current` que la feuille. L'assertion vaut a toutes les
+    // largeurs, sans rien ouvrir — et elle ne depend plus de l'occlusion.
     const ongletDC = page.locator('.bl-offre[data-module="dernieresCles"]');
-    await expect(ongletDC).toBeVisible({ timeout: 8000 });
-    await expect(ongletDC).toHaveClass(/bl-offre--actif/);
+    await expect(ongletDC).toBeAttached({ timeout: 8000 });
+    await expect(ongletDC).toHaveAttribute('aria-current', 'true');
   });
 
 });
