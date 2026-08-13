@@ -65,3 +65,10 @@
 @media (max-width: 900px) {
   .pr-main { padding: calc(var(--lcc-header-h, 105px) + 24px) 20px 48px; }
 }
+
+/* Ombre mobile : 44 px de flou -> token partage. Au doigt il n'y a pas de
+   survol, mais l'appui long le declenche : autant qu'il soit a la bonne
+   echelle plutot que voyant. */
+@media (max-width: 768px) {
+  .pr-carte--cliquable:hover { box-shadow: var(--hm-ombre, 0 6px 18px rgba(7, 16, 30, 0.10)); }
+}

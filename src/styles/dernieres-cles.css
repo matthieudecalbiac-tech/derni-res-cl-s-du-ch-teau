@@ -358,3 +358,8 @@
   font-family: 'Crimson Pro', serif; font-size: 0.95rem; font-style: italic;
   color: #3A4456; line-height: 1.7; max-width: 420px; margin: 0;
 }
+
+/* Ombre mobile : 40 px de flou -> token partage. */
+@media (max-width: 768px) {
+  .dk-carte-offre:hover, .dk-carte-offre.survol { box-shadow: var(--hm-ombre, 0 6px 18px rgba(7, 16, 30, 0.10)); }
+}

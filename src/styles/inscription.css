@@ -361,3 +361,26 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ═══ MOBILE — CIBLES TACTILES ET OMBRE (seuil 768) ═══
+   Memes defauts que la connexion, memes corrections : champs a 42 px, oeil a
+   34x30. L'ombre du conteneur descend de 60 px de flou au token partage. */
+@media (max-width: 768px) {
+  .ins-input { min-height: var(--hm-tap, 44px); }
+  .ins-show-password-toggle {
+    width: var(--hm-tap, 44px); height: var(--hm-tap, 44px);
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* le lien « Se connecter » du bas : lien nu de 17 px, sans classe. */
+  .ins-already-member a { display: inline-flex; align-items: center; min-height: var(--hm-tap, 44px); }
+  .ins-container { box-shadow: var(--hm-ombre, 0 6px 18px rgba(7, 16, 30, 0.10)); }
+}
+
+/* PPP MOBILE — INTERLETTRAGE DES SURTITRES (seuil 768) PPP
+   Les petites capitales etaient espacees de 0.14 a 0.38 em selon les
+   feuilles, sans regle. Deux valeurs partagees desormais : les surtitres au
+   niveau le plus delie, les labels de champ un cran en dessous. */
+@media (max-width: 768px) {
+  .ins-label { letter-spacing: var(--hm-ls-micro, 0.18em); }
+  .ins-eyebrow { letter-spacing: var(--hm-ls-eyebrow, 0.32em); }
+}

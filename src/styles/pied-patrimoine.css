@@ -75,3 +75,15 @@
 .pied-patrimoine-pro-lien:focus-visible {
   color: rgba(192, 152, 64, 0.85);
 }
+
+/* ═══ MOBILE — CIBLES TACTILES (seuil 768) ═══
+   Le pied est partage par TOUS les ecrans : ses liens a 17 et 12 px de haut
+   comptaient double a chaque page auditee. Premiere media query de ce
+   fichier, qui n'en avait aucune. */
+@media (max-width: 768px) {
+  .pied-patrimoine-lien,
+  .pied-patrimoine-pro-lien {
+    display: inline-flex; align-items: center;
+    min-height: var(--hm-tap, 44px);
+  }
+}

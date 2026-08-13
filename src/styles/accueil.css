@@ -118,44 +118,18 @@
      intervalle : hors perimetre de cette etape, a trancher separement.
    ══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  /* ── ECHELLE MOBILE — le reglage se fait ICI, pas dans chaque fichier ──────
-     Pass de raffinement du 6 aout 2026 : la home mobile paraissait massive.
-     Plutot que de rapetisser element par element, on descend l'echelle d'un
-     cran EN CONSERVANT LES RAPPORTS — la hierarchie est intacte, seul le
-     niveau general baisse.
+  /* ── L'ECHELLE MOBILE A DEMENAGE DANS global.css ───────────────────────────
+     Les quatorze tokens `--hm-*` poses ici lors de la refonte de la home du
+     6 aout 2026 vivent desormais dans le bloc `@media (max-width: 768px)` de
+     `global.css`, ou deux tokens d'ombre les ont rejoints.
 
-     Ces variables ne sont definies QUE sous le seuil : au-dessus, elles
-     n'existent pas, et aucune regle desktop ne peut les lire. C'est ce qui
-     garantit l'invariant sans avoir a le verifier fichier par fichier.
+     POURQUOI : ils ne servent plus la seule home. Le Sommaire et la vitrine
+     chateau les lisent sur TOUTES les routes, y compris celles ou la home
+     n'est pas montee — or ce fichier est importe par App.jsx quand
+     global.css l'est par main.jsx. La dependance tenait a l'ordre d'import.
 
-     Pour re-regler l'ensemble plus tard : toucher ces onze lignes suffit. */
-  :root {
-    --hm-t-eyebrow: 0.56rem;   /* petites capitales, franchement fines */
-    --hm-t-micro:   0.60rem;   /* labels de champ, liens en capitales */
-    /* 0.78 et non 0.84 : a 0.84 le libelle des puces (0.80 avant la passe)
-       REMONTAIT, seule valeur de la home a contredire le sens du raffinement.
-       Verifie a la mesure, pas a l'oeil. */
-    --hm-t-corps:   0.78rem;   /* texte courant */
-    --hm-t-lead:    0.92rem;   /* accroches, questions de la barre */
-    --hm-t-titre-s: 1.12rem;   /* nom de chateau en carte */
-    --hm-t-titre-m: 1.42rem;   /* titre de section */
-    --hm-t-titre-l: clamp(1.72rem, 7.2vw, 2.1rem);  /* titre hero */
-
-    /* Filets plus legers : 0.16-0.20 d'opacite la ou on etait a 0.22-0.30. */
-    --hm-filet: rgba(192, 152, 64, 0.16);
-    --hm-bord:  rgba(192, 152, 64, 0.20);
-
-    /* Coins moins "bulle" : 10-12 px au lieu de 14-18. */
-    --hm-r-s: 9px;
-    --hm-r-m: 12px;
-
-    --hm-pad-carte: 16px;      /* padding interne des cartes et encarts */
-    --hm-gap-sect:  20px;      /* respiration entre blocs */
-
-    /* Plancher de cible tactile. Toute zone cliquable s'y adosse : le
-       raffinement ne doit jamais descendre sous ce seuil. */
-    --hm-tap: 44px;
-  }
+     Rien d'autre n'a change : meme media query, meme selecteur, memes
+     valeurs. Les regles ci-dessous continuent de les lire a l'identique. */
 
   /* La carte illustree quitte le flux : en mobile elle n'est plus un contenu,
      elle devient un filigrane derriere le titre (cf. .acc-slogan::after).

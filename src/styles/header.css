@@ -255,6 +255,9 @@
   .header--solide .header-inner { padding: 0.9rem 1.5rem; }
   .header-cta { display: none; }
   .header-connexion { display: none; }
+  /* Le burger mesurait 27 px de haut : c'est la commande la plus utilisee
+     du site mobile, et la seule presente sur tous les ecrans. */
+  .header-burger { min-height: var(--hm-tap, 44px); min-width: var(--hm-tap, 44px); align-items: center; }
   .header-logo-embleme { height: 48px; }
   .header-logo-wordmark { height: 38px; }
 

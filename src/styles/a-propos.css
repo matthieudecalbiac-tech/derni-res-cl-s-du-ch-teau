@@ -1041,3 +1041,33 @@
   padding: 6px 18px; cursor: pointer; transition: all 0.2s;
 }
 .page-header-fermer:hover { border-color: #C09840; color: #F5F0E8; }
+
+/* ═══ MOBILE — PLANCHER TYPOGRAPHIQUE (seuil 768) ═══
+   Sur les 17 declarations sous 13 px de cet ecran, la grande majorite sont des
+   petites capitales largement espacees : une convention de presse
+   patrimoniale, pas un oubli. Les remonter abimerait le dessin. On n'en
+   touche que deux, et pour une raison verifiee sur la declaration elle-meme :
+
+     .ap-patrimoine-label   0.68rem, SANS capitales, 0.08em  -> texte courant
+     .ap-patrimoine-detail  0.72rem, SANS capitales, italique -> texte courant
+
+   Ce sont du texte courant retreci, pas des eyebrows. Ils rejoignent
+   --hm-t-corps (0.78rem), la valeur du texte courant mobile du site.
+
+   Les deux autres candidats de l'audit sont ECARTES apres verification :
+   .ap-chiffre-label porte 0.2em d'interlettrage en capitales (eyebrow
+   assume), et .ap-valeur-desc vaut deja 0.78rem — les remonter n'aurait rien
+   change, sinon casser une convention. */
+@media (max-width: 768px) {
+  .ap-patrimoine-label  { font-size: var(--hm-t-corps, 0.78rem); }
+  .ap-patrimoine-detail { font-size: var(--hm-t-corps, 0.78rem); }
+}
+
+/* PPP MOBILE — INTERLETTRAGE DES SURTITRES (seuil 768) PPP
+   Les petites capitales etaient espacees de 0.14 a 0.38 em selon les
+   feuilles, sans regle. Deux valeurs partagees desormais : les surtitres au
+   niveau le plus delie, les labels de champ un cran en dessous. */
+@media (max-width: 768px) {
+  .ap-section-label { letter-spacing: var(--hm-ls-eyebrow, 0.32em); }
+  .ap-hero-sur-titre { letter-spacing: var(--hm-ls-eyebrow, 0.32em); }
+}
