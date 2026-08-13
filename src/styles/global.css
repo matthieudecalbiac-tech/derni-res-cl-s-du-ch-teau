@@ -329,6 +329,65 @@ button,
     --t-3xl: 2rem;
     --t-4xl: 2.8rem;
     --s-xl: 4rem;
+
+    /* ══ ECHELLE MOBILE PARTAGEE ═══════════════════════════════════════════
+       Ces tokens vivaient dans accueil.css depuis la refonte de la home du
+       6 aout. Ils sont DEPLACES ICI, verbatim : meme media query, meme
+       selecteur `:root`, memes valeurs. La portee ne change pas d'un
+       caractere — ils n'existent QUE sous le seuil, et aucune regle desktop
+       ne peut les lire.
+
+       ⚠ ILS N'ONT RIEN A FAIRE DANS LE :root DU HAUT DE CE FICHIER. Posee la,
+       une seule de ces lignes fuirait sur tous les ecrans desktop du site.
+
+       POURQUOI LE DEPLACEMENT : accueil.css est importe par App.jsx, ce
+       fichier par main.jsx. Le Sommaire et la vitrine chateau lisent ces
+       tokens sur TOUTES les routes — y compris celles ou la home n'est pas
+       montee. La dependance tenait a l'ordre d'import ; elle ne tient plus.
+
+       Verifie avant deplacement : 75 usages `var(--hm-*)` repartis sur
+       10 feuilles, TOUS sous 768 px, et aucune declaration concurrente
+       ailleurs. La resolution d'une custom property se fait sur l'element au
+       calcul, pas au parse : l'ordre des feuilles n'entre pas en jeu.
+
+       Pour re-regler l'echelle mobile du site : ces lignes suffisent.       */
+    --hm-t-corps:   0.78rem;   /* texte courant */
+    --hm-t-lead:    0.92rem;   /* accroches, questions de la barre */
+    --hm-t-titre-s: 1.12rem;   /* nom de chateau en carte */
+    --hm-t-titre-m: 1.42rem;   /* titre de section */
+    --hm-t-titre-l: clamp(1.72rem, 7.2vw, 2.1rem);  /* titre hero */
+
+    /* Filets : 0.13-0.16 la ou on etait a 0.16-0.20, et 0.22-0.30 a
+       l'origine. La finesse du trait est la signature : un filet qu'on
+       devine vaut mieux qu'un filet qu'on lit. */
+    --hm-filet: rgba(192, 152, 64, 0.16);
+    --hm-bord:  rgba(192, 152, 64, 0.20);
+
+    /* Coins : 7-10 px au lieu de 9-12. Moins "bulle", plus taille. */
+    --hm-r-s: 9px;
+    --hm-r-m: 12px;
+
+    /* Espacements a peine resserres : le luxe RESPIRE, il ne se tasse pas.
+       -1 et -2 px, pas davantage. */
+    --hm-pad-carte: 16px;      /* padding interne des cartes et encarts */
+    --hm-gap-sect:  20px;      /* respiration entre blocs */
+
+    /* Plancher de cible tactile. Toute zone cliquable s'y adosse : le
+       raffinement ne doit jamais descendre sous ce seuil. */
+    --hm-tap: 44px;
+
+    /* ── OMBRES MOBILES ──────────────────────────────────────────────────
+       L'echelle n'en avait pas, et c'est la que le mobile pesait le plus
+       lourd : jusqu'a 80 px de flou sur `.mdl-panneau`, soit 21 % de la
+       largeur d'un ecran de 375. A cette echelle une ombre n'est plus une
+       elevation, c'est un halo.
+
+       DEUX tokens et non un, parce que la direction se voit : une carte
+       POSEE recoit sa lumiere d'en haut et projette vers le bas ; une
+       feuille qui MONTE du bas projette vers le haut. Les confondre donnerait
+       a la feuille « Explorer » une ombre qui la pousse dans l'ecran. */
+    --hm-ombre:    0 6px 18px rgba(7, 16, 30, 0.10);   /* surface posee */
+    --hm-ombre-fl: 0 -8px 24px rgba(7, 16, 30, 0.14);  /* elevation flottante */
   }
 }
 

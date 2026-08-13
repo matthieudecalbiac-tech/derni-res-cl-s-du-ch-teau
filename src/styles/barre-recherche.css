@@ -270,3 +270,7 @@
   .br-carte { opacity: 1; animation: none; }
   .br-filtres-lien { opacity: 1; animation: none; }
 }
+/* Ombre mobile : 44 px de flou -> token partage (surface posee). */
+@media (max-width: 768px) {
+  .br-carte { box-shadow: var(--hm-ombre, 0 6px 18px rgba(7, 16, 30, 0.10)); }
+}

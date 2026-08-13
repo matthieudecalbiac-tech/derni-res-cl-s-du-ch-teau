@@ -363,3 +363,29 @@
   .cnx-titre { font-size: 24px; }
   .cnx-sous-titre { font-size: 14px; margin-bottom: 24px; }
 }
+
+/* ═══ MOBILE — CIBLES TACTILES ET OMBRE (seuil 768) ═══
+   Mesure avant correction : champs a 42 px (2 px sous le seuil), oeil du mot
+   de passe a 34x30, lien « mot de passe oublie » a 22 px.
+   L'ombre passe de 60 px de flou au token partage : a 375 px de large, un
+   flou de 60 px couvre 16 % de l'ecran — ce n'est plus une elevation. */
+@media (max-width: 768px) {
+  .cnx-input { min-height: var(--hm-tap, 44px); }
+  .cnx-show-password-toggle {
+    width: var(--hm-tap, 44px); height: var(--hm-tap, 44px);
+    display: flex; align-items: center; justify-content: center;
+  }
+  /* ⚠ `flex` et non `inline-flex`. La regle de base est `display:block` +
+     `text-align:right` : passer en inline-flex retire l'element du flux de
+     bloc, `text-align` ne s'y applique plus, et le lien repartait a GAUCHE.
+     Vu sur la capture avant/apres, pas dans le code. On garde donc une boite
+     pleine largeur et on pousse le contenu a droite explicitement. */
+  .cnx-forgot {
+    display: flex; align-items: center; justify-content: flex-end;
+    min-height: var(--hm-tap, 44px);
+  }
+  .cnx-alt-method { min-height: var(--hm-tap, 44px); }
+  /* le lien � Rejoindre le Club � du bas : lien nu de 17 px, sans classe. */
+  .cnx-no-account a { display: inline-flex; align-items: center; min-height: var(--hm-tap, 44px); }
+  .cnx-container { box-shadow: var(--hm-ombre, 0 6px 18px rgba(7, 16, 30, 0.10)); }
+}

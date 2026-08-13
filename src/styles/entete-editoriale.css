@@ -81,3 +81,19 @@
   .ee-wordmark { font-size: 1.1rem; }
   .ee-titre { font-size: 0.95rem; }
 }
+
+/* ═══ MOBILE — CIBLES TACTILES (seuil 768) ═══
+   Les maillons du fil d'Ariane mesuraient 12 px de haut. Le fil reste une
+   ligne : on epaissit la zone de frappe des liens, pas le texte, dont la
+   taille en petites capitales espacees est une convention assumee. */
+@media (max-width: 768px) {
+  .ee-fil a {
+    display: inline-flex; align-items: center;
+    min-height: var(--hm-tap, 44px);
+  }
+}
+
+/* Le medaillon de l'en-tete editorial : 42 px, deux de trop peu. */
+@media (max-width: 768px) {
+  .ee-logo { min-height: var(--hm-tap, 44px); }
+}

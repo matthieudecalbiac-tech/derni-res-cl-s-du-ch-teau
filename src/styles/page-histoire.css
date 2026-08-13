@@ -197,3 +197,17 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ═══ MOBILE — CIBLES TACTILES (seuil 768, echelle partagee de global.css) ═══
+   Mesure avant correction : 26 cibles sous 44 px sur cet ecran, le pire de
+   l'app. Les noms de personnages (.ph-nom) faisaient 20 px de haut, et les
+   liens du fil d'Ariane 12 px.
+   La cible est portee par `min-height` + centrage, JAMAIS par du rembourrage
+   seul : un padding pousse les voisins et decale la mise en page, la ou une
+   hauteur minimale sur une boite deja centree ne fait que l'epaissir. */
+@media (max-width: 768px) {
+  .ph-nom {
+    display: flex; align-items: center; justify-content: center;
+    min-height: var(--hm-tap, 44px);
+  }
+}

@@ -53,3 +53,17 @@
 @media (prefers-reduced-motion: reduce) {
   .mdl-overlay, .mdl-panneau { animation: none; }
 }
+
+/* ═══ MOBILE — L'OMBRE (seuil 768) ═══
+   `.mdl-panneau` portait 80 px de flou : sur un ecran de 375 px, cela couvre
+   21 % de la largeur. Une ombre de cette taille ne suggere plus une
+   elevation, elle voile la page.
+   Entre 620 et 768 px le panneau est encore une carte centree : il garde une
+   ombre, celle du token partage. SOUS 620 il occupe TOUT l'ecran — il n'y a
+   plus de fond a ombrer, donc plus d'ombre du tout. */
+@media (max-width: 768px) {
+  .mdl-panneau { box-shadow: var(--hm-ombre, 0 6px 18px rgba(7, 16, 30, 0.10)); }
+}
+@media (max-width: 620px) {
+  .mdl-panneau { box-shadow: none; }
+}

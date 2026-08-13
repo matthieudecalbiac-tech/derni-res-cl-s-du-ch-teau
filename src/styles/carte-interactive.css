@@ -681,3 +681,9 @@
     line-height: var(--hm-tap, 44px); font-size: 1.15rem;
   }
 }
+
+/* Ombre mobile du calendrier : 50 px de flou -> token partage. Le popover
+   descend sous son declencheur, donc lumiere d'en haut : ombre posee. */
+@media (max-width: 768px) {
+  .ci-cal-pop { box-shadow: var(--hm-ombre, 0 6px 18px rgba(7, 16, 30, 0.10)); }
+}

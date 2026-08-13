@@ -297,3 +297,22 @@
   border-color: #C09840;
   color: #C09840;
 }
+/* ═══ MOBILE — CIBLES TACTILES ET OMBRE (seuil 768) ═══
+   Mesure avant correction : les quatre filtres a 41 px (`padding: 12px 0`,
+   sans hauteur), et la croix de fermeture des en-tetes de page a 28 px.
+   `.page-header-fermer` est partagee : la corriger ici sert aussi l'overlay
+   « A propos », qui la reutilise.
+   Le filtre garde son `padding: 12px 0` — c'est lui qui place le filet
+   soulignant l'onglet actif. On ajoute une hauteur minimale et on centre :
+   le trait ne bouge pas, la zone de frappe grandit. */
+@media (max-width: 768px) {
+  .vit-filtre {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: var(--hm-tap, 44px);
+  }
+  .page-header-fermer {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: var(--hm-tap, 44px);
+  }
+  .vit-carte { box-shadow: var(--hm-ombre, 0 6px 18px rgba(7, 16, 30, 0.10)); }
+}

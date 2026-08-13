@@ -219,7 +219,11 @@
   .vc3-header-cta{display:none}
   .vc3-header-region{display:none}
   .vc3-header-lys{height:18px}
-  .vc3-retour{font-size:0.8rem}
+  /* La police reduite avait laisse une zone de frappe de 15 px de haut —
+     residu de l'etape 1 du chantier vitrine. Le bouton est deja `display:flex`
+     centre : une hauteur minimale suffit a le porter au seuil sans deplacer
+     son libelle ni changer la hauteur de l'en-tete, qui est plus haut. */
+  .vc3-retour{font-size:0.8rem;min-height:var(--hm-tap,44px)}
   /* Le CTA parti, `.vc3-header` n'a plus que DEUX enfants : son
      `justify-content:space-between` poussait le bloc central contre le bord
      droit (centre mesure a x=274 pour un ecran de 375).
@@ -249,8 +253,15 @@
      traitees : le rembourrage descend, et les pistes recoivent `minmax(0,1fr)`
      pour pouvoir enfin se comprimer. */
   .vc3-hero2-inner{padding:40px 20px}
-  .vc3-sejour{padding:22px 18px}
+  /* 60 px de flou couvraient 16 % d'un ecran de 375 : halo, pas elevation. */
+  .vc3-sejour{padding:22px 18px;box-shadow:var(--hm-ombre,0 6px 18px rgba(7,16,30,0.10))}
   .vc3-sejour-dates{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  /* Champs de date, compteur de voyageurs et CTA : 38 a 43 px, tous juste
+     sous le seuil. Ce sont les commandes du bloc de reservation — celles
+     qu'un visiteur utilise vraiment. */
+  .vc3-sejour-field input,.vc3-sejour-field select{min-height:var(--hm-tap,44px)}
+  .vc3-sejour-compteur button{width:var(--hm-tap,44px);height:var(--hm-tap,44px)}
+  .vc3-sejour-btn{min-height:var(--hm-tap,44px)}
   .vc3-sejour-field{min-width:0}
   .vc3-sejour-field input{min-width:0;width:100%}
 
@@ -310,7 +321,9 @@
     background:var(--vc3-surface-modal);
     border-top:1px solid var(--or20);
     border-radius:16px 16px 0 0;
-    box-shadow:0 -18px 50px rgba(7,16,30,0.28);
+    /* Ombre d'ELEVATION : la feuille monte du bas, elle projette vers le haut.
+       C'est le cas pour lequel --hm-ombre-fl existe. */
+    box-shadow:var(--hm-ombre-fl,0 -8px 24px rgba(7,16,30,0.14));
     transform:translateY(100%);
     transition:transform 0.34s cubic-bezier(0.22,0.61,0.36,1);
     padding-bottom:env(safe-area-inset-bottom)
@@ -380,3 +393,4 @@
 @media (prefers-reduced-motion: reduce) {
   .vcs-fond,.vcs-sheet{transition:none}
 }
+
