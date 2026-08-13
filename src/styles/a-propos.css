@@ -1062,3 +1062,12 @@
   .ap-patrimoine-label  { font-size: var(--hm-t-corps, 0.78rem); }
   .ap-patrimoine-detail { font-size: var(--hm-t-corps, 0.78rem); }
 }
+
+/* PPP MOBILE — INTERLETTRAGE DES SURTITRES (seuil 768) PPP
+   Les petites capitales etaient espacees de 0.14 a 0.38 em selon les
+   feuilles, sans regle. Deux valeurs partagees desormais : les surtitres au
+   niveau le plus delie, les labels de champ un cran en dessous. */
+@media (max-width: 768px) {
+  .ap-section-label { letter-spacing: var(--hm-ls-eyebrow, 0.32em); }
+  .ap-hero-sur-titre { letter-spacing: var(--hm-ls-eyebrow, 0.32em); }
+}

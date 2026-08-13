@@ -351,26 +351,58 @@ button,
        calcul, pas au parse : l'ordre des feuilles n'entre pas en jeu.
 
        Pour re-regler l'echelle mobile du site : ces lignes suffisent.       */
-    --hm-t-corps:   0.78rem;   /* texte courant */
-    --hm-t-lead:    0.92rem;   /* accroches, questions de la barre */
-    --hm-t-titre-s: 1.12rem;   /* nom de chateau en carte */
-    --hm-t-titre-m: 1.42rem;   /* titre de section */
-    --hm-t-titre-l: clamp(1.72rem, 7.2vw, 2.1rem);  /* titre hero */
+
+    /* ── SECOND CRAN DE RAFFINEMENT ────────────────────────────────────────
+       Le premier cran (6 aout) descendait toute l'echelle. Celui-ci ne la
+       descend PAS uniformement : il creuse l'ECART entre les niveaux.
+
+       Le luxe typographique ne vient pas de « tout plus petit » — il vient du
+       contraste entre un surtitre tres delie et un corps qui reste
+       confortable. Rapetisser le corps avec le reste donnerait une page
+       serree, pas une page racee.
+
+       Titres et eyebrows descendent de 7 a 9 % ; le CORPS NE BOUGE PAS.
+
+       ⚠ --hm-t-corps est TENU a 0.78rem, et c'est un ecart assume a la
+       consigne « baisser chaque --hm-t-* ». Le plancher de lisibilite demande
+       pour le texte courant est de 0.85rem : la valeur actuelle est deja
+       dessous. La baisser encore l'aurait mise a 11,5 px. Elle est donc
+       gelee, en attendant l'arbitrage — la remonter a 0.85rem est un geste a
+       part, qui GROSSIRAIT le mobile. */
+    --hm-t-eyebrow: 0.52rem;   /* petites capitales, franchement fines   -7% */
+    --hm-t-micro:   0.56rem;   /* labels de champ, liens en capitales    -7% */
+    /* LE CORPS REMONTE — decision Matthieu, 13 aout : lisible = luxe.
+       0.78 -> 0.85rem (12,5 -> 13,6 px). C'est le SEUL niveau de l'echelle
+       qui monte, et il monte a contre-courant du reste : titres et surtitres
+       viennent de descendre de 7 a 9 %.
+       Ce n'est pas une incoherence, c'est l'intention. Le luxe typographique
+       tient au CONTRASTE entre un surtitre tres delie et un corps
+       confortable — pas a rapetisser tout ensemble. En creusant l'ecart des
+       deux cotes, l'ecart double.
+       (La note historique disait de tenir 0.78 plutot que 0.84 : elle visait
+       le libelle des puces de la home lors de la passe du 6 aout, quand le
+       corps servait aussi de taille de libelle. Ces libelles ont depuis leur
+       propre niveau — --hm-t-micro.) */
+    --hm-t-corps:   0.85rem;   /* texte courant */
+    --hm-t-lead:    0.88rem;   /* accroches, questions de la barre       -4% */
+    --hm-t-titre-s: 1.04rem;   /* nom de chateau en carte                -7% */
+    --hm-t-titre-m: 1.30rem;   /* titre de section                       -8% */
+    --hm-t-titre-l: clamp(1.56rem, 6.6vw, 1.92rem);  /* titre hero       -9% */
 
     /* Filets : 0.13-0.16 la ou on etait a 0.16-0.20, et 0.22-0.30 a
        l'origine. La finesse du trait est la signature : un filet qu'on
        devine vaut mieux qu'un filet qu'on lit. */
-    --hm-filet: rgba(192, 152, 64, 0.16);
-    --hm-bord:  rgba(192, 152, 64, 0.20);
+    --hm-filet: rgba(192, 152, 64, 0.13);
+    --hm-bord:  rgba(192, 152, 64, 0.16);
 
     /* Coins : 7-10 px au lieu de 9-12. Moins "bulle", plus taille. */
-    --hm-r-s: 9px;
-    --hm-r-m: 12px;
+    --hm-r-s: 7px;
+    --hm-r-m: 10px;
 
     /* Espacements a peine resserres : le luxe RESPIRE, il ne se tasse pas.
        -1 et -2 px, pas davantage. */
-    --hm-pad-carte: 16px;      /* padding interne des cartes et encarts */
-    --hm-gap-sect:  20px;      /* respiration entre blocs */
+    --hm-pad-carte: 15px;      /* padding interne des cartes et encarts */
+    --hm-gap-sect:  18px;      /* respiration entre blocs */
 
     /* Plancher de cible tactile. Toute zone cliquable s'y adosse : le
        raffinement ne doit jamais descendre sous ce seuil. */
@@ -386,8 +418,16 @@ button,
        POSEE recoit sa lumiere d'en haut et projette vers le bas ; une
        feuille qui MONTE du bas projette vers le haut. Les confondre donnerait
        a la feuille « Explorer » une ombre qui la pousse dans l'ecran. */
-    --hm-ombre:    0 6px 18px rgba(7, 16, 30, 0.10);   /* surface posee */
-    --hm-ombre-fl: 0 -8px 24px rgba(7, 16, 30, 0.14);  /* elevation flottante */
+    --hm-ombre:    0 5px 14px rgba(7, 16, 30, 0.08);   /* surface posee */
+    --hm-ombre-fl: 0 -6px 20px rgba(7, 16, 30, 0.12);  /* elevation flottante */
+
+    /* ── INTERLETTRAGE DES SURTITRES ──────────────────────────────────────
+       L'espacement regulier des petites capitales est un marqueur premium,
+       et il etait disperse : de 0.05 a 0.45 em selon les feuilles, sans
+       regle. Deux valeurs, et une seule logique — plus le texte est petit,
+       plus il s'espace, parce qu'a 8 px les lettres se touchent. */
+    --hm-ls-eyebrow: 0.32em;   /* surtitres : le niveau le plus delie */
+    --hm-ls-micro:   0.18em;   /* labels de champ, liens en capitales */
   }
 }
 

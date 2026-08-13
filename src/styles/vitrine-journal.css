@@ -276,3 +276,17 @@
   .vj-carte:hover { transform: none; }
   .vj-carte:hover .vj-carte-img { transform: none; }
 }
+
+/* ═══ MOBILE — LE JOURNAL REJOINT L'ECHELLE (seuil 768) ═══
+   Ce fichier ne lisait aucun token. Le texte des cartes est une surface de
+   LECTURE : il prend --hm-t-corps, qui vient de remonter a 0.85rem. La carte
+   « grande » garde son rang d'un facteur. */
+@media (max-width: 768px) {
+  .vj-eyebrow{font-size:var(--hm-t-eyebrow,0.52rem);letter-spacing:var(--hm-ls-eyebrow,0.32em)}
+  .vj-carte-eyebrow{font-size:var(--hm-t-eyebrow,0.52rem);letter-spacing:var(--hm-ls-eyebrow,0.32em)}
+  .vj-carte-titre{font-size:var(--hm-t-titre-s,1.04rem)}
+  .vj-carte--grande .vj-carte-titre{font-size:calc(var(--hm-t-titre-s,1.04rem) * 1.18)}
+  .vj-carte-texte{font-size:var(--hm-t-corps,0.85rem)}
+  .vj-carte--grande .vj-carte-texte{font-size:calc(var(--hm-t-corps,0.85rem) * 1.08)}
+  .vj-carte-lien{font-size:var(--hm-t-micro,0.56rem);letter-spacing:var(--hm-ls-micro,0.18em)}
+}

@@ -252,9 +252,55 @@
      Meme famille de bug que la grille du Sommaire. Les deux causes sont
      traitees : le rembourrage descend, et les pistes recoivent `minmax(0,1fr)`
      pour pouvoir enfin se comprimer. */
-  .vc3-hero2-inner{padding:40px 20px}
+  /* ── LE HERO DEVIENT UNE IMAGE AVANT D ETRE UN FORMULAIRE ──────────────
+     Parti pris valide : le premier ecran appartient a la photo et au nom.
+
+     Le hero depasse le pli de 190 px — a peu pres la hauteur du bloc sejour
+     moins ce qu on en laisse affleurer. Le bloc reste DANS le hero, ancre en
+     bas : il n est jamais detache de la photo, il se revele en la parcourant.
+
+     align-content:space-between sur la grille d une colonne pousse
+     l identite en haut et le sejour en bas. Le nom ne flotte donc pas au
+     milieu de l image : la composition garde sa grammaire — surtitre,
+     nom Playfair a initiale or, ornement, accroche — simplement calee haut.
+
+     L AFFLEUREMENT EST L INDICE DE DEFILEMENT. Le haut du bloc depasse dans
+     le premier ecran : on voit qu il y a autre chose dessous. Un hero qui
+     aurait l air fini alors que la reservation est cachee serait pire que
+     l encombrement qu on vient de retirer.
+
+     La conversion reste sure sans defiler : la barre d action du bas est
+     fixe, visible des le premier ecran, et son bouton « Reserver » defile
+     jusqu au bloc puis donne le focus a la date d arrivee.               */
+  .vc3-hero2{min-height:calc(100% + 190px);align-items:stretch}
+  .vc3-hero2-inner{padding:30px 20px 22px;align-content:space-between}
   /* 60 px de flou couvraient 16 % d'un ecran de 375 : halo, pas elevation. */
-  .vc3-sejour{padding:22px 18px;box-shadow:var(--hm-ombre,0 6px 18px rgba(7,16,30,0.10))}
+  /* ── LE BLOC SEJOUR REND LA PHOTO AU HERO ──────────────────────────────
+     Mesure avant : sur les 682 px de hero reellement visibles entre le
+     header et la barre d action, le bloc en prenait 331 — 49 %. Le nom et
+     l accroche 227. Il restait 124 px de PHOTO NUE, 18 % du cadre, sur
+     l ecran dont la photo est le sujet.
+
+     Ce qui coute cher n est PAS la taille des champs : ils viennent de
+     passer a 44 px et ils y restent. C est le NOMBRE DE RANGEES empilees,
+     chacune avec son libelle au-dessus, et des rembourrages tailles pour le
+     desktop.
+
+     Deux gestes, aucun sur les zones tactiles :
+       1. la rangee « voyageurs » se replie EN LIGNE — libelle a gauche,
+          compteur a droite — au lieu d empiler libelle puis compteur ;
+       2. rembourrages, gouttieres et marges resserres d un cran.
+     Le compteur et le CTA gardent leurs 44 px : on retire du vide, pas de
+     la surface de frappe.                                                 */
+  .vc3-sejour{padding:14px 14px;box-shadow:var(--hm-ombre,0 6px 18px rgba(7,16,30,0.10))}
+  .vc3-sejour-head{margin-bottom:8px}
+  .vc3-sejour-sep{margin-bottom:10px}
+  .vc3-sejour-dates{gap:8px;margin-bottom:8px}
+  .vc3-sejour-field{gap:4px;margin-bottom:8px}
+  /* La rangee voyageurs passe en ligne : -1 rangee complete. */
+  .vc3-sejour-compteur{margin-left:auto}
+  .vc3-sejour > .vc3-sejour-field{flex-direction:row;align-items:center;gap:12px;margin-bottom:10px}
+  .vc3-sejour-btn{margin-bottom:0}
   .vc3-sejour-dates{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
   /* Champs de date, compteur de voyageurs et CTA : 38 a 43 px, tous juste
      sous le seuil. Ce sont les commandes du bloc de reservation — celles
@@ -394,3 +440,49 @@
   .vcs-fond,.vcs-sheet{transition:none}
 }
 
+/* ═══ MOBILE — LA VITRINE REJOINT L'ECHELLE PARTAGEE (seuil 768) ═══════════
+   Jusqu'ici le hero, le bloc sejour et l'en-tete portaient leurs PROPRES
+   valeurs en dur, heritees du chantier vitrine. Consequence mesuree au pass
+   de raffinement : quand l'echelle centrale s'est resserree d'un cran, la
+   home a bouge sur 24,8 % de sa surface et la vitrine sur 1,3 %. Elle ne
+   lisait rien.
+
+   MAPPING INTELLIGENT, PAS 1:1. Deux cas :
+     - la valeur est proche d'un token  -> le token, directement ;
+     - la vitrine se tient DELIBEREMENT plus haut (le nom du chateau est le
+       sujet de la page, pas un titre de section) -> `calc(token * facteur)`.
+       Le facteur fige le RAPPORT, pas la taille : un futur reglage de
+       l'echelle se propagera ici aussi.
+
+   Un mapping 1:1 aurait ramene le nom du chateau de 41,6 px a 25 px, la
+   taille d'un titre de section de la home. Ce n'est pas un cran de finesse,
+   c'est un aplatissement de la hierarchie.
+
+   Cible : le meme cran que la home, -7 a -9 %.                              */
+@media (max-width: 768px) {
+  /* En-tete */
+  .vc3-header-nom{font-size:var(--hm-t-lead,0.88rem)}
+  .vc3-retour{font-size:calc(var(--hm-t-micro,0.56rem) * 1.32)}
+
+  /* Hero — le nom du chateau garde son rang : x1.53 sur le titre hero. */
+  .vc3-hero2-eyebrow{font-size:calc(var(--hm-t-eyebrow,0.52rem) * 1.1);letter-spacing:var(--hm-ls-eyebrow,0.32em)}
+  .vc3-hero2-titre{font-size:calc(var(--hm-t-titre-l,1.56rem) * 1.53)}
+  .vc3-hero2-accroche{font-size:calc(var(--hm-t-lead,0.88rem) * 1.1)}
+
+  /* Bloc sejour — les champs prennent --hm-t-corps, qui vient de remonter a
+     0.85rem : une saisie se lit, elle ne se devine pas. */
+  .vc3-sejour-titre{font-size:var(--hm-t-titre-s,1.04rem)}
+  .vc3-sejour-prix{font-size:calc(var(--hm-t-titre-m,1.30rem) * 1.06)}
+  .vc3-sejour-prix-u{font-size:calc(var(--hm-t-micro,0.56rem) * 1.16)}
+  .vc3-sejour-prix-pre{font-size:var(--hm-t-micro,0.56rem)}
+  .vc3-sejour-field label{font-size:var(--hm-t-micro,0.56rem);letter-spacing:var(--hm-ls-micro,0.18em)}
+  .vc3-sejour-field input,.vc3-sejour-field select{font-size:var(--hm-t-corps,0.85rem)}
+  .vc3-sejour-compteur span{font-size:var(--hm-t-titre-s,1.04rem)}
+  .vc3-sejour-dispo{font-size:var(--hm-t-corps,0.85rem)}
+  .vc3-sejour-btn{font-size:calc(var(--hm-t-micro,0.56rem) * 1.35);letter-spacing:var(--hm-ls-micro,0.18em)}
+
+  /* Feuille « Explorer » — son titre se tient un cran sous celui du hero. */
+  .vcs-titre{font-size:calc(var(--hm-t-titre-m,1.30rem) * 0.88)}
+  .vcs-item-num{font-size:calc(var(--hm-t-micro,0.56rem) * 1.32)}
+  .vcs-item-chev{font-size:var(--hm-t-corps,0.85rem)}
+}

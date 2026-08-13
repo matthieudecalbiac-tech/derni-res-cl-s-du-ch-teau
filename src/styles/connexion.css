@@ -389,3 +389,12 @@
   .cnx-no-account a { display: inline-flex; align-items: center; min-height: var(--hm-tap, 44px); }
   .cnx-container { box-shadow: var(--hm-ombre, 0 6px 18px rgba(7, 16, 30, 0.10)); }
 }
+
+/* PPP MOBILE — INTERLETTRAGE DES SURTITRES (seuil 768) PPP
+   Les petites capitales etaient espacees de 0.14 a 0.38 em selon les
+   feuilles, sans regle. Deux valeurs partagees desormais : les surtitres au
+   niveau le plus delie, les labels de champ un cran en dessous. */
+@media (max-width: 768px) {
+  .cnx-label { letter-spacing: var(--hm-ls-micro, 0.18em); }
+  .cnx-separator span { letter-spacing: var(--hm-ls-micro, 0.18em); }
+}
