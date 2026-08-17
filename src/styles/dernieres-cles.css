@@ -251,12 +251,8 @@
   background-size: cover; background-position: center;
   background-color: #E3D4B5;
 }
-.dk-carte-offre-badge {
-  position: absolute; top: 12px; left: 12px;
-  background: rgba(192,152,64,0.92); color: #07101E;
-  font-family: 'Crimson Pro', serif; font-weight: 700; font-size: 0.6rem;
-  letter-spacing: 0.14em; text-transform: uppercase; padding: 4px 10px;
-}
+/* `.dk-carte-offre-badge` retire avec son markup (pass produit) : il affirmait
+   « DISPONIBLE » en dur, sans donnee derriere. */
 .dk-carte-offre-corps { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
 .dk-carte-offre-region {
   font-family: 'Crimson Pro', serif; font-size: 0.62rem; letter-spacing: 0.14em;
@@ -266,14 +262,18 @@
   font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #1A2D5A; line-height: 1.25;
 }
 .dk-carte-offre-prix { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; }
-.dk-carte-offre-prix-barre {
-  font-family: 'Crimson Pro', serif; font-size: 0.8rem;
-  color: rgba(26,45,90,0.4); text-decoration: line-through;
-}
+/* `.dk-carte-offre-prix-barre` retire avec son markup : Dernieres Cles vend la
+   rarete d'une date, pas une remise. Un prix barre deplace la promesse. */
 .dk-carte-offre-prix-final {
-  font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #C09840;
+  font-family: 'Playfair Display', serif; font-size: 1.1rem; color: #8B6914;
 }
-.dk-carte-offre-prix-nuit { font-family: 'Crimson Pro', serif; font-size: 0.7rem; color: #4A4640; }
+/* 0.7rem = 11,2 px, sous le plancher de lisibilite. Ce « / nuit » porte l'unite
+   du prix : sans lui on ne sait pas si 237,80 EUR vaut la nuit ou le sejour. */
+.dk-carte-offre-prix-nuit {
+  font-family: 'Crimson Pro', serif;
+  font-size: var(--hm-t-corps, 0.85rem);
+  color: #4A4640;
+}
 
 /* ── Layout deux colonnes (G1) ── */
 .dk-tete {

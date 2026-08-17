@@ -9,6 +9,7 @@ import {
 } from "../services/disponibilitesService.js";
 import CalendrierDK from "./CalendrierDK";
 import SkeletonChateau from "./SkeletonChateau";
+import { formaterPrix } from "../services/_mapping.js";
 import { formatDate } from "../utils/dates";
 import "../styles/dernieres-cles.css";
 
@@ -60,9 +61,12 @@ export default function DernieresCles({ onClose }) {
     return chateauxDisponibles(base, dateArrivee);
   }, [chateaux, dateArrivee, filtreRegion, slugsAvecOffre]);
 
-  const prixDe = (c) =>
-    c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100))
-                : (c.chambres?.[0]?.prix ?? Infinity);
+  // `c.prix` EST le prix de l'offre Module B — `prix_promo_cents`, avec repli
+  // sur le prix de base (cf. applyOffreModuleB). Le reconstruire a partir de
+  // `prixBarre` et `reduction` etait a la fois inutile et FAUX : sur
+  // Briottieres, `Math.round(290 * 0.82)` donnait 238 EUR quand la base porte
+  // 237,80. Un arrondi de reconstruction contre une donnee exacte.
+  const prixDe = (c) => c.prix ?? c.chambres?.[0]?.prix ?? Infinity;
   const chateauxAffiches = useMemo(() => {
     const arr = [...chateauxFiltres];
     if (filtreTri === "prix-asc") arr.sort((a, b) => prixDe(a) - prixDe(b));
@@ -279,7 +283,7 @@ export default function DernieresCles({ onClose }) {
                 <SkeletonChateau count={6} />
               ) : (
                 chateauxAffiches.map(c => {
-                const prixFinal = c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100)) : c.chambres?.[0]?.prix;
+                const prixFinal = c.prix ?? c.chambres?.[0]?.prix ?? null;
                 return (
                   <div
                     key={c.id}
@@ -288,16 +292,27 @@ export default function DernieresCles({ onClose }) {
                     onMouseEnter={() => survolChateau(c.id)}
                     onMouseLeave={() => setChateauSurvol(null)}
                   >
-                    <div className="dk-carte-offre-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
-                      {/* badge fixe — à brancher sur chambresRestantes/dispo au sprint Supabase */}
-                      <span className="dk-carte-offre-badge">DISPONIBLE</span>
-                    </div>
+                    {/* Le badge « DISPONIBLE » a ete retire. Il etait code en dur,
+                        donc affirme sans etre su : `chambresRestantes` n'est pas
+                        branche (le mapper rend null) et `urgence` est un texte
+                        libre cote admin — Briottieres, seule offre en base, l'a
+                        a null. Aucune donnee de rarete honnete ne le portait.
+                        Et il etait tautologique : cette grille ne liste QUE les
+                        chateaux ayant une offre Module B visible, donc leur
+                        presence EST la disponibilite. */}
+                    <div className="dk-carte-offre-img" style={{ backgroundImage: `url(${c.images?.[0]})` }} />
                     <div className="dk-carte-offre-corps">
                       <div className="dk-carte-offre-region">{c.region} · {c.distanceParis}</div>
                       <div className="dk-carte-offre-nom">{c.nom}</div>
+                      {/* Le prix, seul et sans barre. Dernieres Cles vend la
+                          rarete d'une DATE, pas une remise : un prix barre
+                          deplace la promesse du creneau vers le rabais. */}
                       <div className="dk-carte-offre-prix">
-                        {c.prixBarre && <span className="dk-carte-offre-prix-barre">{c.prixBarre} €</span>}
-                        {prixFinal && <span className="dk-carte-offre-prix-final">{prixFinal} € <span className="dk-carte-offre-prix-nuit">/ nuit</span></span>}
+                        {prixFinal !== null && (
+                          <span className="dk-carte-offre-prix-final">
+                            {formaterPrix(prixFinal)} € <span className="dk-carte-offre-prix-nuit">/ nuit</span>
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
