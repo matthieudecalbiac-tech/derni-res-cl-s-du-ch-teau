@@ -349,3 +349,54 @@
   .vit-filtre:not(:last-child)::after { display: none; }
   .vit-filtres, .vit-filtres-wrap { column-gap: 22px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ETAPE 2 DE LA REFONTE PROP 3 : LA TYPOGRAPHIE (seuil 768)
+   Vingt-trois textes vivaient sous le plancher de lisibilite de 12 px. La
+   maquette s'appelle « typographie chic et lecture optimale » — c'est
+   exactement le defaut qu'elle corrige.
+
+   ⚠ CE BLOC S'AJOUTE APRES CEUX DU CHANTIER #114, il ne les remplace pas. Le
+   terrain n'etait PAS vierge ici, contrairement a Dernieres Cles : quatre blocs
+   768 preexistent (topbar, cibles a 44 px, interlettrage du sur-titre,
+   separateurs de filtres). Aucune de leurs regles n'est retouchee.
+
+   ── LE PIEGE DU MAPPING, RENCONTRE TROIS FOIS DEJA ─────────────────────────
+   Tous ces textes sont en CAPITALES, ce qui inviterait a les envoyer vers
+   `--hm-t-eyebrow` (0.52rem = 8,3 px) ou `--hm-t-micro` (0.56rem = 9,0 px).
+   Or ils mesurent 9,9 a 11,5 px : ces deux tokens sont PLUS PETITS que
+   l'existant. Les y envoyer aggraverait le defaut au lieu de le corriger.
+
+   L'echelle partagee n'a AUCUN palier entre 9,0 et 13,6 px. Tout ce qui doit
+   franchir le plancher atterrit donc sur `--hm-t-corps`, et c'est assume.
+   La hierarchie ne se joue plus sur la TAILLE — elle se joue sur ce que ces
+   classes portent deja : la region est creme sur fond sombre, le prix est en
+   or attenue et graisse normale, le lien est en or franc et graisse 600.
+   Trois roles, trois traitements, une seule taille. Un palier intermediaire
+   dans l'echelle serait une decision de DA, pas d'ingenierie. */
+@media (max-width: 768px) {
+
+  /* LE FIL D'ARIANE — 11,5 px. C'est de la NAVIGATION : il dit ou l'on est et
+     d'ou l'on vient. Un repere qu'on ne peut pas lire ne repere rien. */
+  .vit-fil { font-size: var(--hm-t-corps, 0.85rem); }
+
+  /* LE BADGE DE REGION — 9,9 px, creme sur une photo. Le pire cas de la page :
+     petit ET pose sur un fond variable. Il nomme le territoire, c'est du
+     contenu editorial, pas une decoration.
+     Son interlettrage descend de 0.22 a 0.18em : en montant la taille sans
+     resserrer l'espacement, le badge se serait etale sur toute la largeur de
+     la carte. On elargit la lettre, on rapproche les lettres — la surface
+     occupee bouge a peine, la lisibilite double. */
+  .vit-carte-region {
+    font-size: var(--hm-t-corps, 0.85rem);
+    letter-spacing: var(--hm-ls-micro, 0.18em);
+  }
+
+  /* LE PRIX — 10,9 px. Il RESTE (decision produit), donc il doit se lire.
+     C'est la seule information chiffree de la carte. */
+  .vit-carte-prix { font-size: var(--hm-t-corps, 0.85rem); }
+
+  /* LE LIEN — 10,9 px. C'est l'appel a l'action de la carte, et le seul
+     element qui annonce ce qui se passe au clic. */
+  .vit-carte-lien { font-size: var(--hm-t-corps, 0.85rem); }
+}
