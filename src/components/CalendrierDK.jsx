@@ -41,6 +41,15 @@ export default function CalendrierDK({
 }) {
   const labelMois = moisAffiche.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
 
+  // Etape 5 : la plage se rend comme une bande continue, et non plus comme des
+  // pastilles disjointes. Les deux extremites ne portent leur demi-bande que si
+  // la plage est COMPLETE — sinon une arrivee seule afficherait un trait qui ne
+  // mene nulle part, le temps que l'utilisateur choisisse son depart.
+  //
+  // Derive des props existantes plutot que recue : le composant sait deja les
+  // deux dates, une prop de plus serait une verite dupliquee.
+  const plageComplete = Boolean(dateArrivee && dateDepart);
+
   return (
     <div className="dk-cal-mois">
       <div className="dk-cal-nav">
@@ -48,7 +57,7 @@ export default function CalendrierDK({
         <span className="dk-cal-nav-label">{labelMois}</span>
         <button className="dk-cal-nav-btn" onClick={onMoisSuivant} aria-label="Mois suivant">›</button>
       </div>
-      <div className="dk-cal-grille">
+      <div className={"dk-cal-grille" + (plageComplete ? " dk-cal-grille--plage" : "")}>
         {JOURS.map((j) => (
           <span key={j} className="dk-cal-jour-entete">{j}</span>
         ))}

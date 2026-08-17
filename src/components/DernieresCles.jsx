@@ -41,8 +41,6 @@ export default function DernieresCles({ onClose }) {
   const [voyageurs, setVoyageurs] = useState(2);
   // DECORATIF — aucune capacité dans les données château. Ne filtre rien.
   // À brancher au sprint dispo/capacité Supabase (cf brique disponibilités transverse).
-  const [nbNuits, setNbNuits] = useState(null);
-  // nb de nuits choisi via le sélecteur ; pilote la date de départ si arrivée fixée.
   const [filtreRegion, setFiltreRegion] = useState("toutes");
   const [filtreTri, setFiltreTri] = useState("pertinence");
   const [chateauSurvol, setChateauSurvol] = useState(null);
@@ -103,35 +101,21 @@ export default function DernieresCles({ onClose }) {
     return () => { annule = true; };
   }, []);
 
+  // Le nombre de nuits n'est plus SAISI, il est LU sur la plage. Le premier
+  // clic pose donc toujours l'arrivee et passe au depart : la branche qui
+  // deduisait un depart d'un nombre de nuits pre-choisi n'a plus d'objet.
   const handleSelectDate = (d) => {
     if (etape === "arrivee") {
       setDateArrivee(d);
-      if (nbNuits) {
-        const dep = new Date(d);
-        dep.setDate(dep.getDate() + nbNuits);
-        setDateDepart(dep);
-        setEtape("done");
-      } else {
-        setDateDepart(null);
-        setEtape("depart");
-      }
+      setDateDepart(null);
+      setEtape("depart");
     } else {
       if (d > dateArrivee) { setDateDepart(d); setEtape("done"); }
       else { setDateArrivee(d); setDateDepart(null); setEtape("depart"); }
     }
   };
 
-  const choisirNuits = (n) => {
-    setNbNuits(n);
-    if (dateArrivee) {
-      const dep = new Date(dateArrivee);
-      dep.setDate(dep.getDate() + n);
-      setDateDepart(dep);
-      setEtape("done");
-    }
-  };
-
-  const reset = () => { setDateArrivee(null); setDateDepart(null); setEtape("arrivee"); setNbNuits(null); };
+  const reset = () => { setDateArrivee(null); setDateDepart(null); setEtape("arrivee"); };
   const moisPrecedent = () =>
     setMoisAffiche(m => new Date(m.getFullYear(), m.getMonth() - 1, 1));
   const moisSuivant = () =>
@@ -150,9 +134,13 @@ export default function DernieresCles({ onClose }) {
   // encore vérifiées, et un clic dessus mènerait à une liste vide.
   const estSelectionnable = predicatDateOuverte(datesOuvertes);
 
-  const nuitsEffectives = (dateArrivee && dateDepart)
+  // Nombre de nuits — DERIVE, jamais saisi. Le selecteur « Nombre de nuits »
+  // faisait double emploi avec le calendrier : deux facons de dire la meme
+  // chose, qui pouvaient se contredire. La plage est desormais la seule source,
+  // et ceci n'en est que la lecture. `null` tant que la plage est incomplete.
+  const nuits = (dateArrivee && dateDepart)
     ? Math.round((dateDepart - dateArrivee) / 86400000)
-    : nbNuits;
+    : null;
 
   return (
     <div className={"dk-overlay " + (visible ? "dk-overlay--visible" : "")}>
@@ -214,21 +202,16 @@ export default function DernieresCles({ onClose }) {
               {dateArrivee && <button className="dk-dates-reset" onClick={reset}>✕</button>}
             </div>
 
+            {/* La duree, en LECTURE seule. Elle remplace le selecteur « Nombre
+                de nuits » : celui-ci disait la meme chose que le calendrier, et
+                deux sources pour un meme fait finissent toujours par diverger.
+                Ne s'affiche qu'une fois la plage complete — avant, il n'y a
+                rien a lire. */}
+            {nuits !== null && (
+              <span className="dk-dates-duree">{nuits} {nuits > 1 ? "nuits" : "nuit"}</span>
+            )}
+
             <div className="dk-selecteurs">
-              <div className="dk-selecteur">
-                <span className="dk-selecteur-label">Nombre de nuits</span>
-                <div className="dk-selecteur-options">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <button
-                      key={n}
-                      className={"dk-selecteur-opt " + (nuitsEffectives === n ? "actif" : "")}
-                      onClick={() => choisirNuits(n)}
-                    >
-                      {n} {n > 1 ? "nuits" : "nuit"}
-                    </button>
-                  ))}
-                </div>
-              </div>
               <div className="dk-selecteur">
                 <span className="dk-selecteur-label">Voyageurs</span>
                 <div className="dk-selecteur-options">
