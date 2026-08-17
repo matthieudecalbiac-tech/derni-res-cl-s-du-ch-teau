@@ -400,3 +400,79 @@
      element qui annonce ce qui se passe au clic. */
   .vit-carte-lien { font-size: var(--hm-t-corps, 0.85rem); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ETAPE 3 : LES FILTRES DEVIENNENT DES PASTILLES (seuil 768)
+   La maquette Prop 3 remplace les onglets soulignes par des pilules : l'active
+   en navy plein, les autres a contour fin.
+
+   ⚠ CHANGER DE GRAMMAIRE, PAS SEULEMENT DE FOND. L'etat actif etait porte par
+   TROIS choses a la fois, et n'en laisser passer qu'une aurait donne un hybride
+   incoherent — une pilule pleine encore soulignee d'or, avec un losange qui
+   flotte sous elle :
+
+     .vit-filtres      border-bottom     le rail des onglets
+     .vit-filtre       border-bottom 2px l'onglet lui-meme
+     .vit-filtre.actif border-bottom-color + ::before losange ◆
+
+   Les trois sont donc neutralises ici, et l'etat actif est repris par le FOND.
+
+   CSS PUR : aucune ligne de JSX ne bouge. Les boutons sont deja produits par
+   `regions.map()` avec leur classe `.actif` — c'est leur peau qui change, pas
+   leur logique.
+
+   L'OR NE REVIENT PAS. Il aurait ete tentant d'y mettre l'or sourd #8B6914 par
+   coherence avec Dernieres Cles, mais la maquette fait ces filtres en NAVY.
+   Ils ne vendent rien : ils trient. L'or est la couleur de ce qu'on met en
+   avant, le navy celle de ce qui structure — et un filtre est une structure. */
+@media (max-width: 768px) {
+
+  /* Le rail d'onglets disparait, et l'espacement devient celui d'un nuage de
+     pastilles : `row-gap` explicite, car les pilules passent a la ligne. */
+  .vit-filtres {
+    border-bottom: none;
+    /* 8 px et non 10 : voir la note sur le repli, plus bas. */
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .vit-filtre {
+    /* La pilule. `border-radius: 999px` plutot qu'une valeur en px : le rayon
+       suit la hauteur quelle que soit la taille du texte. */
+    border: 1px solid rgba(26, 45, 90, 0.22);
+    border-radius: 999px;
+    background: transparent;
+    color: #1A2D5A;
+    /* ⚠ 14 px, ET C'EST MESURE, PAS CHOISI. A 18 px de rembourrage et 10 px de
+       gouttiere, la seconde ligne demandait 178 + 10 + 147 = 335 px pour 333
+       disponibles en webkit — DEUX pixels de trop. Chromium passait (343 px
+       utiles, il ne reserve pas la meme place a la barre de defilement) et
+       affichait 2 lignes ; webkit en affichait TROIS, avec une pastille seule
+       par ligne. Le meme CSS, deux mises en page.
+       A 14 px de rembourrage et 8 px de gouttiere : 170 + 8 + 139 = 317, soit
+       16 px de marge. Le repli 2 + 2 de la maquette tient aux deux moteurs.
+       Un ecart de deux pixels n'est pas un detail quand il decide d'un saut de
+       ligne. */
+    padding: 0 14px;
+    /* La cible de 44 px vient du bloc #114 (`min-height: var(--hm-tap)`) et
+       reste intacte. On ne la redeclare pas : on l'accompagne d'un padding
+       horizontal, la hauteur etant deja garantie ailleurs. */
+    letter-spacing: 0.06em;
+  }
+
+  /* Les trois porteurs de l'ancienne grammaire, eteints. */
+  .vit-filtre,
+  .vit-filtre.actif { border-bottom-width: 1px; }
+  .vit-filtre.actif::before { display: none; }
+
+  /* L'etat actif : navy plein, texte creme. Le contraste creme sur #1A2D5A est
+     tres au-dessus du seuil AA — c'est le couple de base de la charte. */
+  .vit-filtre.actif {
+    background: #1A2D5A;
+    border-color: #1A2D5A;
+    color: #F7F2E8;
+  }
+
+  .vit-filtre:hover { color: #1A2D5A; }
+  .vit-filtre.actif:hover { color: #F7F2E8; }
+}
