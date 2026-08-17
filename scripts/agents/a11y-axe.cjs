@@ -9,11 +9,15 @@
  *   1. home (après goto + domcontentloaded)
  *   Pour chaque château avec estLaUne:true (vitrines) :
  *   2. vitrine-ouverte:<slug> (après ouvrirVitrine, .vc3-overlay.vc3-visible)
- *   3. modale-reservation:<slug> (après clic carte module Permanent → bouton chambre, modale visible)
+ *   3. modale-reservation:<slug> (module Permanent → modale module → bouton chambre)
  *   4. mode-presentation:<slug> (après clic .vc3-mode-pres-btn, overlay visible)
  *
- * Avec 2 vitrines : 1 + 3×2 = 7 checkpoints par navigateur, soit 21 total
- * sur 3 navigateurs.
+ * Mesure du 2026-08-17 : 7 vitrines servies, mode-presentation retire en
+ * S2-α.1.5 (donc systematiquement skippe) -> 1 + 2x7 = 15 checkpoints par
+ * navigateur, 45 au total sur 3 navigateurs.
+ *
+ * Le DOM interne des iframes tiers est HORS PERIMETRE (cf. IFRAMES_TIERS plus
+ * bas) : l'agent mesure notre markup, pas celui d'un lecteur embarque.
  *
  * Classification des violations (seuils Y validés) :
  *   impact critical || serious → type 'erreur' (bloque ok: false)
@@ -38,6 +42,11 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { spawn } = require('child_process');
+// Acces a la navigation vitrine — MEME source que les specs E2E. La vitrine
+// expose ses modules par deux sources dont une seule est visible a la fois
+// (barre laterale > 768, feuille « Explorer » en dessous) ; ce module porte
+// deja cette connaissance, la recopier ici la ferait diverger.
+const { selModule, ouvrirNavVitrine } = require('../../tests/e2e/_navVitrine.cjs');
 
 const ROOT = path.join(__dirname, '..', '..');
 const ID = 'a11y-axe';
@@ -185,9 +194,32 @@ async function ouvrirVitrineParSlug(page, slug) {
   await page.locator('.vc3-overlay.vc3-visible').first().waitFor({ state: 'visible', timeout: 3000 });
 }
 
+// ── Iframes tiers exclus de l'analyse ────────────────────────────────────────
+// axe DESCEND dans les iframes de meme origine ET dans les embeds tiers qu'il
+// peut atteindre. Le lecteur YouTube de `chateau.videoBackground` lui offrait
+// donc son propre markup a auditer : `.ytmVideoInfoVideoTitle`,
+// `.ytmVideoInfoChannelAvatar`, `#movie_player`. Trois regles rouges
+// (aria-allowed-attr, button-name, aria-prohibited-attr) sur du DOM que nous
+// n'ecrivons pas, que nous ne pouvons pas corriger, et qui change quand Google
+// le decide.
+//
+// Ce n'est pas un masquage de dette : c'est la BONNE PORTEE. L'agent mesure
+// l'accessibilite de NOTRE markup. Une violation qu'aucun commit de ce depot
+// ne peut refermer n'est pas une mesure, c'est un plancher de bruit — et ce
+// plancher consommait toute la marge du seuil.
+//
+// A ne pas confondre avec la dette Phase 4.4 (migration du lecteur vers une
+// video HTML5 native) : elle, elle porte sur NOTRE choix d'embarquer un
+// lecteur tiers. Quand elle sera faite, ce filtre deviendra sans objet et
+// pourra partir — il ne la remplace pas, il cesse de la compter deux fois.
+const IFRAMES_TIERS = 'iframe[src*="youtube.com"]';
+
 // ── Exécution axe sur la page courante ──
 async function auditerPage(page, checkpoint, navigateur) {
-  const r = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+  const r = await new AxeBuilder({ page })
+    .withTags(WCAG_TAGS)
+    .exclude(IFRAMES_TIERS)
+    .analyze();
   return {
     checkpoint,
     navigateur,
@@ -212,12 +244,27 @@ async function executerParcours(page, nav, chateaux, audits) {
 
     // Modale réservation
     // Nouveau parcours α.1.5 : le CTA header ne fait plus que scroll+focus.
-    // La modale réserve s'ouvre via carte module Permanent → panneau → bouton chambre.
-    const carteModule = page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i });
+    // La modale réserve s'ouvre via module Permanent → modale module → bouton chambre.
+    //
+    // DEUX SELECTEURS MORTS CORRIGES ICI, mesures sur le DOM aux deux moteurs :
+    //   .vc4-offre-card    DOM=0 — OngletsNiveau1 n'est plus monte depuis α.1.5
+    //   .vc3-module-panel  DOM=0 — les modules s'ouvrent desormais dans
+    //                              Modale.jsx (portail), dont le panneau est
+    //                              `.mdl-panneau`
+    // Le premier etait garde par un `count() > 0` : le checkpoint n'echouait
+    // pas, il etait SKIPPE. La modale de reservation n'a donc plus ete auditee
+    // depuis α.1.5 — un trou muet, pas un trou visible.
+    //
+    // La navigation vise les DEUX sources filtrees par `:visible` : l'agent
+    // tourne aussi en mobile-safari (iPhone 14, 390 px), sous le seuil 768 ou
+    // `.bl` est en display:none et ou la feuille « Explorer » prend le relais.
+    // Viser `.bl-offre` seul aurait rendu ce checkpoint desktop-only.
+    await ouvrirNavVitrine(page, 'offres').catch(() => {});
+    const carteModule = page.locator(selModule('permanent'));
     if ((await carteModule.count()) > 0) {
       try {
-        await carteModule.click();
-        await page.locator('.vc3-module-panel').waitFor({ state: 'visible', timeout: 5000 });
+        await carteModule.first().click();
+        await page.locator('.mdl-panneau').waitFor({ state: 'visible', timeout: 5000 });
         await page.locator('.vc4-permanent-chambre-cta').first().click();
         await page.locator('.vc3-reserve-modal').waitFor({ state: 'visible', timeout: 5000 });
         audits.push(await auditerPage(page, `modale-reservation:${slug}`, nav.id));
@@ -227,8 +274,14 @@ async function executerParcours(page, nav, chateaux, audits) {
         console.warn(`[a11y-axe] modale-reservation:${slug} non auditée (${e.message || e})`);
       }
     } else {
-      console.log(`[a11y-axe] modale-reservation:${slug} : pas de carte module Permanent — checkpoint skippé`);
+      console.log(`[a11y-axe] modale-reservation:${slug} : pas de module Permanent visible — checkpoint skippé`);
     }
+
+    // Refermer la modale du module, quoi qu'il soit arrive au-dessus : elle
+    // recouvre la page, et surtout Modale.jsx capte la touche Echap — l'Escape
+    // de fin de tour fermerait ELLE, pas la vitrine.
+    await page.locator('.mdl-close').first().click().catch(() => {});
+    await page.locator('.mdl-panneau').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
 
     // Mode présentation
     const btnPres = page.locator('.vc3-mode-pres-btn');
