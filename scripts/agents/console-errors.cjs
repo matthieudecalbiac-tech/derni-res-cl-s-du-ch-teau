@@ -41,13 +41,38 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 const { spawn } = require('child_process');
+// Acces a la navigation vitrine — MEME source que les specs E2E. La vitrine
+// expose ses modules par deux sources dont une seule est visible a la fois
+// (barre laterale > 768, feuille « Explorer » en dessous) ; ce module porte
+// deja cette connaissance, la recopier ici la ferait diverger.
+const { selModule, ouvrirNavVitrine } = require('../../tests/e2e/_navVitrine.cjs');
 
 const ROOT = path.join(__dirname, '..', '..');
 const ID = 'console-errors';
 const LIBELLE = 'Erreurs console';
 const PORT = Number(process.env.PORT) || 5174;
 const BASE_URL = `http://localhost:${PORT}`;
-const TIMEOUT_NAVIGATEUR = 90_000;
+// Budget de parcours PAR NAVIGATEUR. Il valait 90 s depuis la creation de
+// l'agent (commit 52b28fb, 23 avril 2026), quand le site servait DEUX vitrines.
+// Il en sert sept : le parcours traverse 8 pages par navigateur (home + 7
+// chateaux), et mobile-safari — le plus lent — frolait le plafond.
+//
+// Mesure du 2026-08-17, 4 passes : trois a 216 actions, une coupee a 200 (93 %
+// du parcours) par « timeout parcours 90s ». chromium et webkit tiennent en
+// ~75 s chacun ; mobile-safari demande ~97 s au minimum, plus sa variance.
+// Le budget ne passait donc pas par confort mais par marge etroite, et il a
+// fini par ne plus passer.
+//
+// ⚠ Ce plafond n'etait pas visible tant que le parcours mourait au troisieme
+// geste sur un selecteur mort (15 actions). Reparer le parcours l'a revele :
+// ce n'est pas une regression, c'est un budget calibre pour un catalogue qui
+// a quadruple depuis.
+//
+// 240 s et non 120 : ce garde-fou existe pour attraper un BLOCAGE REEL, pas
+// pour arbitrer quelques secondes de rendu normal. A 120 s il redeviendrait
+// marginal au huitieme chateau. a11y-axe, dont le parcours est plus lourd
+// (analyse axe a chaque checkpoint), tourne deja avec 120 s.
+const TIMEOUT_NAVIGATEUR = 240_000;
 const TIMEOUT_VITE_BOOT = 60_000;
 
 // ── Filtres de bruit courant ──
@@ -65,6 +90,36 @@ const IGNORE_PATTERNS = [
   /api\.open-meteo\.com/i,
   /www\.youtube\.com/i,
   /i\.ytimg\.com/i,
+  // Polices Google — chargees par CDN depuis index.html (cf. CLAUDE.md
+  // § Styles). Meme nature que les six au-dessus : hote externe, variance
+  // reseau du runner, aucun rapport avec le code du site. `fonts.googleapis`
+  // sert la feuille, `fonts.gstatic` les fichiers de police : deux hotes, et
+  // le preconnect echoue sur le SECOND. Les deux, sinon le filtre est borgne.
+  /fonts\.googleapis\.com/i,
+  /fonts\.gstatic\.com/i,
+  // ─── Bruit du lecteur YouTube — PENDANT CONSOLE de l'exclusion axe ───
+  // « Permissions policy violation: compute-pressure is not allowed in this
+  // document. » est emis par le lecteur YouTube embarque de
+  // `chateau.videoBackground`, pas par notre code. Chromium seul, intermittent :
+  // mesure du 2026-08-17, 1 passe sur 3 (216 actions chacune).
+  //
+  // MEME OBJET, MEME DOCTRINE, MEME PEREMPTION que la constante IFRAMES_TIERS
+  // de scripts/agents/a11y-axe.cjs, qui exclut `iframe[src*="youtube.com"]` de
+  // l'analyse axe. Les deux filtres visent le meme lecteur tiers ; l'un le
+  // retire de l'arbre d'accessibilite, l'autre de la console. Les laisser
+  // diverger serait incoherent : on excluerait l'iframe d'un cote et on la
+  // laisserait rougir de l'autre.
+  //
+  // ⚠ A RETIRER ENSEMBLE, ET SEULEMENT ENSEMBLE, le jour ou la dette Phase 4.4
+  // aboutit (migration du lecteur vers une video HTML5 native servie depuis
+  // /public/). Ce jour-la : supprimer cette ligne ET la constante IFRAMES_TIERS
+  // de a11y-axe.cjs. Aucun des deux ne masque une dette applicative — la dette,
+  // c'est d'embarquer le lecteur, et elle est tracee ailleurs.
+  //
+  // Ce motif n'est PAS un hote : c'est un texte de message, qu'aucune
+  // correlation d'URL ne peut rattacher a une requete. Le buffer `urlsEchouees`
+  // ne peut rien pour lui, par construction — d'ou le filtre explicite.
+  /compute-pressure/i,
 ];
 
 function estBruit(texte) {
@@ -237,9 +292,24 @@ async function parcoursVitrine(page, chateau, compteurs) {
   compteurs.actions += 1;
 
   // Nouveau parcours α.1.5 : le CTA header ne fait plus que scroll+focus.
-  // La modale réserve s'ouvre via carte module Permanent → panneau → bouton chambre.
-  await page.locator('.vc4-offre-card').filter({ hasText: /Permanent/i }).click();
-  await page.locator('.vc3-module-panel').waitFor({ state: 'visible', timeout: 5000 });
+  // La modale réserve s'ouvre via module Permanent → modale module → bouton chambre.
+  //
+  // DEUX SELECTEURS MORTS CORRIGES ICI, mesures sur le DOM aux deux moteurs :
+  //   .vc4-offre-card    DOM=0 — OngletsNiveau1 n'est plus monte depuis α.1.5
+  //   .vc3-module-panel  DOM=0 — les modules s'ouvrent desormais dans
+  //                              Modale.jsx (portail), panneau `.mdl-panneau`
+  // Ici le clic n'etait PAS garde : il partait sur un locator a zero noeud,
+  // attendait son timeout, et faisait remonter un « Crash parcours » par
+  // navigateur. C'est ce crash qui occupait l'unique place que la baseline
+  // reserve aux erreurs transitoires — d'ou une PR sur deux qui rougissait
+  // au gre du compute-pressure ou d'un 404 CDN.
+  //
+  // La navigation vise les DEUX sources filtrees par `:visible` : l'agent
+  // tourne aussi en mobile-safari (iPhone 14, 390 px), sous le seuil 768 ou
+  // `.bl` est en display:none et ou la feuille « Explorer » prend le relais.
+  await ouvrirNavVitrine(page, 'offres');
+  await page.locator(selModule('permanent')).first().click();
+  await page.locator('.mdl-panneau').waitFor({ state: 'visible', timeout: 5000 });
   await page.locator('.vc4-permanent-chambre-cta').first().click();
   await page.locator('.vc3-reserve-modal').waitFor({ state: 'visible', timeout: 5000 });
   compteurs.actions += 1;
@@ -252,6 +322,12 @@ async function parcoursVitrine(page, chateau, compteurs) {
   await page.locator('.vc3-reserve-close').click();
   await page.locator('.vc3-reserve-modal').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
   compteurs.actions += 3;
+
+  // Refermer la modale du module : Modale.jsx capte la touche Echap, donc
+  // l'Escape de fin de parcours fermerait ELLE et non la vitrine.
+  await page.locator('.mdl-close').first().click().catch(() => {});
+  await page.locator('.mdl-panneau').waitFor({ state: 'hidden', timeout: 5000 }).catch(() => {});
+  compteurs.actions += 1;
 
   // S2-α.1.5 Option A : mode présentation supprimé (régression volontaire documentée
   // dans PR #23). Le parcours mode-pres est retiré ; il sera rapatrié si le mode
@@ -306,6 +382,37 @@ function estRessourceExterne(url) {
 async function runNavigateur(nav, chateaux) {
   const events = [];
   const compteurs = { actions: 0, pages: 0, cancelsFiltres: 0 };
+
+  // ── Memoire de correlation, DISTINCTE de events[] ──────────────────────────
+  // Toute URL qui echoue passe ici, SANS AUCUN FILTRE : hotes ignores compris,
+  // cancels compris. C'est la difference avec events[], qui reste filtre pour
+  // le rapport.
+  //
+  // POURQUOI DEUX LISTES. La correlation lisait events[] — c'est-a-dire la
+  // liste DEJA filtree. Les trois listeners y renoncaient avant d'ecrire :
+  //   response      `if (estBruit(url)) return`   -> 404 d'hote ignore invisible
+  //   requestfailed `if (estBruit(url)) return`   -> idem pour les echecs reseau
+  //   requestfailed `if (isCancel) return`        -> et tous les cancels avec
+  //
+  // Consequence mesuree : un 404 sur un hote ignore emet quand meme une
+  // console.error « Failed to load resource », Playwright ne lui attache pas
+  // d'URL, la correlation cherchait dans events[] et n'y trouvait rien — donc
+  // aucun filtrage possible, et l'erreur finissait comptee comme LOCALE.
+  // Un hote qu'on avait explicitement decide d'ignorer produisait ainsi une
+  // fausse regression locale. Vu le 2026-08-17 : 9 occurrences en mobile-safari,
+  // message sans URL, classe erreur.
+  //
+  // La liste est bornee : seule une fenetre de quelques secondes est lue, en
+  // garder plus n'a aucune valeur et ferait croitre la memoire sur un parcours
+  // de plusieurs minutes.
+  const urlsEchouees = [];
+  const MAX_CORRELATION = 300;
+  const noterUrlEchouee = (url) => {
+    if (!url) return;
+    urlsEchouees.push({ url, ts: Date.now() });
+    if (urlsEchouees.length > MAX_CORRELATION) urlsEchouees.shift();
+  };
+
   let browser;
   try {
     browser = await nav.launcher.launch({ headless: true });
@@ -318,25 +425,44 @@ async function runNavigateur(nav, chateaux) {
       const texte = msg.text();
       if (estBruit(texte)) return;
 
-      // Corrélation URL pour console.error orphelines (Phase 1.x Chantier 1.8).
-      // Une console.error type "Failed to load resource: net::ERR_FAILED" n'a
-      // pas d'URL exposée par Playwright. On cherche en arrière la dernière
-      // requestfailed dans une fenêtre de 5 secondes pour récupérer son URL,
-      // afin que les IGNORE_PATTERNS URL la filtrent uniformément.
+      // Corrélation URL pour console.error orphelines (Phase 1.x Chantier 1.8,
+      // trou de correlation bouche le 2026-08-17).
+      // Une console.error type "Failed to load resource" n'a pas d'URL exposée
+      // par Playwright. On cherche en arrière la dernière URL en échec dans une
+      // fenêtre de 5 secondes pour la récupérer.
+      //
+      // La recherche se fait dans `urlsEchouees` — la memoire NON filtree — et
+      // non plus dans events[]. C'est tout l'objet du correctif : sans cela,
+      // les URL des hotes ignores et des cancels n'y figuraient pas, et le
+      // message orphelin ne pouvait etre rattache a rien.
       let urlAssociee = null;
-      if (type === 'error' && /failed to load resource|net::|err_/i.test(texte)) {
+      if (type === 'error' && /failed to load resource|net::|err_|status of \d{3}/i.test(texte)) {
         const FENETRE_MS = 5000;
         const maintenant = Date.now();
-        for (let i = events.length - 1; i >= 0; i--) {
-          const e = events[i];
-          if (e.ts && maintenant - e.ts > FENETRE_MS) break;
-          if (e.urlEchouee) { urlAssociee = e.urlEchouee; break; }
+        for (let i = urlsEchouees.length - 1; i >= 0; i--) {
+          const e = urlsEchouees[i];
+          if (maintenant - e.ts > FENETRE_MS) break;
+          urlAssociee = e.url;
+          break;
         }
         if (urlAssociee && estBruit(urlAssociee)) return;
       }
 
+      // Classification reseau, contrat d'en-tete du fichier : « tout hostname
+      // != localhost = avertissement (CDN externe flaky), hostname localhost en
+      // echec = erreur (regression locale) ». Elle etait appliquee par les
+      // listeners reseau mais PAS ici : un message console rattache a une URL
+      // externe restait compte comme erreur. Une fois l'URL connue, on tranche
+      // avec la meme regle que partout ailleurs.
+      const type_ =
+        type === 'error' && urlAssociee && estRessourceExterne(urlAssociee)
+          ? 'avertissement'
+          : type === 'error'
+            ? 'erreur'
+            : 'avertissement';
+
       events.push({
-        type: type === 'error' ? 'erreur' : 'avertissement',
+        type: type_,
         message: texte,
         navigateur: nav.id,
         urlPage: page.url(),
@@ -357,6 +483,9 @@ async function runNavigateur(nav, chateaux) {
     });
     page.on('requestfailed', (req) => {
       const url = req.url();
+      // AVANT tout filtrage : la correlation doit voir cette URL meme si on
+      // decide ensuite de ne pas la rapporter (hote ignore, ou cancel).
+      noterUrlEchouee(url);
       if (estBruit(url)) return;
       const fail = req.failure();
       const errText = (fail && fail.errorText) || 'requête échouée';
@@ -392,6 +521,9 @@ async function runNavigateur(nav, chateaux) {
       const status = res.status();
       if (status < 400) return;
       const url = res.url();
+      // AVANT tout filtrage, meme raison que dans requestfailed : c'est
+      // precisement le 404 d'hote ignore qui produisait la fausse erreur locale.
+      noterUrlEchouee(url);
       if (estBruit(url)) return;
       events.push({
         type: estRessourceExterne(url) ? 'avertissement' : 'erreur',
