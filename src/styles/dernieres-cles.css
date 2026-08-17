@@ -167,7 +167,6 @@
   cursor: pointer; transition: all 0.15s;
   width: 80%; margin: 0 auto;
 }
-.dk-cal-case-vide { background: transparent; border: none; cursor: default; }
 .dk-cal-case-horsmois { color: rgba(26,45,90,0.18); cursor: default; pointer-events: none; }
 .dk-cal-case-dispo:hover { background: rgba(192,152,64,0.15); color: #1A2D5A; }
 .dk-cal-case-off { color: rgba(26,45,90,0.22); cursor: not-allowed; background: transparent; }

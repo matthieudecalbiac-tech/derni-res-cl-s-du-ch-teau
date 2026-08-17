@@ -2,43 +2,27 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { getSlugsAvecOffreDernieresCles } from "../services/offresService.js";
-import VitrineDernieresCle from "./VitrineDernieresCle";
-import TransitionPorte from "./TransitionPorte";
+import { chateauxDisponibles } from "../services/disponibilitesService.js";
+import CalendrierDK from "./CalendrierDK";
 import SkeletonChateau from "./SkeletonChateau";
-import { genererGrilleMois, formatDate, joursAvant, estMemeJour, estEntre } from "../utils/dates";
+import { formatDate, joursAvant } from "../utils/dates";
 import "../styles/dernieres-cles.css";
-
-function getDatesPossibles() {
-  const today = new Date();
-  const dates = [];
-  for (let i = 1; i <= 30; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    dates.push(d);
-  }
-  return dates;
-}
-
-function chateauxDisponibles(liste, dateArrivee) {
-  if (!dateArrivee) return liste;
-  const jours = joursAvant(dateArrivee);
-  return liste.filter(c => {
-    const seuil = { "J-7": 7, "J-10": 10, "J-15": 15 }[c.urgence] || 15;
-    return jours <= seuil;
-  });
-}
 
 export default function DernieresCles({ onClose }) {
   const navigate = useNavigate();
-  const [chateauSelectionne, setChateauSelectionne] = useState(null);
-  const [transitionChateau, setTransitionChateau] = useState(null);
   const [visible, setVisible] = useState(false);
 
   // Sprint S2-α.1.5 FIX D : ouvrir la nouvelle vitrine Module B via la route
   // canonique avec ?onglet=dernieresCles. onClose() en amont pour éviter
   // l'overlay fantôme au retour /. TransitionPorte animation perdue sur ce path
-  // (trade-off SEO+cohérence URL). VitrineDernieresCle.jsx devient orphelin
-  // (dette nettoyage Sprint S5).
+  // (trade-off SEO+cohérence URL).
+  //
+  // Etape 2 refonte Prop 3 : la branche legacy est retiree. `transitionChateau`
+  // et `chateauSelectionne` n'etaient plus jamais renseignes depuis ce FIX D —
+  // aucun `setTransitionChateau(valeur)` dans le fichier — donc TransitionPorte
+  // et VitrineDernieresCle etaient montes sur une condition toujours fausse.
+  // VitrineDernieresCle.jsx et sa feuille sont supprimes ; TransitionPorte
+  // reste, elle sert toujours a App.jsx et VitrinePermanente.
   const ouvrirChateauModuleB = (c) => {
     onClose?.();
     navigate(`/chateau/${c.slug}?onglet=dernieresCles`);
@@ -90,10 +74,10 @@ export default function DernieresCles({ onClose }) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
     setTimeout(() => setVisible(true), 60);
-    const onKey = (e) => { if (e.key === "Escape" && !chateauSelectionne) onClose(); };
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
     return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
-  }, [onClose, chateauSelectionne]);
+  }, [onClose]);
 
   useEffect(() => {
     let annule = false;
@@ -102,8 +86,6 @@ export default function DernieresCles({ onClose }) {
       .catch(() => { if (!annule) setSlugsAvecOffre(new Set()); }); // en cas d'echec, grille vide plutot que plantage
     return () => { annule = true; };
   }, []);
-
-  const dates = getDatesPossibles();
 
   const handleSelectDate = (d) => {
     if (etape === "arrivee") {
@@ -138,10 +120,6 @@ export default function DernieresCles({ onClose }) {
     setMoisAffiche(m => new Date(m.getFullYear(), m.getMonth() - 1, 1));
   const moisSuivant = () =>
     setMoisAffiche(m => new Date(m.getFullYear(), m.getMonth() + 1, 1));
-  const isArrivee = (d) => estMemeJour(d, dateArrivee);
-  const isDepart = (d) => estMemeJour(d, dateDepart);
-  const isBetween = (d) => estEntre(d, dateArrivee, dateDepart);
-
   const survolChateau = (id) => {
     setChateauSurvol(id);
   };
@@ -152,8 +130,10 @@ export default function DernieresCles({ onClose }) {
     return j >= 1 && j <= 30;
   };
   // garde la même fenêtre J+1..J+30 que la bande actuelle, pour cohérence du filtrage
-
-  const labelMois = moisAffiche.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+  // ⚠ Etape 3 refonte Prop 3 : cette fenêtre uniforme ne sait rien des offres —
+  // elle ouvre J+1..J+30 quel que soit le catalogue. Elle sera remplacée par la
+  // fonction sœur `datesAvecOffre` de disponibilitesService, seul endroit
+  // autorisé à répondre « disponible ou non ».
 
   const nuitsEffectives = (dateArrivee && dateDepart)
     ? Math.round((dateDepart - dateArrivee) / 86400000)
@@ -187,41 +167,15 @@ export default function DernieresCles({ onClose }) {
         <section className="dk-section dk-section-dates">
           <div className="dk-dates-bloc">
             <div className="dk-bloc-cal">
-            <div className="dk-cal-mois">
-              <div className="dk-cal-nav">
-                <button className="dk-cal-nav-btn" onClick={moisPrecedent} aria-label="Mois précédent">‹</button>
-                <span className="dk-cal-nav-label">{labelMois}</span>
-                <button className="dk-cal-nav-btn" onClick={moisSuivant} aria-label="Mois suivant">›</button>
-              </div>
-              <div className="dk-cal-grille">
-                {["Lu","Ma","Me","Je","Ve","Sa","Di"].map((j) => (
-                  <span key={j} className="dk-cal-jour-entete">{j}</span>
-                ))}
-                {genererGrilleMois(moisAffiche).map((caseJour, i) => {
-                  const d = caseJour.date;
-                  if (caseJour.horsMois) {
-                    return <span key={i} className="dk-cal-case dk-cal-case-horsmois">{d.getDate()}</span>;
-                  }
-                  const selectionnable = estSelectionnable(d);
-                  const classes =
-                    "dk-cal-case" +
-                    (selectionnable ? " dk-cal-case-dispo" : " dk-cal-case-off") +
-                    (isArrivee(d) ? " dk-cal-arrivee" : "") +
-                    (isDepart(d) ? " dk-cal-depart" : "") +
-                    (isBetween(d) ? " dk-cal-between" : "");
-                  return (
-                    <button
-                      key={i}
-                      className={classes}
-                      disabled={!selectionnable}
-                      onClick={() => selectionnable && handleSelectDate(d)}
-                    >
-                      {d.getDate()}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+              <CalendrierDK
+                moisAffiche={moisAffiche}
+                dateArrivee={dateArrivee}
+                dateDepart={dateDepart}
+                estSelectionnable={estSelectionnable}
+                onSelectDate={handleSelectDate}
+                onMoisPrecedent={moisPrecedent}
+                onMoisSuivant={moisSuivant}
+              />
             </div>
 
             <div className="dk-bloc-selection">
@@ -357,13 +311,6 @@ export default function DernieresCles({ onClose }) {
         </section>
 
       </div>
-
-      {transitionChateau && (
-        <TransitionPorte chateau={transitionChateau} onTermine={() => { setChateauSelectionne(transitionChateau); setTransitionChateau(null); }} />
-      )}
-      {(transitionChateau || chateauSelectionne) && (
-        <VitrineDernieresCle chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
-      )}
     </div>
   );
 }
