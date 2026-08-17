@@ -362,3 +362,234 @@
 @media (max-width: 768px) {
   .dk-carte-offre:hover, .dk-carte-offre.survol { box-shadow: var(--hm-ombre, 0 6px 18px rgba(7, 16, 30, 0.10)); }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ETAPE 4 DE LA REFONTE PROP 3 (seuil 768)
+   Le module commercial devient manipulable au doigt. Aucune regle existante
+   n'est modifiee : tout vit sous le seuil, le desktop ne peut pas bouger.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* ── LA LARGEUR, D'ABORD ────────────────────────────────────────────────
+     Le calendrier ne recevait que 249 px sur un ecran de 375, et ce n'etait
+     pas la faute de l'ecran : DEUX rembourrages le mangeaient avant lui.
+
+       375  -  .dk-page 32x2       = 311
+       311  -  .dk-dates-bloc 30x2 = 251     <- ce qu'il recevait
+
+     C'est la mesure qui invalide le calcul « 7 x 44 = 308, ca rentre » : le
+     calendrier n'a jamais eu la largeur du viewport. On lui rend d'abord la
+     place, ensuite on agrandit les cases.
+
+       375  -  14x2  =  347
+       347  -   8x2  =  331
+       piste = (331 - 6 gaps de 2) / 7 = 45,6 px    -> une case de 44 tient
+       a 390 px : piste = 47,7 px
+
+     Le rembourrage de page tombe a 14 px, la gouttiere mobile usuelle. Celui
+     du bloc dates tombe a 8 px horizontalement — assez pour que le filet or
+     ne touche pas les cases, pas assez pour couter une colonne. */
+  .dk-page { padding: 20px 14px 44px; }
+  .dk-dates-bloc { padding: 20px 8px; }
+
+  /* ── LES CASES ──────────────────────────────────────────────────────────
+     `width: 80%` etait le vrai coupable : sur une piste de 33 px il produisait
+     un cercle de 26. Le retirer seul aurait donne 33 px — encore sous la cible.
+     La case devient donc un CARRE FIXE de 44 px, centre dans sa piste.
+
+     Pourquoi pas `width: 100%` : la piste fait 45,6 px pour 44 de haut, et
+     `border-radius: 50%` sur un rectangle donne une ELLIPSE. Le cercle est la
+     grammaire de cet ecran depuis l'origine ; l'etape 4 rend la case tapable,
+     elle ne redessine pas. La barre continue de la plage vient a l'etape 5. */
+  /* ── ETAPE 4bis — LA ZONE TACTILE ET LE DESSIN SONT DECOUPLES ───────────
+     Retour de validation : tapable, mais trop imposant. Des disques de 44 px
+     serres les uns contre les autres donnent une appli utilitaire, pas une
+     demeure.
+
+     LE PIEGE A NE PAS TOMBER DEDANS : affiner en rapetissant la case. On
+     reperdrait la cible tactile en meme temps que la lourdeur.
+
+     Ce qui est fait ici : la CASE reste un carre de 44 px — c'est elle qu'on
+     tape — et le CERCLE n'est plus la case. Il est PEINT DEDANS, en fond, a
+     `--dk-pastille` (32 px). On tape sur grand, on voit petit.
+
+     Pourquoi un `radial-gradient` et pas un `::before` : un pseudo-element
+     positionne se peint APRES le contenu en ordre d'arbre, donc par-dessus le
+     chiffre. Le remettre dessous demande `z-index: -1` plus `isolation`, deux
+     proprietes de plus pour un cercle. Un fond, lui, est derriere le texte par
+     construction — rien a empiler, rien a isoler.
+
+     Le `gap` passe a 0 : l'air ne vient plus de l'espace ENTRE les cases mais
+     de l'espace DANS chacune, autour d'un cercle plus petit. La piste passe a
+     47,3 px pour un cercle de 32 — soit 15 px de respiration par case.
+
+     ⚠ SANS ILLUSION SUR LA HAUTEUR : la grille passe de 295 a 293 px, deux
+     pixels. Elle ne peut pas raccourcir davantage sans renoncer aux 44 px
+     tactiles, qui fixent la hauteur de rangee. L'allegement est VISUEL — moins
+     d'encre, plus de blanc — pas dimensionnel. Le pretendre serait mentir sur
+     ce que ce bloc fait. */
+  .dk-cal-grille { gap: 0; }
+  .dk-cal-case {
+    /* LA ZONE TACTILE — 44 px, non negociable. */
+    width: var(--hm-tap, 44px);
+    height: var(--hm-tap, 44px);
+    margin: 0 auto;
+    /* LE DESSIN — plus petit que la zone. */
+    --dk-pastille: 32px;
+    font-size: var(--hm-t-corps, 0.85rem);
+    /* Playfair Display n'est charge qu'en 400/500/600 (index.html) : 400 est
+       le plus maigre VRAI poids. Demander 300 ferait synthetiser un faux-maigre
+       par le navigateur, different d'un moteur a l'autre. La legerete vient
+       donc de la couleur et de la taille, pas d'un poids qui n'existe pas. */
+    font-weight: 400;
+    color: rgba(26, 45, 90, 0.78);
+    background: transparent;
+  }
+
+  /* Etat par defaut : AUCUN cercle, juste le chiffre. Le cercle est un signe
+     d'etat, pas un decor — l'allumer partout le viderait de son sens. */
+  .dk-cal-case.dk-cal-case-off,
+  .dk-cal-case.dk-cal-case-horsmois {
+    color: rgba(26, 45, 90, 0.20);
+    background: transparent;
+  }
+
+  /* Survol : un anneau FIN, jamais un aplat. */
+  .dk-cal-case.dk-cal-case-dispo:hover {
+    background: radial-gradient(circle at center,
+      transparent 0 calc(var(--dk-pastille) / 2 - 1px),
+      rgba(192, 152, 64, 0.55) calc(var(--dk-pastille) / 2 - 1px) calc(var(--dk-pastille) / 2),
+      transparent calc(var(--dk-pastille) / 2));
+    color: #1A2D5A;
+  }
+
+  /* Arrivee et depart : les deux ancres de la plage. Un disque plein, mais
+     PETIT — c'est la taille qui pesait, pas le remplissage. Le chiffre passe
+     en creme, seul endroit ou le contraste doit etre franc.
+     Specificite (0,2,0) : les regles desktop portent `!important` sur le
+     raccourci `background`, qui remettrait `background-image` a `none`. */
+  .dk-cal-case.dk-cal-arrivee,
+  .dk-cal-case.dk-cal-depart {
+    background: radial-gradient(circle at center,
+      #C09840 0 calc(var(--dk-pastille) / 2),
+      transparent calc(var(--dk-pastille) / 2)) !important;
+    color: #FBF8F1 !important;
+    font-weight: 500;
+  }
+
+  /* Entre les deux : une teinte a peine posee, le chiffre reste navy.
+     ⚠ Ce sont encore des pastilles disjointes — l'etape 5 les remplace par une
+     barre continue, c'est elle qui porte ce sujet. Ici on ne fait qu'alleger. */
+  .dk-cal-case.dk-cal-between {
+    background: radial-gradient(circle at center,
+      rgba(192, 152, 64, 0.13) 0 calc(var(--dk-pastille) / 2),
+      transparent calc(var(--dk-pastille) / 2)) !important;
+    color: rgba(26, 45, 90, 0.78);
+  }
+
+  /* ── LES EN-TETES DE JOUR ───────────────────────────────────────────────
+     9,28 px : sous le plancher de lisibilite, et ce sont les seuls reperes qui
+     disent quelle colonne est quel jour.
+
+     ⚠ ILS NE PEUVENT PAS REJOINDRE --hm-t-eyebrow NI --hm-t-micro : ces deux
+     tokens valent 0.52 et 0.56rem, soit 8,3 et 9,0 px — MOINS que l'existant.
+     Les y envoyer aggraverait le defaut, c'est le meme piege qu'au chantier des
+     sept defauts. L'echelle partagee n'a aucun palier entre 9,0 et 13,6 px.
+
+     Ils prennent donc --hm-t-corps, comme les chiffres qu'ils coiffent : en-tete
+     et jour a la meme taille, la grille se lit comme un seul objet. Un palier
+     intermediaire dans l'echelle serait une decision de DA, pas d'ingenierie. */
+  /* ETAPE 4bis — ils redescendent, et c'est un arbitrage assume.
+     A l'etape 4 ils etaient montes a 13,6 px pour passer le plancher de
+     lisibilite. Mais ce sont des ETIQUETTES, pas du contenu : a la meme taille
+     que les chiffres, ils leur disputaient le regard et alourdissaient la
+     grille. Ils redescendent a 11 px, en Crimson Pro 300 — un poids REELLEMENT
+     charge, contrairement au 300 de Playfair — et dans un or attenue.
+
+     Le plancher de 12 px est donc franchi ici en connaissance de cause : sept
+     initiales de jour, jamais lues mot a mot, dont le role est de reperer une
+     colonne. Elles restent le seul texte de cet ecran sous le plancher avec les
+     deux libelles que l'etape 6 traitera. */
+  .dk-cal-jour-entete {
+    font-size: 0.69rem;
+    font-weight: 300;
+    letter-spacing: var(--hm-ls-micro, 0.18em);
+    color: rgba(168, 136, 78, 0.75);
+    padding-bottom: 10px;
+  }
+
+  /* ── LA NAVIGATION DE MOIS ──────────────────────────────────────────────
+     32 x 32 px pour le seul moyen de sortir du mois courant, alors que le
+     calendrier n'ouvre plus que quinze jours : sans ces deux boutons, une plage
+     a cheval sur deux mois est inatteignable au doigt. */
+  .dk-cal-nav-btn {
+    width: var(--hm-tap, 44px);
+    height: var(--hm-tap, 44px);
+    font-size: var(--hm-t-corps, 0.85rem);
+  }
+  .dk-cal-nav { margin-bottom: 14px; }
+
+  /* ── LES SELECTEURS NUITS / VOYAGEURS ───────────────────────────────────
+     84 x 30 px. La largeur allait, la hauteur non : on ne touche donc QUE la
+     hauteur, par min-height — forcer `height` casserait l'alignement du texte
+     dans les options a deux lignes. */
+  .dk-selecteur-opt {
+    min-height: var(--hm-tap, 44px);
+    /* La LARGEUR compte aussi, et elle avait ete oubliee au premier passage :
+       les options « voyageurs » portent « 1 », « 2 », « 3 », « 4+ » et ne
+       faisaient que 33 px de large. Hauteur conforme, cible ratee quand meme —
+       une cible tactile est un carre, pas une hauteur. Les options « nuits »
+       (« 2 nuits ») sont deja bien plus larges : le min ne les touche pas. */
+    min-width: var(--hm-tap, 44px);
+    font-size: var(--hm-t-corps, 0.85rem);
+  }
+  .dk-selecteur-label {
+    font-size: var(--hm-t-corps, 0.85rem);
+    letter-spacing: var(--hm-ls-micro, 0.18em);
+  }
+
+  /* ── LES FILTRES ────────────────────────────────────────────────────────
+     146 x 43 px : il manquait UN pixel. C'est le genre d'ecart qu'on ne voit
+     pas a l'oeil et qui fait rater un tap sur trois au pouce. */
+  .dk-filtre-select {
+    min-height: var(--hm-tap, 44px);
+    font-size: var(--hm-t-corps, 0.85rem);
+  }
+  .dk-filtre-label {
+    font-size: var(--hm-t-corps, 0.85rem);
+    letter-spacing: var(--hm-ls-micro, 0.18em);
+  }
+  .dk-filtres-titre-txt { font-size: var(--hm-t-corps, 0.85rem); }
+
+  /* ── LE RECAP ARRIVEE / DEPART ──────────────────────────────────────────
+     Ses libelles etaient a 9,6 px. Le bloc lui-meme est deplace sous le
+     calendrier a l'etape 5 ; ici on ne fait que le rendre lisible. */
+  .dk-bloc-selection-titre,
+  .dk-dates-etape-label {
+    font-size: var(--hm-t-corps, 0.85rem);
+    letter-spacing: var(--hm-ls-micro, 0.18em);
+  }
+  .dk-dates-etape { min-height: var(--hm-tap, 44px); }
+  /* Les pastilles « 1 » et « 2 » etaient a 11,2 px — sous le plancher, et ce
+     sont elles qui disent dans quel ordre on choisit ses dates. */
+  .dk-dates-etape-num { font-size: var(--hm-t-corps, 0.85rem); }
+  .dk-carte-offre-region { font-size: var(--hm-t-corps, 0.85rem); }
+
+  /* ── LE TOPBAR — LE TROISIEME DE LA SERIE ───────────────────────────────
+     Apres `.vit-topbar-titre` et `.ee-titre`, meme geste et meme raison.
+     Mesure : logo 48..289, titre 289..384 sur un ecran de 375 — gouttiere
+     EXACTEMENT nulle, et le titre coupe de 9 px.
+
+     Ici le defaut est structurel et non un reglage : `.dk-topbar-logo::after`
+     porte « Les Clés du Château » en `white-space: nowrap`. Le repli est
+     INTERDIT par construction, donc aucune valeur de largeur ne peut sauver
+     cette barre — seul le masquage du titre la libere.
+
+     Ce n'est pas une amputation : « Dernières clés » est repris juste dessous
+     en `<h2>` (`.dk-panneau-titre`). On retire une TROISIEME occurrence du meme
+     mot, et la barre redevient ce qu'elle doit etre : fine et lisible.
+     Le rembourrage passe de 3rem (96 px sur 375, un quart de l'ecran) a 14 px,
+     aligne sur la gouttiere de page. */
+  .dk-topbar { padding: 10px 14px; }
+  .dk-topbar-titre { display: none; }
+}
