@@ -2,10 +2,14 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { getSlugsAvecOffreDernieresCles } from "../services/offresService.js";
-import { chateauxDisponibles } from "../services/disponibilitesService.js";
+import {
+  chateauxDisponibles,
+  datesAvecOffre,
+  predicatDateOuverte,
+} from "../services/disponibilitesService.js";
 import CalendrierDK from "./CalendrierDK";
 import SkeletonChateau from "./SkeletonChateau";
-import { formatDate, joursAvant } from "../utils/dates";
+import { formatDate } from "../utils/dates";
 import "../styles/dernieres-cles.css";
 
 export default function DernieresCles({ onClose }) {
@@ -46,6 +50,8 @@ export default function DernieresCles({ onClose }) {
   // Slugs des chateaux ayant une offre Dernieres Cles reelle. null tant que non charge :
   // on attend cette source comme on attend les chateaux, pour ne pas afficher de grille vide.
   const [slugsAvecOffre, setSlugsAvecOffre] = useState(null);
+  // Jours ouverts du calendrier. `null` = pas encore su (cf. estSelectionnable).
+  const [datesOuvertes, setDatesOuvertes] = useState(null);
   // Audit Fondation J2 — P0-2 : ne lister que les châteaux ayant réellement une
   // offre Module B visible (le Set slugsAvecOffre, interrogé en base). Sans ce
   // filtre, un clic sur un château sans offre navigue vers /chateau/<slug> qui
@@ -87,6 +93,16 @@ export default function DernieresCles({ onClose }) {
     return () => { annule = true; };
   }, []);
 
+  // Les jours que le calendrier ouvre. Même patron de cancellation, même
+  // repli : en cas d'échec, aucune date ouverte plutôt qu'un écran cassé.
+  useEffect(() => {
+    let annule = false;
+    datesAvecOffre()
+      .then((set) => { if (!annule) setDatesOuvertes(set); })
+      .catch(() => { if (!annule) setDatesOuvertes(new Set()); });
+    return () => { annule = true; };
+  }, []);
+
   const handleSelectDate = (d) => {
     if (etape === "arrivee") {
       setDateArrivee(d);
@@ -124,16 +140,15 @@ export default function DernieresCles({ onClose }) {
     setChateauSurvol(id);
   };
 
-  const estSelectionnable = (d) => {
-    if (!d) return false;
-    const j = joursAvant(d);
-    return j >= 1 && j <= 30;
-  };
-  // garde la même fenêtre J+1..J+30 que la bande actuelle, pour cohérence du filtrage
-  // ⚠ Etape 3 refonte Prop 3 : cette fenêtre uniforme ne sait rien des offres —
-  // elle ouvre J+1..J+30 quel que soit le catalogue. Elle sera remplacée par la
-  // fonction sœur `datesAvecOffre` de disponibilitesService, seul endroit
-  // autorisé à répondre « disponible ou non ».
+  // Étape 3 refonte Prop 3 : le calendrier n'ouvre plus J+1..J+30 uniformément.
+  // Il ouvre les dates qui ont RÉELLEMENT une offre, calculées par la fonction
+  // sœur du service. Le composant ne fabrique aucune règle et ne lit aucune clé
+  // de date : il reçoit un Set et en fait un prédicat via la fabrique du module.
+  //
+  // `null` tant que ça charge → prédicat toujours faux → aucune case active.
+  // C'est volontaire : ouvrir par défaut afficherait des dates qu'on n'a pas
+  // encore vérifiées, et un clic dessus mènerait à une liste vide.
+  const estSelectionnable = predicatDateOuverte(datesOuvertes);
 
   const nuitsEffectives = (dateArrivee && dateDepart)
     ? Math.round((dateDepart - dateArrivee) / 86400000)

@@ -65,15 +65,31 @@ async function attendreDonnees(page) {
   await expect(page.locator('.sk-chateau-card').first()).toHaveCount(0, { timeout: 15000 });
 }
 
-// Rend selectionnables au moins deux cases. La fenetre ouverte est J+1..J+30 :
-// en fin de mois, le mois courant peut n'en offrir qu'une poignee, voire zero.
-// On avance d'un mois tant qu'il n'y a pas de quoi tracer une plage.
+// Rend selectionnables au moins deux cases, et attend d'abord qu'il y en ait.
+//
+// ⚠ CETTE ATTENTE EST INDISPENSABLE DEPUIS L'ETAPE 3. Le calendrier n'ouvre
+// plus J+1..J+30 en dur : il attend le Set de `datesAvecOffre`, une SECONDE
+// source asynchrone. Tant qu'elle n'est pas arrivee, le predicat repond faux et
+// AUCUNE case n'est ouverte — l'ecran est complet, mais le calendrier est
+// entierement grise.
+//
+// `attendreDonnees` ne couvre pas ce cas : elle guette les squelettes, qui
+// dependent de `slugsAvecOffre`, pas de `datesOuvertes`. Les deux requetes
+// partent ensemble mais n'arrivent pas ensemble. En isole, le test passait ;
+// dans la suite complete, chromium-desktop a echoue sur `count() === 0` puis
+// avance de trois mois dans le vide. Symptome classique d'un `count()` — qui
+// ne PATIENTE pas — la ou il faut un `expect`, qui reessaie.
+//
+// La fenetre etant bornee, en fin de periode le mois courant peut n'offrir
+// qu'une poignee de cases : on avance d'un mois tant qu'il n'y a pas de quoi
+// tracer une plage.
 async function casesDisponibles(page, minimum = 2) {
   const cases = page.locator('.dk-cal-case-dispo:not([disabled])');
+  await expect(cases.first()).toBeVisible({ timeout: 15000 });
   for (let essai = 0; essai < 3; essai++) {
     if ((await cases.count()) >= minimum) return cases;
     await page.locator('.dk-cal-nav-btn').last().click();
-    await page.waitForTimeout(250);
+    await expect(cases.first()).toBeVisible({ timeout: 8000 });
   }
   return cases;
 }
