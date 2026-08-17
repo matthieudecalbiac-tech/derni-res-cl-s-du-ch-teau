@@ -219,3 +219,30 @@
 @media (max-width: 768px) {
   .ph-carte-titre { letter-spacing: var(--hm-ls-eyebrow, 0.32em); }
 }
+
+/* ═══ MOBILE — DEFAUT 4 : LES EQUERRES OR (seuil 768) ═══
+   L'ornement etait quatre equerres or aux angles de la carte, en absolu sur
+   toute sa hauteur. Avec 13 noms la carte fait 827 px : les quatre marques
+   sont si eloignees qu'elles ne se lisent plus comme un cadre. Pire, l'ecart
+   entre cartes n'est que de 20 px — les equerres du bas de l'une et du haut
+   de la suivante se telescopaient en un motif a quatre marques dans une
+   bande de 60 px, qui ressemble a un bug de rendu.
+
+   Decision : l'ornement disparait sous le seuil.
+
+   MAIS .ph-carte n'a NI bordure NI fond — seulement du padding. La retirer
+   sans rien laisserait les cartes sans aucune definition. Un filet fin les
+   separe donc, pose entre deux cartes et non autour de chacune : un cadre
+   boxe, un filet rythme. Il s'accommode de n'importe quelle hauteur de carte,
+   ce que les equerres ne savaient pas faire. */
+@media (max-width: 768px) {
+  .ph-carte::before,
+  .ph-carte::after,
+  .ph-carte-coins::before,
+  .ph-carte-coins::after { display: none; }
+
+  .ph-carte + .ph-carte {
+    border-top: 1px solid var(--hm-filet, rgba(192, 152, 64, 0.13));
+    padding-top: clamp(1.75rem, 3vw, 2.6rem);
+  }
+}

@@ -324,3 +324,28 @@
 @media (max-width: 768px) {
   .vit-surtitre { letter-spacing: var(--hm-ls-eyebrow, 0.32em); }
 }
+
+/* ═══ MOBILE — DEFAUTS 1 ET 5 DE L'INSPECTION VISUELLE (seuil 768) ═══
+   1. LE TOPBAR CASSAIT. Mesure : le logo occupait 24..265, le titre de
+      section 265..390 pour un ecran de 375 — 15 px coupes a droite, et zero
+      gouttiere entre les deux, si bien que « Vitrines » chevauchait la fin de
+      « Chateau ». `flex-wrap: nowrap` interdisait tout repli. Et la barre est
+      STICKY : le defaut suivait les 4000 px de la page.
+
+      Le titre s'en va. Ce n'est pas une amputation : le fil d'Ariane, juste
+      dessous, porte deja « ACCUEIL › LES VITRINES PERMANENTES », et le grand
+      titre de page le repete en Playfair. On retire une TROISIEME occurrence
+      du meme mot, et la barre redevient ce qu'elle doit etre en defilement :
+      fine et lisible. Meme geste que la ligne region de l'en-tete vitrine.
+
+   5. LE SEPARATEUR ORPHELIN. Les 4 filtres passent sur 2 lignes
+      (`flex-wrap: wrap`), et « Normandie » gardait son `::after` alors qu'il
+      TERMINE sa ligne : un « | » flottait dans le vide.
+      Le separateur disparait entierement sous le seuil plutot que d'etre
+      rattrape au cas par cas — sur deux lignes il ne separe plus rien, c'est
+      l'espacement qui fait le travail. */
+@media (max-width: 768px) {
+  .vit-topbar-titre { display: none; }
+  .vit-filtre:not(:last-child)::after { display: none; }
+  .vit-filtres, .vit-filtres-wrap { column-gap: 22px; }
+}
