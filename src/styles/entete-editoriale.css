@@ -97,3 +97,13 @@
 @media (max-width: 768px) {
   .ee-logo { min-height: var(--hm-tap, 44px); }
 }
+
+/* ═══ MOBILE — DEFAUT 6 : LE TITRE DESEQUILIBRAIT LA BARRE (seuil 768) ═══
+   Mesure : logo 20..224, titre 240..355 — pas de debordement ici, mais le
+   titre se cassait en DEUX LIGNES (52 px) dans une barre de 77.
+   Meme traitement que `.vit-topbar-titre`, pour que les deux en-tetes
+   editoriaux se comportent pareil : le fil d'Ariane juste dessous porte deja
+   « ACCUEIL › HISTOIRE DES LIEUX », et le titre de page le repete. */
+@media (max-width: 768px) {
+  .ee-titre { display: none; }
+}

@@ -1365,3 +1365,74 @@
 .vc4-lightbox-close{position:absolute;top:24px;right:28px;width:44px;height:44px;border-radius:50%;background:rgba(245,240,232,0.1);border:1px solid rgba(245,240,232,0.3);color:#F5F0E8;font-size:1.1rem;cursor:pointer;transition:all 0.2s}
 .vc4-lightbox-close:hover{background:rgba(245,240,232,0.2);border-color:#F5F0E8}
 .vc4-lightbox-legende{margin-top:20px;color:#F5F0E8;font-family:'Crimson Pro',serif;font-style:italic;font-size:0.95rem}
+
+/* ═══ MOBILE — DEFAUTS 2 ET 3 : LES GRILLES A DEUX COLONNES (seuil 768) ═══
+   Deux fois la meme ligne fautive dans ce fichier, sans aucune media query :
+   grid-template-columns: 1fr 1fr. Or une piste en fr ne descend JAMAIS sous le
+   min-content de sa piste — la meme famille de bug que la grille du Sommaire
+   et que les dates du bloc sejour.
+
+   Mesure avec les VRAIES cartes, ecran de 375 :
+     personnages  carte 1  64..235 (w171)   carte 2  255..435  -> 60 px coupes
+     alentours    carte 1  64..211 (w147)   carte 2  231..398  -> 23 px coupes
+
+   DEUX COLONNES NE TIENNENT PAS, verifie et non suppose : il faut
+   171+180+20 = 371 px pour les personnages, 147+168+20 = 335 pour les
+   alentours, quand la modale n en offre que ~311. Un minmax(0,1fr) les
+   ferait tenir en les ecrasant a 145 px chacune — illisible. Une colonne.
+
+   C est le defaut que Matthieu decrivait : avec UN personnage ca tenait,
+   avec PLUSIEURS la seconde carte sortait du cadre. */
+@media (max-width: 768px) {
+  .vc4-theme-personnages,
+  .vc4-theme-lieu-alentours { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ═══ MOBILE — DEFAUT 7 : LES MODALES DE THEME REJOIGNENT L'ECHELLE ═══
+   Ce fichier fait 1367 lignes et porte ses propres tailles. On ne rebranche
+   QUE ce qui se voit : les textes releves sous 12 px dans les sept modales.
+
+   ⚠ UNE PRECISION QUI CHANGE LE MAPPING. La consigne disait de les remonter
+   vers --hm-t-micro au minimum. Or --hm-t-micro vaut 0.56rem, soit 9,0 px :
+   c'est MOINS que les 11 px actuels. Les y envoyer les aurait rapetisses de
+   18 %, a l'oppose de l'intention.
+
+   Le mapping suit donc la NATURE de chaque texte, verifiee sur sa
+   declaration :
+
+     .vc4-theme-eyebrow          11px CAPS ls=0.18em  -> vrai surtitre
+        il rejoint --hm-t-eyebrow (8,3 px) et l'interlettrage partage : c'est
+        le meme cran que tous les surtitres du site ont pris.
+
+     .vc4-theme-alentour-ico / -dist       11px, SANS capitales
+     .vc4-theme-perso-nature               11px, SANS capitales
+     .vc4-theme-chambre-meta / -equipements 11px, ls faible
+        ce n'est pas de l'oeil-de-surtitre, c'est du TEXTE COURANT retreci.
+        Ils montent a --hm-t-corps (13,6 px) — une vraie remontee.
+
+     .vc4-theme-famille-depuis   11px CAPS ls=0.06em
+        capitales mais a peine espacees : trop peu pour un surtitre, trop
+        petit pour du texte. Il rejoint --hm-t-micro avec l'interlettrage de
+        son niveau, qui lui donne enfin la respiration de sa casse. */
+@media (max-width: 768px) {
+  .vc4-theme-eyebrow {
+    font-size: var(--hm-t-eyebrow, 0.52rem);
+    letter-spacing: var(--hm-ls-eyebrow, 0.32em);
+  }
+  .vc4-theme-alentour-ico,
+  .vc4-theme-alentour-dist,
+  .vc4-theme-perso-nature,
+  .vc4-theme-chambre-meta,
+  .vc4-theme-chambre-equipements { font-size: var(--hm-t-corps, 0.85rem); }
+  /* Meme cas de figure pour ces trois : capitales, mais a peine espacees
+     (0.04 a 0.06 em). Trop peu pour un surtitre, trop petit pour du texte.
+     L'interlettrage de leur niveau leur rend la respiration de leur casse.
+     `.vc4-theme-chambre-prix-lab` a ete trouve en relisant les textes fins
+     APRES la premiere passe : c'etait le dernier hors echelle. */
+  .vc4-theme-famille-depuis,
+  .vc4-mosa-type,
+  .vc4-theme-chambre-prix-lab {
+    font-size: var(--hm-t-micro, 0.56rem);
+    letter-spacing: var(--hm-ls-micro, 0.18em);
+  }
+}
