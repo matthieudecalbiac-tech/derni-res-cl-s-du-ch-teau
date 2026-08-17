@@ -590,6 +590,23 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - **[Phase 4.2] `ChateauCarte` mutualisé** : implémentations dupliquées détectées dans `VitrinePermanente`, `DernieresCles`, `ClubMembres`, `HeureAuxDemeures`, `UneDeLaSemaine`. Fusion en un composant unique avec variantes (`eyebrow`, `editorial`, `last-minute`, `vitrine`, `club`).
 
+### Dette DONNÉES / MÉTIER (distincte de la dette code)
+
+Ces deux points ne sont pas des défauts de code : le mécanisme est juste, c'est la **donnée** qui ne l'exerce pas. Découverts en mesurant l'étape 3 de la refonte Prop 3 (17 août 2026).
+
+- **[Données/Admin] Le champ `urgence` est en TEXTE LIBRE, alors qu'il est typé en union** : `src/types/Chateau.js:22` le déclare `"J-7"|"J-10"|"J-15"`, mais `AdminChateauEdition.jsx:544` l'expose via un `<Champ label="Urgence">` sans contrainte. Valeurs **réellement en base** au 17 août 2026 :
+
+  | slug | `urgence` |
+  |---|---|
+  | `blanc-buisson`, `chateau-de-bonnemare`, `chateau-royal-de-benays` | `J-15` |
+  | `les-briottieres`, `chateau-de-saint-paterne` | `(null)` |
+  | `chateau-de-la-riviere` | **« Vitrine premium »** |
+  | `chateau-du-boulay-morin` | **« Idéal week-end »** |
+
+  Conséquence : tout ce qui ne matche pas les trois valeurs retombe **silencieusement** sur `FENETRE_DEFAUT = 15` dans `disponibilitesService.js`. Le proxy de disponibilité ne discrimine donc rien en pratique — et Briottières, seul château porteur d'une offre, est à `null`, donc à 15 jours par défaut. Le calendrier ne mentira pas, mais il ne dira pas grand-chose tant que le champ n'est pas contraint. **À corriger** : soit un `<select>` à trois valeurs côté admin, soit un nettoyage de la donnée, soit les deux. ~1-2 h. **Ne pas le corriger dans le calendrier** : le contrat de découplage de `disponibilitesService.js` interdit d'y compenser une donnée sale.
+
+- **[Données/Contenu] Un SEUL château porte une offre Module B visible** : au 17 août 2026, `offres` ne contient **qu'une** ligne visible (Briottières, Chambre Verte). Le calendrier n'a donc qu'une source à refléter, et la grille n'affiche qu'une carte. Non bloquant — le mécanisme est correct et se peuplera tout seul — mais **la démo Dernières Clés restera pauvre** tant que d'autres offres ne sont pas saisies. Sujet contenu, à coordonner avec Dimitri (stratégie) : cf. aussi la dette du générateur de seed (`buildOffresSQL()` absent, Sprint S2).
+
 - **[Phase 4.4] Vidéo Le Blanc Buisson YouTube → HTML5 natif** : (a) −3 critical a11y absorbés au baseline ; (b) +1 erreur "Permissions policy violation: compute-pressure" en local Chromium (Phase 1.x C2 absorbée par baseline `console-errors.erreurs.max=2`, à resserrer post-migration). iframe YouTube `JQ9m51Bl900` actuelle non a11y-compliante. Migration vers vidéo HTML5 native dans `/public/` retire ces faux positifs et donne le contrôle complet sur le poster, l'autoplay et la coupure mobile. **Bloqueur business** : récupérer auprès de Maïté & Éric de la Fresnaye le master vidéo source haute qualité + cession de droits écrite pour usage LCC commercial. **Périmètre tech post-réception** : 4 composants à migrer (VitrineChateau, ChateauModal, VitrineDernieresCle, VitrineClub) + 2 fichiers CSS (vitrine-chateau.css, chateau-page.css). Sera triviale après Phase 4.2 ChateauCarte mutualisé. **Reset baseline post-migration** : Sprint S1 Phase 5 a passé `qa-baseline.json:seuils.a11y-axe.violationsCritical.max` de 3 à 10 pour absorber 5 occurrences cross-browser du faux positif YouTube. Après migration HTML5 + suppression de `videoBackground: 'JQ9m51Bl900'` du legacy `src/data/chateaux.js` id 8, les 5 critical button-name disparaissent automatiquement → reset `max` à 0 (et `actuel` à 0).
 
 - **[Sprint S2 ou S5] Faux positif a11y `compute-pressure` désormais émis 24/7** : depuis la branche `fix/vitrine-night-mode-polish` (12 mai 2026), l'iframe YouTube `JQ9m51Bl900` du hero de Le Blanc Buisson joue 24/7 (avant : jour seulement, condition `!heure.isNight` retirée). En conséquence, l'erreur Chromium « Permissions policy violation: compute-pressure » et les 5 critical `button-name` cross-browser de l'iframe sont émis quelle que soit l'heure (avant : uniquement de jour). Pas bloquant CI — la baseline absorbe déjà (`qa-baseline.json:a11y-axe.violationsCritical.max=10`, on en a 5 max ; `console-errors.erreurs.max=2`). À résoudre en même temps que la migration HTML5 natif (cf. dette `[Phase 4.4] Vidéo Le Blanc Buisson`) et/ou le refactor `a11y-axe.cjs` avec `axe exclude: 'iframe[src*="youtube.com"]'` (cf. dette `[Sprint S2 ou S5] Refactor agent a11y-axe.cjs`). Identifié 12 mai 2026.

@@ -2,43 +2,32 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { getSlugsAvecOffreDernieresCles } from "../services/offresService.js";
-import VitrineDernieresCle from "./VitrineDernieresCle";
-import TransitionPorte from "./TransitionPorte";
+import {
+  chateauxDisponibles,
+  datesAvecOffre,
+  predicatDateOuverte,
+} from "../services/disponibilitesService.js";
+import CalendrierDK from "./CalendrierDK";
 import SkeletonChateau from "./SkeletonChateau";
-import { genererGrilleMois, formatDate, joursAvant, estMemeJour, estEntre } from "../utils/dates";
+import { formaterPrix } from "../services/_mapping.js";
+import { formatDate } from "../utils/dates";
 import "../styles/dernieres-cles.css";
-
-function getDatesPossibles() {
-  const today = new Date();
-  const dates = [];
-  for (let i = 1; i <= 30; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    dates.push(d);
-  }
-  return dates;
-}
-
-function chateauxDisponibles(liste, dateArrivee) {
-  if (!dateArrivee) return liste;
-  const jours = joursAvant(dateArrivee);
-  return liste.filter(c => {
-    const seuil = { "J-7": 7, "J-10": 10, "J-15": 15 }[c.urgence] || 15;
-    return jours <= seuil;
-  });
-}
 
 export default function DernieresCles({ onClose }) {
   const navigate = useNavigate();
-  const [chateauSelectionne, setChateauSelectionne] = useState(null);
-  const [transitionChateau, setTransitionChateau] = useState(null);
   const [visible, setVisible] = useState(false);
 
   // Sprint S2-α.1.5 FIX D : ouvrir la nouvelle vitrine Module B via la route
   // canonique avec ?onglet=dernieresCles. onClose() en amont pour éviter
   // l'overlay fantôme au retour /. TransitionPorte animation perdue sur ce path
-  // (trade-off SEO+cohérence URL). VitrineDernieresCle.jsx devient orphelin
-  // (dette nettoyage Sprint S5).
+  // (trade-off SEO+cohérence URL).
+  //
+  // Etape 2 refonte Prop 3 : la branche legacy est retiree. `transitionChateau`
+  // et `chateauSelectionne` n'etaient plus jamais renseignes depuis ce FIX D —
+  // aucun `setTransitionChateau(valeur)` dans le fichier — donc TransitionPorte
+  // et VitrineDernieresCle etaient montes sur une condition toujours fausse.
+  // VitrineDernieresCle.jsx et sa feuille sont supprimes ; TransitionPorte
+  // reste, elle sert toujours a App.jsx et VitrinePermanente.
   const ouvrirChateauModuleB = (c) => {
     onClose?.();
     navigate(`/chateau/${c.slug}?onglet=dernieresCles`);
@@ -53,8 +42,6 @@ export default function DernieresCles({ onClose }) {
   const [voyageurs, setVoyageurs] = useState(2);
   // DECORATIF — aucune capacité dans les données château. Ne filtre rien.
   // À brancher au sprint dispo/capacité Supabase (cf brique disponibilités transverse).
-  const [nbNuits, setNbNuits] = useState(null);
-  // nb de nuits choisi via le sélecteur ; pilote la date de départ si arrivée fixée.
   const [filtreRegion, setFiltreRegion] = useState("toutes");
   const [filtreTri, setFiltreTri] = useState("pertinence");
   const [chateauSurvol, setChateauSurvol] = useState(null);
@@ -62,6 +49,8 @@ export default function DernieresCles({ onClose }) {
   // Slugs des chateaux ayant une offre Dernieres Cles reelle. null tant que non charge :
   // on attend cette source comme on attend les chateaux, pour ne pas afficher de grille vide.
   const [slugsAvecOffre, setSlugsAvecOffre] = useState(null);
+  // Jours ouverts du calendrier. `null` = pas encore su (cf. estSelectionnable).
+  const [datesOuvertes, setDatesOuvertes] = useState(null);
   // Audit Fondation J2 — P0-2 : ne lister que les châteaux ayant réellement une
   // offre Module B visible (le Set slugsAvecOffre, interrogé en base). Sans ce
   // filtre, un clic sur un château sans offre navigue vers /chateau/<slug> qui
@@ -72,9 +61,12 @@ export default function DernieresCles({ onClose }) {
     return chateauxDisponibles(base, dateArrivee);
   }, [chateaux, dateArrivee, filtreRegion, slugsAvecOffre]);
 
-  const prixDe = (c) =>
-    c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100))
-                : (c.chambres?.[0]?.prix ?? Infinity);
+  // `c.prix` EST le prix de l'offre Module B — `prix_promo_cents`, avec repli
+  // sur le prix de base (cf. applyOffreModuleB). Le reconstruire a partir de
+  // `prixBarre` et `reduction` etait a la fois inutile et FAUX : sur
+  // Briottieres, `Math.round(290 * 0.82)` donnait 238 EUR quand la base porte
+  // 237,80. Un arrondi de reconstruction contre une donnee exacte.
+  const prixDe = (c) => c.prix ?? c.chambres?.[0]?.prix ?? Infinity;
   const chateauxAffiches = useMemo(() => {
     const arr = [...chateauxFiltres];
     if (filtreTri === "prix-asc") arr.sort((a, b) => prixDe(a) - prixDe(b));
@@ -90,10 +82,10 @@ export default function DernieresCles({ onClose }) {
   useEffect(() => {
     document.body.style.overflow = "hidden";
     setTimeout(() => setVisible(true), 60);
-    const onKey = (e) => { if (e.key === "Escape" && !chateauSelectionne) onClose(); };
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", onKey);
     return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
-  }, [onClose, chateauSelectionne]);
+  }, [onClose]);
 
   useEffect(() => {
     let annule = false;
@@ -103,61 +95,56 @@ export default function DernieresCles({ onClose }) {
     return () => { annule = true; };
   }, []);
 
-  const dates = getDatesPossibles();
+  // Les jours que le calendrier ouvre. Même patron de cancellation, même
+  // repli : en cas d'échec, aucune date ouverte plutôt qu'un écran cassé.
+  useEffect(() => {
+    let annule = false;
+    datesAvecOffre()
+      .then((set) => { if (!annule) setDatesOuvertes(set); })
+      .catch(() => { if (!annule) setDatesOuvertes(new Set()); });
+    return () => { annule = true; };
+  }, []);
 
+  // Le nombre de nuits n'est plus SAISI, il est LU sur la plage. Le premier
+  // clic pose donc toujours l'arrivee et passe au depart : la branche qui
+  // deduisait un depart d'un nombre de nuits pre-choisi n'a plus d'objet.
   const handleSelectDate = (d) => {
     if (etape === "arrivee") {
       setDateArrivee(d);
-      if (nbNuits) {
-        const dep = new Date(d);
-        dep.setDate(dep.getDate() + nbNuits);
-        setDateDepart(dep);
-        setEtape("done");
-      } else {
-        setDateDepart(null);
-        setEtape("depart");
-      }
+      setDateDepart(null);
+      setEtape("depart");
     } else {
       if (d > dateArrivee) { setDateDepart(d); setEtape("done"); }
       else { setDateArrivee(d); setDateDepart(null); setEtape("depart"); }
     }
   };
 
-  const choisirNuits = (n) => {
-    setNbNuits(n);
-    if (dateArrivee) {
-      const dep = new Date(dateArrivee);
-      dep.setDate(dep.getDate() + n);
-      setDateDepart(dep);
-      setEtape("done");
-    }
-  };
-
-  const reset = () => { setDateArrivee(null); setDateDepart(null); setEtape("arrivee"); setNbNuits(null); };
+  const reset = () => { setDateArrivee(null); setDateDepart(null); setEtape("arrivee"); };
   const moisPrecedent = () =>
     setMoisAffiche(m => new Date(m.getFullYear(), m.getMonth() - 1, 1));
   const moisSuivant = () =>
     setMoisAffiche(m => new Date(m.getFullYear(), m.getMonth() + 1, 1));
-  const isArrivee = (d) => estMemeJour(d, dateArrivee);
-  const isDepart = (d) => estMemeJour(d, dateDepart);
-  const isBetween = (d) => estEntre(d, dateArrivee, dateDepart);
-
   const survolChateau = (id) => {
     setChateauSurvol(id);
   };
 
-  const estSelectionnable = (d) => {
-    if (!d) return false;
-    const j = joursAvant(d);
-    return j >= 1 && j <= 30;
-  };
-  // garde la même fenêtre J+1..J+30 que la bande actuelle, pour cohérence du filtrage
+  // Étape 3 refonte Prop 3 : le calendrier n'ouvre plus J+1..J+30 uniformément.
+  // Il ouvre les dates qui ont RÉELLEMENT une offre, calculées par la fonction
+  // sœur du service. Le composant ne fabrique aucune règle et ne lit aucune clé
+  // de date : il reçoit un Set et en fait un prédicat via la fabrique du module.
+  //
+  // `null` tant que ça charge → prédicat toujours faux → aucune case active.
+  // C'est volontaire : ouvrir par défaut afficherait des dates qu'on n'a pas
+  // encore vérifiées, et un clic dessus mènerait à une liste vide.
+  const estSelectionnable = predicatDateOuverte(datesOuvertes);
 
-  const labelMois = moisAffiche.toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
-
-  const nuitsEffectives = (dateArrivee && dateDepart)
+  // Nombre de nuits — DERIVE, jamais saisi. Le selecteur « Nombre de nuits »
+  // faisait double emploi avec le calendrier : deux facons de dire la meme
+  // chose, qui pouvaient se contredire. La plage est desormais la seule source,
+  // et ceci n'en est que la lecture. `null` tant que la plage est incomplete.
+  const nuits = (dateArrivee && dateDepart)
     ? Math.round((dateDepart - dateArrivee) / 86400000)
-    : nbNuits;
+    : null;
 
   return (
     <div className={"dk-overlay " + (visible ? "dk-overlay--visible" : "")}>
@@ -187,41 +174,15 @@ export default function DernieresCles({ onClose }) {
         <section className="dk-section dk-section-dates">
           <div className="dk-dates-bloc">
             <div className="dk-bloc-cal">
-            <div className="dk-cal-mois">
-              <div className="dk-cal-nav">
-                <button className="dk-cal-nav-btn" onClick={moisPrecedent} aria-label="Mois précédent">‹</button>
-                <span className="dk-cal-nav-label">{labelMois}</span>
-                <button className="dk-cal-nav-btn" onClick={moisSuivant} aria-label="Mois suivant">›</button>
-              </div>
-              <div className="dk-cal-grille">
-                {["Lu","Ma","Me","Je","Ve","Sa","Di"].map((j) => (
-                  <span key={j} className="dk-cal-jour-entete">{j}</span>
-                ))}
-                {genererGrilleMois(moisAffiche).map((caseJour, i) => {
-                  const d = caseJour.date;
-                  if (caseJour.horsMois) {
-                    return <span key={i} className="dk-cal-case dk-cal-case-horsmois">{d.getDate()}</span>;
-                  }
-                  const selectionnable = estSelectionnable(d);
-                  const classes =
-                    "dk-cal-case" +
-                    (selectionnable ? " dk-cal-case-dispo" : " dk-cal-case-off") +
-                    (isArrivee(d) ? " dk-cal-arrivee" : "") +
-                    (isDepart(d) ? " dk-cal-depart" : "") +
-                    (isBetween(d) ? " dk-cal-between" : "");
-                  return (
-                    <button
-                      key={i}
-                      className={classes}
-                      disabled={!selectionnable}
-                      onClick={() => selectionnable && handleSelectDate(d)}
-                    >
-                      {d.getDate()}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+              <CalendrierDK
+                moisAffiche={moisAffiche}
+                dateArrivee={dateArrivee}
+                dateDepart={dateDepart}
+                estSelectionnable={estSelectionnable}
+                onSelectDate={handleSelectDate}
+                onMoisPrecedent={moisPrecedent}
+                onMoisSuivant={moisSuivant}
+              />
             </div>
 
             <div className="dk-bloc-selection">
@@ -245,21 +206,16 @@ export default function DernieresCles({ onClose }) {
               {dateArrivee && <button className="dk-dates-reset" onClick={reset}>✕</button>}
             </div>
 
+            {/* La duree, en LECTURE seule. Elle remplace le selecteur « Nombre
+                de nuits » : celui-ci disait la meme chose que le calendrier, et
+                deux sources pour un meme fait finissent toujours par diverger.
+                Ne s'affiche qu'une fois la plage complete — avant, il n'y a
+                rien a lire. */}
+            {nuits !== null && (
+              <span className="dk-dates-duree">{nuits} {nuits > 1 ? "nuits" : "nuit"}</span>
+            )}
+
             <div className="dk-selecteurs">
-              <div className="dk-selecteur">
-                <span className="dk-selecteur-label">Nombre de nuits</span>
-                <div className="dk-selecteur-options">
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <button
-                      key={n}
-                      className={"dk-selecteur-opt " + (nuitsEffectives === n ? "actif" : "")}
-                      onClick={() => choisirNuits(n)}
-                    >
-                      {n} {n > 1 ? "nuits" : "nuit"}
-                    </button>
-                  ))}
-                </div>
-              </div>
               <div className="dk-selecteur">
                 <span className="dk-selecteur-label">Voyageurs</span>
                 <div className="dk-selecteur-options">
@@ -327,7 +283,7 @@ export default function DernieresCles({ onClose }) {
                 <SkeletonChateau count={6} />
               ) : (
                 chateauxAffiches.map(c => {
-                const prixFinal = c.prixBarre ? Math.round(c.prixBarre * (1 - (c.reduction || 0) / 100)) : c.chambres?.[0]?.prix;
+                const prixFinal = c.prix ?? c.chambres?.[0]?.prix ?? null;
                 return (
                   <div
                     key={c.id}
@@ -336,16 +292,27 @@ export default function DernieresCles({ onClose }) {
                     onMouseEnter={() => survolChateau(c.id)}
                     onMouseLeave={() => setChateauSurvol(null)}
                   >
-                    <div className="dk-carte-offre-img" style={{ backgroundImage: `url(${c.images?.[0]})` }}>
-                      {/* badge fixe — à brancher sur chambresRestantes/dispo au sprint Supabase */}
-                      <span className="dk-carte-offre-badge">DISPONIBLE</span>
-                    </div>
+                    {/* Le badge « DISPONIBLE » a ete retire. Il etait code en dur,
+                        donc affirme sans etre su : `chambresRestantes` n'est pas
+                        branche (le mapper rend null) et `urgence` est un texte
+                        libre cote admin — Briottieres, seule offre en base, l'a
+                        a null. Aucune donnee de rarete honnete ne le portait.
+                        Et il etait tautologique : cette grille ne liste QUE les
+                        chateaux ayant une offre Module B visible, donc leur
+                        presence EST la disponibilite. */}
+                    <div className="dk-carte-offre-img" style={{ backgroundImage: `url(${c.images?.[0]})` }} />
                     <div className="dk-carte-offre-corps">
                       <div className="dk-carte-offre-region">{c.region} · {c.distanceParis}</div>
                       <div className="dk-carte-offre-nom">{c.nom}</div>
+                      {/* Le prix, seul et sans barre. Dernieres Cles vend la
+                          rarete d'une DATE, pas une remise : un prix barre
+                          deplace la promesse du creneau vers le rabais. */}
                       <div className="dk-carte-offre-prix">
-                        {c.prixBarre && <span className="dk-carte-offre-prix-barre">{c.prixBarre} €</span>}
-                        {prixFinal && <span className="dk-carte-offre-prix-final">{prixFinal} € <span className="dk-carte-offre-prix-nuit">/ nuit</span></span>}
+                        {prixFinal !== null && (
+                          <span className="dk-carte-offre-prix-final">
+                            {formaterPrix(prixFinal)} € <span className="dk-carte-offre-prix-nuit">/ nuit</span>
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -357,13 +324,6 @@ export default function DernieresCles({ onClose }) {
         </section>
 
       </div>
-
-      {transitionChateau && (
-        <TransitionPorte chateau={transitionChateau} onTermine={() => { setChateauSelectionne(transitionChateau); setTransitionChateau(null); }} />
-      )}
-      {(transitionChateau || chateauSelectionne) && (
-        <VitrineDernieresCle chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
-      )}
     </div>
   );
 }
