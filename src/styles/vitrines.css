@@ -73,6 +73,11 @@
   color: #3A4456; line-height: 1.6; margin: 22px 0 0; padding-left: 14px;
   border-left: 2px solid rgba(192,152,64,0.45);
 }
+/* Le lys n'existe QU'EN MOBILE (etape 4 Prop 3). Masque par defaut : le
+   desktop garde le filet-or-a-gauche ci-dessus, et son rendu ne bouge pas.
+   `display:none` ne contribue a aucune boite — l'invariant tient par
+   construction, pas par prudence. */
+.vit-citation-lys { display: none; }
 .vit-hero-gravure {
   width: 260px; min-height: 200px;
   background: url('/vitrines-gravure.png') center/contain no-repeat;
@@ -113,6 +118,46 @@
 .vit-filtre.actif::before {
   content: '\25C6'; position: absolute; left: 50%; bottom: -7px;
   transform: translateX(-50%); font-size: 0.42rem; color: #C09840; line-height: 1;
+}
+
+/* ── Tete de la section cartes (etape 5 Prop 3) ────────────────────────────
+   « Nos châteaux ». La grille n'etait annoncee par rien : elle commencait juste
+   apres les filtres, et rien ne disait qu'on passait de « trier » a « regarder ».
+
+   Rendu a TOUTES les largeurs, contrairement au reste de ce chantier — c'est
+   du contenu, pas un reglage mobile. Le lys et le filet reprennent exactement
+   ceux de l'encart de citation : deux ornements identiques dans une meme page
+   font une grammaire, deux ornements differents font du bruit. */
+/* La colonne des cartes : titre + grille, en UN SEUL item de `.vit-corps-bas`.
+   `min-width: 0` parce qu'un item de grille a `min-width: auto` par defaut et
+   refuse de descendre sous la largeur de son contenu — la grille interieure
+   deborderait sa colonne au lieu de se comprimer. */
+.vit-colonne-cartes { min-width: 0; }
+
+.vit-grille-tete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 26px;
+}
+.vit-grille-lys {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  font-size: 1rem; line-height: 1; color: #C09840;
+}
+.vit-grille-lys::before,
+.vit-grille-lys::after {
+  content: ""; width: 34px; height: 1px; background: rgba(192, 152, 64, 0.45);
+}
+.vit-grille-titre {
+  margin: 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
+  color: #1A2D5A;
+  text-align: center;
 }
 
 /* ── Grille ── */
@@ -348,4 +393,269 @@
   .vit-topbar-titre { display: none; }
   .vit-filtre:not(:last-child)::after { display: none; }
   .vit-filtres, .vit-filtres-wrap { column-gap: 22px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ETAPE 2 DE LA REFONTE PROP 3 : LA TYPOGRAPHIE (seuil 768)
+   Vingt-trois textes vivaient sous le plancher de lisibilite de 12 px. La
+   maquette s'appelle « typographie chic et lecture optimale » — c'est
+   exactement le defaut qu'elle corrige.
+
+   ⚠ CE BLOC S'AJOUTE APRES CEUX DU CHANTIER #114, il ne les remplace pas. Le
+   terrain n'etait PAS vierge ici, contrairement a Dernieres Cles : quatre blocs
+   768 preexistent (topbar, cibles a 44 px, interlettrage du sur-titre,
+   separateurs de filtres). Aucune de leurs regles n'est retouchee.
+
+   ── LE PIEGE DU MAPPING, RENCONTRE TROIS FOIS DEJA ─────────────────────────
+   Tous ces textes sont en CAPITALES, ce qui inviterait a les envoyer vers
+   `--hm-t-eyebrow` (0.52rem = 8,3 px) ou `--hm-t-micro` (0.56rem = 9,0 px).
+   Or ils mesurent 9,9 a 11,5 px : ces deux tokens sont PLUS PETITS que
+   l'existant. Les y envoyer aggraverait le defaut au lieu de le corriger.
+
+   L'echelle partagee n'a AUCUN palier entre 9,0 et 13,6 px. Tout ce qui doit
+   franchir le plancher atterrit donc sur `--hm-t-corps`, et c'est assume.
+   La hierarchie ne se joue plus sur la TAILLE — elle se joue sur ce que ces
+   classes portent deja : la region est creme sur fond sombre, le prix est en
+   or attenue et graisse normale, le lien est en or franc et graisse 600.
+   Trois roles, trois traitements, une seule taille. Un palier intermediaire
+   dans l'echelle serait une decision de DA, pas d'ingenierie. */
+@media (max-width: 768px) {
+
+  /* LE FIL D'ARIANE — 11,5 px. C'est de la NAVIGATION : il dit ou l'on est et
+     d'ou l'on vient. Un repere qu'on ne peut pas lire ne repere rien. */
+  .vit-fil { font-size: var(--hm-t-corps, 0.85rem); }
+
+  /* LE BADGE DE REGION — 9,9 px, creme sur une photo. Le pire cas de la page :
+     petit ET pose sur un fond variable. Il nomme le territoire, c'est du
+     contenu editorial, pas une decoration.
+     Son interlettrage descend de 0.22 a 0.18em : en montant la taille sans
+     resserrer l'espacement, le badge se serait etale sur toute la largeur de
+     la carte. On elargit la lettre, on rapproche les lettres — la surface
+     occupee bouge a peine, la lisibilite double. */
+  .vit-carte-region {
+    font-size: var(--hm-t-corps, 0.85rem);
+    letter-spacing: var(--hm-ls-micro, 0.18em);
+  }
+
+  /* LE PRIX — 10,9 px. Il RESTE (decision produit), donc il doit se lire.
+     C'est la seule information chiffree de la carte. */
+  .vit-carte-prix { font-size: var(--hm-t-corps, 0.85rem); }
+
+  /* LE LIEN — 10,9 px. C'est l'appel a l'action de la carte, et le seul
+     element qui annonce ce qui se passe au clic.
+
+     ETAPE 5 — SON TRAITEMENT, PAS SON TEXTE. Le libelle « Lire l'article → »
+     reste ENTIER et reste du texte : le reduire a une fleche nue, ou le
+     remplacer par un `::after` decoratif, laisserait un lecteur d'ecran
+     annoncer « lien » sans dire vers quoi. La fleche du JSX fait partie de la
+     chaine et se deplace au survol comme avant.
+
+     Ce qui change : les capitales tres deliees et la graisse 600 en faisaient
+     un bouton criard sur une carte editoriale. Il redevient une invitation —
+     bas de casse, graisse normale, or attenue, souligne d'un filet qui
+     n'apparait qu'au contact. Le mot compte plus que le cri. */
+  .vit-carte-lien {
+    font-size: var(--hm-t-corps, 0.85rem);
+    text-transform: none;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.02em;
+    color: #8B6914;
+    border-bottom: 1px solid rgba(139, 105, 20, 0.28);
+    padding-bottom: 2px;
+  }
+  /* Le survol allongeait l'interlettrage (regle desktop) : sans capitales, cet
+     effet ecarte les lettres d'un mot ordinaire et se lit comme un defaut. */
+  .vit-carte:hover .vit-carte-lien { letter-spacing: 0.02em; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ETAPE 3 : LES FILTRES DEVIENNENT DES PASTILLES (seuil 768)
+   La maquette Prop 3 remplace les onglets soulignes par des pilules : l'active
+   en navy plein, les autres a contour fin.
+
+   ⚠ CHANGER DE GRAMMAIRE, PAS SEULEMENT DE FOND. L'etat actif etait porte par
+   TROIS choses a la fois, et n'en laisser passer qu'une aurait donne un hybride
+   incoherent — une pilule pleine encore soulignee d'or, avec un losange qui
+   flotte sous elle :
+
+     .vit-filtres      border-bottom     le rail des onglets
+     .vit-filtre       border-bottom 2px l'onglet lui-meme
+     .vit-filtre.actif border-bottom-color + ::before losange ◆
+
+   Les trois sont donc neutralises ici, et l'etat actif est repris par le FOND.
+
+   CSS PUR : aucune ligne de JSX ne bouge. Les boutons sont deja produits par
+   `regions.map()` avec leur classe `.actif` — c'est leur peau qui change, pas
+   leur logique.
+
+   L'OR NE REVIENT PAS. Il aurait ete tentant d'y mettre l'or sourd #8B6914 par
+   coherence avec Dernieres Cles, mais la maquette fait ces filtres en NAVY.
+   Ils ne vendent rien : ils trient. L'or est la couleur de ce qu'on met en
+   avant, le navy celle de ce qui structure — et un filtre est une structure. */
+@media (max-width: 768px) {
+
+  /* Le rail d'onglets disparait, et l'espacement devient celui d'un nuage de
+     pastilles : `row-gap` explicite, car les pilules passent a la ligne. */
+  .vit-filtres {
+    border-bottom: none;
+    /* 8 px et non 10 : voir la note sur le repli, plus bas. */
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .vit-filtre {
+    /* La pilule. `border-radius: 999px` plutot qu'une valeur en px : le rayon
+       suit la hauteur quelle que soit la taille du texte. */
+    border: 1px solid rgba(26, 45, 90, 0.22);
+    border-radius: 999px;
+    background: transparent;
+    color: #1A2D5A;
+    /* ⚠ 14 px, ET C'EST MESURE, PAS CHOISI. A 18 px de rembourrage et 10 px de
+       gouttiere, la seconde ligne demandait 178 + 10 + 147 = 335 px pour 333
+       disponibles en webkit — DEUX pixels de trop. Chromium passait (343 px
+       utiles, il ne reserve pas la meme place a la barre de defilement) et
+       affichait 2 lignes ; webkit en affichait TROIS, avec une pastille seule
+       par ligne. Le meme CSS, deux mises en page.
+       A 14 px de rembourrage et 8 px de gouttiere : 170 + 8 + 139 = 317, soit
+       16 px de marge. Le repli 2 + 2 de la maquette tient aux deux moteurs.
+       Un ecart de deux pixels n'est pas un detail quand il decide d'un saut de
+       ligne. */
+    padding: 0 14px;
+    /* La cible de 44 px vient du bloc #114 (`min-height: var(--hm-tap)`) et
+       reste intacte. On ne la redeclare pas : on l'accompagne d'un padding
+       horizontal, la hauteur etant deja garantie ailleurs. */
+    letter-spacing: 0.06em;
+  }
+
+  /* Les trois porteurs de l'ancienne grammaire, eteints. */
+  .vit-filtre,
+  .vit-filtre.actif { border-bottom-width: 1px; }
+  .vit-filtre.actif::before { display: none; }
+
+  /* L'etat actif : navy plein, texte creme. Le contraste creme sur #1A2D5A est
+     tres au-dessus du seuil AA — c'est le couple de base de la charte. */
+  .vit-filtre.actif {
+    background: #1A2D5A;
+    border-color: #1A2D5A;
+    color: #F7F2E8;
+  }
+
+  .vit-filtre:hover { color: #1A2D5A; }
+  .vit-filtre.actif:hover { color: #F7F2E8; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ETAPE 4 : LA CITATION DEVIENT UN ENCART (seuil 768)
+   « Le château valide chaque ligne avant mise en ligne. C'est sa voix. »
+   C'est l'element signature de la Prop 3 : la phrase qui dit que ce site n'ecrit
+   pas a la place des familles. Elle meritait mieux qu'un filet en marge.
+
+   ⚠ SUR QUEL FOND — la question qui decide de la couleur. La page est en
+   `--lcc-creme` (#F1E3C9), un creme CHAUD. Un encart en `--creme` (#f7f2e8) s'y
+   serait fondu presque sans contraste.
+   Il prend donc `--blanc-casse` (#FAF6EE), plus CLAIR que la page : l'encart se
+   lit comme un panneau POSE dessus. C'est exactement la relation qu'entretient
+   deja le topbar (#FAF6EE) avec cette meme page — on reutilise un rapport qui
+   existe au lieu d'en inventer un.
+
+   ⚠ CHANGER DE GRAMMAIRE, PAS SUPERPOSER — meme discipline qu'aux pastilles.
+   Le filet-or-a-gauche et le rembourrage qui l'accompagnait sont ANNULES : un
+   encart qui garderait sa barre laterale serait un hybride, pas un encart.
+
+   L'OR FRANC EST LEGITIME ICI, contrairement au calendrier de Dernieres Cles ou
+   il avait ete adouci. La difference n'est pas d'humeur : la-bas c'etait un
+   APLAT de 32 px repete quatorze fois, ici c'est un glyphe unique de 20 px. Un
+   accent precieux peut etre franc ; une surface, non. */
+@media (max-width: 768px) {
+  .vit-citation {
+    /* L'ancienne grammaire, annulee. */
+    border-left: none;
+
+    position: relative;
+    background: var(--blanc-casse, #FAF6EE);
+    border: 1px solid rgba(192, 152, 64, 0.30);
+    border-radius: var(--hm-r-m, 10px);
+    /* L'AIR. Un encart premium respire : le texte ne touche jamais le filet, et
+       il reste 14 px entre le filet interieur et la premiere lettre. */
+    padding: 26px 24px 28px;
+    margin-top: 28px;
+
+    /* LA TYPO DU FRONTISPICE. Cormorant Garamond est la troisieme fonte
+       canonique du projet — « serif secondaire / accents » — et c'est
+       exactement son emploi : une phrase courte, italique, qu'on lit comme une
+       inscription et non comme du corps de texte. Crimson Pro, lui, sert le
+       texte courant ; l'y laisser aurait rendu la citation banale.
+       L'interligne monte a 1.75 : une phrase de frontispice se lit lentement. */
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 1.18rem;
+    line-height: 1.75;
+    letter-spacing: 0.01em;
+    /* Navy attenue : la citation reste une voix RAPPORTEE, pas une affirmation
+       du site. Contraste tres au-dessus du seuil AA sur #FAF6EE. */
+    color: #2C3A52;
+    text-align: center;
+  }
+
+  /* LE DOUBLE FILET — l'ornement principal, et le plus discret possible.
+     Un second filet, en retrait de 5 px et deux fois plus pale que le premier.
+     C'est la grammaire des beaux imprimes : deux traits fins valent mieux
+     qu'un trait epais, parce que c'est l'ECART entre eux qui se voit, pas leur
+     poids.
+
+     POURQUOI PAS DES EQUERRES AUX ANGLES : sur un encart de ~130 px de haut,
+     quatre marques dans les coins chargent au lieu de suggerer — le meme
+     defaut que les equerres de la page Histoire, qui ont ete retirees pour
+     cette raison. Le filet double suggere le cadre sans le fermer.
+
+     `content: ""` : aucun texte genere, donc rien a annoncer pour un lecteur
+     d'ecran. `pointer-events: none` : l'ornement ne doit jamais intercepter un
+     geste. */
+  .vit-citation::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(192, 152, 64, 0.15);
+    border-radius: calc(var(--hm-r-m, 10px) - 4px);
+    pointer-events: none;
+  }
+
+  /* LE LYS, ACCOMPAGNE DE SES DEUX FILETS — « — ⚜ — ».
+     Un glyphe seul flottait en tete ; encadre, il devient un ornement
+     typographique de separation, celui qu'on trouve en tete de chapitre.
+     Les deux traits sont des pseudo-elements du lys LUI-MEME : comme il porte
+     `aria-hidden`, ils en heritent et restent muets. */
+  .vit-citation-lys {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 0 16px;
+    font-style: normal;
+    /* Present, pas gros : il annonce, il ne domine pas. */
+    font-size: 1.1rem;
+    line-height: 1;
+    color: #C09840;
+  }
+  .vit-citation-lys::before,
+  .vit-citation-lys::after {
+    content: "";
+    width: 34px;
+    height: 1px;
+    background: rgba(192, 152, 64, 0.45);
+  }
+
+  /* LA CHUTE — « C'est sa voix. » Trois mots qui portent tout le propos : ce
+     site n'ecrit pas a la place des familles. Detachee sur sa ligne et
+     legerement deliee, elle se lit comme une signature au bas d'un frontispice
+     plutot que comme la fin d'une phrase. */
+  .vit-citation-chute {
+    display: block;
+    margin-top: 10px;
+    font-size: 0.95em;
+    letter-spacing: 0.06em;
+    color: #4A5A72;
+  }
 }
