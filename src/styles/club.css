@@ -356,6 +356,239 @@
 .bvn--phase1 .bvn-trait,
 .bvn--phase2 .bvn-trait { width: 220px; }
 
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ETAPE 1 : LE SHELL (seuil 768)
+
+   LE DEFAUT, ARITHMETIQUE. `.club` est un flex en ligne, `.club-sidebar` fait
+   280 px avec `flex-shrink: 0`, et AUCUNE des six media queries de ce fichier
+   ne touchait le shell — elles ne traitent que des grilles internes des
+   sous-ecrans. Sur un ecran de 375 :
+
+     375 - 280 (barre, incompressible)  =  95 px pour .club-contenu
+      95 -  88 (padding 44 x 2)         =   7 px de largeur de texte
+
+   Sept pixels. Moins d'un caractere. C'est la meme famille que `.adm-shell`
+   cote admin, qui a EXACTEMENT le meme defaut (240 px, flex-shrink: 0, deux
+   media queries qui ne traitent que des grilles internes). Ce bloc est donc
+   aussi le patron a reprendre pour l'admin.
+
+   LA BARRE DEVIENT UNE TETE. Pas un menu burger : ces sept entrees sont les
+   SECTIONS d'un espace de compte, pas la navigation d'un site. Un burger les
+   enterrerait derriere un geste alors qu'elles doivent rester sous les yeux —
+   c'est la difference avec le menu du Header, qui mene ailleurs.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* La colonne devient une pile : tete navy en haut, contenu dessous. */
+  .club { flex-direction: column; }
+
+  /* ── LA TETE ─────────────────────────────────────────────────────────────
+     Une grille de deux rangees plutot qu'une simple pile, POUR NE PAS AVOIR A
+     TOUCHER LE JSX : le logo et le bloc membre partagent la premiere rangee,
+     la navigation occupe la seconde sur toute la largeur. En pile verticale il
+     aurait fallu deplacer `.club-sidebar-bas` dans le DOM ; ici trois enfants
+     existants se rangent en deux rangees sans qu'aucun ne bouge. */
+  .club-sidebar {
+    width: auto;
+    padding: 14px 16px 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "logo membre"
+      "nav  nav";
+    align-items: center;
+    gap: 12px 10px;
+  }
+
+  .club-logo {
+    grid-area: logo;
+    text-align: left;
+    padding: 0;
+    border-bottom: none;   /* le filet appartenait a la colonne, pas a la tete */
+    min-height: var(--hm-tap, 44px);
+  }
+  .club-logo-nom { font-size: 1.05rem; }
+  .club-logo-sub { font-size: 0.62rem; letter-spacing: 0.18em; margin-top: 2px; }
+
+  /* ── LE BLOC MEMBRE, RELOGE SANS DEMENAGEMENT ────────────────────────────
+     Il passe a droite du logo, sur la meme rangee, et se compacte : l'avatar
+     et la deconnexion cote a cote. Le NOM est masque — il n'est pas perdu, le
+     tableau de bord l'affiche en grand (`.dash-membre-nom`), et le repeter
+     dans une tete de 375 px coutait la place de la deconnexion. */
+  .club-sidebar-bas {
+    grid-area: membre;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border-top: none;
+  }
+  .club-membre { margin-bottom: 0; }
+  .club-membre-nom { display: none; }
+  .club-avatar { width: 38px; height: 38px; font-size: 0.9rem; }
+  .club-deconnexion {
+    width: auto;
+    white-space: nowrap;
+    padding: 0 14px;
+    min-height: var(--hm-tap, 44px);
+    font-size: 0.8rem;
+  }
+
+  /* ── LA NAVIGATION HORIZONTALE ───────────────────────────────────────────
+     `flex: 1` disparait : dans une grille il ferait grandir la rangee au lieu
+     de la colonne. Les onglets ne se compriment pas (`flex-shrink: 0`), la
+     rangee defile.
+
+     `scroll-snap-type: x proximity` et non `mandatory` : sur sept entrees de
+     largeurs tres inegales, `mandatory` reprend la main a chaque relachement
+     et donne l'impression de se battre avec l'ecran. `proximity` n'aide que
+     quand l'utilisateur s'arrete deja pres d'un bord.
+
+     Le masque signale qu'il reste quelque chose a droite. `-webkit-mask-image`
+     est double explicitement : Safari ne prend pas la propriete non prefixee
+     dans toutes les versions encore en service. */
+  .club-nav {
+    grid-area: nav;
+    flex: none;
+    flex-direction: row;
+    gap: 8px;
+    padding: 0 0 12px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, #000 88%, transparent 100%);
+    mask-image: linear-gradient(to right, #000 88%, transparent 100%);
+  }
+  .club-nav::-webkit-scrollbar { display: none; }
+
+  .club-nav-item {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    min-height: var(--hm-tap, 44px);
+    padding: 0 16px;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    /* Le contenu revient au centre : en colonne l'alignement a gauche servait
+       une liste, ici c'est une pastille. */
+    justify-content: center;
+  }
+
+  /* L'ACTIF EN OR PLEIN. Sur les Vitrines, la pastille active est navy plein
+     parce que le fond y est creme. Ici le fond EST navy : c'est donc l'or qui
+     tient le role du plein, avec le navy en texte. Meme grammaire — l'actif se
+     signale par un APLAT, jamais par un souligne — simplement inversee.
+     Contraste #0B1A33 sur #C09840 : tres au-dessus du seuil AA. */
+  .club-nav-item.actif {
+    background: #C09840;
+    color: #0B1A33;
+  }
+  .club-nav-item.actif .club-pastille {
+    background: #0B1A33;
+    color: #C09840;
+  }
+
+  /* ── LE CONTENU REPREND TOUTE LA LARGEUR ────────────────────────────────
+     Le rembourrage de 44 px valait pour une colonne large ; sur 375 il mangeait
+     a lui seul plus que la place restante. */
+  .club-contenu { padding: 24px 16px 40px; }
+  .club-entete { margin-bottom: 20px; }
+  .club-titre { font-size: 1.7rem; }
+  .club-sous-titre { font-size: 0.95rem; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ONGLET « MES AVANTAGES » (seuil 768)
+
+   ⚠ LA BOMBE ANNONCEE PAR L'AUDIT ETAIT DEJA DESAMORCEE, et pas par ce bloc :
+   `.av-palier-gauche { min-width: 240px }` debordait « garanti » quand le
+   contenu ne faisait que 95 px. L'etape 1 lui en a rendu 343. Mesure a 375 :
+   zero debordement, zero cible sous 44. Il faut le dire plutot que de
+   s'attribuer une correction que la structure avait deja faite.
+
+   Ce qui reste tient en deux points.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* 1. LE `min-width` PART QUAND MEME, parce qu'il n'a plus de ROLE. Il servait
+     a tenir la colonne gauche d'un palier en DEUX colonnes ; sous 800 px
+     `.av-palier` passe en `flex-direction: column` (regle preexistante) et
+     l'enfant occupe toute la largeur de lui-meme. Le laisser, c'est garder un
+     plancher de 240 px qui ne protege plus rien et qui MORD des que l'ecran
+     retrecit : a 320 px, la colonne gauche depasse de 9 px le rembourrage
+     interieur de sa carte. Invisible a 375, faux des 320.
+     `min-width: 0` et non `auto` : sur un enfant flex, `auto` retablit le
+     min-content et reproduirait le probleme. */
+  .av-palier-gauche { min-width: 0; }
+
+  /* 2. LES DEUX TEXTES SOUS LE PLANCHER DE 12 px.
+     Meme piege que partout : ils sont en CAPITALES, ce qui invite vers
+     `--hm-t-eyebrow` (8,3 px) ou `--hm-t-micro` (9,0 px) — tous deux PLUS
+     PETITS que l'existant. Ils prennent donc `--hm-t-corps`. */
+
+  /* « VOTRE NIVEAU ACTUEL » — 11,5 px, creme sur navy. Il annonce le nom du
+     palier juste dessous : c'est l'etiquette de l'information principale de
+     l'ecran. */
+  .av-situation-label { font-size: var(--hm-t-corps, 0.85rem); }
+
+  /* « Votre niveau » / « Acquis » — 11,2 px, dans une pastille bordee. Ce sont
+     les seuls marqueurs qui disent OU l'on en est dans la progression ; les
+     laisser illisibles vide le programme de fidelite de son sens.
+     L'interlettrage se resserre de 0.1 a 0.06em : sans cela, la pastille
+     s'allonge de moitie sur une carte deja etroite — meme geste que le badge
+     de region des Vitrines. */
+  .av-palier-tag {
+    font-size: var(--hm-t-corps, 0.85rem);
+    letter-spacing: 0.06em;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ONGLET « CLUB DES CHATELAINS » / tableau de bord (seuil 768)
+
+   ⚠ LA BOMBE ANNONCEE PAR L'AUDIT N'EXISTE PAS. `.dash-paliers`
+   (`repeat(4, 1fr)`, jamais effondree a une colonne) ne peut pas deborder :
+   AUCUN JSX ne la rend. Elle appartient, avec tout le bloc `.dash-bandeau`
+   et les `.dash-palier-*`, a du CSS MORT — verifie par grep sur src/. Le
+   programme de fidelite est rendu par l'onglet « Mes avantages », avec les
+   classes `.av-*`, qui sont les vivantes.
+   Cette purge n'est pas faite ici : supprimer du CSS est un chantier a part,
+   et l'ecran a corriger n'en a pas besoin.
+
+   CE QUI SE REND VRAIMENT s'effondre deja : `.dash-rangee` passe de trois
+   colonnes a une sous 1000 px, regle preexistante. Mesure a 375 avant toute
+   modification : zero debordement, zero cible sous 44 px.
+
+   ⚠ LE NOM DU MEMBRE EST BIEN LA. Il est masque dans la tete du shell
+   (etape 1) et c'est `.dash-membre-nom` qui le porte en grand — 1,25 rem par
+   l'override existant, verifie au rendu. Le repli qui justifiait le masquage
+   tient : le nom n'est pas perdu, il est deplace la ou il a de la place.
+
+   Reste la typographie.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* LES TITRES DE CARTE — 10,9 px, cinq occurrences. Ce sont eux qui disent ce
+     que chaque carte contient : « Votre progression », « Prochaine
+     reservation », « Sejours passes »... Sur un tableau de bord empile en une
+     colonne, ce sont les seuls reperes de lecture entre six blocs successifs.
+     Meme piege que partout : capitales, donc tentation de l'eyebrow (8,3 px),
+     qui les rapetisserait. Ils prennent `--hm-t-corps`, et leur interlettrage
+     se resserre de 0.14 a 0.08em — a 13,6 px, 0.14em etale un titre de carte
+     sur deux lignes dans 343 px. */
+  .dash-carte-titre {
+    font-size: var(--hm-t-corps, 0.85rem);
+    letter-spacing: 0.08em;
+  }
+
+  /* « STATUT ACTUEL » — 11,5 px. Il annonce le palier, l'information que le
+     membre vient chercher en premier. */
+  .dash-membre-statut-label {
+    font-size: var(--hm-t-corps, 0.85rem);
+    letter-spacing: 0.08em;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bvn, .bvn-contenu, .bvn-trait { transition: none; }
 }
@@ -419,3 +652,201 @@
 }
 .msg-envoyer:hover:not(:disabled) { background: #0B1A33; }
 .msg-envoyer:disabled { opacity: 0.45; cursor: not-allowed; }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ONGLET « MESSAGES » (seuil 768)
+
+   Mesure avant modification, a 375 : zero debordement, zero cible sous 44 px.
+   La zone de saisie tient — champ 226 px, bouton 105 x 45 — et le fil se
+   plafonne a `calc(100vh - 340px)`, soit 472 px sur un ecran de 812. Rien de
+   casse. Ce qui se joue ici est une question de PROPORTION, pas de structure.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* LES BULLES — 76 % etait un ratio de DESKTOP. Il a ete choisi pour un `.msg`
+     large de 780 px, ou 24 % de gouttiere laissent une respiration elegante.
+     Dans les 301 px interieurs du fil mobile, ces memes 24 % valent 72 px de
+     vide, et la bulle tombe a 229 px — mesure : les deux bulles butent sur le
+     plafond, donc c'est bien lui qui contraint, pas le texte.
+
+     88 % rend 36 px de gouttiere : assez pour que l'asymetrie gauche/droite
+     continue de dire QUI parle — c'est tout son role — sans amputer la ligne.
+     Un pourcentage ne se transpose pas d'une largeur a l'autre : 24 % de 780
+     et 24 % de 301 ne sont pas la meme chose a l'oeil. */
+  .msg-bulle { max-width: 88%; }
+
+  /* L'AUTEUR — 11,2 px, capitales. Il dit qui parle sur les bulles d'equipe ;
+     sans lui, seule la couleur distingue les deux voix. Meme piege habituel :
+     l'eyebrow (8,3 px) et le micro (9,0) sont plus PETITS que l'existant. */
+  .msg-auteur { font-size: var(--hm-t-corps, 0.85rem); }
+
+  /* L'HORODATAGE — 11,5 px. ⚠ Je le remonte aussi, mais c'est le cas le plus
+     discutable du chantier : a 13,6 px il n'est plus tres loin du corps du
+     message (15,2 px), et la hierarchie s'aplatit.
+     Elle ne disparait pas pour autant — elle passe de la TAILLE a la COULEUR :
+     l'heure reste en #A8884E, un or attenue, quand le message est en navy ou en
+     creme sur navy. C'est le meme raisonnement que sur les cartes des Vitrines.
+     Si Tanguy juge que l'heure prend trop de place, c'est le premier reglage a
+     revoir — et il faudra alors accepter de repasser sous le plancher. */
+  .msg-heure { font-size: var(--hm-t-corps, 0.85rem); }
+
+  /* Le bouton d'envoi rend 16 px au champ de saisie : 226 -> 242 px. Sa cible
+     reste tres au-dessus de 44 px (105 x 45 avant, ~89 x 45 apres). Ecrire est
+     l'action de cet ecran ; le bouton, lui, se lit en un mot. */
+  .msg-envoyer { padding: 14px 18px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ONGLETS « MES RESERVATIONS » ET « MES SEJOURS » (seuil 768)
+
+   Un seul composant, DEUX modes — « avenir » et « passes » — et un etat vide.
+   Les trois ont ete mesures separement : zero debordement, zero cible sous
+   44 px partout, et `.sej-liste` s'effondre deja a une colonne sous 900 px.
+
+   ⚠ MAIS LES CHIFFRES NE DISAIENT PAS TOUT. Le rendu montre deux defauts que
+   ni le debordement ni les cibles ne captent — c'est le rappel utile de ce
+   chantier : une mesure verte n'est pas une page juste.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* 1. LA VALEUR DES LIGNES SE REPLIAIT DE TRAVERS. `.sej-ligne` est un flex
+     `space-between` : le libelle a gauche, la valeur poussee a droite. Quand la
+     valeur est longue — « Du 18 septembre 2026 au 21 septembre 2026 » — elle
+     passe a la ligne, et son second fragment (« 2026 ») se calait A GAUCHE
+     de son propre bloc. On lisait un pave ragged, aligne ni a gauche ni a
+     droite.
+     Un mot ne se replie proprement que si l'alignement de son bloc suit celui
+     que la mise en page lui donne. */
+  .sej-ligne > span:last-child { text-align: right; }
+
+  /* 2. LE BADGE ET LE NOM SE DISPUTAIENT LA LARGEUR. La tete est un flex sans
+     repli : « Château royal de Bénays » se cassait en deux lignes pour laisser
+     passer « EN ATTENTE », qui, lui, porte `white-space: nowrap` et ne cede
+     jamais. Le repli autorise, le badge descend sous le nom quand les deux ne
+     tiennent pas — ce qui n'arrive qu'aux noms longs. */
+  .sej-carte-tete { flex-wrap: wrap; }
+
+  /* 3. LE STATUT — 10,9 px. C'est le seul mot qui dit si un sejour est
+     confirme, en attente ou annule : l'information la plus importante de la
+     carte pour un membre qui vient verifier sa reservation.
+     Son interlettrage tombe de 0.1 a 0.05em : a 13,6 px, 0.1em elargit assez
+     la pastille pour reprendre au nom la place qu'on vient de lui rendre. */
+  .sej-statut {
+    font-size: var(--hm-t-corps, 0.85rem);
+    letter-spacing: 0.05em;
+  }
+
+  /* L'etat vide respirait sur 48 px de rembourrage, dimensionnes pour une
+     colonne large. Sur 343 px, ils mangent un tiers de la boite. */
+  .sej-vide { padding: 32px 20px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ONGLET « LES OFFRES DU CLUB » (seuil 768)
+
+   ⚠ CET ECRAN ETAIT DEJA JUSTE, et c'est le seul du chantier. Mesure avant
+   toute modification, sur les deux etats : zero debordement, zero cible sous
+   44 px, ZERO texte sous 12 px. `.oc-liste` s'effondre a une colonne sous
+   900 px, et le rendu ne montre aucun repli de travers.
+
+   DEUX VERIFICATIONS ONT ETE FAITES PLUTOT QUE SUPPOSEES :
+
+   1. La tete de carte a ete essayee avec LES SEPT NOMS REELS de la base. Tous
+      tiennent sur une ligne (125 a 185 px) sans toucher le badge. Un nom plus
+      long — « Château de la Ferté-Saint-Aubin » — passe a deux lignes, et le
+      badge reste a sa place en haut a droite.
+      ⚠ ON N'AJOUTE DONC PAS `flex-wrap: wrap` ICI, contrairement a
+      `.sej-carte-tete`. La difference est mesuree : le badge de reduction fait
+      57 px quand « EN ATTENTE » en fait ~110. A 57 px, le nom garde 206 px et
+      se replie proprement ; autoriser le repli ferait DESCENDRE le badge sous
+      le nom, ce qui serait moins bon. Une regle sans defaut a corriger est une
+      regle de trop.
+
+   2. Le seul ajustement retenu ci-dessous.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* L'etat vide : 56 px de rembourrage vertical pour 98 px de texte — plus de
+     la moitie de la boite. Meme geste que `.sej-vide`, et surtout meme VALEUR :
+     deux etats vides voisins dans un meme espace doivent respirer pareil,
+     sinon l'un des deux parait cadre par erreur. */
+  .oc-vide { padding: 40px 20px; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — ONGLET « INFORMATIONS PERSONNELLES » (seuil 768)
+
+   Le seul ecran a FORMULAIRE du Club, donc le seul ou les controles natifs
+   entrent en jeu. Mesure des DEUX modes avant modification :
+
+     mode lecture   0 debordement · 1 cible sous 44 (« Modifier » 105x38)
+     mode edition   0 debordement · 1 cible sous 44 (la case a cocher 13x13)
+                    5 libelles a 11,5 px
+
+   ⚠ CE QUI VA DEJA BIEN, et qu'il ne faut donc pas « corriger » :
+     .infos-input      343 x 44  — pile a la cible, sur toute la largeur
+     .infos-bouton     137 x 45     .infos-annuler  63 x 45
+     .infos-rangee     passe a une colonne sous 700 px (regle preexistante)
+     .infos-val-l      porte deja `text-align: right` — le defaut de repli
+                       rencontre sur `.sej-ligne` n'existe pas ici
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+  /* « MODIFIER » — 38 px de haut. C'est le bouton qui OUVRE le formulaire :
+     le rater, c'est ne pas pouvoir editer ses informations du tout. */
+  .infos-modifier { min-height: var(--hm-tap, 44px); }
+
+  /* LA CASE A COCHER — 13 x 13 px de dessin.
+     ⚠ SA CIBLE FONCTIONNELLE N'EST PAS CASSEE : le `<label>` qui l'enveloppe
+     mesure 343 x 59 px et bascule la case au clic sur le texte. Un doigt pose
+     n'importe ou sur la phrase de consentement fonctionne deja.
+     Ce qu'on corrige est l'AFFORDANCE : a 13 px, la case ne se lit pas comme
+     un controle, et l'utilisateur vise le petit carre en croyant devoir le
+     toucher. 20 px la rendent visible sans toucher a la zone active, qui reste
+     celle du label. `accent-color` remplace le bleu systeme par l'or de la
+     charte — la case etait le seul element non-LCC de l'ecran. */
+  .infos-consent input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #8B6914;
+  }
+
+  /* LES LIBELLES DE CHAMP — 11,5 px, cinq occurrences. Dans un formulaire, le
+     libelle est ce qui dit QUOI saisir : illisible, il transforme la saisie en
+     devinette. Meme piege habituel — eyebrow (8,3) et micro (9,0) sont plus
+     petits que l'existant.
+     L'interlettrage tombe de 0.1 a 0.06em : a 13,6 px, « ADRESSE EMAIL » avec
+     0.1em passait sur deux lignes au-dessus de son champ. */
+  .infos-label {
+    font-size: var(--hm-t-corps, 0.85rem);
+    letter-spacing: 0.06em;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MOBILE — L'ACCUEIL « BienvenueClub » (seuil 768)
+
+   Le seul ecran du Club qui ne soit pas une page : un overlay plein ecran qui
+   joue une fois par session, sans bouton, et se demonte seul apres 2,8 s.
+   Il n'y a donc AUCUNE cible tactile a verifier ici — la question est
+   uniquement celle du cadrage.
+
+   ⚠ IL TENAIT A 375 PAR COINCIDENCE, PAS PAR REGLE. Mesure :
+
+     375 px   texte [26..349]   26 px de marge de chaque cote   ok
+     320 px   texte [0..320]    ZERO marge, colle aux deux bords
+
+   La marge de 375 n'est declaree nulle part : elle tombe de la longueur de la
+   phrase fixe « Le Club des Châtelains vous accueille, », qui se trouve mesurer
+   324 px a cette taille. Des que l'ecran retrecit sous cette largeur, le texte
+   va toucher le cadre. Une marge qui depend d'une chaine de caracteres n'est
+   pas une marge.
+
+   Un rembourrage explicite la rend independante du texte ET du prenom, qui est
+   la seule partie variable — un « Marie-Alix de Calbiac de Rochebrune » se
+   replie alors dans le cadre au lieu de le chercher.
+   ═══════════════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .bvn { padding: 0 24px; }
+}
