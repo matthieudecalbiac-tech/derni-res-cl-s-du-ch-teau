@@ -53,8 +53,22 @@ export default function VitrinePermanente({ onClose }) {
               construite comme un article de fond &mdash; histoire du lieu, famille propriétaire,
               territoire. <strong>Un univers, pas une fiche produit.</strong>
             </p>
+            {/* Le lys de l'encart mobile (etape 4 Prop 3).
+                EN JSX ET NON EN `::before` : un glyphe purement decoratif doit
+                porter `aria-hidden`, et un contenu genere par CSS ne peut pas
+                l'etre — certains lecteurs d'ecran annoncent « fleur de lys »
+                avant la citation, ce qui pollue une phrase qui est justement
+                la parole du chateau.
+                Il est masque au-dessus de 768 px (vitrines.css) : le desktop
+                garde son filet-or-a-gauche, et son rendu ne bouge pas d'un
+                pixel — un element en `display:none` ne contribue a rien. */}
             <p className="vit-citation">
-              Le château valide chaque ligne avant mise en ligne. C&rsquo;est sa voix.
+              <span className="vit-citation-lys" aria-hidden="true">&#x269C;</span>
+              Le château valide chaque ligne avant mise en ligne.{" "}
+              {/* La chute, detachee pour pouvoir la traiter en signature sous
+                  768. En desktop ce `span` n'a AUCUN style : il rend en ligne,
+                  exactement comme le texte qu'il enveloppe. */}
+              <span className="vit-citation-chute">C&rsquo;est sa voix.</span>
             </p>
           </div>
           <div className="vit-hero-gravure" />
