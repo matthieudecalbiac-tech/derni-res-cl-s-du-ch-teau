@@ -60,6 +60,7 @@
 }
 .ci-vignette-photo {
   height: 110px; background-size: cover; background-position: center;
+  background-color: #E8E0D0; /* repli visible si images[] est vide */
 }
 .ci-vignette-corps { padding: 12px 14px 14px; }
 .ci-vignette-region {

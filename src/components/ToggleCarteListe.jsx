@@ -173,7 +173,7 @@ export default function ToggleCarteListe({ onEntrerChateau }) {
             >
               <span
                 className="tcl-item-photo"
-                style={{ backgroundImage: `url(${c.image || c.images?.[0] || ""})` }}
+                style={c.images?.[0] ? { backgroundImage: `url('${c.images[0]}')` } : undefined}
               />
               <span className="tcl-item-txt">
                 <span className="tcl-item-nom">{c.nom}</span>

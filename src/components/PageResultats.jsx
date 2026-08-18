@@ -149,7 +149,7 @@ export default function PageResultats() {
                 onKeyDown={(e) => { if (e.key === "Enter") navigate(`/chateau/${c.slug}`); }}
               >
                 <div className="pr-carte-photo">
-                  <img src={c.image || c.images?.[0]} alt={c.nom} />
+                  {c.images?.[0] && <img src={c.images[0]} alt={c.nom} />}
                 </div>
                 <div className="pr-carte-infos">
                   <span className="pr-carte-region">{c.region}</span>

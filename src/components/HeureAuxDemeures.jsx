@@ -31,7 +31,7 @@ export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres })
       onClick={() => onOuvrirChateau?.(c)}
     >
       <div className="da-photo" style={{ transitionDelay: `${0.2 + (n - 1) * 0.08}s` }}>
-        <img src={c.images?.[0]} alt={c.nom} loading="lazy" />
+        {c.images?.[0] && <img src={c.images[0]} alt={c.nom} loading="lazy" />}
       </div>
       <div className="da-texte" style={{ transitionDelay: `${0.2 + (n - 1) * 0.08}s` }}>
         <span className="da-num">{String(n).padStart(2, "0")}</span>

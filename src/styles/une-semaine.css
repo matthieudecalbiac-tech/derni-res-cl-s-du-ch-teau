@@ -19,7 +19,7 @@
 
 .une-semaine-liste { display: flex; flex-direction: column; gap: 30px; }
 .une-semaine-carte { position: relative; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid rgba(26,45,90,0.16); border-radius: 6px; overflow: hidden; background: rgba(251,247,243,0.5); }
-.une-semaine-photo { position: relative; min-height: 340px; overflow: hidden; }
+.une-semaine-photo { position: relative; min-height: 340px; overflow: hidden; background-color: #E8E0D0; /* repli si images[] est vide */ }
 .une-semaine-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .une-semaine-infos { position: relative; display: flex; flex-direction: column; justify-content: center; padding: 38px 44px; overflow: hidden; }
 .une-semaine-meta { font-family: 'Crimson Pro', Georgia, serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #A8884E; margin-bottom: 16px; position: relative; z-index: 1; }

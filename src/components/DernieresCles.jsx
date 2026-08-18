@@ -300,7 +300,10 @@ export default function DernieresCles({ onClose }) {
                         Et il etait tautologique : cette grille ne liste QUE les
                         chateaux ayant une offre Module B visible, donc leur
                         presence EST la disponibilite. */}
-                    <div className="dk-carte-offre-img" style={{ backgroundImage: `url(${c.images?.[0]})` }} />
+                    <div
+                      className="dk-carte-offre-img"
+                      style={c.images?.[0] ? { backgroundImage: `url('${c.images[0]}')` } : undefined}
+                    />
                     <div className="dk-carte-offre-corps">
                       <div className="dk-carte-offre-region">{c.region} · {c.distanceParis}</div>
                       <div className="dk-carte-offre-nom">{c.nom}</div>

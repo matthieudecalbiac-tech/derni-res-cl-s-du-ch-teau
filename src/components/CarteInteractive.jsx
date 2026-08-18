@@ -558,7 +558,10 @@ export default function CarteInteractive({ chateaux, dateArrivee, dateDepart, et
               onMouseEnter={() => setSurvolId(c.id)}
               onMouseLeave={() => setSurvolId(null)}
             >
-              <div className="ci-vignette-photo" style={{ backgroundImage: `url('${c.images?.[0]}')` }} />
+              <div
+                className="ci-vignette-photo"
+                style={c.images?.[0] ? { backgroundImage: `url('${c.images[0]}')` } : undefined}
+              />
               <div className="ci-vignette-corps">
                 <div className="ci-vignette-region">{c.region} · {c.distanceParis}</div>
                 <h3 className="ci-vignette-nom">{c.nom}</h3>
