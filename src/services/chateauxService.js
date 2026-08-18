@@ -97,7 +97,17 @@ const SELECT_CATALOGUE = `
 // ─────────────────────────────────────────────────────────────────────────────
 
 // Cache module-level. 1 seule entrée 'all_chateaux' avec timestamp.
-// Format : { data: Chateau[], cachedAt: number }
+// Format : { promesse: Promise<Chateau[]>, cachedAt: number }
+//
+// On mémorise la PROMESSE, pas le résultat. Mémoriser le résultat ne protège
+// que les appels qui arrivent APRÈS la réponse — or les composants montent au
+// même tick : ils appelaient donc tous avant que le cache soit rempli, et
+// partaient chacun en aller-retour. Mesuré le 18 août 2026 sur la home, en
+// build de production : 6 requêtes catalogue identiques de 163 ko, soit 815 ko
+// gaspillés par chargement. Une promesse partagée les ramène à une.
+//
+// `cachedAt` date désormais le DÉPART de la requête et non son retour : le TTL
+// court donc depuis un poil plus tôt. Sans conséquence à 5 minutes.
 const _cache = new Map();
 
 function _isCacheValid(entry) {
@@ -162,16 +172,35 @@ async function _fetchAllChateaux() {
  * @returns {Promise<Object[]>}
  */
 async function _getAllCached() {
-  const cached = _cache.get(CACHE_KEY_ALL);
-  if (_isCacheValid(cached)) {
-    return cached.data;
+  const entree = _cache.get(CACHE_KEY_ALL);
+  if (_isCacheValid(entree)) {
+    return entree.promesse;
   }
-  const fresh = await _fetchAllChateaux();
-  _cache.set(CACHE_KEY_ALL, {
-    data: fresh,
-    cachedAt: Date.now(),
+
+  // L'entrée est posée AVANT tout `await` : c'est ce qui rend la déduplication
+  // possible. Les appels qui arrivent pendant l'aller-retour trouvent la
+  // promesse en cours et l'attendent, au lieu d'en lancer chacun un.
+  const promesse = _fetchAllChateaux();
+  _cache.set(CACHE_KEY_ALL, { promesse, cachedAt: Date.now() });
+
+  // UN ÉCHEC NE DOIT PAS RESTER EN CACHE. Sans ce retrait, une coupure réseau
+  // d'une seconde condamnerait tous les appels suivants jusqu'à expiration du
+  // TTL — cinq minutes d'écran vide pour un incident d'une seconde. On retire
+  // l'entrée pour qu'un prochain appel retente.
+  //
+  // La comparaison d'identité évite d'effacer une entrée PLUS RÉCENTE : entre
+  // le rejet et ce handler, `invalidateCache()` a pu passer et une nouvelle
+  // requête démarrer. On ne retire que sa propre entrée.
+  //
+  // Ce `catch` ne consomme pas le rejet pour autant : la promesse retournée
+  // rejette toujours, et les hooks continuent de peupler leur `error`.
+  promesse.catch(() => {
+    if (_cache.get(CACHE_KEY_ALL)?.promesse === promesse) {
+      _cache.delete(CACHE_KEY_ALL);
+    }
   });
-  return fresh;
+
+  return promesse;
 }
 
 
