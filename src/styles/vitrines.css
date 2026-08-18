@@ -120,6 +120,46 @@
   transform: translateX(-50%); font-size: 0.42rem; color: #C09840; line-height: 1;
 }
 
+/* ── Tete de la section cartes (etape 5 Prop 3) ────────────────────────────
+   « Nos châteaux ». La grille n'etait annoncee par rien : elle commencait juste
+   apres les filtres, et rien ne disait qu'on passait de « trier » a « regarder ».
+
+   Rendu a TOUTES les largeurs, contrairement au reste de ce chantier — c'est
+   du contenu, pas un reglage mobile. Le lys et le filet reprennent exactement
+   ceux de l'encart de citation : deux ornements identiques dans une meme page
+   font une grammaire, deux ornements differents font du bruit. */
+/* La colonne des cartes : titre + grille, en UN SEUL item de `.vit-corps-bas`.
+   `min-width: 0` parce qu'un item de grille a `min-width: auto` par defaut et
+   refuse de descendre sous la largeur de son contenu — la grille interieure
+   deborderait sa colonne au lieu de se comprimer. */
+.vit-colonne-cartes { min-width: 0; }
+
+.vit-grille-tete {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 26px;
+}
+.vit-grille-lys {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  font-size: 1rem; line-height: 1; color: #C09840;
+}
+.vit-grille-lys::before,
+.vit-grille-lys::after {
+  content: ""; width: 34px; height: 1px; background: rgba(192, 152, 64, 0.45);
+}
+.vit-grille-titre {
+  margin: 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.6rem;
+  letter-spacing: 0.02em;
+  color: #1A2D5A;
+  text-align: center;
+}
+
 /* ── Grille ── */
 .vit-grille {
   display: grid;
@@ -402,8 +442,31 @@
   .vit-carte-prix { font-size: var(--hm-t-corps, 0.85rem); }
 
   /* LE LIEN — 10,9 px. C'est l'appel a l'action de la carte, et le seul
-     element qui annonce ce qui se passe au clic. */
-  .vit-carte-lien { font-size: var(--hm-t-corps, 0.85rem); }
+     element qui annonce ce qui se passe au clic.
+
+     ETAPE 5 — SON TRAITEMENT, PAS SON TEXTE. Le libelle « Lire l'article → »
+     reste ENTIER et reste du texte : le reduire a une fleche nue, ou le
+     remplacer par un `::after` decoratif, laisserait un lecteur d'ecran
+     annoncer « lien » sans dire vers quoi. La fleche du JSX fait partie de la
+     chaine et se deplace au survol comme avant.
+
+     Ce qui change : les capitales tres deliees et la graisse 600 en faisaient
+     un bouton criard sur une carte editoriale. Il redevient une invitation —
+     bas de casse, graisse normale, or attenue, souligne d'un filet qui
+     n'apparait qu'au contact. Le mot compte plus que le cri. */
+  .vit-carte-lien {
+    font-size: var(--hm-t-corps, 0.85rem);
+    text-transform: none;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.02em;
+    color: #8B6914;
+    border-bottom: 1px solid rgba(139, 105, 20, 0.28);
+    padding-bottom: 2px;
+  }
+  /* Le survol allongeait l'interlettrage (regle desktop) : sans capitales, cet
+     effet ecarte les lettres d'un mot ordinaire et se lit comme un defaut. */
+  .vit-carte:hover .vit-carte-lien { letter-spacing: 0.02em; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════

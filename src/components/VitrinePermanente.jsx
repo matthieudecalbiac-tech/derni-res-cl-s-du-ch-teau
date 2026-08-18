@@ -100,7 +100,33 @@ export default function VitrinePermanente({ onClose }) {
             />
           </aside>
 
-          <div className="vit-grille">
+          {/* Titre de la section cartes (etape 5 Prop 3). Il n'existait pas :
+              la grille commencait sans etre annoncee, juste apres les filtres.
+              ⚠ VISIBLE EN DESKTOP AUSSI — c'est un ajout de contenu, pas un
+              reglage mobile. Le meme arbitrage que le bloc sejour de Dernieres
+              Cles, et la meme conclusion : une section qui n'est pas nommee
+              n'est pas mieux nommee en desktop qu'en mobile.
+              Le lys reprend celui de l'encart : deux ornements identiques dans
+              une meme page font une grammaire, deux ornements differents font
+              du bruit. */}
+          {/* ⚠ LE TITRE ET LA GRILLE SONT DANS UN MEME CONTENEUR, ET C'EST
+              STRUCTUREL. `.vit-corps-bas` est une grille a DEUX colonnes
+              (620px 1fr) : la carte de France a gauche, les cartes a droite.
+              Poser le titre en enfant direct en aurait fait un TROISIEME item,
+              et la grille des cartes serait tombee en colonne 1, sous une carte
+              SVG en `position: sticky` qui la recouvre au defilement.
+              Mesure du defaut avant correction, a 1440 px :
+                .vit-carte-france  col 1  l=40
+                .vit-grille-tete   col 2  l=708   le titre A COTE de la carte
+                .vit-grille        col 1  l=40    les cartes SOUS la carte
+              Les clics n'atteignaient plus les cartes en desktop. */}
+          <div className="vit-colonne-cartes">
+            <div className="vit-grille-tete">
+              <span className="vit-grille-lys" aria-hidden="true">&#x269C;</span>
+              <h2 className="vit-grille-titre">Nos châteaux</h2>
+            </div>
+
+            <div className="vit-grille">
             {chateauxFiltres.map(c => (
               <div key={c.id}
                 className={"vit-carte" + (survol === c.id ? " actif" : "")}
@@ -123,6 +149,7 @@ export default function VitrinePermanente({ onClose }) {
                 </div>
               </div>
             ))}
+            </div>
           </div>
         </div>
       </div>
