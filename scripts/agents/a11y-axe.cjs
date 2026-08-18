@@ -48,6 +48,10 @@ const { spawn } = require('child_process');
 // deja cette connaissance, la recopier ici la ferait diverger.
 const { selModule, ouvrirNavVitrine } = require('../../tests/e2e/_navVitrine.cjs');
 
+// Ouverture du catalogue — MEME source que console-errors.cjs. Elle y vivait en
+// copie byte-identique : le correctif du clic a du y etre applique deux fois.
+const { ouvrirCatalogue } = require('../lib/ouvrir-catalogue.cjs');
+
 const ROOT = path.join(__dirname, '..', '..');
 const ID = 'a11y-axe';
 const LIBELLE = 'Accessibilité (axe)';
@@ -124,27 +128,6 @@ async function lancerViteSiBesoin() {
 // medaillons sont masques sous 768 px depuis le design mobile - presents dans
 // le DOM, jamais visibles. Cet agent n'avait pas encore rougi, mais il portait
 // la meme hypothese devenue fausse.
-async function ouvrirCatalogue(page) {
-  const onglet = page.locator('.tcl-onglet').filter({ hasText: 'Liste' });
-  const items = page.locator('.tcl-item[data-slug]');
-
-  let derniereErreur;
-  for (let essai = 0; essai < 3; essai++) {
-    // Ne reclique QUE si la modale n'est pas deja ouverte (sinon elle recouvre
-    // le toggle et le clic serait intercepte). Retry car a l'arrivee des
-    // donnees Supabase, le sous-arbre .tcl se re-rend et remplace le noeud du
-    // bouton : un clic parti au mauvais moment atterrit sur un noeud detache.
-    // Un delai plus long n'y changerait rien - le clic est perdu, pas en retard.
-    if ((await page.locator('.tcl-liste').count()) === 0) await onglet.click();
-    try {
-      await items.first().waitFor({ state: 'visible', timeout: 8000 });
-      return;
-    } catch (e) {
-      derniereErreur = e;
-    }
-  }
-  throw derniereErreur;
-}
 
 async function decouvrirChateauxServis(page) {
   await page.goto(BASE_URL);

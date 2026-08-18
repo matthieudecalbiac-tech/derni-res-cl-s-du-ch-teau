@@ -534,6 +534,20 @@ Apprentissages Chantier 2.2.D.3 (`HeureAuxDemeures`, fix preventif) et 2.2.D.6 (
 
 Sur le run #25730231771 (commit `84ad228`, post-merge PR #20), 4 erreurs sur `webkit-desktop` : « WebKit encountered an internal error » en chaîne (preconnect `fonts.gstatic.com` → `/@vite/client` → resource → CTA Briottières introuvable → `scrollIntoViewIfNeeded` timeout 30 s → `Crash parcours`). Aucun précédent dans les 12 derniers runs `main`. Re-run sans modification = vert immédiat. **Conclusion** : flake transitoire du runner Ubuntu + Playwright WebKit, pas un bug applicatif. À monitorer si récurrence (> 2 fails WebKit « internal error » en 1 mois) → robustifier l'agent `console-errors.cjs` en classant ce pattern de message comme `flake_infra` non bloquant (ou retry du parcours WebKit).
 
+### Clic du catalogue — corrigé à la source (18 août 2026)
+
+Deux rouges `webkit-only` en trois mois partaient du même geste : le clic Playwright sur `.tcl-onglet` « Liste ». Un clic Playwright exige que l'élément **reçoive les événements** — il rejoue le hit-test jusqu'à ce que le point visé lui appartienne. Or l'accueil entre en animations décalées (`.tcl-row` : `animation-delay: 1.3s` ; `.hero-illus-img` : `translateX(60px)`), et pendant ce temps les couches voisines recouvrent le toggle. Le clic n'est pas en retard : il est **refusé**, en boucle, jusqu'au timeout de 30 s, et l'agent meurt en `agent-crash` — classé `critical`, donc bloquant en baseline alors qu'aucune règle axe n'est enfreinte (`compteurViolations: 0`).
+
+Corrigé dans `scripts/lib/ouvrir-catalogue.cjs` : le clic passe par le DOM (`evaluate(el => el.click())`), qui ne fait aucun hit-test. La fonction y a été **extraite** — elle vivait en copies byte-identiques dans `a11y-axe.cjs` et `console-errors.cjs`.
+
+⚠ **Une troisième copie subsiste, volontairement** : `tests/e2e/vitrines-tous-chateaux.spec.cjs`. Elle garde le vrai clic — c'est elle qui vérifie que le bouton est réellement cliquable. Ne pas l'aligner sur le module : les harnais cherchent à *atteindre* un état de page, ce spec teste le geste.
+
+### Crash d'agent non attribué — fil ouvert (18 août 2026)
+
+Observé **1 fois sur 57 passes locales** post-extraction (`agent-crash`, `webkit`, `a11y-axe`). La passe rouge avait traité **5 vitrines sur 7** et **12 checkpoints sur 15** → mort **en aval** du clic `ouvrirCatalogue` (déjà corrigé), pas dessus. Rapport local perdu : les agents écrasent `qa-reports/<agent>.json` à chaque passe. **Non reproduit** sur 40 passes webkit instrumentées ensuite.
+
+**À lire sur l'artefact `qa-reports/` du prochain run CI qui rougirait sur `agent-crash`** — c'est là que le message complet sera disponible, pas en local. Ne pas re-runner à l'aveugle : diagnostic sur artefact d'abord (cf. section suivante).
+
 ### Pattern « diagnostic avant code » sur fail CI
 
 Quand un fail CI apparaît après un fix d'agent, **ne pas supposer que le fix est en cause**. Étapes obligatoires :

@@ -47,6 +47,10 @@ const { spawn } = require('child_process');
 // deja cette connaissance, la recopier ici la ferait diverger.
 const { selModule, ouvrirNavVitrine } = require('../../tests/e2e/_navVitrine.cjs');
 
+// Ouverture du catalogue — MEME source que a11y-axe.cjs. Elle y vivait en copie
+// byte-identique : le correctif du clic a du y etre applique deux fois.
+const { ouvrirCatalogue } = require('../lib/ouvrir-catalogue.cjs');
+
 const ROOT = path.join(__dirname, '..', '..');
 const ID = 'console-errors';
 const LIBELLE = 'Erreurs console';
@@ -192,27 +196,6 @@ async function lancerViteSiBesoin() {
 // le DOM, jamais visibles - ce qui faisait echouer le parcours mobile-safari.
 // Le carrousel "a la une" n'exposerait que 2 chateaux sur 7 : couverture
 // partielle en silence, ecarte.
-async function ouvrirCatalogue(page) {
-  const onglet = page.locator('.tcl-onglet').filter({ hasText: 'Liste' });
-  const items = page.locator('.tcl-item[data-slug]');
-
-  let derniereErreur;
-  for (let essai = 0; essai < 3; essai++) {
-    // Ne reclique QUE si la modale n'est pas deja ouverte (sinon elle recouvre
-    // le toggle et le clic serait intercepte). Retry car a l'arrivee des
-    // donnees Supabase, le sous-arbre .tcl se re-rend et remplace le noeud du
-    // bouton : un clic parti au mauvais moment atterrit sur un noeud detache.
-    // Un delai plus long n'y changerait rien - le clic est perdu, pas en retard.
-    if ((await page.locator('.tcl-liste').count()) === 0) await onglet.click();
-    try {
-      await items.first().waitFor({ state: 'visible', timeout: 8000 });
-      return;
-    } catch (e) {
-      derniereErreur = e;
-    }
-  }
-  throw derniereErreur;
-}
 
 async function decouvrirChateauxServis(page) {
   await page.goto(BASE_URL);
