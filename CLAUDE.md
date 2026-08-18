@@ -373,7 +373,7 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
   - `getChateauById(id)` / `getChateauBySlug(slug)` → lookups locaux
   - `getCompteurs({ excludeMocks })` → dérivé du cache (0 round-trip extra)
   - `invalidateCache()` → NEW Phase 4.4 (pour S2 booking flow + S5 admin UI)
-- **Architecture cache :** Map mémoire TTL 5 min, 1 round-trip Supabase pour servir N requêtes UI
+- **Architecture cache :** Map mémoire TTL 5 min, 1 round-trip Supabase pour servir N requêtes UI. ⚠ **Le cache mémorise la PROMESSE, pas le résultat** — cf. § Perf du hero ci-dessous. Mémoriser le résultat ne protégeait que les appels arrivant *après* la réponse ; les composants montent au même tick, donc tous manquaient le cache. Sur reject, l'entrée est retirée : un échec ne doit jamais rester en cache pendant le TTL.
 - **Helper centralisé :** `_isMock(chateau)` (`estLaUne === false`) — fini le hardcoding `id===1||2||3` dans 4-5 endroits
 - **VITE_FAKE_LATENCY conservé** pour DX tests UI Phase 4.7
 - **Compat hook useChateaux** : aucun changement requis (signatures préservées)
@@ -665,7 +665,7 @@ Ces deux points ne sont pas des défauts de code : le mécanisme est juste, c'es
 
 **6 anomalies à corriger** :
 
-1. **Hero home mobile** : "LA VIE DE CHÂTEAU vous attend" wrappe en plusieurs lignes, "vous attend" apparaît derrière la voiture vidéo background. Lisible mais pas optimal.
+1. ~~**Hero home mobile** : "LA VIE DE CHÂTEAU vous attend" ... derrière la voiture vidéo background~~ — **caduque**. Ni ce slogan ni cette vidéo n'existent depuis `50fb8a4` (29 juin 2026), qui a refondu le hero en deux colonnes. `Hero.jsx` fait 28 lignes de texte statique (« Votre route vers l'exception des châteaux de France »), sur fond crème, sans `<video>`. **Aucun `<video>` ne subsiste dans le dépôt.** Cf. § Perf du hero ci-dessous avant de chercher une vidéo.
 
 2. **Bandeau Fondation Patrimoine mobile** : texte wrappe en 3 lignes ("Aidez-nous à préserver le patrimoine..."), lisible mais pas optimal.
 
@@ -722,3 +722,32 @@ Ces deux points ne sont pas des défauts de code : le mécanisme est juste, c'es
   - Isolation client : voir mes résas vs autres
   - Châtelain SELECT chateau_modules privé avec commission
   - `buildOffresSQL()` dans le générateur de seed
+
+## Perf du hero — ce qu'on croyait, et ce que c'était (18 août 2026)
+
+Une dette de mémoire disait : « la vidéo de fond Pexels du Hero se recharge ~11 fois en 3 minutes, le composant remonte en boucle ». **Elle était fausse sur l'objet, juste sur le chiffre.** Elle est consignée ici pour qu'on cesse d'y renvoyer.
+
+### Ce qui n'existe pas
+
+- **Le Hero n'a plus de vidéo.** `Hero.jsx` fait 28 lignes de texte statique, fond crème. `bb9005e` (26 juin) avait remplacé les URL Pexels par des fichiers locaux, puis `50fb8a4` (29 juin) a retiré le `<video>`. **Aucun `<video>` ne subsiste nulle part dans le dépôt.**
+- **Le Hero ne remonte pas.** Mesuré 3 min sur la home, desktop et mobile : `.acc-slogan` monté **1 fois**, **0 requête vidéo**. Il ne le peut pas : monté une fois dans `App.jsx`, **sans aucune prop**, sans `key`, `export default memo(Hero)`, et `App.jsx` n'a **aucun `useEffect`** ni minuterie.
+- **Le LCP n'était pas en cause** : 620 ms desktop / 588 ms mobile en build de production. Les 4 496 ms qu'on peut lire en dev sont un artefact du serveur Vite non bundlé — ne pas conclure d'une mesure faite sur `npm run dev`.
+
+### Ce qui se répétait vraiment
+
+La **requête catalogue Supabase**, 6 fois par chargement de home en production (12 en dev — StrictMode double les montages, d'où le « ~11 » de la dette). 163 ko × 6 = 978 ko, dont **815 gaspillés**.
+
+Cause : `_getAllCached` mémorisait le **résultat**, donc seulement après la réponse. Les six consommateurs de la home (`BandeauOffres`, `BarreRecherche`, `HeureAuxDemeures`, `PastillesInspiration`, `ToggleCarteListe`, `UneDeLaSemaine`) appellent au même tick, tous avant que le cache soit rempli. Corrigé en mémorisant la **promesse** — cf. Architecture § Services data.
+
+| | avant | après |
+|---|---|---|
+| chargement de home | 6 requêtes | **1** |
+| consommateur suivant (même contexte JS) | 0 | 0 *(cache résultat intact)* |
+| réseau coupé | 18 requêtes | **3** |
+| après rétablissement | +6 | **+1** *(l'échec n'est pas resté en cache)* |
+
+⚠ **L'écran ne se répare pas après une panne réseau** — 0 château affiché dans les deux colonnes. Comportement **préexistant**, vérifié sur `main` avant le correctif : les hooks ne relancent pas leur `useEffect` après un `error`. Sujet distinct, non traité ici.
+
+### Reste à faire
+
+`src/services/offresService.js` porte **le même motif** : `_cache.get(cle)` → `await` → `_cache.set(cle, …)`, sans déduplication en vol, sur `getOffresPourChateau` et `getOffresClub`. Aucune requête `offres` dupliquée n'a été observée sur la home ; les autres écrans n'ont pas été mesurés. À traiter le jour où la mesure le justifie, pas avant.
