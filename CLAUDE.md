@@ -114,6 +114,16 @@ Source unique : `src/data/chateaux.js` (tableau exporté `chateaux`). Aucun back
 
 > ⚠ **Schéma actuellement hétérogène entre id 1-6 et id 7-8** (cf. Dette technique Phase 2.1).
 
+#### Images d'un château — `images[]`, jamais `image`
+
+Un château n'a **pas** de champ image au singulier. Il a `images` (`text[]` en base, `chateaux.images` ligne 172 de `schema.sql` ; exposé tel quel par `mapChateauBase`). Le champ `image` existe bien dans le modèle, mais il appartient à une **chambre** (`types/Chateau.js:45`, `chambres.image` en base) — ce n'est pas le même objet.
+
+**Ne pas réintroduire `chateau.image`** : l'expression `c.image || c.images?.[0]` a l'air d'un repli, elle n'en est pas un — son premier terme est toujours `undefined`. Deux occurrences de ce motif inerte ont été retirées le 18 août 2026.
+
+Le repli quand `images` est vide est **conventionnel** : on ne rend pas de source vide.
+- Fond CSS (`backgroundImage`) : `style={c.images?.[0] ? { … } : undefined}` — le conteneur garde sa forme et montre son `background-color` crème.
+- Balise `<img>` : la balise elle-même est conditionnée, pour qu'aucun `<img src={undefined}>` ne parte en requête.
+
 ### Styles & design tokens
 
 - Un fichier CSS par composant dans `src/styles/`, importé directement depuis le composant.

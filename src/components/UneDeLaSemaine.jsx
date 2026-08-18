@@ -50,7 +50,7 @@ export default function UneDeLaSemaine({ onOuvrirChateau, onVoirTout }) {
             return (
               <article key={chateau.id} className="une-semaine-carte" style={{ transitionDelay: `${0.35 + i * 0.12}s` }}>
                 <div className="une-semaine-photo">
-                  <img src={chateau.images?.[0]} alt={chateau.nom} loading="lazy" />
+                  {chateau.images?.[0] && <img src={chateau.images[0]} alt={chateau.nom} loading="lazy" />}
                 </div>
                 <div className="une-semaine-infos">
                   <span className="une-semaine-meta">
