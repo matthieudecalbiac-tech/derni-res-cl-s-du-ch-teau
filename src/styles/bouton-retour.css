@@ -1,0 +1,76 @@
+/* ============================================================
+   Le retour du site — apparence PARTAGEE.
+
+   Reprend `.vc3-retour` de la vitrine chateau, qui etait jusqu'ici le seul
+   retour correctement traite en mobile (44 px tactile). Ce fichier en fait la
+   reference commune : meme place, meme geste, meme dessin sur tous les ecrans.
+   Un retour qui change d'aspect d'une page a l'autre se cherche a chaque fois.
+
+   Palette : navy #1A2D5A, or #C09840, creme. Typo Crimson Pro (texte editorial).
+   ============================================================ */
+
+.btn-retour {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 0.88rem;
+  letter-spacing: 0.06em;
+  color: rgba(26, 45, 90, 0.6);
+  transition: color 0.2s;
+}
+
+.btn-retour:hover,
+.btn-retour:focus-visible {
+  color: #1A2D5A;
+}
+
+.btn-retour-fleche {
+  font-size: 1.05em;
+  line-height: 1;
+}
+
+/* ── Mobile : la fleche seule, mais la cible reste entiere ──────────────────
+   Sous le seuil, le libelle s'efface et la fleche suffit — c'est la convention
+   universelle du retour sur mobile, reconnue d'un coup d'oeil, et elle libere
+   une largeur precieuse en haut d'ecran.
+
+   ⚠ Le libelle est masque, PAS supprime : `aria-label="Retour"` porte le sens
+   pour les lecteurs d'ecran, et la cible garde ses 44 px dans les deux sens.
+   Une fleche de 12 px serait illisible au doigt. */
+@media (max-width: 768px) {
+  .btn-retour {
+    min-width: var(--hm-tap, 44px);
+    min-height: var(--hm-tap, 44px);
+    justify-content: flex-start;
+    gap: 0;
+  }
+  .btn-retour-libelle {
+    display: none;
+  }
+  .btn-retour-fleche {
+    font-size: 1.45rem;
+    color: #1A2D5A;
+  }
+}
+
+/* ── Conteneur pour les ecrans SANS en-tete propre (/resultats) ─────────────
+   `/resultats` n'a pas de topbar : le retour a besoin d'une ligne a lui, en
+   haut a gauche, alignee sur la gouttiere du contenu. */
+.btn-retour-ligne {
+  display: flex;
+  justify-content: flex-start;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 18px 32px 0;
+}
+
+@media (max-width: 768px) {
+  .btn-retour-ligne {
+    padding: 8px 16px 0;
+  }
+}

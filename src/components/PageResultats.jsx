@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import BoutonRetour from "./BoutonRetour";
 import { useChateaux } from "../hooks/useChateaux";
 import { prixAffiche } from "../utils/derivePrix";
 import { capaciteSuffisante } from "../utils/capacite";
@@ -118,6 +119,13 @@ export default function PageResultats() {
         onOuvrirProprietaires={versHome}
         onOuvrirDernieresClefs={versHome}
       />
+      {/* `/resultats` n'a pas de topbar : le retour a besoin d'une ligne a
+          lui, en haut a gauche. Il remplace le bouton qui vivait en PIED de
+          page (a ~3800 px en mobile) et annoncait « Retour a l'accueil » —
+          libelle devenu faux des lors qu'on revient d'ou l'on vient. */}
+      <div className="btn-retour-ligne">
+        <BoutonRetour />
+      </div>
       <main className="pr-main">
         <div className="pr-entete">
           <div className="pr-orn">
@@ -166,9 +174,6 @@ export default function PageResultats() {
           </div>
         )}
 
-        <div className="pr-retour">
-          <button className="pr-retour-btn" onClick={versHome}>← Retour à l'accueil</button>
-        </div>
       </main>
     </div>
   );

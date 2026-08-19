@@ -486,3 +486,21 @@
   .vcs-item-num{font-size:calc(var(--hm-t-micro,0.56rem) * 1.32)}
   .vcs-item-chev{font-size:var(--hm-t-corps,0.85rem)}
 }
+
+/* ── Le retour de la vitrine s'aligne sur les autres ecrans (19 aout 2026) ──
+   Sous 768 px le libelle s'efface et la fleche seule demeure : les quatre
+   ecrans du site portent alors le meme geste, au meme endroit. En desktop la
+   vitrine garde son « ← Retour » textuel, inchange.
+   La cible reste entiere (44 px) et `aria-label="Retour"` porte le sens que le
+   mot masque ne dit plus. */
+/* Le libelle etait colle a la fleche par une ESPACE typographique ; deux
+   <span> les separent desormais par le `gap:8px` de la regle de base, soit
+   5 px de plus. On revient a la largeur d'avant : le desktop de la vitrine
+   doit rester au pixel ce qu'il etait. */
+.vc3-retour { gap: 0.25em; }
+
+@media (max-width: 768px) {
+  .vc3-retour { gap: 0; min-width: var(--hm-tap, 44px); min-height: var(--hm-tap, 44px); }
+  .vc3-retour-libelle { display: none; }
+  .vc3-retour-fleche { font-size: 1.45rem; }
+}

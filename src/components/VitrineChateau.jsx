@@ -377,7 +377,16 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
 
       {/* HEADER */}
       <header className="vc3-header">
-        <button className="vc3-retour" onClick={onClose}>← Retour</button>
+        {/* Le libelle est isole dans son propre noeud pour pouvoir s'effacer
+            sous 768 px — la fleche seule y suffit, c'est la convention mobile,
+            et les quatre ecrans du site portent alors le meme geste. En texte
+            unique, aucun selecteur n'aurait pu l'atteindre.
+            `aria-label` devient obligatoire du coup : masque, le mot « Retour »
+            ne dit plus rien aux lecteurs d'ecran. */}
+        <button className="vc3-retour" onClick={onClose} aria-label="Retour">
+          <span className="vc3-retour-fleche" aria-hidden="true">←</span>
+          <span className="vc3-retour-libelle">Retour</span>
+        </button>
         <div className="vc3-header-centre">
           {/* Fleur de lys clé — l'ornement de marque, pas le ⚜ unicode. */}
           <img src="/FDL-transparent.png" alt="" className="vc3-header-lys" aria-hidden="true" />

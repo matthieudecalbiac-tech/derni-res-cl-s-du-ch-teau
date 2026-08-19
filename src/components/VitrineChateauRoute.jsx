@@ -1,5 +1,6 @@
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 import { useChateau } from "../hooks/useChateaux";
+import { useRetour } from "./BoutonRetour";
 import VitrineChateau from "./VitrineChateau";
 
 // Route /chateau/:slug — voie canonique SEO/démo Sprint S2-α.1.5.
@@ -7,7 +8,10 @@ import VitrineChateau from "./VitrineChateau";
 // en parallèle (strangler fig). VitrineChateau distingue les deux via `mode`.
 export default function VitrineChateauRoute() {
   const { slug } = useParams();
-  const navigate = useNavigate();
+  // Le `.vc3-retour` de la vitrine garde son dessin, mais emprunte la regle
+  // commune : on revient d'ou l'on vient (une recherche, un catalogue), et
+  // seulement a l'accueil quand il n'y a pas d'ou revenir.
+  const revenir = useRetour();
   const { chateau, loading, error } = useChateau(slug);
 
   // Fetch en cours → placeholder creme (evite que le body navy transparaisse
@@ -26,7 +30,7 @@ export default function VitrineChateauRoute() {
     <VitrineChateau
       chateau={chateau}
       mode="route"
-      onClose={() => navigate("/")}
+      onClose={revenir}
     />
   );
 }

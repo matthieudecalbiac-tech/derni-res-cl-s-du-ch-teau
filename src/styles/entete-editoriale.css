@@ -107,3 +107,11 @@
 @media (max-width: 768px) {
   .ee-titre { display: none; }
 }
+
+/* ── Le retour dans l'en-tete editorial ────────────────────────────────────
+   `.ee-topbar` est en `space-between` : un TROISIEME enfant y pousserait le
+   logo au centre. `margin-right:auto` sur le logo regroupe retour + logo a
+   gauche et renvoie le titre a droite — le desktop garde exactement sa mise
+   en page d'avant, le retour s'ajoute devant. */
+.ee-retour { flex: 0 0 auto; }
+.ee-logo { margin-right: auto; }
