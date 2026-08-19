@@ -55,13 +55,10 @@
   font-family: 'Crimson Pro', serif; font-size: 0.95rem; color: #2A3B57; margin: 0;
 }
 .pr-carte-prix strong { font-family: 'Playfair Display', serif; color: #1A2D5A; }
-.pr-retour { text-align: center; margin-top: 56px; }
-.pr-retour-btn {
   background: transparent; border: 1px solid rgba(192,152,64,0.4);
   font-family: 'Crimson Pro', serif; font-size: 0.85rem; letter-spacing: 0.1em;
   color: #A8884E; padding: 12px 28px; cursor: pointer; transition: all 0.25s;
 }
-.pr-retour-btn:hover { border-color: #C09840; color: #1A2D5A; }
 @media (max-width: 900px) {
   .pr-main { padding: calc(var(--lcc-header-h, 105px) + 24px) 20px 48px; }
 }
