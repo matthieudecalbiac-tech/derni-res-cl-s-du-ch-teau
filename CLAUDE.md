@@ -39,29 +39,25 @@ Ton général : **patrimonial / éditorial**, jamais promotionnel. Pas de superl
 
 ## Comment ajouter un nouveau château
 
-C'est l'opération la plus fréquente. Deux modes selon le niveau d'éditorialisation souhaité.
+C'est l'opération la plus fréquente. **Elle passe par l'Espace Admin, plus par aucun fichier.**
 
-### Vitrine standard (id 1-6)
+```
+/admin/chateaux/nouveau        créer
+/admin/chateaux/:id            éditer (AdminChateauEdition)
+/admin/chateaux/:id/apercu     prévisualiser avant publication
+```
 
-Édit `src/data/chateaux.js`, ajouter un objet en suivant le schéma des entrées id 1-6 (champs : `id`, `nom`, `slug`, `region`, `departement`, `distanceParis`, `urgence`, `chambresRestantes`, `prix`, `prixBarre`, `reduction`, `coordonnees`, `image`, `images`, `style`, `siecle`, `accroche`, `histoire`, `description`, `timeline`, `proprietaires`, `chambres`, `experiences`, `activites`, `alentours`, `tags`, `petitDejeuner`, `parking`, `wifi`, `animaux`, `couleurTheme`, `accentTheme`).
+Un château n'apparaît en surface qu'une fois **publié** (`statut`) : le service filtre dessus, et `getChateauBySlug` renvoie `null` sinon.
 
-Photos : URL Unsplash ou autre CDN public. Pas de fichier local nécessaire.
+> ⚠ **La procédure décrite ici jusqu'au 19 août 2026 était inexécutable** : elle demandait d'éditer `src/data/chateaux.js`, fichier supprimé depuis. C'était l'opération la plus fréquente du projet, documentée sur un fichier disparu. Vérifier une procédure avant de la suivre — et la corriger quand elle ment.
 
-Le château apparaîtra dans : `VitrinePermanente`, `DernieresCles` (si `urgence` défini), `ClubMembres`. Détail ouvert via `ChateauModal`.
+### Photos
 
-### Vitrine premium (id 7+, layout `VitrineChateau`)
+Deux voies, selon le château :
+- **CDN public** (Unsplash ou autre) — URL collée dans le champ images.
+- **Fichier local** dans `/public/`, format **AVIF** de préférence, préfixe alphabétique court désignant le château (`bb-` pour Le Blanc Buisson, `bri-` pour Les Briottières). Référence : `/<prefixe>-<nom>.avif`, slash initial, Vite résout depuis `/public/`.
 
-Édit `src/data/chateaux.js` avec `estLaUne: true` et le schéma riche : champs supplémentaires `chiffresCles`, `ville`, `regionNarrative`, `regionHistoire`, `proprietaires.initiale`, `proprietaires.nomAffiche`, `alentours[].icone`, `alentours[].description`, optionnel `videoBackground` (ID YouTube).
-
-Photos : **locales** dans `/public/` avec préfixe alphabétique court désignant le château (`bb-` pour Le Blanc Buisson, `bri-` pour Briottières, etc.).
-
-L'aiguillage vers le layout premium est automatique dès que `estLaUne: true` (cf. Architecture § Aiguillage).
-
-### Photos locales
-
-- Format préféré : **AVIF** (poids minimal, qualité préservée)
-- Chemin : `/public/<prefixe>-<nom>.avif`
-- Référence dans `chateaux.js` : `"/<prefixe>-<nom>.avif"` (slash initial, Vite résout depuis `/public/`)
+Un château doit porter **au moins 2 images** : l'agent `validation-donnees` lève une **erreur** en dessous (`validation-donnees.cjs:374`) et `qa-baseline.json` fixe `erreurs.max = 0`. Un château à une seule image bloque donc la CI.
 
 ### Test après ajout
 
@@ -69,9 +65,7 @@ L'aiguillage vers le layout premium est automatique dès que `estLaUne: true` (c
 npm run dev
 ```
 
-Naviguer vers la home, vérifier que le château apparaît dans les overlays attendus. Pour une vitrine premium : ouvrir l'overlay `Vitrines permanentes` puis cliquer sur le château pour valider l'animation `TransitionPorte` puis `VitrineChateau`.
-
-> ⚠ **Schéma data unifié à venir (Phase 2.1).** En attendant, copier intégralement un château existant comme template, puis adapter les valeurs.
+Naviguer vers la home, vérifier que le château apparaît dans les listes attendues, puis ouvrir sa vitrine — soit par le catalogue (toggle « Liste »), soit directement par `/chateau/<slug>`.
 
 ## Commandes
 
@@ -98,21 +92,55 @@ Vite + React 19. Aucun runner de tests JS, aucun linter installé.
 
 `src/App.jsx` est le seul routeur du site. La page rend `Header` + `Hero` + quelques sections d'accueil, et toutes les autres « pages » (détail château, carte explorateur, auth, compte, club, à-propos, etc.) sont des composants overlay plein écran montés conditionnellement via un booléen `useState` dans `App`. Les callbacks de navigation (`onOuvrirX`) sont drillés depuis `App` vers `Header` (et autres). Pour ajouter une nouvelle page/overlay : ajouter un état `xxxOuvert` dans `App.jsx`, monter le composant conditionnellement à la fin, drill une prop `onOuvrirXxx` vers le déclencheur.
 
-### Aiguillage vitrine standard / premium
+### Le retour — revenir d'où l'on vient (19 août 2026)
 
-L'aiguillage entre layout premium (`VitrineChateau`) et layout standard (`ChateauModal`) se fait via le flag **`estLaUne === true`** sur le château (`App.jsx:118`).
+Le site ne savait pas revenir : **zéro `navigate(-1)` dans tout le dépôt**, tous les retours câblés en dur sur `/`. On cherchait, on ouvrait un château, on revenait — et la recherche était perdue.
 
-Pour promouvoir un château au layout vitrine premium, il suffit d'ajouter `estLaUne: true` dans son objet dans `chateaux.js` — **aucune modification d'`App.jsx` n'est requise**.
+```
+window.history.state.idx  >  0   →  navigate(-1)    on reste dans le site
+window.history.state.idx === 0   →  navigate("/")   arrivée directe, repli
+```
 
-Châteaux actuellement avec `estLaUne` :
-- **id 7 — Les Briottières**
-- **id 8 — Le Blanc Buisson**
+Mesuré, pas supposé : `idx` vaut **0** sur une arrivée directe et **1** après une première navigation interne. Le repli est indispensable — sans lui, un visiteur venu d'un lien partagé **sortirait du site**. `window.history.state` peut valoir `null` : le `?? 0` n'est pas cosmétique.
+
+**Une source, deux habillages** (`src/components/BoutonRetour.jsx`) : le composant porte la règle *et* le dessin pour `/resultats`, `/histoire`, `/personnage` ; le hook `useRetour()` porte la règle seule, pour la vitrine château qui garde son `.vc3-retour`.
+
+**⚠ Fermer n'est pas reculer.** La vitrine écrit son thème dans l'URL (`?theme=`) : chaque thème consulté empile une entrée. Un simple `navigate(-1)` y recule d'un thème au lieu de sortir. `VitrineChateauRoute` mémorise donc `idxEntrée` (`useRef`, **posé une seule fois** — le composant se re-rend à chaque thème) et saute :
+
+```
+delta = idx_courant − idxEntrée
+idxEntrée  >  0  →  navigate(-(delta + 1))
+idxEntrée === 0  →  navigate("/")
+```
+
+Le cas 0 thème s'y réduit exactement à `navigate(-1)` : la formule **généralise**, elle ne remplace pas.
+
+**Mobile** : sous 768 px le libellé s'efface, la flèche seule demeure, 44 × 44, `aria-label="Retour"`. Les quatre écrans portent le même geste au même endroit.
+
+⚠ Si un lien **inter-château** (« châteaux voisins ») est ajouté un jour, réinitialiser `idxEntrée` au changement de `slug` — sinon `delta` se calculerait depuis l'entrée de la vitrine précédente. Vérifié le 19 août : aucun tel lien n'existe (alentours non cliquables, ni voisins ni carte dans la vitrine ; seules destinations `/inscription` et `/personnage/:slug`).
+
+Filet : `tests/e2e/retour-intelligent.spec.cjs`.
+
+
+### Une seule vitrine, pour tous les châteaux
+
+**Il n'y a plus d'aiguillage.** `ChateauModal` a été supprimé : toute demeure servie ouvre `VitrineChateau`, mise en avant (`estLaUne`) ou non.
+
+Deux voies de montage coexistent (*strangler fig*) :
+- **route** `/chateau/:slug` via `VitrineChateauRoute` — voie canonique, partageable et indexable ;
+- **overlay** depuis l'accueil et les vitrines permanentes, monté dans l'état d'`App`.
+
+`VitrineChateau` distingue les deux par sa prop `mode`. Seule la voie *route* mémorise une entrée d'historique et sait en ressortir (cf. § Le retour, plus bas).
+
+> ⚠ Cette section décrivait jusqu'au 19 août 2026 un aiguillage `estLaUne === true` en `App.jsx:118` vers `ChateauModal`. **Ni le composant ni la ligne n'existent** — `estLaUne` n'apparaît nulle part dans `App.jsx`.
 
 ### Données
 
-Source unique : `src/data/chateaux.js` (tableau exporté `chateaux`). Aucun backend pour l'instant — prix, disponibilités, images, histoire, timeline, coordonnées vivent ici. Auth, réservations et adhésion club sont des flux UI sans persistance.
+**La base Supabase est la source de vérité.** Prix, disponibilités, images, histoire, timeline, coordonnées y vivent, et l'application y accède par `src/services/chateauxService.js`.
 
-> ⚠ **Schéma actuellement hétérogène entre id 1-6 et id 7-8** (cf. Dette technique Phase 2.1).
+> ⚠ **`src/data/chateaux.js` n'existe plus** (vérifié le 19 août 2026). Seul `src/data/ambiances.js` subsiste dans ce dossier — 64 phrases éditoriales keyées par slug, un fichier statique à côté d'une base qui porte tout le reste. Divergence garantie si un slug change : à surveiller.
+>
+> Cette section décrivait `chateaux.js` comme « source unique » longtemps après sa disparition. Ne pas raisonner sur les fichiers de données : **interroger la base**.
 
 #### Images d'un château — `images[]`, jamais `image`
 
@@ -374,7 +402,7 @@ Location châteaux pour événements privés (mariages, séminaires). Hors scope
   - `getCompteurs({ excludeMocks })` → dérivé du cache (0 round-trip extra)
   - `invalidateCache()` → NEW Phase 4.4 (pour S2 booking flow + S5 admin UI)
 - **Architecture cache :** Map mémoire TTL 5 min, 1 round-trip Supabase pour servir N requêtes UI. ⚠ **Le cache mémorise la PROMESSE, pas le résultat** — cf. § Perf du hero ci-dessous. Mémoriser le résultat ne protégeait que les appels arrivant *après* la réponse ; les composants montent au même tick, donc tous manquaient le cache. Sur reject, l'entrée est retirée : un échec ne doit jamais rester en cache pendant le TTL.
-- **Helper centralisé :** `_isMock(chateau)` (`estLaUne === false`) — fini le hardcoding `id===1||2||3` dans 4-5 endroits
+- **Helper centralisé :** `_isMock(chateau)` — `isDemoMock === true` (`chateauxService.js:138`, alimenté par `is_demo_mock` en base). ⚠ Ce fichier a longtemps écrit `estLaUne === false` : c'est faux, et les deux notions sont distinctes (une demeure peut être publiée sans être à la une).
 - **VITE_FAKE_LATENCY conservé** pour DX tests UI Phase 4.7
 - **Compat hook useChateaux** : aucun changement requis (signatures préservées)
 - **Tests :** 46/46 (32 mapper + 14 service avec mock Supabase chaining via helpers `mockSupabaseSuccess`/`Error`)
@@ -491,15 +519,9 @@ Pour les chantiers touchant **≥3 fichiers**, faire un dry-run d'inventaire **a
 
 Justification : 10 min de dry-run = 30 min de débogage évitées. Pattern validé en Chantier 2.1 Commit 4 (5 fichiers, 14 Edits, 0 régression).
 
-### Contraintes sur `src/data/chateaux.js`
+### ~~Contraintes sur `src/data/chateaux.js`~~ — sans objet
 
-Le fichier `chateaux.js` est chargé dans **3 contextes** distincts :
-
-1. **Vite (dev + prod)** : import ESM moderne, tolère absence d'extension.
-2. **Script CLI Node natif** (`scripts/validate-chateaux.cjs`) : import dynamique, exige extension `.js`.
-3. **Hack CI CommonJS** (`scripts/lib/charger-chateaux.cjs` via `new Function('module', 'exports', code)`) : exécute le code en CommonJS, NE supporte PAS les `import` ESM top-level.
-
-**RÈGLE** : `chateaux.js` doit rester un **pur fichier `export const`**, sans `import` ni autre side-effect (`forEach`, `console.log`, etc.). Pour activer un filet runtime, passer par `src/main.jsx` avec `import.meta.env.DEV` (cf. apprentissage Phase B.5, 1er mai 2026).
+Cette convention décrivait les trois contextes de chargement de `chateaux.js` et la règle « pur fichier `export const` ». **Les trois sont partis** : le fichier, `scripts/validate-chateaux.cjs` et `scripts/lib/charger-chateaux.cjs` n'existent plus (vérifié le 19 août 2026). Conservée barrée un temps, pour que personne ne la ré-applique à `ambiances.js` par analogie.
 
 ### Régressions volontaires sur métriques CI (`qa-baseline.json`)
 
@@ -560,10 +582,10 @@ Si le fail concerne **uniquement un navigateur** et **sans précédent dans l'hi
 
 ## Hygiène du repo
 
-- `fix.cjs`…`fix9.cjs` à la racine sont des scripts Node one-shot ayant servi à réécrire les URLs d'images dans `src/data/chateaux.js` et `src/components/VitrineChateau.jsx`. Ils ne font pas partie du build — ne pas les importer ni les étendre ; écrire un nouveau `fixN.cjs` uniquement pour une migration similaire ponctuelle.
-- Pour tout find/replace ou codemod **bulk** sur `chateaux.js` (transformation homogène sur toutes les entrées), écrire un script `.cjs` et l'exécuter avec `node`. Ne jamais utiliser `python -c '...'` inline. (Pour la maintenance ciblée d'autres fichiers, cf. Conventions de chantier § Edits ciblés.)
-- `*-knowledge.txt` à la racine sont des snapshots de référence, pas du code vivant. Ne pas modifier sans demande explicite.
-- `lcc-backup*.bundle` sont des bundles git conservés comme sauvegardes.
+- **Les `fix*.cjs` de la racine ont disparu** (vérifié le 19 août 2026) : ils servaient à réécrire en masse les URLs d'images de `src/data/chateaux.js`, lui-même supprimé. Plus rien à ne pas importer.
+- Pour tout codemod **bulk**, écrire un script `.cjs` et l'exécuter avec `node`. Ne jamais utiliser `python -c '...'` inline. (Pour la maintenance ciblée, cf. Conventions de chantier § Edits ciblés.)
+- `*-knowledge.txt` à la racine sont des snapshots de référence, pas du code vivant — **toujours présents** (4 fichiers). Ne pas modifier sans demande explicite.
+- `lcc-backup*.bundle` sont des bundles git conservés comme sauvegardes — **toujours présents**.
 
 ## Dette technique
 
@@ -571,13 +593,7 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - ~~**[Phase 1.x] Filtre baseline-check console-errors**~~ ✅ Résolue (Chantier 1.8, 7 mai 2026, commits `700bc69` + `8caf238`) — `IGNORE_PATTERNS` CDN externes posés (videos.pexels.com, images.pexels.com, images.unsplash.com, api.open-meteo.com, www.youtube.com, i.ytimg.com) + corrélation URL temporelle pour erreurs orphelines (fenêtre 5 sec, capte les "Failed to load resource: net::ERR_FAILED" et "429 Too Many Requests" sans URL exposée par Playwright). Calibré empiriquement sur l'artefact CI e52da93 : 63 occurrences → 1-2 résiduelles (96% bruit éliminé). `qa-baseline.json:console-errors.erreurs.max` resserré 3→2, `avertissements.max` resserré 3→1. Resserrement final à 0/0 conditionné par résolution Phase 4.4 (compute-pressure iframe YouTube) + Phase 4.x #9 bri-1.avif.
 
-- **[Phase 1.x] RÉVISER convention import — extension `.js` requise pour modules chargés par Node natif** : Vite tolère l'absence d'extension, mais Node natif (utilisé par `scripts/validate-chateaux.cjs` via dynamic import) exige `.js` explicite. Apprentissage Phase B.5 (1er mai 2026) : `chateaux.js` qui importe `validateChateau` doit utiliser `from "../utils/validateChateau.js"` (avec extension). À formaliser : convention « extension `.js` partout » ou « exception documentée pour modules chargés par Node ». ~1-2 h migration de tous les imports si Option A (cohérence).
-
 - ~~**[Phase 1.x] Trou couverture C1 — responses 4xx/5xx orphelines**~~ ✅ Résolue (Chantier 1.10, 7 mai 2026, commit `76c0dc2`) — listener `page.on('response', ...)` ajouté dans `console-errors.cjs:325-342`. Si `status >= 400` ET URL non filtrée par `estBruit()`, push event avec `urlEchouee` dans `events[]`. La corrélation URL du listener console (lignes 263-294) matche désormais automatiquement les responses 4xx/5xx. Validation empirique locale Windows mobile-safari : 0 erreur, 0 avertissement, pas de double-comptage observé. Pas de calibration baseline (`erreurs.max=1` reste correct, absorbe `compute-pressure` Chromium local — resserrement à 0 conditionné par résolution Phase 4.4 vidéo HTML5).
-
-- **[Phase 1.x] Optimisation bundle prod — extraire filet dev** : le filet `validateChateau` activé en B.5 bis via `import.meta.env.DEV` dans `main.jsx` génère +9 kB résiduels en prod (overhead runtime ESM des dynamic imports, malgré constant folding de Rollup). Solution : extraire dans `src/dev/validateAtBoot.js` chargé via dynamic import sans top-level await depuis `main.jsx`. ~30 min. Identifié 1er mai 2026.
-
-- **[Phase 1.x] Documenter `scripts/lib/charger-chateaux.cjs`** : utilise un hack `new Function('module', 'exports', code)` pour exécuter `chateaux.js` en mode CommonJS dans les agents CI (a11y-axe, console-errors, playwright-e2e). Ce hack ne supporte PAS les `import` ESM. **Règle implicite** : `chateaux.js` doit rester un pur fichier `export const`, sans `import` top-level. Apprentissage Phase B.5 (1er mai 2026) : le commit B.5 initial avait ajouté un import qui cassait 3 agents CI. Rectifié en B.5 bis en déplaçant le filet dans `main.jsx`. Cf. nouvelle convention « Contraintes sur `chateaux.js` ».
 
 - **[Phase 1.x] Investiguer écart `validation-donnees.avertissements` local vs CI** : en local Windows, le validateur retourne 78 avertissements ; en CI Linux Ubuntu, 97. Probable cause : multi-browser playwright-e2e ou contexte Node différent. À investiguer pour comprendre si la métrique est fiable. Pas urgent (la baseline absorbe les deux valeurs avec max=100). ~1-2 h. Identifié 1er mai 2026.
 
@@ -606,19 +622,66 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - **[Phase 4.x] SkeletonChateau réutilisable VitrinePermanente / ClubMembres** : actuellement utilisé uniquement dans `DernieresCles` (Phase 2.3 C8). Si UX premium souhaitée pour les autres listes, intégrer le ternaire `{ loading ? <SkeletonChateau /> : map }`. ~30 min total (2 composants × 15 min). Identifié 6 mai 2026.
 
-- **[Phase 4.x] VitrinePermanente ouvre VitrineChateau pour TOUS les châteaux** : `VitrinePermanente.jsx:108` ouvre `<VitrineChateau ... />` sans aiguillage `estLaUne`, alors que les 6 châteaux mocks (id 1-6) n'ont pas les champs patrimoniaux requis (chiffresCles, propriétaires.citation, timeline, ville, photos locales). Conséquence probable : un utilisateur qui clique sur une carte mock dans `VitrinePermanente` voit une vitrine premium **creuse** (champs vides ou rendus partiels). À l'inverse, le path nominal via `HeureAuxDemeures` aiguille correctement vers `ChateauModal` pour les non-estLaUne (cf `App.jsx:114-116`). Hypothèse : `VitrinePermanente` devrait emprunter `App.ouvrirChateau` au lieu d'un état local. À investiguer en mode reproduction (cliquer sur Pierrefonds dans la vitrine permanente, observer le rendu). ~30-45 min audit + fix. Identifié Sprint 5-β v2 le 7 mai 2026.
-
-- **[Phase 4.x] Fontainebleau (id 4) orphelin du path UI nominal** : référencé uniquement dans `data/chateaux.js`, absent de `HeureAuxDemeures.idsCartes [6,5,1]` et `idsIndex [7,8,2,3]`. Aucun parcours utilisateur ne l'ouvre en `ChateauModal` aujourd'hui. Hors couverture E2E `chateaux-modal-smoke.spec.cjs` (Sprint 5-β v2 — 1 château sur 6 mocks non-couvert). Soit (a) ajouter id 4 à `idsIndex` dans `HeureAuxDemeures.jsx:55` (+1 château dans la grille), soit (b) supprimer Fontainebleau de `chateaux.js` s'il est juste un mock orphelin. ~5-10 min selon décision business. Identifié Sprint 5-β v2 le 7 mai 2026.
+- **[Phase 4.x] ⚠ À VÉRIFIER EN BASE — Fontainebleau orphelin du path UI nominal** : référencé uniquement dans `data/chateaux.js`, absent de `HeureAuxDemeures.idsCartes [6,5,1]` et `idsIndex [7,8,2,3]`. Aucun parcours utilisateur ne l'ouvre en `ChateauModal` aujourd'hui. Hors couverture E2E `chateaux-modal-smoke.spec.cjs` (Sprint 5-β v2 — 1 château sur 6 mocks non-couvert). Soit (a) ajouter id 4 à `idsIndex` dans `HeureAuxDemeures.jsx:55` (+1 château dans la grille), soit (b) supprimer Fontainebleau de `chateaux.js` s'il est juste un mock orphelin. ~5-10 min selon décision business. Identifié Sprint 5-β v2 le 7 mai 2026.
 
 - ~~**[Phase 4.x] Investigation "Load request cancelled" mobile-safari sur /bri-1.avif**~~ ✅ Résolue (Chantier 1.9, 7 mai 2026, commit `062c490`) — diagnostic empirique : reproduction locale Windows mobile-safari (`npx playwright` + agent console-errors mode mobile-safari only) a révélé qu'il s'agissait d'une **CLASSIFICATION ERRONÉE** dans l'agent QA, pas d'un bug applicatif. Les images sont chargées passivement via `background-image` inline CSS dans 5 composants (`VitrinePermanente`, `DernieresCles`, `ClubMembres`, `HeureAuxDemeures`, `UneDeLaSemaine`). Aucun useEffect avec cleanup AbortController sur les images. L'AbortController existe uniquement pour le fetch météo dans `VitrineChateau.jsx:42-96`, sans rapport. Mes 3 hypothèses initiales (re-render, Phase 2.3 abort, prefetch Safari) toutes invalidées. Fix dans `scripts/agents/console-errors.cjs:311-317` : reclassification des cancels (`/cancel|abort/i`) comme avertissement quel que soit l'origine. Les vraies régressions (404/500) restent couvertes par le test E2E `Images locales /bri-*.avif sans 404`. Baseline resserrée : `erreurs.max` 2→1, `avertissements.max` 1→2.
 
 - **[Phase 4.2] `ChateauCarte` mutualisé** : implémentations dupliquées détectées dans `VitrinePermanente`, `DernieresCles`, `ClubMembres`, `HeureAuxDemeures`, `UneDeLaSemaine`. Fusion en un composant unique avec variantes (`eyebrow`, `editorial`, `last-minute`, `vitrine`, `club`).
 
+### Dette relevée le 19 août 2026 (audit complet + chantiers de la session)
+
+Chaque ligne a été **vérifiée par lecture ou mesure**, pas déduite. Les références sont datées : la base et le code évoluent, une dette non revérifiée est une hypothèse.
+
+**Cassures silencieuses — l'utilisateur ne voit rien, ou voit du vide**
+
+- **Aucun `ErrorBoundary` dans tout le projet.** Une exception au rendu blanchit l'application entière. ~4-6 h avec une page de repli patrimoniale.
+- **Les hooks ne relancent jamais après une erreur réseau** (`useChateaux.js:26-48` — `useEffect` à deps `[excludeMocks]`, aucun `refetch` exposé). Une coupure d'une seconde laisse l'écran vide **jusqu'au rechargement**. Vérifié sur `main` avant et après la déduplication : comportement identique, donc antérieur à elle.
+- **`error` est déstructuré puis jamais affiché** — `VitrinePermanente.jsx:27`, `DernieresCles.jsx:48`. Le hook signale la panne, l'écran la tait.
+- **9 `.then` sans `.catch`** : `vitrine/ContenuClub.jsx:11`, `vitrine/ContenuDernieresCles.jsx:11`, `vitrine/offresResume.js:31,34`, `vitrine/OngletsNiveau1.jsx:34,43`, `contexts/AuthContext.jsx:50,80`, `auth/ReinitialiserMotDePasse.jsx:57`. Rejets non gérés, états bloqués en chargement.
+- **Aucune page 404** : la route `*` (`App.jsx`) sert l'accueil pour n'importe quelle URL.
+
+**Duplications restantes**
+
+- **`offresService.js` porte le même motif de cache que `chateauxService` avant correction** — `_cache.get` → `await` → `_cache.set` (lignes **63** et **96**), sans déduplication des appels en vol. ⚠ **Aucune duplication `offres` n'a été observée sur la home** ; les autres écrans n'ont pas été mesurés. À traiter quand la mesure le justifiera, pas avant.
+- **4 fonctions byte-identiques entre les deux agents QA** (`a11y-axe.cjs` / `console-errors.cjs`), vérifiées identiques le 19 août : `ouvrirVitrineParSlug` (31 l.), `ecrireRapport` (16), `checkVite` (11), `decouvrirChateauxServis` (11) ≈ **69 lignes**. `ouvrirCatalogue` a été extraite dans `scripts/lib/ouvrir-catalogue.cjs` ; ⚠ `decouvrirChateauxServis` consomme `BASE_URL`, son extraction est moins triviale.
+
+**Navigation — Temps 2 de l'axe navigation**
+
+- **Depuis `/resultats`, les 5 boutons d'overlay du Header ramènent à l'accueil sans rien ouvrir** (`PageResultats.jsx`, `versHome`). Cause structurelle : un overlay vit dans le `useState` d'`App`, qu'une route ne monte pas. Piste : donner une URL aux trois overlays de catalogue (`/vitrines`, `/dernieres-cles`, `/proprietaires`) — le Header cesserait alors d'avoir deux comportements.
+- **`onOuvrirConciergerie` est une prop morte** (`PageResultats.jsx:115`) : `Header` n'en déclare que 4.
+- **`conciergerieOuvert` n'est jamais mis à `true`** : l'overlay d'`App.jsx` est inatteignable, et `Services.jsx` n'est monté nulle part ailleurs.
+- **Les cartes de `/resultats` sont des `<article role="button" onClick>`, pas des `<a href>`** : ni ouverture en nouvel onglet, ni URL au survol, ni indexation.
+
+**Code et styles morts**
+
+- **3 feuilles CSS entièrement orphelines — 1 802 lignes** : `editorial.css` (698), `offres.css` (593), `modal.css` (511). ⚠ `offres.css` avait été épargnée en Chantier 1.2 par une **collision de sous-chaîne** : `BandeauOffres` importe `bandeau-offres.css`, qui contient `offres.css`.
+- **~200 classes CSS sans trace dans le JSX**, dominées par `espace-membre.css` (83, feuille pourtant importée par `VitrinePermanente`) et `partenaires.css` (37). ⚠ **Chiffre à dégonfler d'environ 20** : les classes concaténées (`"che-statut--" + d.status`, `"adm-badge--" + statut`) échappent au détecteur, de même que `googleapis` (un `@import`) et les `leaflet-*` posées par la librairie.
+- **3 composants orphelins** : `CitationPont.jsx` (13 l., + `citation-pont.css` 51 l.), `placeholders/AdminDashboardPlaceholder.jsx` (7 l.), `placeholders/ClientAccountPlaceholder.jsx` (15 l.).
+
+**Santé générale**
+
+- **Bundle : un seul chunk de ~987 kB** (277 kB gzip), au-dessus du seuil d'alerte de 500 kB. **Seul avertissement du build.** Aucun découpage.
+- **Écrans sans aucun filet E2E** : `/resultats` en avait zéro jusqu'au 19 août (`retour-intelligent.spec.cjs` le couvre désormais), `/personnage/:slug`, **tout l'espace admin** (11 routes), `ChatelainDashboard`, `CarteInteractive`.
+- **Public non responsive** (aucune media query < 768 px) : `page-personnage.css`, `partenaires.css`, `espace-professionnel.css`, `completer-profil.css`, `mot-de-passe-oublie.css`, `reinitialiser-mot-de-passe.css`, `transition-porte.css`, `panneau-filtres.css`, `calendrier-plage.css`, `barre-laterale.css`.
+- **`playwright-e2e.cjs` perd le nom des tests flaky** : il ne consigne que le **compte** (`:56`), son tableau `details` ne se remplit qu'en cas d'erreur d'agent. Le nom vit dans le **log du run**, pas dans l'artefact — deux lignes suffiraient à l'y mettre.
+
+### Flakes sous surveillance
+
+Un flake vert n'est pas un incident ; **deux occurrences du même sont un sujet**. On les compte plutôt que de les oublier.
+
+| Test | Occurrences | Navigateur | Lecture |
+|---|---|---|---|
+| `blanc-buisson.spec.cjs:25` — « la home rend la section à la une » | **1** (18 août) | chromium | `toBeVisible` à 5 s sur `.une-semaine-carte`, qui n'existe pas tant que Supabase n'a pas répondu. Fragilité intrinsèque du test. |
+| `blanc-buisson.spec.cjs:88` — « Escape ferme la vitrine » | **1** (19 août) | mobile-safari | Sur le chemin du correctif de sortie. Cause plausible : le délai de `navigate(-(delta+1))` sur WebKit mobile. |
+
+**Si l'un se répète au prochain `main`, le traiter** — ce serait la deuxième fois sur le même geste, pas un hasard.
+
+
 ### Dette DONNÉES / MÉTIER (distincte de la dette code)
 
 Ces deux points ne sont pas des défauts de code : le mécanisme est juste, c'est la **donnée** qui ne l'exerce pas. Découverts en mesurant l'étape 3 de la refonte Prop 3 (17 août 2026).
 
-- **[Données/Admin] Le champ `urgence` est en TEXTE LIBRE, alors qu'il est typé en union** : `src/types/Chateau.js:22` le déclare `"J-7"|"J-10"|"J-15"`, mais `AdminChateauEdition.jsx:544` l'expose via un `<Champ label="Urgence">` sans contrainte. Valeurs **réellement en base** au 17 août 2026 :
+- **[Données/Admin] ⚠ VALEURS À VÉRIFIER EN BASE — le champ `urgence` est en TEXTE LIBRE, alors qu'il est typé en union** : `src/types/Chateau.js:22` le déclare `"J-7"|"J-10"|"J-15"`, mais `AdminChateauEdition.jsx:544` l'expose via un `<Champ label="Urgence">` sans contrainte. Valeurs relevées en base **le 17 août 2026** — photographie datée, non revérifiée depuis (la base évolue ; ne pas s'y fier sans nouvelle mesure) :
 
   | slug | `urgence` |
   |---|---|
@@ -631,11 +694,7 @@ Ces deux points ne sont pas des défauts de code : le mécanisme est juste, c'es
 
 - **[Données/Contenu] Un SEUL château porte une offre Module B visible** : au 17 août 2026, `offres` ne contient **qu'une** ligne visible (Briottières, Chambre Verte). Le calendrier n'a donc qu'une source à refléter, et la grille n'affiche qu'une carte. Non bloquant — le mécanisme est correct et se peuplera tout seul — mais **la démo Dernières Clés restera pauvre** tant que d'autres offres ne sont pas saisies. Sujet contenu, à coordonner avec Dimitri (stratégie) : cf. aussi la dette du générateur de seed (`buildOffresSQL()` absent, Sprint S2).
 
-- **[Phase 4.4] Vidéo Le Blanc Buisson YouTube → HTML5 natif** : (a) −3 critical a11y absorbés au baseline ; (b) +1 erreur "Permissions policy violation: compute-pressure" en local Chromium (Phase 1.x C2 absorbée par baseline `console-errors.erreurs.max=2`, à resserrer post-migration). iframe YouTube `JQ9m51Bl900` actuelle non a11y-compliante. Migration vers vidéo HTML5 native dans `/public/` retire ces faux positifs et donne le contrôle complet sur le poster, l'autoplay et la coupure mobile. **Bloqueur business** : récupérer auprès de Maïté & Éric de la Fresnaye le master vidéo source haute qualité + cession de droits écrite pour usage LCC commercial. **Périmètre tech post-réception** : 4 composants à migrer (VitrineChateau, ChateauModal, VitrineDernieresCle, VitrineClub) + 2 fichiers CSS (vitrine-chateau.css, chateau-page.css). Sera triviale après Phase 4.2 ChateauCarte mutualisé. **Reset baseline post-migration** : Sprint S1 Phase 5 a passé `qa-baseline.json:seuils.a11y-axe.violationsCritical.max` de 3 à 10 pour absorber 5 occurrences cross-browser du faux positif YouTube. Après migration HTML5 + suppression de `videoBackground: 'JQ9m51Bl900'` du legacy `src/data/chateaux.js` id 8, les 5 critical button-name disparaissent automatiquement → reset `max` à 0 (et `actuel` à 0).
-
-- **[Sprint S2 ou S5] Faux positif a11y `compute-pressure` désormais émis 24/7** : depuis la branche `fix/vitrine-night-mode-polish` (12 mai 2026), l'iframe YouTube `JQ9m51Bl900` du hero de Le Blanc Buisson joue 24/7 (avant : jour seulement, condition `!heure.isNight` retirée). En conséquence, l'erreur Chromium « Permissions policy violation: compute-pressure » et les 5 critical `button-name` cross-browser de l'iframe sont émis quelle que soit l'heure (avant : uniquement de jour). Pas bloquant CI — la baseline absorbe déjà (`qa-baseline.json:a11y-axe.violationsCritical.max=10`, on en a 5 max ; `console-errors.erreurs.max=2`). À résoudre en même temps que la migration HTML5 natif (cf. dette `[Phase 4.4] Vidéo Le Blanc Buisson`) et/ou le refactor `a11y-axe.cjs` avec `axe exclude: 'iframe[src*="youtube.com"]'` (cf. dette `[Sprint S2 ou S5] Refactor agent a11y-axe.cjs`). Identifié 12 mai 2026.
-
-- **[Phase 4.5] `offres.css` à creuser** : épargné en Chantier 1.2 par prudence (importé par `BandeauOffres` vivant). À vérifier si `BandeauOffres` utilise réellement les classes de `offres.css` ou si l'import est lui-même mort. Si mort : suppression possible (~593 lignes).
+- **[Phase 4.4] Vidéo Le Blanc Buisson YouTube → HTML5 natif** : (a) −3 critical a11y absorbés au baseline ; (b) +1 erreur "Permissions policy violation: compute-pressure" en local Chromium (Phase 1.x C2 absorbée par baseline `console-errors.erreurs.max=2`, à resserrer post-migration). iframe YouTube `JQ9m51Bl900` actuelle non a11y-compliante. Migration vers vidéo HTML5 native dans `/public/` retire ces faux positifs et donne le contrôle complet sur le poster, l'autoplay et la coupure mobile. **Bloqueur business** : récupérer auprès de Maïté & Éric de la Fresnaye le master vidéo source haute qualité + cession de droits écrite pour usage LCC commercial. **Périmètre tech post-réception** : ⚠ à ré-établir. Le périmètre écrit ici (« 4 composants dont `ChateauModal` ») est **faux** — `ChateauModal` n'existe plus. Au 19 août 2026 il ne reste **qu'une** occurrence : `VitrineChateau.jsx:402`. Sera triviale après Phase 4.2 ChateauCarte mutualisé. **Reset baseline post-migration** : Sprint S1 Phase 5 a passé `qa-baseline.json:seuils.a11y-axe.violationsCritical.max` de 3 à 10 pour absorber 5 occurrences cross-browser du faux positif YouTube. Après migration HTML5 + suppression de `videoBackground: 'JQ9m51Bl900'` du legacy `src/data/chateaux.js` id 8, les 5 critical button-name disparaissent automatiquement → reset `max` à 0 (et `actuel` à 0).
 
 - **[Phase 6.x] Sticky barre N1 (`.vc4-onglets-n1-wrap`) décolle au scroll** : le wrapper `ongletsN1Ref` (`VitrineChateau.jsx`, commit `79d6a36`, cible `scrollIntoView` du parcours dispo) est trop court pour le `position:sticky` — la barre d'onglets N1 se décolle dès qu'on scrolle au-delà. Fix = relocaliser le ref (forwardRef sur `OngletsNiveau1`) sans casser le scroll dispo. Test 11 de `s2-alpha-1-5-onglets-vitrine.spec.cjs` skippé en attendant (corps conservé pour réactivation). Pass polish Phase 6.x.
 
@@ -652,8 +711,6 @@ Ces deux points ne sont pas des défauts de code : le mécanisme est juste, c'es
   À remplacer par photos uniques par château validées par Tanguy lors du pass éditorial Phase 6.x.
 
 - **[Phase 6.x] Pass éditorial Tanguy — sémantique images Pierrefonds** : Pierrefonds (forteresse arthurienne médiévale néo-gothique) reçoit en Sprint S1 Phase 5 deux URLs Unsplash au caractère plus Renaissance/classique (`photo-1566073771259-6a8506099945` + `photo-1520250497591-112f2f40a3f4`) au lieu de photos médiévales authentiques. À remplacer au pass éditorial Tanguy.
-
-- **[Sprint S2 ou S5] Refactor agent `a11y-axe.cjs` — exclure iframes tiers** : plutôt que relax baseline (Option A choisie Sprint S1 Phase 5, `violationsCritical.max=10`), implémenter Option B propre : configurer axe avec `exclude: 'iframe[src*="youtube.com"]'` dans `scripts/agents/a11y-axe.cjs`. Plus chirurgical, sémantique correcte (axe ne descend plus dans les iframes tiers). Permet de remettre `violationsCritical.max` à 0 même avant la migration HTML5 Phase 4.4. ~30 min.
 
 - **[Sprint S2 ou S5] Audit exhaustif violations a11y "serious"** : 30 violations a11y "serious" actuellement absorbées par baseline (`max=30 actuel=30`, tangent). Distribution probable : `color-contrast` (micro-textes or-sur-crème, eyebrows opacity 0.55, Cormorant italic gris clair) + `aria-prohibited-attr` iframe YouTube. Audit dédié à programmer pour identifier et corriger ou tracer chacune. Pas bloquant CI mais hygiène. ~2-3 h audit + ~5-10 h fix CSS tokens Tanguy.
 
