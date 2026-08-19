@@ -26,6 +26,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { cheminAuth, nextCourant } from "../../utils/cheminAuth";
 import { useAuth } from "../../contexts/AuthContext";
 // Whitelist anti open-redirect — vivait ici, extraite en source unique le jour
 // où /connexion a eu besoin de la même garde (règles inchangées).
@@ -102,7 +103,7 @@ export default function AuthCallback() {
           <button
             type="button"
             className="cnx-btn"
-            onClick={() => navigate("/connexion", { replace: true })}
+            onClick={() => navigate(cheminAuth("/connexion", nextCourant(window.location.search)), { replace: true })}
           >
             Retour à la connexion
           </button>

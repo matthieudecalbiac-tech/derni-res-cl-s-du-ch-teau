@@ -33,7 +33,8 @@
 // ═══════════════════════════════════════════════════════════════════════════
 
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, useLocation, Link } from "react-router-dom";
+import { cheminAuth, nextCourant, NEXT_CLUB } from "../../utils/cheminAuth";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../contexts/AuthContext";
 import { isPathInterneValide } from "../../utils/pathInterne";
@@ -54,6 +55,7 @@ export default function Connexion() {
   } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   // Mode d'ouverture : ?mode=magic-link, sinon password (cf. en-tête).
   const [mode, setMode] = useState(() =>
@@ -298,7 +300,9 @@ export default function Connexion() {
 
             <p className="cnx-no-account">
               Pas encore de compte ?{" "}
-              <Link to="/inscription">Rejoindre le Club</Link>
+              {/* PROPAGE la destination ; a defaut, « Rejoindre le Club » mene
+                  au Club. Changer d'avis ne doit pas la coûter. */}
+              <Link to={cheminAuth("/inscription", nextCourant(location.search) || NEXT_CLUB)}>Rejoindre le Club</Link>
             </p>
 
             <div className="cnx-separator">

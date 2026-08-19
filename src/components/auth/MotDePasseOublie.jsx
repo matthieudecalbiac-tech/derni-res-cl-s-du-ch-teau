@@ -13,13 +13,15 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { cheminAuth, nextCourant } from "../../utils/cheminAuth";
 import "../../styles/mot-de-passe-oublie.css";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function MotDePasseOublie() {
+  const location = useLocation();
   const { user, profile, loading, resetPasswordForEmail } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -110,7 +112,8 @@ export default function MotDePasseOublie() {
           </form>
         )}
 
-        <Link to="/connexion" className="mdpo-back-link">
+        {/* PROPAGE la destination : on revient a la connexion, pas a vide. */}
+        <Link to={cheminAuth("/connexion", nextCourant(location.search))} className="mdpo-back-link">
           ← Retour à la connexion
         </Link>
 

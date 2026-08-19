@@ -23,12 +23,14 @@
 // ═══════════════════════════════════════════════════════════════
 
 import { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, useLocation } from "react-router-dom";
+import { cheminAuth, nextCourant } from "../../utils/cheminAuth";
 import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../contexts/AuthContext";
 import "../../styles/completer-profil.css";
 
 export default function CompleterProfil() {
+  const location = useLocation();
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -42,9 +44,9 @@ export default function CompleterProfil() {
 
   if (loading) return null;
 
-  // Pas de session → vers /connexion
+  // Pas de session → vers /connexion, en emportant la destination
   if (!user || !profile) {
-    return <Navigate to="/connexion" replace />;
+    return <Navigate to={cheminAuth("/connexion", nextCourant(location.search))} replace />;
   }
 
   // Profil déjà complet → vers home
