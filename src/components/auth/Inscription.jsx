@@ -15,15 +15,32 @@
 //        sauter la page au formulaire, sautant l'argumentaire).
 // ═══════════════════════════════════════════════════════════════════
 
-import { useState } from "react";
-import { Link, Navigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
+import { cheminAuth, nextCourant } from "../../utils/cheminAuth";
 import { IconOeil, IconOeilBarre } from "./IconesOeil";
 import "../../styles/inscription.css";
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function Inscription() {
+  const location = useLocation();
+  // La destination portee par l'URL, propagee a chaque lien vers /connexion :
+  // changer d'avis ne doit pas coûter la destination.
+  const next = nextCourant(location.search);
+
+  // ⚠ DEPOT OBLIGATOIRE, sinon propager le next jusqu'ici ne servirait a rien.
+  // Le tunnel d'inscription passe par un email de confirmation, /auth/callback
+  // puis /completer-profil — et c'est CE DERNIER qui lit `lcc_auth_next` pour
+  // decider ou atterrir. L'URL, elle, ne survit pas au detour par la boite mail.
+  // `localStorage` (et non `sessionStorage`) parce qu'il doit survivre a
+  // l'ouverture d'un NOUVEL ONGLET depuis l'email — meme raison qu'en
+  // Connexion.jsx. Ecriture conditionnelle : sans next valide on ne touche a
+  // rien, et les parcours existants gardent la valeur qu'ils avaient posee.
+  useEffect(() => {
+    if (next) localStorage.setItem("lcc_auth_next", next);
+  }, [next]);
   const { user, profile, loading, signUp } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -138,7 +155,7 @@ export default function Inscription() {
                 <p className="ins-success-msg">{successMessage}</p>
                 <p className="ins-success-hint">
                   Vous avez déjà un compte ?{" "}
-                  <Link to="/connexion">Se connecter</Link>
+                  <Link to={cheminAuth("/connexion", next)}>Se connecter</Link>
                 </p>
               </div>
             ) : (
@@ -237,7 +254,7 @@ export default function Inscription() {
                 )}
 
                 <p className="ins-already-member">
-                  Déjà membre ? <Link to="/connexion">Se connecter</Link>
+                  Déjà membre ? <Link to={cheminAuth("/connexion", next)}>Se connecter</Link>
                 </p>
               </form>
             )}

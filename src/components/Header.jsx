@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { cheminAuth, NEXT_CLUB } from "../utils/cheminAuth";
 import { useAuth } from "../contexts/AuthContext";
 import "../styles/header.css";
 
@@ -77,7 +78,10 @@ export default function Header({
     else if (action === "dernieres") onOuvrirDernieresClefs?.();
     else if (action === "apropos") onOuvrirAPropos?.();
     else if (action === "proprietaires") onOuvrirProprietaires?.();
-    else if (action === "club") navigate(user ? "/club" : "/inscription");
+    // Un visiteur qui vient au Club A DEJA UN COMPTE le plus souvent : on le
+    // mene a la CONNEXION, et non a l'inscription ou il devait trouver
+    // lui-meme « Deja membre ? ». Et l'on dit ou revenir ensuite.
+    else if (action === "club") navigate(user ? "/club" : cheminAuth("/connexion", NEXT_CLUB));
     // 2. Fermer le menu APRES le fondu d'entree de la destination (~550ms),
     //    pour qu'il serve de backdrop opaque pendant le cross-fade (jamais la home).
     setTimeout(() => setMenuOuvert(false), 550);
@@ -103,10 +107,10 @@ export default function Header({
               </button>
             ) : (
               <>
-                <button className="header-connexion" onClick={() => { fermer(); navigate("/connexion"); }}>
+                <button className="header-connexion" onClick={() => { fermer(); navigate(cheminAuth("/connexion", NEXT_CLUB)); }}>
                   Connexion
                 </button>
-                <button className="header-cta" onClick={() => { fermer(); navigate("/inscription"); }}>
+                <button className="header-cta" onClick={() => { fermer(); navigate(cheminAuth("/inscription", NEXT_CLUB)); }}>
                   Rejoindre le Club
                 </button>
               </>
@@ -195,13 +199,13 @@ export default function Header({
               <>
                 <button
                   className="hm-acces-btn"
-                  onClick={() => { fermer(); navigate("/connexion"); }}
+                  onClick={() => { fermer(); navigate(cheminAuth("/connexion", NEXT_CLUB)); }}
                 >
                   Connexion
                 </button>
                 <button
                   className="hm-acces-btn hm-acces-btn--cta"
-                  onClick={() => { fermer(); navigate("/inscription"); }}
+                  onClick={() => { fermer(); navigate(cheminAuth("/inscription", NEXT_CLUB)); }}
                 >
                   Rejoindre le Club
                 </button>

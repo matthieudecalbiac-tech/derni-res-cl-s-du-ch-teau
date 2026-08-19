@@ -1,6 +1,7 @@
 import { useCompteurs } from "../hooks/useCompteurs";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { useNavigate } from "react-router-dom";
+import { cheminAuth, NEXT_CLUB } from "../utils/cheminAuth";
 import "../styles/bandeau-offres.css";
 
 export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
@@ -41,7 +42,7 @@ export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
   const gererClic = (action) => {
     if (action === "dernieres") onOuvrirDernieres?.();
     else if (action === "vitrines") onOuvrirVitrines?.();
-    else if (action === "club") navigate("/inscription");
+    else if (action === "club") navigate(cheminAuth("/inscription", NEXT_CLUB));
   };
 
   return (

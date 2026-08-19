@@ -117,7 +117,13 @@ test.describe('Auth Phase B · email + mot de passe (UI/routing)', () => {
     await expect(cta).toBeVisible();
     await cta.click();
 
-    await expect(page).toHaveURL(/\/inscription$/, { timeout: 5000 });
+    // ⚠ ANCRAGE `$` RELACHE (19 août 2026). Ce test vise la DESTINATION —
+    // « navigue vers /inscription », c'est son titre — et non l'absence de query
+    // param. Le `$` interdisait accessoirement toute annotation de l'URL ; le
+    // `?next=/club` que le Header pose désormais est légitime et documenté
+    // (utils/cheminAuth.js). Le contrat n'est pas affaibli : la destination est
+    // toujours vérifiée, et l'assertion suivante sur le titre H1 non plus.
+    await expect(page).toHaveURL(/\/inscription/, { timeout: 5000 });
     // Vérifie qu'on est bien sur la landing (et pas juste l'URL changée)
     await expect(page.getByRole('heading', { level: 1, name: 'Le Club des Châtelains' })).toBeVisible();
   });
