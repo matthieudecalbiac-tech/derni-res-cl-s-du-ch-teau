@@ -666,21 +666,28 @@ Chaque ligne a été **vérifiée par lecture ou mesure**, pas déduite. Les ré
 - **Public non responsive** (aucune media query < 768 px) : `page-personnage.css`, `partenaires.css`, `espace-professionnel.css`, `completer-profil.css`, `mot-de-passe-oublie.css`, `reinitialiser-mot-de-passe.css`, `transition-porte.css`, `panneau-filtres.css`, `calendrier-plage.css`, `barre-laterale.css`.
 - **`playwright-e2e.cjs` perd le nom des tests flaky** : il ne consigne que le **compte** (`:56`), son tableau `details` ne se remplit qu'en cas d'erreur d'agent. Le nom vit dans le **log du run**, pas dans l'artefact — deux lignes suffiraient à l'y mettre.
 
-### Budget du job `qa-fast` — trop serré (19 août 2026)
+### ⚠ PRIORITÉ HAUTE — le job `qa-fast` se fait tuer par l'installation des navigateurs
 
-`qa.yml:59` fixe `timeout-minutes: 15` sur le job de PR. **Une étape à elle seule en consomme jusqu'à la moitié** : `npx playwright install chromium --with-deps` télécharge depuis un CDN externe, et sa durée est erratique.
+**Récurrent : 2 annulations sur 3 runs** (19 août 2026). Ce n'est plus une observation, c'est le prochain correctif d'infrastructure à faire.
 
-| run | durée de l'installation |
-|---|---|
-| 32242781000 | 41 s |
-| 32263237928 | 234 s |
-| 32237428375 | 358 s |
-| 32246392332 | **491 s** (8 min) |
-| 32272439650 | **> 14 min — job tué** |
+`qa.yml:59` fixe `timeout-minutes: 15` sur le job de PR. **Une seule étape en consomme jusqu'à la moitié** : `npx playwright install chromium --with-deps` télécharge depuis un CDN externe, et sa durée est erratique.
 
-Le run `32272439650` (PR #125) a été **annulé** au plafond, pendant cette étape. Conséquence à connaître pour le diagnostic : les étapes suivantes — serveur Vite, les quatre agents, vérification baseline — sont passées en `skipped`. **Aucun test n'a tourné, et le run n'a produit aucun artefact** (`total_count: 0`). Ce n'est donc ni un vert ni un rouge : il n'y a rien à lire, et relancer est l'action *diagnostiquée*, pas un réflexe.
+| run | PR | durée de l'installation |
+|---|---|---|
+| 32242781000 | | 41 s |
+| 32263237928 | #125 | 234 s |
+| 32237428375 | | 358 s |
+| 32246392332 | | **491 s** (8 min) |
+| 32272439650 | #125 | **> 14 min — job tué** |
+| 32278755038 | #126 | **> 14 min — job tué** |
 
-Deux pistes, non tranchées : mettre les navigateurs Playwright en cache entre les runs (`actions/cache` sur `~/.cache/ms-playwright`), ou porter le plafond à 25 min. Le job `qa-full` de `main` dispose de 60 min (`qa.yml:142`) et n'est pas concerné.
+**Le correctif : mettre les navigateurs en cache** — `actions/cache` sur `~/.cache/ms-playwright`, clé sur la version de Playwright du lockfile. C'est la seule piste qui retire la cause ; porter le plafond à 25 min ne ferait que déplacer le seuil devant un aléa sans borne connue.
+
+⚠ **Ce qui rend l'urgence réelle** : les deux runs tués portaient de la **documentation**, donc merger sans eux était sans risque. Le jour où un run de **code** tombe, on n'aura pas cette porte de sortie — il faudra choisir entre attendre une loterie et merger à l'aveugle. Corriger avant ce jour-là.
+
+Conséquence à connaître pour le diagnostic : quand le plafond tombe pendant la préparation, les étapes suivantes — serveur Vite, les quatre agents, vérification baseline — passent en `skipped`. **Aucun test ne tourne, et le run ne produit aucun artefact** (`total_count: 0`). Ce n'est donc ni un vert ni un rouge : il n'y a rien à lire, et relancer est l'action *diagnostiquée*, pas un réflexe.
+
+Le job `qa-full` de `main` dispose de 60 min (`qa.yml:142`) et n'est pas concerné.
 
 
 ### Flakes sous surveillance
