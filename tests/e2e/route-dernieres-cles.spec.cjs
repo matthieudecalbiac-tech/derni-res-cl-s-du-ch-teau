@@ -76,4 +76,23 @@ test.describe('Route /dernieres-cles · le menu mene au bon ecran', () => {
     await page.waitForURL(/\/dernieres-cles/, { timeout: 15000 });
     await expect(page.locator('.dk-topbar')).toBeVisible({ timeout: 15000 });
   });
+  test("le logo de l'ecran est un ANCRAGE : il mene a l'accueil, pas en arriere", async ({ page }) => {
+    // Le logo porte `aria-label="Accueil"`. En mode calque, `onClose` suffisait :
+    // fermer REVENAIT a l'accueil, puisqu'il n'y avait rien d'autre dessous. En
+    // mode route il faut le dire explicitement — sinon le bouton libelle
+    // « Accueil » ramene aux resultats. Regle du chantier retour : le logo est
+    // un ancrage, le « ← Retour » revient d'ou l'on vient.
+    await page.goto('/resultats?region=Normandie&invites=2');
+    await page.waitForSelector('.pr-carte--cliquable', { timeout: 15000 });
+
+    await page.locator('.header-burger').click();
+    const entree = page.locator('.hm-item-titre', { hasText: /Dernières Clés/i }).first();
+    await expect(entree).toBeVisible({ timeout: 10000 });
+    await entree.click();
+    await page.waitForURL(/\/dernieres-cles/, { timeout: 15000 });
+
+    await page.locator('.dk-topbar-logo').click();
+    await page.waitForURL((u) => new URL(u).pathname === '/', { timeout: 15000 });
+    expect(new URL(page.url()).pathname).toBe('/');
+  });
 });

@@ -18,9 +18,12 @@ export default function DernieresCles({ onClose }) {
   const [visible, setVisible] = useState(false);
 
   // Sprint S2-α.1.5 FIX D : ouvrir la nouvelle vitrine Module B via la route
-  // canonique avec ?onglet=dernieresCles. onClose() en amont pour éviter
-  // l'overlay fantôme au retour /. TransitionPorte animation perdue sur ce path
-  // (trade-off SEO+cohérence URL).
+  // canonique avec ?onglet=dernieresCles. TransitionPorte animation perdue sur
+  // ce path (trade-off SEO+cohérence URL).
+  //
+  // ⚠ Cette note disait « onClose() en amont pour éviter l'overlay fantôme au
+  // retour / ». C'était vrai du mode CALQUE, et faux depuis la conversion en
+  // route — cf. le commentaire de `ouvrirChateauModuleB` ci-dessous.
   //
   // Etape 2 refonte Prop 3 : la branche legacy est retiree. `transitionChateau`
   // et `chateauSelectionne` n'etaient plus jamais renseignes depuis ce FIX D —
@@ -29,7 +32,14 @@ export default function DernieresCles({ onClose }) {
   // VitrineDernieresCle.jsx et sa feuille sont supprimes ; TransitionPorte
   // reste, elle sert toujours a App.jsx et VitrinePermanente.
   const ouvrirChateauModuleB = (c) => {
-    onClose?.();
+    // ⚠ PAS d'`onClose()` ICI. Il y en avait un, et il datait du mode calque :
+    // il fallait alors demonter l'overlay a la main avant de naviguer, sinon il
+    // restait monte sur l'accueil au retour. En mode ROUTE, la navigation
+    // demonte l'ecran d'elle-meme — l'appel devient non seulement redondant
+    // mais NUISIBLE : `onClose` porte desormais la regle de retour, donc il
+    // declenchait un `navigate(-1)` qui court-circuitait la ligne suivante. On
+    // atterrissait sur l'accueil au lieu de la vitrine. Attrape par le Test 13
+    // de s2-alpha-1-5-onglets-vitrine.
     navigate(`/chateau/${c.slug}?onglet=dernieresCles`);
   };
   const [dateArrivee, setDateArrivee] = useState(null);
@@ -149,7 +159,13 @@ export default function DernieresCles({ onClose }) {
   return (
     <div className={"dk-overlay " + (visible ? "dk-overlay--visible" : "")}>
       <header className="dk-topbar">
-        <button className="dk-topbar-logo" onClick={onClose} aria-label="Accueil">
+        {/* ⚠ LE LOGO EST UN ANCRAGE, PAS UN RETOUR. Il appelait `onClose`, ce
+            qui suffisait en mode calque : fermer l'overlay REVENAIT a l'accueil,
+            puisqu'il n'y avait rien d'autre dessous. En mode route, `onClose`
+            porte la regle de retour — depuis /resultats, ce bouton libelle
+            « Accueil » ramenait aux resultats. Le logo va TOUJOURS a l'accueil ;
+            c'est le « ← Retour » qui revient d'ou l'on vient. */}
+        <button className="dk-topbar-logo" onClick={() => navigate("/")} aria-label="Accueil">
           <img src="/L1.png" alt="" aria-hidden="true" className="dk-topbar-embleme" />
           <img src="/L2.png" alt="Les Clés du Château" className="dk-topbar-wordmark" />
         </button>
