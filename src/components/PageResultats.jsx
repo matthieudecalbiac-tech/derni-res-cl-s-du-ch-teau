@@ -117,7 +117,7 @@ export default function PageResultats() {
         onOuvrirAPropos={versHome}
         onOuvrirVitrines={versHome}
         onOuvrirProprietaires={versHome}
-        onOuvrirDernieresClefs={versHome}
+        onOuvrirDernieresClefs={() => navigate("/dernieres-cles")}
       />
       {/* `/resultats` n'a pas de topbar : le retour a besoin d'une ligne a
           lui, en haut a gauche. Il remplace le bouton qui vivait en PIED de

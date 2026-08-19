@@ -1,0 +1,37 @@
+/* ============================================================
+   Le fond des ECRANS DE CATALOGUE servis par une route.
+
+   POURQUOI CE FICHIER EXISTE. Le `body` du site est navy
+   (`--bleu-nuit: #0d1628`, global.css:75). On ne le voit jamais parce qu'un
+   ecran le couvre toujours — l'accueil est en creme.
+
+   En CALQUE, ces ecrans se montaient PAR-DESSUS l'accueil : leur fondu
+   d'entree (`.dk-overlay` passe de `opacity: 0` a 1 en 300 ms) jouait donc sur
+   du creme. En ROUTE, l'accueil se DEMONTE au changement d'URL : entre son
+   depart et l'opacite 1 de l'ecran suivant, il ne restait plus que le body.
+
+   Mesure du 19 aout, ouverture depuis le menu :
+
+     +483 ms   body rgb(13,22,40)   opacite du calque 0       navy plein ecran
+     +637 ms   body rgb(13,22,40)   opacite du calque 0.58
+     +839 ms   body rgb(13,22,40)   opacite du calque 1       creme enfin plein
+
+   Environ 350 ms de navy a nu — le delai de 60 ms plus le fondu de 300. Ce
+   n'etait pas un chargement de donnees : une carte etait deja rendue a +637 ms.
+   Le fondu qui adoucissait l'arrivee est devenu ce qui exposait le vide.
+
+   ⚠ LE NAVY RESTE LE CHOIX DE CHARTE DES VITRINES (`body.vitrine-open`,
+   global.css:436). On ne touche pas au body : on pose un fond OPAQUE sous le
+   seul conteneur des ecrans de catalogue.
+
+   REUTILISABLE : cette classe est prevue pour les quatre routes catalogue —
+   /dernieres-cles aujourd'hui, /vitrines, /proprietaires et /a-propos quand
+   elles seront converties. Le calque de chaque ecran garde son fondu ; il joue
+   desormais sur du creme.
+   ============================================================ */
+
+.route-catalogue {
+  position: fixed;
+  inset: 0;
+  background: var(--lcc-creme);
+}
