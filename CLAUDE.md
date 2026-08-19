@@ -628,6 +628,26 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - **[Phase 4.2] `ChateauCarte` mutualisé** : implémentations dupliquées détectées dans `VitrinePermanente`, `DernieresCles`, `ClubMembres`, `HeureAuxDemeures`, `UneDeLaSemaine`. Fusion en un composant unique avec variantes (`eyebrow`, `editorial`, `last-minute`, `vitrine`, `club`).
 
+### ⚠ À VALIDER AVEC UN COMPTE DE TEST — le tunnel d'inscription
+
+Le retour post-authentification a été réparé le 19 août 2026 (`utils/cheminAuth.js`) : onze points d'entrée vers `/connexion` et `/inscription` posent désormais la destination, et les liens inter-auth la propagent. **Le parcours de CONNEXION est validé de bout en bout** — clic « Club Châtelains » → connexion → `/club` directement, vérifié en production par Matthieu.
+
+**Le parcours d'INSCRIPTION ne l'est pas.** Il enchaîne :
+
+```
+/inscription?next=/club   dépose lcc_auth_next      ← câblé le 19 août, jamais vu tourner
+  → email de confirmation
+  → /auth/callback?type=signup   relit lcc_auth_next en source primaire
+  → /completer-profil            le consomme et atterrit
+```
+
+Le dépôt du `next` par `/inscription` a été ajouté **en raisonnant depuis le code**, pas en observant le parcours : créer un compte demande une adresse réelle et un email de confirmation, ce que ni le filet E2E ni une sonde ne peuvent faire (le spec d'auth s'interdit de mocker le client Supabase).
+
+**Ce qu'il faudrait vérifier avec un compte de test** : qu'après « Rejoindre le Club » → email → complétion du profil, on atterrisse bien sur `/club` et non sur l'accueil. Et que le `next` survive à l'ouverture d'un **nouvel onglet** depuis la boîte mail — c'est la raison du choix de `localStorage` plutôt que `sessionStorage`, mais elle n'a été vérifiée sur aucun des deux parcours.
+
+Non bloquant : le défaut signalé par Matthieu était la connexion, et il est réglé.
+
+
 ### Dette relevée le 19 août 2026 (audit complet + chantiers de la session)
 
 Chaque ligne a été **vérifiée par lecture ou mesure**, pas déduite. Les références sont datées : la base et le code évoluent, une dette non revérifiée est une hypothèse.
