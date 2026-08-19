@@ -59,17 +59,32 @@ import AuthCallback from "./components/auth/AuthCallback";
 
 
 // Ecran des Dernieres Cles servi par la route `/dernieres-cles`.
-// `DernieresCles` ne recoit que { onClose } : rien de l'etat d'`App` a demeler.
-// Fermer emprunte la regle commune — on revient d'ou l'on vient, et seulement a
-// l'accueil quand il n'y a pas d'ou revenir.
+//
+// C'EST ICI QUE LA NAVIGATION SE DECIDE, et nulle part ailleurs. `DernieresCles`
+// signale trois intentions distinctes — quitter, ouvrir une demeure, rentrer —
+// et ce conteneur leur donne trois destinations. Le composant, lui, ne connait
+// aucune URL.
+//
+// La distinction n'est pas theorique : quand l'ecran naviguait lui-meme, le clic
+// sur une carte fermait PUIS naviguait, et les deux navigations se couraient
+// apres — on atterrissait sur l'accueil au lieu de la vitrine.
 function RouteDernieresCles() {
   const revenir = useRetour();
+  const navigate = useNavigate();
   // `.route-catalogue` pose un fond creme OPAQUE sous l'ecran. Sans lui, le
   // fondu d'entree du calque joue sur le body navy — 350 ms de navy a nu, que
   // le mode calque masquait derriere l'accueil. Cf. route-catalogue.css.
   return (
     <div className="route-catalogue">
-      <DernieresCles onClose={revenir} />
+      <DernieresCles
+        /* quitter : on revient d'ou l'on vient (Echap) */
+        onClose={revenir}
+        /* ouvrir une demeure : la route DEMONTE l'ecran d'elle-meme, donc rien
+           a fermer en amont — c'est tout le piege qu'on retire ici. */
+        onSelectChateau={(c) => navigate(`/chateau/${c.slug}?onglet=dernieresCles`)}
+        /* le logo est un ancrage : toujours l'accueil, jamais un retour */
+        onAccueil={() => navigate("/")}
+      />
     </div>
   );
 }
