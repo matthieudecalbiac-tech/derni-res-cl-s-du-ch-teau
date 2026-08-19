@@ -657,6 +657,7 @@ Chaque ligne a été **vérifiée par lecture ou mesure**, pas déduite. Les ré
 - **3 feuilles CSS entièrement orphelines — 1 802 lignes** : `editorial.css` (698), `offres.css` (593), `modal.css` (511). ⚠ `offres.css` avait été épargnée en Chantier 1.2 par une **collision de sous-chaîne** : `BandeauOffres` importe `bandeau-offres.css`, qui contient `offres.css`.
 - **~200 classes CSS sans trace dans le JSX**, dominées par `espace-membre.css` (83, feuille pourtant importée par `VitrinePermanente`) et `partenaires.css` (37). ⚠ **Chiffre à dégonfler d'environ 20** : les classes concaténées (`"che-statut--" + d.status`, `"adm-badge--" + statut`) échappent au détecteur, de même que `googleapis` (un `@import`) et les `leaflet-*` posées par la librairie.
 - **3 composants orphelins** : `CitationPont.jsx` (13 l., + `citation-pont.css` 51 l.), `placeholders/AdminDashboardPlaceholder.jsx` (7 l.), `placeholders/ClientAccountPlaceholder.jsx` (15 l.).
+- **`body.vitrine-open` — 3 règles CSS mortes** (`global.css:434-437`). La classe n'est **posée par aucun code JavaScript** (vérifié le 19 août 2026) : les vitrines ne reçoivent donc jamais ce navy, elles posent leur propre fond. ⚠ La dette **[Phase 4.4] Vidéo Le Blanc Buisson** s'y réfère — la corriger implique de relire cette référence.
 
 **Santé générale**
 

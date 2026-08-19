@@ -71,8 +71,26 @@ html {
 body {
   font-family: var(--font-ui);
   font-weight: 300;
-  color: var(--blanc-casse);
-  background-color: var(--bleu-nuit);
+  /* ⚠ LE FOND PAR DEFAUT DU SITE EST CREME, PAS NAVY (19 aout 2026).
+     Ces deux lignes portaient `--blanc-casse` sur `--bleu-nuit` : le theme
+     SOMBRE d'origine, pose au premier commit (6638860, mars 2026). La bascule
+     creme est arrivee trois mois plus tard (bb9005e, 26 juin) et le body n'a
+     jamais suivi. Ce n'etait donc pas un choix, c'etait un vestige.
+
+     Il ne se voyait jamais — mesure : body peint en magenta, 9 ecrans publics x
+     2 largeurs x 5 points = 90 points, ZERO magenta. Sauf pendant un trou de
+     timing observe en production : ~150 ms de navy au centre a l'ouverture d'un
+     ecran de catalogue, filme par Matthieu, non reproductible en local.
+
+     La correction n'est pas de masquer ce trou mais de retirer sa condition :
+     si le fond par defaut est creme, le trou ne montre plus rien d'etranger.
+
+     La couleur suit le fond. Mesure prealable : `color` repeint en fuchsia, les
+     memes 18 combinaisons -> AUCUN texte n'herite de la couleur du body. Le
+     passage a `--bleu` (#1a2d5a, la teinte de texte des ecrans creme, 117
+     occurrences dans les feuilles) ne peut donc rendre aucun texte illisible. */
+  color: var(--bleu);
+  background-color: var(--lcc-creme);
   line-height: 1.7;
   /* ⚠ CACHE-MISERE, A REEVALUER. Cette ligne masque les debordements
      horizontaux sur Chrome desktop mais FUIT sur iOS Safari — c'est ce qui a

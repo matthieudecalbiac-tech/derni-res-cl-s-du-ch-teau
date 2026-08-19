@@ -7,6 +7,7 @@ import BarreRecherche from "./components/BarreRecherche";
 import ToggleCarteListe from "./components/ToggleCarteListe";
 import PastillesInspiration from "./components/PastillesInspiration";
 import "./styles/accueil.css";
+import "./styles/route-catalogue.css";
 import UneDeLaSemaine from "./components/UneDeLaSemaine";
 import HeureAuxDemeures from "./components/HeureAuxDemeures";
 import BanniereApp from "./components/BanniereApp";
@@ -16,6 +17,7 @@ import VitrineChateau from "./components/VitrineChateau";
 import APropos from "./components/APropos";
 import VitrinePermanente from "./components/VitrinePermanente";
 import DernieresCles from "./components/DernieresCles";
+import { useRetour } from "./components/BoutonRetour";
 import TransitionPorte from "./components/TransitionPorte";
 import PartenairesChateaux from "./components/PartenairesChateaux";
 
@@ -56,13 +58,43 @@ import AuthCallback from "./components/auth/AuthCallback";
 
 
 
+// Ecran des Dernieres Cles servi par la route `/dernieres-cles`.
+//
+// C'EST ICI QUE LA NAVIGATION SE DECIDE, et nulle part ailleurs. `DernieresCles`
+// signale trois intentions distinctes — quitter, ouvrir une demeure, rentrer —
+// et ce conteneur leur donne trois destinations. Le composant, lui, ne connait
+// aucune URL.
+//
+// La distinction n'est pas theorique : quand l'ecran naviguait lui-meme, le clic
+// sur une carte fermait PUIS naviguait, et les deux navigations se couraient
+// apres — on atterrissait sur l'accueil au lieu de la vitrine.
+function RouteDernieresCles() {
+  const revenir = useRetour();
+  const navigate = useNavigate();
+  // `.route-catalogue` pose un fond creme OPAQUE sous l'ecran. Sans lui, le
+  // fondu d'entree du calque joue sur le body navy — 350 ms de navy a nu, que
+  // le mode calque masquait derriere l'accueil. Cf. route-catalogue.css.
+  return (
+    <div className="route-catalogue">
+      <DernieresCles
+        /* quitter : on revient d'ou l'on vient (Echap) */
+        onClose={revenir}
+        /* ouvrir une demeure : la route DEMONTE l'ecran d'elle-meme, donc rien
+           a fermer en amont — c'est tout le piege qu'on retire ici. */
+        onSelectChateau={(c) => navigate(`/chateau/${c.slug}?onglet=dernieresCles`)}
+        /* le logo est un ancrage : toujours l'accueil, jamais un retour */
+        onAccueil={() => navigate("/")}
+      />
+    </div>
+  );
+}
+
 function App() {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [conciergerieOuvert, setConciergerieOuvert] = useState(false);
   const [aProposOuvert, setAProposOuvert] = useState(false);
   const [vitrinesOuvert, setVitrinesOuvert] = useState(false);
   const [proprietairesOuvert, setProprietairesOuvert] = useState(false);
-  const [dernieresOuvert, setDernieresOuvert] = useState(false);
   const [transitionChateau, setTransitionChateau] = useState(null);
   const navigate = useNavigate();
   const [transitionCarte, setTransitionCarte] = useState(null); // { chateau, url }
@@ -81,7 +113,7 @@ function App() {
         onOuvrirAPropos={() => setAProposOuvert(true)}
         onOuvrirVitrines={() => setVitrinesOuvert(true)}
         onOuvrirProprietaires={() => setProprietairesOuvert(true)}
-        onOuvrirDernieresClefs={() => setDernieresOuvert(true)}
+        onOuvrirDernieresClefs={() => navigate("/dernieres-cles")}
       />
       <main>
         {/* Accueil (DA) : grille 2 colonnes.
@@ -103,7 +135,7 @@ function App() {
           </div>
         </section>
         <BandeauOffres
-          onOuvrirDernieres={() => setDernieresOuvert(true)}
+          onOuvrirDernieres={() => navigate("/dernieres-cles")}
           onOuvrirVitrines={() => setVitrinesOuvert(true)}
         />
         <UneDeLaSemaine
@@ -115,7 +147,7 @@ function App() {
         />
         <HeureAuxDemeures
           onOuvrirChateau={ouvrirChateau}
-          onOuvrirDernieres={() => setDernieresOuvert(true)}
+          onOuvrirDernieres={() => navigate("/dernieres-cles")}
         />
         {/* Bandeau « Bientot l'application » : rendu en permanence, masque
             au-dessus du seuil par banniere-app.css. */}
@@ -128,9 +160,6 @@ function App() {
       )}
       {vitrinesOuvert && (
         <VitrinePermanente onClose={() => setVitrinesOuvert(false)} />
-      )}
-      {dernieresOuvert && (
-        <DernieresCles onClose={() => setDernieresOuvert(false)} />
       )}
       {(transitionChateau || chateauSelectionne) && (
         <VitrineChateau chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
@@ -212,6 +241,14 @@ function App() {
       <Route path="/personnage/:slug" element={<PagePersonnage />} />
       <Route path="/histoire" element={<PageHistoire />} />
       <Route path="/resultats" element={<PageResultats />} />
+      {/* Les Dernieres Cles ne sont plus un calque de l'accueil mais un ECRAN.
+          Depuis une route (`/resultats`), un calque d'`App` est inatteignable —
+          `<Routes>` est exclusif — et les boutons du Header y retombaient sur
+          l'accueil. Une URL leur donne une destination qui vaut partout.
+          Une SEULE voie : les trois sites d'ouverture naviguent, aucun ne monte
+          plus de calque. Deux chemins vers un meme ecran, c'est la dualite qui
+          avait produit le defaut. */}
+      <Route path="/dernieres-cles" element={<RouteDernieresCles />} />
       <Route path="*" element={homeEtOverlays} />
     </Routes>
   );

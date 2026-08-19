@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { useChateaux } from "../hooks/useChateaux";
 import { getSlugsAvecOffreDernieresCles } from "../services/offresService.js";
 import {
@@ -13,13 +12,32 @@ import { formaterPrix } from "../services/_mapping.js";
 import { formatDate } from "../utils/dates";
 import "../styles/dernieres-cles.css";
 
-export default function DernieresCles({ onClose }) {
-  const navigate = useNavigate();
+// CET ECRAN NE NAVIGUE PAS. Il signale ce que le visiteur a fait ; c'est son
+// conteneur qui decide ou cela mene.
+//
+// POURQUOI CETTE REGLE EXISTE. Le composant portait `useNavigate` et decidait
+// lui-meme de ses destinations. Tant qu'il n'existait qu'en calque, cela
+// tenait : « fermer » et « aller a l'accueil » etaient le meme geste, puisqu'il
+// n'y avait rien sous l'overlay. La conversion en route a separe ces intentions,
+// et un unique `onClose` s'est mis a en porter trois — il a mordu deux fois :
+//
+//   le clic sur une carte  fermait PUIS naviguait : deux navigations en course,
+//                          on atterrissait sur l'accueil (Test 13 de
+//                          s2-alpha-1-5-onglets-vitrine l'a attrape)
+//   le logo « Accueil »    appelait `onClose`, donc revenait aux resultats
+//
+// Ajouter une prop de garde aurait corrige les symptomes en laissant la cause :
+// un composant de PRESENTATION qui tranche la navigation. C'etait la deuxieme
+// fois apres VitrineChateau ; il y aurait eu une troisieme.
+//
+// Les evenements remontent donc au conteneur, et `onClose` retrouve UN SEUL
+// sens : « le visiteur veut quitter cet ecran ». Comment — demonter un calque
+// ou revenir en arriere — ne regarde que le parent.
+export default function DernieresCles({ onClose, onSelectChateau, onAccueil }) {
   const [visible, setVisible] = useState(false);
 
-  // Sprint S2-α.1.5 FIX D : ouvrir la nouvelle vitrine Module B via la route
-  // canonique avec ?onglet=dernieresCles. onClose() en amont pour éviter
-  // l'overlay fantôme au retour /. TransitionPorte animation perdue sur ce path
+  // Sprint S2-α.1.5 FIX D : la vitrine Module B s'ouvre par la route canonique
+  // avec ?onglet=dernieresCles. TransitionPorte animation perdue sur ce path
   // (trade-off SEO+cohérence URL).
   //
   // Etape 2 refonte Prop 3 : la branche legacy est retiree. `transitionChateau`
@@ -28,10 +46,6 @@ export default function DernieresCles({ onClose }) {
   // et VitrineDernieresCle etaient montes sur une condition toujours fausse.
   // VitrineDernieresCle.jsx et sa feuille sont supprimes ; TransitionPorte
   // reste, elle sert toujours a App.jsx et VitrinePermanente.
-  const ouvrirChateauModuleB = (c) => {
-    onClose?.();
-    navigate(`/chateau/${c.slug}?onglet=dernieresCles`);
-  };
   const [dateArrivee, setDateArrivee] = useState(null);
   const [dateDepart, setDateDepart] = useState(null);
   const [etape, setEtape] = useState("arrivee");
@@ -149,7 +163,14 @@ export default function DernieresCles({ onClose }) {
   return (
     <div className={"dk-overlay " + (visible ? "dk-overlay--visible" : "")}>
       <header className="dk-topbar">
-        <button className="dk-topbar-logo" onClick={onClose} aria-label="Accueil">
+        {/* ⚠ LE LOGO EST UN ANCRAGE, PAS UN RETOUR. Il appelait `onClose`, ce
+            qui suffisait en mode calque : fermer l'overlay REVENAIT a l'accueil,
+            puisqu'il n'y avait rien d'autre dessous. En mode route, `onClose`
+            porte la regle de retour — depuis /resultats, ce bouton libelle
+            « Accueil » ramenait aux resultats. Le logo va TOUJOURS a l'accueil ;
+            c'est le « ← Retour » qui revient d'ou l'on vient.
+            L'ecran se contente de le SIGNALER : le conteneur y mene. */}
+        <button className="dk-topbar-logo" onClick={onAccueil} aria-label="Accueil">
           <img src="/L1.png" alt="" aria-hidden="true" className="dk-topbar-embleme" />
           <img src="/L2.png" alt="Les Clés du Château" className="dk-topbar-wordmark" />
         </button>
@@ -288,7 +309,7 @@ export default function DernieresCles({ onClose }) {
                   <div
                     key={c.id}
                     className={"dk-carte-offre " + (chateauSurvol === c.id ? "survol" : "")}
-                    onClick={() => ouvrirChateauModuleB(c)}
+                    onClick={() => onSelectChateau?.(c)}
                     onMouseEnter={() => survolChateau(c.id)}
                     onMouseLeave={() => setChateauSurvol(null)}
                   >
