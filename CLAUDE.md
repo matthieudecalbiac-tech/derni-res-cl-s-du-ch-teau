@@ -717,9 +717,36 @@ Un flake vert n'est pas un incident ; **deux occurrences du même sont un sujet*
 | Test | Occurrences | Navigateur | Lecture |
 |---|---|---|---|
 | `blanc-buisson.spec.cjs:25` — « la home rend la section à la une » | **1** (18 août) | chromium | `toBeVisible` à 5 s sur `.une-semaine-carte`, qui n'existe pas tant que Supabase n'a pas répondu. Fragilité intrinsèque du test. |
-| `blanc-buisson.spec.cjs:88` — « Escape ferme la vitrine » | **1** (19 août) | mobile-safari | Sur le chemin du correctif de sortie. Cause plausible : le délai de `navigate(-(delta+1))` sur WebKit mobile. |
+| ~~`blanc-buisson.spec.cjs:88` — « Escape ferme la vitrine »~~ | **2** (19 août) | webkit | ✅ **RÉSOLU le 20 août** — cf. § ci-dessous. ⚠ La cause notée ici, « le délai de `navigate(-(delta+1))` sur WebKit mobile », était **fausse** : ce saut n'est même pas exercé par ce test. |
 
 **Si l'un se répète au prochain `main`, le traiter** — ce serait la deuxième fois sur le même geste, pas un hasard.
+
+
+#### La course peinture/effet en mode route — fermée le 20 août 2026
+
+`blanc-buisson.spec.cjs:88` a atteint le seuil de deux occurrences. Le diagnostic a écarté **deux** hypothèses avant de trouver la bonne — dont celle qui était écrite ici.
+
+**Ce que ce n'était pas.** Le saut multi-entrées `navigate(-(delta+1))` n'est **pas exercé** par ce test : il ouvre la vitrine par `goto` direct, donc `idxEntrée = 0`, donc la branche prise est `navigate("/")` — exactement ce que faisait le code **avant** le chantier du retour (vérifié sur `6a9412c`). Et la fermeture n'est lente nulle part : médiane **21 ms** en webkit, **17 ms** en chromium, pour un budget de test de 2 000 ms.
+
+**Ce que c'était.** L'artefact CI est catégorique — `5 × locator resolved to 1 element` : l'overlay n'a pas bougé de deux secondes. L'échec est **binaire, pas lent**. La touche n'atteignait pas son écouteur.
+
+```
+VitrineChateau.jsx   const [visible, setVisible] = useState(mode === "route");
+                     window.addEventListener("keydown", onKey)   ← dans un useEffect
+```
+
+En mode **route**, `visible` vaut `true` dès le premier rendu : `.vc3-overlay.vc3-visible` est peint immédiatement, le test le voit et presse `Escape`. Mais un `useEffect` s'exécute **après** la peinture. Entre les deux, une fenêtre où l'écran est à l'écran et où personne n'écoute. Le mode **calque** y échappe : `visible` y part à `false` et bascule après 40 ms, ce qui laisse le temps à l'effet.
+
+**Un humain ne peut pas gagner cette course** — il faudrait presser la touche dans les millisecondes qui suivent l'apparition, et sur mobile il n'y a pas d'`Escape`. Ce n'était donc pas un défaut produit visible, mais une vraie fenêtre ouverte.
+
+**Le correctif** : l'écouteur passe en `useLayoutEffect`, qui s'exécute **avant** la peinture. Le bloc ne fait que poser et retirer l'écouteur — rien de lourd n'est rendu synchrone. Les autres effets du composant restent en `useEffect`. Pas de rendu serveur ici (SPA Vite + `createRoot`), donc pas d'avertissement React.
+
+| boucle webkit, 15 × 2 tests, mêmes conditions | résultat |
+|---|---|
+| avant | **26 / 30** |
+| après | **30 / 30** |
+
+⚠ `briottieres.spec.cjs:103` portait le même défaut sans l'avoir encore manifesté en CI. Les deux tests passent **sans modification** — c'est le juge : la course est fermée, pas contournée.
 
 
 ### Dette DONNÉES / MÉTIER (distincte de la dette code)
