@@ -226,6 +226,32 @@ Demain : `await supabase.from("chateaux").select(...)` — hooks et composants n
 
 ⚠ **Règle stricte** : aucun hook ne doit `import { chateaux } from "../data/chateaux"`. Tous les hooks data passent désormais par `chateauxService`.
 
+## Chantiers à venir — demandés par Matthieu (20 août 2026)
+
+Trois chantiers actés, **non traités à ce jour**. Ils sont notés ici pour ne pas se perdre entre deux sprints, et parce que deux d'entre eux sont des audits : mieux vaut les cadrer avant de les lancer.
+
+### 1. Refonte de la présentation des châteaux sur la home
+
+Revoir **comment les châteaux sont présentés sur l'accueil** : mise en page, mise en avant, hiérarchie visuelle. Aujourd'hui l'accueil les expose par plusieurs sections juxtaposées — `UneDeLaSemaine`, `HeureAuxDemeures`, le toggle Carte/Liste — sans hiérarchie claire entre elles.
+
+Chantier **produit / direction artistique**, à cadrer avec Tanguy avant toute ligne de code. À rapprocher de la dette `[Phase 4.2] ChateauCarte mutualisé` : quatre implémentations de carte château coexistent (`DernieresCles`, `PageResultats`, `ToggleCarteListe`, `VitrinePermanente`), et une refonte de la présentation serait le bon moment pour les réunir.
+
+### 2. Audit UX complet, du point de vue d'un visiteur
+
+Parcourir **tout le site comme un vrai client**, pas comme un développeur : chaque parcours, chaque bouton, chaque écran, sur desktop **et** mobile. Noter ce qui casse, ce qui surprend, ce qui manque.
+
+⚠ **Ce que cet audit apporte que les autres n'apportent pas** : les filets E2E vérifient qu'un parcours *aboutit*, jamais qu'il est *agréable* ni qu'il a du sens. Plusieurs défauts de cette semaine — l'écran noir à l'ouverture des Dernières Clés, le bouton « Accueil » qui ramenait aux résultats, le logo qui fermait au lieu d'ancrer — ont été vus **par Matthieu à l'œil**, jamais par un test. Cet audit-là est le seul qui les trouve.
+
+### 3. Audit technique « prêt à brancher les infrastructures »
+
+État des lieux **avant** de connecter les vraies données et les vrais flux. Objectif : savoir précisément ce qui est prêt et ce qui manque.
+
+- **Disponibilités réelles des châteaux** — PMS / channel managers. Aujourd'hui `disponibilitesService.js` travaille sur un proxy (le champ `urgence`), et ce champ est en texte libre côté admin : cf. la dette Données/Admin.
+- **Paiement** — Stripe Connect Express (plateforme). Rien n'est branché ; les écrans de réservation sont des placeholders (`BookingFlowPlaceholder`, `BookingConfirmationPlaceholder`).
+- **Supabase** — schéma, migrations, RLS, `service_role`. Les tests RLS du Sprint S1 couvraient `anon` ; les rôles authentifiés (client / châtelain / admin) restent hors scope.
+- **Le reste de la pile** — Brevo (email transactionnel), Vercel, et ce qui dépend d'une clé ou d'un contrat non encore signé.
+
+
 ## Roadmap stratégique post-audit (avr 2026)
 
 ### PHASE 1 — Démine immédiat ✅ TERMINÉE
