@@ -6,7 +6,16 @@ import CarteChateaux from "./CarteChateaux";
 import "../styles/espace-membre.css";
 import "../styles/vitrines.css";
 
-export default function VitrinePermanente({ onClose }) {
+// CET ECRAN NE NAVIGUE PAS. Il signale ce que le visiteur a fait ; le conteneur
+// decide ou cela mene. Meme regle qu'a `DernieresCles`, et pour la meme raison :
+// en calque, « fermer » et « aller a l'accueil » etaient LE MEME geste, puisqu'il
+// n'y avait rien dessous. En route, ce sont deux intentions distinctes.
+//
+// ⚠ Ce que le calque imbrique fait, lui, ne change pas : cliquer un chateau
+// ouvre `VitrineChateau` PAR-DESSUS cet ecran, avec l'animation de porte. C'est
+// une decision de direction artistique, assumee — l'URL ne bouge pas, a la
+// difference de /dernieres-cles.
+export default function VitrinePermanente({ onClose, onAccueil }) {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [transitionChateau, setTransitionChateau] = useState(null);
   const [filtre, setFiltre] = useState("tous");
@@ -32,7 +41,12 @@ export default function VitrinePermanente({ onClose }) {
     <div className={"em-overlay vit-page " + (visible ? "em-overlay--visible" : "")}>
 
       <header className="vit-topbar">
-        <button className="vit-topbar-logo" onClick={onClose} aria-label="Accueil">
+        {/* ⚠ LE LOGO EST UN ANCRAGE, PAS UN RETOUR. Il appelait `onClose`, ce
+            qui suffisait en calque : fermer REVENAIT a l'accueil, puisqu'il n'y
+            avait rien d'autre dessous. En route, `onClose` porte la regle de
+            retour — depuis /resultats, ce bouton libelle « Accueil » ramenerait
+            aux resultats. Meme piege qu'a DernieresCles:152. */}
+        <button className="vit-topbar-logo" onClick={onAccueil} aria-label="Accueil">
           <img src="/L1.png" alt="" aria-hidden="true" className="vit-topbar-embleme" />
           <img src="/L2.png" alt="Les Clés du Château" className="vit-topbar-wordmark" />
         </button>
