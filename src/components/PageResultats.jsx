@@ -8,12 +8,13 @@ import { libelleCategorie } from "../utils/categories";
 import { chateauPorteEquipements } from "../utils/equipements";
 import { getEquipements } from "../services/chateauxService";
 import Header from "./Header";
+import EtatErreur from "./EtatErreur";
 import "../styles/page-resultats.css";
 
 export default function PageResultats() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const { chateaux, loading } = useChateaux();
+  const { chateaux, loading, error, refetch } = useChateaux();
 
   const region = params.get("region");
   const departement = params.get("departement");
@@ -135,7 +136,16 @@ export default function PageResultats() {
 
         {loading && <p className="pr-message">Recherche en cours…</p>}
 
-        {!loading && resultats.length === 0 && (
+        {/* ⚠ DEUX ETATS QUE RIEN NE DOIT CONFONDRE. Ici, plus qu'ailleurs :
+            une recherche qui ne rend rien est une REPONSE, et la phrase
+            « aucun chateau ne correspond » est alors vraie. Sur une panne
+            reseau, elle serait un MENSONGE — elle affirmerait que les
+            criteres n'ont pas d'echo alors qu'on n'a jamais pu demander.
+            D'ou le `!error` sur la branche vide : sans lui, le filet
+            l'attraperait. */}
+        {!loading && error && <EtatErreur onReessayer={refetch} />}
+
+        {!loading && !error && resultats.length === 0 && (
           <p className="pr-message">
             Aucun château ne correspond à cette recherche pour le moment.
           </p>

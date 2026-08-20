@@ -3,6 +3,7 @@ import { useChateaux } from "../hooks/useChateaux";
 import VitrineChateau from "./VitrineChateau";
 import TransitionPorte from "./TransitionPorte";
 import CarteChateaux from "./CarteChateaux";
+import EtatErreur from "./EtatErreur";
 import "../styles/espace-membre.css";
 import "../styles/vitrines.css";
 
@@ -33,7 +34,7 @@ export default function VitrinePermanente({ onClose, onAccueil }) {
     };
   }, [onClose, chateauSelectionne]);
 
-  const { chateaux, loading, error } = useChateaux();
+  const { chateaux, loading, error, refetch } = useChateaux();
   const regions = ["tous", ...Array.from(new Set(chateaux.map(c => c.region)))];
   const chateauxFiltres = filtre === "tous" ? chateaux : chateaux.filter(c => c.region === filtre);
 
@@ -140,6 +141,15 @@ export default function VitrinePermanente({ onClose, onAccueil }) {
               <h2 className="vit-grille-titre">Nos châteaux</h2>
             </div>
 
+            {/* ── LA GRILLE, OU L'AVEU ──────────────────────────────────────
+                `error` etait deconstruit ici depuis la Phase 2.3 et n'etait
+                JAMAIS lu : le hook signalait la panne, l'ecran la taisait. On
+                voyait une grille vide — indiscernable d'un catalogue vide.
+                ⚠ SUR `error` SEULEMENT. Une grille vidée par un filtre de
+                region reste une grille vide, et c'est une reponse juste. */}
+            {error ? (
+              <EtatErreur onReessayer={refetch} />
+            ) : (
             <div className="vit-grille">
             {chateauxFiltres.map(c => (
               <div key={c.id}
@@ -164,6 +174,7 @@ export default function VitrinePermanente({ onClose, onAccueil }) {
               </div>
             ))}
             </div>
+            )}
           </div>
         </div>
       </div>

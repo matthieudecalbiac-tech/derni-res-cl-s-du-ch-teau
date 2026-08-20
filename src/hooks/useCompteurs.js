@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getCompteurs as getCompteursService } from "../services/chateauxService";
 
 /**
@@ -34,6 +34,11 @@ export function useCompteurs({ excludeMocks = false } = {}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Meme mecanisme de reessai que dans useChateaux : un compteur dans les deps.
+  // `useCallback` a deps vides -> identite stable. Le drapeau `cancelled` de
+  // l effet couvre deja le double passage de StrictMode.
+  const [tentative, setTentative] = useState(0);
+  const refetch = useCallback(() => setTentative((n) => n + 1), []);
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -56,7 +61,7 @@ export function useCompteurs({ excludeMocks = false } = {}) {
     return () => {
       cancelled = true;
     };
-  }, [excludeMocks]);
+  }, [excludeMocks, tentative]);
 
-  return { compteurs, loading, error };
+  return { compteurs, loading, error, refetch };
 }

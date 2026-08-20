@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   getChateaux as getChateauxService,
   getChateauBySlug,
@@ -22,6 +22,21 @@ export function useChateaux({ excludeMocks = false } = {}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // ── REESSAYER ────────────────────────────────────────────────────────────
+  // Un compteur, et rien de plus : l incrementer change les deps de l effet,
+  // qui rejoue son fetch. Aucune logique dupliquee, aucun etat de plus a tenir
+  // en coherence.
+  //
+  // ⚠ `useCallback` a deps vides : l identite de `refetch` ne change JAMAIS. Un
+  // consommateur peut donc le passer a un enfant memoise, ou le mettre dans un
+  // tableau de deps, sans declencher de boucle.
+  //
+  // ⚠ STRICTMODE double les effets en dev. Le drapeau `cancelled` existant s en
+  // charge deja : la fonction de nettoyage du premier passage le met a `true`,
+  // donc ses `.then`/`.catch` ne posent plus aucun etat. Ajouter le compteur aux
+  // deps ne change pas ce mecanisme — chaque passage a son propre drapeau.
+  const [tentative, setTentative] = useState(0);
+  const refetch = useCallback(() => setTentative((n) => n + 1), []);
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -44,9 +59,9 @@ export function useChateaux({ excludeMocks = false } = {}) {
     return () => {
       cancelled = true;
     };
-  }, [excludeMocks]);
+  }, [excludeMocks, tentative]);
 
-  return { chateaux, loading, error };
+  return { chateaux, loading, error, refetch };
 }
 
 /**
@@ -62,6 +77,21 @@ export function useChateau(slug) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // ── REESSAYER ────────────────────────────────────────────────────────────
+  // Un compteur, et rien de plus : l incrementer change les deps de l effet,
+  // qui rejoue son fetch. Aucune logique dupliquee, aucun etat de plus a tenir
+  // en coherence.
+  //
+  // ⚠ `useCallback` a deps vides : l identite de `refetch` ne change JAMAIS. Un
+  // consommateur peut donc le passer a un enfant memoise, ou le mettre dans un
+  // tableau de deps, sans declencher de boucle.
+  //
+  // ⚠ STRICTMODE double les effets en dev. Le drapeau `cancelled` existant s en
+  // charge deja : la fonction de nettoyage du premier passage le met a `true`,
+  // donc ses `.then`/`.catch` ne posent plus aucun etat. Ajouter le compteur aux
+  // deps ne change pas ce mecanisme — chaque passage a son propre drapeau.
+  const [tentative, setTentative] = useState(0);
+  const refetch = useCallback(() => setTentative((n) => n + 1), []);
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -84,9 +114,9 @@ export function useChateau(slug) {
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, tentative]);
 
-  return { chateau, loading, error };
+  return { chateau, loading, error, refetch };
 }
 
 /**
@@ -101,6 +131,21 @@ export function usePersonnage(slug) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // ── REESSAYER ────────────────────────────────────────────────────────────
+  // Un compteur, et rien de plus : l incrementer change les deps de l effet,
+  // qui rejoue son fetch. Aucune logique dupliquee, aucun etat de plus a tenir
+  // en coherence.
+  //
+  // ⚠ `useCallback` a deps vides : l identite de `refetch` ne change JAMAIS. Un
+  // consommateur peut donc le passer a un enfant memoise, ou le mettre dans un
+  // tableau de deps, sans declencher de boucle.
+  //
+  // ⚠ STRICTMODE double les effets en dev. Le drapeau `cancelled` existant s en
+  // charge deja : la fonction de nettoyage du premier passage le met a `true`,
+  // donc ses `.then`/`.catch` ne posent plus aucun etat. Ajouter le compteur aux
+  // deps ne change pas ce mecanisme — chaque passage a son propre drapeau.
+  const [tentative, setTentative] = useState(0);
+  const refetch = useCallback(() => setTentative((n) => n + 1), []);
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -123,9 +168,9 @@ export function usePersonnage(slug) {
     return () => {
       cancelled = true;
     };
-  }, [slug]);
+  }, [slug, tentative]);
 
-  return { personnage, loading, error };
+  return { personnage, loading, error, refetch };
 }
 
 /**
@@ -139,6 +184,21 @@ export function useCataloguePersonnages() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // ── REESSAYER ────────────────────────────────────────────────────────────
+  // Un compteur, et rien de plus : l incrementer change les deps de l effet,
+  // qui rejoue son fetch. Aucune logique dupliquee, aucun etat de plus a tenir
+  // en coherence.
+  //
+  // ⚠ `useCallback` a deps vides : l identite de `refetch` ne change JAMAIS. Un
+  // consommateur peut donc le passer a un enfant memoise, ou le mettre dans un
+  // tableau de deps, sans declencher de boucle.
+  //
+  // ⚠ STRICTMODE double les effets en dev. Le drapeau `cancelled` existant s en
+  // charge deja : la fonction de nettoyage du premier passage le met a `true`,
+  // donc ses `.then`/`.catch` ne posent plus aucun etat. Ajouter le compteur aux
+  // deps ne change pas ce mecanisme — chaque passage a son propre drapeau.
+  const [tentative, setTentative] = useState(0);
+  const refetch = useCallback(() => setTentative((n) => n + 1), []);
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -161,9 +221,9 @@ export function useCataloguePersonnages() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [tentative]);
 
-  return { groupes, loading, error };
+  return { groupes, loading, error, refetch };
 }
 
 /**
@@ -179,6 +239,21 @@ export function useChateauById(id) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // ── REESSAYER ────────────────────────────────────────────────────────────
+  // Un compteur, et rien de plus : l incrementer change les deps de l effet,
+  // qui rejoue son fetch. Aucune logique dupliquee, aucun etat de plus a tenir
+  // en coherence.
+  //
+  // ⚠ `useCallback` a deps vides : l identite de `refetch` ne change JAMAIS. Un
+  // consommateur peut donc le passer a un enfant memoise, ou le mettre dans un
+  // tableau de deps, sans declencher de boucle.
+  //
+  // ⚠ STRICTMODE double les effets en dev. Le drapeau `cancelled` existant s en
+  // charge deja : la fonction de nettoyage du premier passage le met a `true`,
+  // donc ses `.then`/`.catch` ne posent plus aucun etat. Ajouter le compteur aux
+  // deps ne change pas ce mecanisme — chaque passage a son propre drapeau.
+  const [tentative, setTentative] = useState(0);
+  const refetch = useCallback(() => setTentative((n) => n + 1), []);
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
@@ -201,7 +276,7 @@ export function useChateauById(id) {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [id, tentative]);
 
-  return { chateau, loading, error };
+  return { chateau, loading, error, refetch };
 }

@@ -2,6 +2,8 @@ import { Navigate, useParams, Link } from "react-router-dom";
 import { usePersonnage } from "../hooks/useChateaux";
 import { libelleNature } from "../utils/personnages";
 import EnteteEditoriale from "./EnteteEditoriale";
+import EtatErreur from "./EtatErreur";
+import { useRetour } from "./BoutonRetour";
 import "../styles/page-personnage.css";
 
 // Route /personnage/:slug — fiche personnage. Registre CRÈME ILLUSTRÉ.
@@ -20,12 +22,32 @@ import "../styles/page-personnage.css";
 // key = id+nature.
 export default function PagePersonnage() {
   const { slug } = useParams();
-  const { personnage, loading, error } = usePersonnage(slug);
+  const { personnage, loading, error, refetch } = usePersonnage(slug);
+  const revenir = useRetour();
 
   if (loading) return <div className="pp-chargement" />;
-  // Erreur Supabase → home.
-  if (error) return <Navigate to="/" replace />;
-  // Slug inconnu → home.
+
+  // Panne reseau → on le dit, et on rend les deux gestes qui peuvent servir.
+  // Cette ligne renvoyait a l'accueil sans un mot : le visiteur venait de
+  // cliquer un nom depuis une vitrine, il se retrouvait sur la home, et rien
+  // ne lui disait qu'il suffisait de reessayer. `Navigate` empilait en plus une
+  // entree — sa fleche arriere le ramenait ici, qui le renvoyait a l'accueil.
+  if (error) {
+    return (
+      <div className="err-plein">
+        <EtatErreur
+          titre="Ce personnage n'a pas pu être chargé"
+          corps="Nous n'avons pas pu joindre sa fiche. Cela tient sans doute à votre connexion, ou à une indisponibilité passagère de notre côté."
+          onReessayer={refetch}
+          onRetour={revenir}
+        />
+      </div>
+    );
+  }
+
+  // Slug inconnu → home. ⚠ REDIRECTION MAINTENUE, comme a la vitrine : le fetch
+  // a REUSSI et repond « ce personnage n'existe pas ». Ce n'est pas une panne,
+  // et le dire comme telle serait faux. Sa vraie reponse est une 404 (PR3).
   if (!personnage) return <Navigate to="/" replace />;
   // Un personnage sans château publié ne raconte rien → home.
   if (personnage.chateaux.length === 0) return <Navigate to="/" replace />;
