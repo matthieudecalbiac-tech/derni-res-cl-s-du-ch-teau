@@ -17,7 +17,7 @@ import VitrineChateau from "./components/VitrineChateau";
 import APropos from "./components/APropos";
 import VitrinePermanente from "./components/VitrinePermanente";
 import DernieresCles from "./components/DernieresCles";
-import { useRetour } from "./components/BoutonRetour";
+import BoutonRetour, { useRetour } from "./components/BoutonRetour";
 import TransitionPorte from "./components/TransitionPorte";
 import PartenairesChateaux from "./components/PartenairesChateaux";
 
@@ -68,6 +68,39 @@ import AuthCallback from "./components/auth/AuthCallback";
 // La distinction n'est pas theorique : quand l'ecran naviguait lui-meme, le clic
 // sur une carte fermait PUIS naviguait, et les deux navigations se couraient
 // apres — on atterrissait sur l'accueil au lieu de la vitrine.
+// Ecran des Vitrines permanentes, servi par `/vitrines`.
+//
+// ⚠ LE CALQUE IMBRIQUE RESTE. Cliquer un chateau y ouvre `VitrineChateau`
+// PAR-DESSUS, avec l'animation de porte — etat local du composant, que la route
+// ne touche pas. L'URL ne bouge donc pas, a la difference de /dernieres-cles :
+// asymetrie assumee, c'est le prix de l'animation qu'on garde (decision DA).
+function RouteVitrines() {
+  const revenir = useRetour();
+  const navigate = useNavigate();
+  return (
+    <div className="route-catalogue">
+      <VitrinePermanente onClose={revenir} onAccueil={() => navigate("/")} />
+    </div>
+  );
+}
+
+// Ecran Proprietaires, servi par `/proprietaires` — EN MODE PAGE.
+//
+// `enCalque={false}` retire le chrome de calque (classe `part-overlay`, en-tete,
+// bouton « Fermer ») : c'est une page, elle porte le « ← Retour » standard.
+// Le drapeau est explicite parce que le composant lisait jusqu'ici la PRESENCE
+// d'`onClose` pour en decider — un rappel qui sert de drapeau finit par mentir.
+function RouteProprietaires() {
+  return (
+    <div className="route-catalogue">
+      <div className="btn-retour-ligne">
+        <BoutonRetour />
+      </div>
+      <PartenairesChateaux enCalque={false} />
+    </div>
+  );
+}
+
 function RouteDernieresCles() {
   const revenir = useRetour();
   const navigate = useNavigate();
@@ -93,8 +126,6 @@ function App() {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [conciergerieOuvert, setConciergerieOuvert] = useState(false);
   const [aProposOuvert, setAProposOuvert] = useState(false);
-  const [vitrinesOuvert, setVitrinesOuvert] = useState(false);
-  const [proprietairesOuvert, setProprietairesOuvert] = useState(false);
   const [transitionChateau, setTransitionChateau] = useState(null);
   const navigate = useNavigate();
   const [transitionCarte, setTransitionCarte] = useState(null); // { chateau, url }
@@ -111,8 +142,8 @@ function App() {
 
       <Header
         onOuvrirAPropos={() => setAProposOuvert(true)}
-        onOuvrirVitrines={() => setVitrinesOuvert(true)}
-        onOuvrirProprietaires={() => setProprietairesOuvert(true)}
+        onOuvrirVitrines={() => navigate("/vitrines")}
+        onOuvrirProprietaires={() => navigate("/proprietaires")}
         onOuvrirDernieresClefs={() => navigate("/dernieres-cles")}
       />
       <main>
@@ -136,14 +167,14 @@ function App() {
         </section>
         <BandeauOffres
           onOuvrirDernieres={() => navigate("/dernieres-cles")}
-          onOuvrirVitrines={() => setVitrinesOuvert(true)}
+          onOuvrirVitrines={() => navigate("/vitrines")}
         />
         <UneDeLaSemaine
           onOuvrirChateau={ouvrirChateau}
           /* « Voir tout » du carrousel mobile -> catalogue complet. Le lien est
              masque au-dessus du seuil (une-semaine.css), la prop est inerte en
              desktop. */
-          onVoirTout={() => setVitrinesOuvert(true)}
+          onVoirTout={() => navigate("/vitrines")}
         />
         <HeureAuxDemeures
           onOuvrirChateau={ouvrirChateau}
@@ -155,12 +186,6 @@ function App() {
       </main>
       <PiedPatrimoine />
 
-      {proprietairesOuvert && (
-        <PartenairesChateaux onClose={() => setProprietairesOuvert(false)} />
-      )}
-      {vitrinesOuvert && (
-        <VitrinePermanente onClose={() => setVitrinesOuvert(false)} />
-      )}
       {(transitionChateau || chateauSelectionne) && (
         <VitrineChateau chateau={transitionChateau || chateauSelectionne} onClose={() => { setChateauSelectionne(null); setTransitionChateau(null); }} />
       )}
@@ -249,6 +274,8 @@ function App() {
           plus de calque. Deux chemins vers un meme ecran, c'est la dualite qui
           avait produit le defaut. */}
       <Route path="/dernieres-cles" element={<RouteDernieresCles />} />
+      <Route path="/vitrines" element={<RouteVitrines />} />
+      <Route path="/proprietaires" element={<RouteProprietaires />} />
       <Route path="*" element={homeEtOverlays} />
     </Routes>
   );

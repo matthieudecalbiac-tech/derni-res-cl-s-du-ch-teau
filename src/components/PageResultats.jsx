@@ -115,8 +115,8 @@ export default function PageResultats() {
       <Header
         onOuvrirConciergerie={versHome}
         onOuvrirAPropos={versHome}
-        onOuvrirVitrines={versHome}
-        onOuvrirProprietaires={versHome}
+        onOuvrirVitrines={() => navigate("/vitrines")}
+        onOuvrirProprietaires={() => navigate("/proprietaires")}
         onOuvrirDernieresClefs={() => navigate("/dernieres-cles")}
       />
       {/* `/resultats` n'a pas de topbar : le retour a besoin d'une ligne a

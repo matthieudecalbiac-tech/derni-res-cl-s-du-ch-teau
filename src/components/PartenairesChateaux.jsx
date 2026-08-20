@@ -23,7 +23,18 @@ const ARGUMENTS = [
   { icone: "❋", titre: "Une clientèle qui vous correspond", texte: "CSP+, Franciliens, amateurs de patrimoine. Des clients qui cherchent l'histoire et l'âme d'un lieu — pas le prix le plus bas." },
 ];
 
-export default function PartenairesChateaux({ onClose }) {
+// DEUX MODES, ET UN DRAPEAU QUI LE DIT.
+//
+// ⚠ Ce composant lisait la PRESENCE d'`onClose` pour decider de son habillage :
+// avec, il se dessinait en calque (classe `part-overlay` + en-tete + bouton
+// « Fermer ») ; sans, en page nue. Un rappel qui sert accessoirement de drapeau
+// est un piege : le jour ou l'on veut une page QUI SAIT AUSSI se fermer, les
+// deux intentions se contredisent.
+//
+// Servi par la route `/proprietaires`, cet ecran est une PAGE : pas de chrome de
+// calque, un « ← Retour » standard comme les autres pages. Le drapeau devient
+// donc explicite, et `onClose` retrouve un seul sens.
+export default function PartenairesChateaux({ onClose, enCalque = Boolean(onClose) }) {
   const [configActive, setConfigActive] = useState("vitrine");
   const [formEnvoye, setFormEnvoye] = useState(false);
   const [form, setForm] = useState({ nomChateau: "", departement: "", nom: "", email: "", message: "" });
@@ -33,8 +44,8 @@ export default function PartenairesChateaux({ onClose }) {
   const handleSubmit = () => { if (form.nomChateau && form.email) setFormEnvoye(true); };
 
   return (
-    <div className={onClose ? "part-overlay" : ""}>
-      {onClose && (
+    <div className={enCalque ? "part-overlay" : ""}>
+      {enCalque && (
         <div className="part-overlay-header">
           <span className="part-overlay-lys">&#x269C;</span>
           <span className="part-overlay-titre">Les Clés du Château · Propriétaires</span>
