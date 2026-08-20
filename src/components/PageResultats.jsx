@@ -107,18 +107,14 @@ export default function PageResultats() {
     invites ? `${invites} invites` : null,
   ].filter(Boolean).join(" · ");
 
-  // Header : depuis /resultats, les boutons d'overlay ramenent a la home.
-  const versHome = () => navigate("/");
 
   return (
     <div className="app">
-      <Header
-        onOuvrirConciergerie={versHome}
-        onOuvrirAPropos={versHome}
-        onOuvrirVitrines={() => navigate("/vitrines")}
-        onOuvrirProprietaires={() => navigate("/proprietaires")}
-        onOuvrirDernieresClefs={() => navigate("/dernieres-cles")}
-      />
+      {/* Le Header n'a plus de prop : il navigue lui-meme, partout pareil.
+          C'est ici que vivait `versHome`, le repli qui ramenait a l'accueil
+          faute de pouvoir ouvrir un calque depuis une route — la cause du
+          defaut, pas son symptome. */}
+      <Header />
       {/* `/resultats` n'a pas de topbar : le retour a besoin d'une ligne a
           lui, en haut a gauche. Il remplace le bouton qui vivait en PIED de
           page (a ~3800 px en mobile) et annoncait « Retour a l'accueil » —

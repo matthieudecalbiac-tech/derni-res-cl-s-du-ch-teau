@@ -90,6 +90,19 @@ function RouteVitrines() {
 // bouton « Fermer ») : c'est une page, elle porte le « ← Retour » standard.
 // Le drapeau est explicite parce que le composant lisait jusqu'ici la PRESENCE
 // d'`onClose` pour en decider — un rappel qui sert de drapeau finit par mentir.
+// Ecran A propos, servi par `/a-propos` — EN MODE PAGE.
+function RouteAPropos() {
+  const navigate = useNavigate();
+  return (
+    <div className="route-catalogue">
+      <div className="btn-retour-ligne">
+        <BoutonRetour />
+      </div>
+      <APropos enCalque={false} onAccueil={() => navigate("/")} />
+    </div>
+  );
+}
+
 function RouteProprietaires() {
   return (
     <div className="route-catalogue">
@@ -125,7 +138,6 @@ function RouteDernieresCles() {
 function App() {
   const [chateauSelectionne, setChateauSelectionne] = useState(null);
   const [conciergerieOuvert, setConciergerieOuvert] = useState(false);
-  const [aProposOuvert, setAProposOuvert] = useState(false);
   const [transitionChateau, setTransitionChateau] = useState(null);
   const navigate = useNavigate();
   const [transitionCarte, setTransitionCarte] = useState(null); // { chateau, url }
@@ -140,12 +152,7 @@ function App() {
   const homeEtOverlays = (
     <div className="app">
 
-      <Header
-        onOuvrirAPropos={() => setAProposOuvert(true)}
-        onOuvrirVitrines={() => navigate("/vitrines")}
-        onOuvrirProprietaires={() => navigate("/proprietaires")}
-        onOuvrirDernieresClefs={() => navigate("/dernieres-cles")}
-      />
+      <Header />
       <main>
         {/* Accueil (DA) : grille 2 colonnes.
             Gauche : slogan -> barre -> pastilles (serres verticalement).
@@ -211,7 +218,6 @@ function App() {
       {conciergerieOuvert && (
         <Conciergerie onClose={() => setConciergerieOuvert(false)} overlay={true} />
       )}
-      {aProposOuvert && <APropos onClose={() => setAProposOuvert(false)} />}
     </div>
   );
 
@@ -276,6 +282,7 @@ function App() {
       <Route path="/dernieres-cles" element={<RouteDernieresCles />} />
       <Route path="/vitrines" element={<RouteVitrines />} />
       <Route path="/proprietaires" element={<RouteProprietaires />} />
+      <Route path="/a-propos" element={<RouteAPropos />} />
       <Route path="*" element={homeEtOverlays} />
     </Routes>
   );

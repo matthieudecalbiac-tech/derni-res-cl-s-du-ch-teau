@@ -83,7 +83,14 @@ const GARANTIES = [
   },
 ];
 
-export default function APropos({ onClose }) {
+// CET ECRAN NE DECIDE PLUS DE SES DESTINATIONS. Meme regle qu'aux trois autres
+// ecrans de catalogue : il signale, le conteneur mene.
+//
+// ⚠ `enCalque` est un drapeau EXPLICITE, comme a `PartenairesChateaux`. Servi
+// par la route `/a-propos`, cet ecran est une PAGE : le bouton « Fermer » de
+// l'en-tete n'a plus de sens (une page ne se ferme pas), le « ← Retour »
+// standard le remplace, pose par le conteneur.
+export default function APropos({ onClose, onAccueil, enCalque = Boolean(onClose) }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -107,7 +114,9 @@ export default function APropos({ onClose }) {
           <span className="page-header-lys">&#x269C;</span>
           <span className="page-header-titre">À propos</span>
         </div>
-        <button className="page-header-fermer" onClick={onClose}>Fermer</button>
+        {enCalque && (
+          <button className="page-header-fermer" onClick={onClose}>Fermer</button>
+        )}
       </header>
 
       {/* ── HERO ── */}
@@ -424,7 +433,13 @@ export default function APropos({ onClose }) {
             lieux d'exception. Chaque réservation contribue à la préservation
             du patrimoine français via notre partenariat avec la Fondation du Patrimoine.
           </p>
-          <button className="ap-btn-or" onClick={onClose}>
+          {/* ⚠ LE LIBELLE DIT UNE NAVIGATION, LE GESTIONNAIRE DOIT LA FAIRE.
+              Ce bouton appelait `onClose`. En calque cela coincidait : fermer
+              REVELAIT l'accueil, donc « decouvrir la plateforme » et « fermer »
+              etaient le meme geste. En route, `onClose` porte la regle de retour
+              — depuis /resultats, ce bouton aurait ramene AUX RESULTATS, ce que
+              son libelle ne promet pas. Cinquieme occurrence de ce piege. */}
+          <button className="ap-btn-or" onClick={onAccueil}>
             Découvrir la plateforme ⚜
           </button>
         </div>
