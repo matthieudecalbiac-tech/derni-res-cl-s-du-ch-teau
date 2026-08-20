@@ -71,7 +71,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # ⚠ BORNE D'ETAPE — pour que l'incident soit LISIBLE, pas opaque.
+      #
+      # Cette etape a fait tuer le job DEUX FOIS au plafond de 15 min (runs
+      # 32272439650 et 32278755038). La cause est mesuree, et ce n'est PAS le
+      # telechargement des navigateurs : `--with-deps` appelle apt, et le miroir
+      # azure.archive.ubuntu.com ne repondait pas — 25 `Ign:` en boucle, et le
+      # CDN Playwright JAMAIS sollicite. Cf. CLAUDE.md § Patterns CI.
+      #
+      # 9 min contre un maximum REUSSI de 248 s sur ce job (10 runs mesures :
+      # 21, 21, 23, 31, 34, 84, 132, 133, 234, 248) : plus du double de marge,
+      # donc aucun profil vert n'est casse. Un miroir bloque echoue desormais en
+      # 9 min avec un message explicite, au lieu d'annuler le job a 15 sans
+      # produire ni test ni artefact.
+      #
+      # PAS DE RETRY ICI, et c'est mesure aussi : le budget du job (900 s moins
+      # ~360 s de tests) ne laisse pas la place a deux essais assez larges pour
+      # ne pas couper des runs verts. A rouvrir si le plafond du job monte.
       - name: Install Playwright browsers (chromium only)
+        timeout-minutes: 9
         run: npx playwright install chromium --with-deps
 
       - name: Start Vite dev server (and wait for ready)
@@ -154,7 +172,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Meme borne d'etape, mais PAS la meme valeur — les profils different.
+      # Ce job installe webkit EN PLUS et dispose de 60 min ; il n'a jamais ete
+      # annule. Surtout, un run VERT y a mis 1564 s (26 min) sur cette seule
+      # etape. Une borne a 9 min le tuerait : elle transformerait un succes en
+      # echec, exactement ce qu'on cherche a eviter.
+      # 30 min laisse donc passer le profil observe le plus lent, tout en
+      # coupant a la moitie du plafond si le miroir se bloque pour de bon.
       - name: Install Playwright browsers (chromium + webkit)
+        timeout-minutes: 30
         run: npx playwright install chromium webkit --with-deps
 
       - name: Start Vite dev server (and wait for ready)
