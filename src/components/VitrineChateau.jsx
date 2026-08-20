@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useLayoutEffect, useState, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import ContenuPermanent from "./vitrine/ContenuPermanent";
@@ -207,7 +207,29 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   //   Le garde couvre maintenant les DEUX modales : thème et module. La branche
   //   `mode === "modal" && moduleOuvert` qui fermait l'overlay maison a disparu
   //   avec lui — Modale.jsx s'en charge, et de la même façon dans les deux modes.
-  useEffect(() => {
+  // ⚠ useLayoutEffect, ET NON useEffect — pour fermer une course, pas par gout.
+  //
+  // En mode ROUTE, `visible` vaut `true` des le premier rendu (cf. useState en
+  // tete de composant) : `.vc3-overlay.vc3-visible` est donc PEINT tout de
+  // suite. Un `useEffect`, lui, s'execute APRES la peinture. Entre les deux, il
+  // existe une fenetre ou l'ecran est a l'ecran et ou personne n'ecoute Echap.
+  //
+  // Un humain ne peut pas gagner cette course — il faudrait presser la touche
+  // dans les millisecondes qui suivent l'apparition. Playwright, si : mesure du
+  // 19 aout, 1 echec sur 20 en webkit, et deux occurrences en CI
+  // (blanc-buisson.spec.cjs:88). Le mode CALQUE y echappe parce que `visible`
+  // y part a `false` et bascule apres 40 ms, ce qui laisse le temps a l'effet.
+  //
+  // `useLayoutEffect` s'execute AVANT la peinture : quand l'ecran devient
+  // visible, l'ecouteur est deja pose. La fenetre disparait au lieu d'etre
+  // contournee ecran par ecran cote test.
+  //
+  // Ce bloc ne fait QUE poser l'ecouteur et le retirer — rien de lourd n'est
+  // ainsi rendu synchrone avant peinture. Les autres effets du composant
+  // (meteo, dispo, deep-link) restent en `useEffect`.
+  // Pas de rendu serveur dans ce projet (SPA Vite + createRoot), donc pas
+  // d'avertissement React sur `useLayoutEffect`.
+  useLayoutEffect(() => {
     const onKey = (e) => {
       if (e.key !== "Escape") return;
       if (themeOuvert || moduleOuvert || clubLockOpen) return;   // Modale.jsx s'en charge
