@@ -686,28 +686,45 @@ Chaque ligne a été **vérifiée par lecture ou mesure**, pas déduite. Les ré
 - **Public non responsive** (aucune media query < 768 px) : `page-personnage.css`, `partenaires.css`, `espace-professionnel.css`, `completer-profil.css`, `mot-de-passe-oublie.css`, `reinitialiser-mot-de-passe.css`, `transition-porte.css`, `panneau-filtres.css`, `calendrier-plage.css`, `barre-laterale.css`.
 - **`playwright-e2e.cjs` perd le nom des tests flaky** : il ne consigne que le **compte** (`:56`), son tableau `details` ne se remplit qu'en cas d'erreur d'agent. Le nom vit dans le **log du run**, pas dans l'artefact — deux lignes suffiraient à l'y mettre.
 
-### ⚠ PRIORITÉ HAUTE — le job `qa-fast` se fait tuer par l'installation des navigateurs
+### ⚠ Le job `qa-fast` tué par l'installation — cause trouvée, borne posée (20 août 2026)
 
-**Récurrent : 2 annulations sur 3 runs** (19 août 2026). Ce n'est plus une observation, c'est le prochain correctif d'infrastructure à faire.
+**Deux annulations sur trois runs**, puis diagnostic. La note qui occupait cette place accusait le CDN de Playwright et annonçait le cache de `~/.cache/ms-playwright` comme « le correctif ». **C'était faux**, et la lecture des logs des runs tués l'a montré.
 
-`qa.yml:59` fixe `timeout-minutes: 15` sur le job de PR. **Une seule étape en consomme jusqu'à la moitié** : `npx playwright install chromium --with-deps` télécharge depuis un CDN externe, et sa durée est erratique.
+#### La cause, prouvée
 
-| run | PR | durée de l'installation |
-|---|---|---|
-| 32242781000 | | 41 s |
-| 32263237928 | #125 | 234 s |
-| 32237428375 | | 358 s |
-| 32246392332 | | **491 s** (8 min) |
-| 32272439650 | #125 | **> 14 min — job tué** |
-| 32278755038 | #126 | **> 14 min — job tué** |
+```
+16:56:35   npx playwright install chromium --with-deps
+16:56:36   Installing dependencies...              ← apt démarre
+16:57:06   Ign:2 http://azure.archive.ubuntu.com/ubuntu noble InRelease
+16:57:07   Ign:2 …                                  ← il retente
+   …       25 tentatives
+17:11:33   job tué au plafond de 15 min
+```
 
-**Le correctif : mettre les navigateurs en cache** — `actions/cache` sur `~/.cache/ms-playwright`, clé sur la version de Playwright du lockfile. C'est la seule piste qui retire la cause ; porter le plafond à 25 min ne ferait que déplacer le seuil devant un aléa sans borne connue.
+Le miroir **`azure.archive.ubuntu.com`** ne répondait pas ; `--with-deps` appelle apt, qui a bouclé quatorze minutes. **Le CDN de Playwright n'a jamais été sollicité** — 0 téléchargement dans les deux runs tués (`32272439650`, `32278755038`). Sur un run vert de comparaison : **0 `Ign:`**.
 
-⚠ **Ce qui rend l'urgence réelle** : les deux runs tués portaient de la **documentation**, donc merger sans eux était sans risque. Le jour où un run de **code** tombe, on n'aura pas cette porte de sortie — il faudra choisir entre attendre une loterie et merger à l'aveugle. Corriger avant ce jour-là.
+⚠ **Le cache des navigateurs n'aurait donc empêché aucune des deux annulations.** Il reste utile — le téléchargement pèse 14 à 17 s sur les deux jobs — mais **ce n'est pas le correctif de l'annulation**. Ne pas confondre les deux.
 
-Conséquence à connaître pour le diagnostic : quand le plafond tombe pendant la préparation, les étapes suivantes — serveur Vite, les quatre agents, vérification baseline — passent en `skipped`. **Aucun test ne tourne, et le run ne produit aucun artefact** (`total_count: 0`). Ce n'est donc ni un vert ni un rouge : il n'y a rien à lire, et relancer est l'action *diagnostiquée*, pas un réflexe.
+#### Le correctif posé : une borne d'étape, différente par job
 
-Le job `qa-full` de `main` dispose de 60 min (`qa.yml:142`) et n'est pas concerné.
+Les profils ne sont pas les mêmes, et une borne unique aurait cassé des runs verts.
+
+| | plafond du job | max **réussi** mesuré | borne d'étape |
+|---|---|---|---|
+| `qa-fast` | 15 min | **248 s** (10 runs : 21, 21, 23, 31, 34, 84, 132, 133, 234, 248) | **9 min** |
+| `qa-full` | 60 min | **1564 s** — 26 min, et **vert** | **30 min** |
+
+Un miroir bloqué produit désormais un **échec explicite** au lieu d'une annulation opaque, et libère le runner. Régression nulle : la borne de `qa-fast` laisse plus du double de marge sur son maximum observé, et celle de `qa-full` préserve le profil lent qui réussissait.
+
+#### Ce qui a été écarté, et pourquoi
+
+**Le retry automatique** : impossible dans le budget de `qa-fast`. Le job dispose de 900 s dont ~360 s de tests, soit ~540 s pour l'installation — deux essais imposeraient ≤ 250 s chacun, ce qui couperait des runs verts observés à 234 s et 248 s. **À rouvrir si le plafond du job monte.**
+
+**Retirer `--with-deps`** : c'est le seul correctif qui retirerait *la cause* — plus d'apt, plus de miroir. Mais webkit est exigeant en bibliothèques système, et cela ne se vérifie qu'en CI. **Chantier séparé**, à mener avec un run de contrôle.
+
+#### Pour diagnostiquer le prochain
+
+Quand le plafond tombe pendant la préparation, les étapes suivantes passent en `skipped` : **aucun test ne tourne, et le run ne produit aucun artefact** (`total_count: 0`). Ce n'est ni un vert ni un rouge — il n'y a rien à lire, et relancer est l'action *diagnostiquée*, pas un réflexe. Avec la borne, le message est désormais explicite.
 
 
 ### Flakes sous surveillance
