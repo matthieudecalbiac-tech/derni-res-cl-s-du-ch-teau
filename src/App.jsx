@@ -18,6 +18,8 @@ import APropos from "./components/APropos";
 import VitrinePermanente from "./components/VitrinePermanente";
 import DernieresCles from "./components/DernieresCles";
 import BoutonRetour, { useRetour } from "./components/BoutonRetour";
+import EtatErreur from "./components/EtatErreur";
+import { useChateaux } from "./hooks/useChateaux";
 import TransitionPorte from "./components/TransitionPorte";
 import PartenairesChateaux from "./components/PartenairesChateaux";
 
@@ -140,6 +142,22 @@ function App() {
   const [conciergerieOuvert, setConciergerieOuvert] = useState(false);
   const [transitionChateau, setTransitionChateau] = useState(null);
   const navigate = useNavigate();
+
+  // ── L'ERREUR DE L'ACCUEIL SE DECIDE ICI, PAS DANS SES SECTIONS ──────────
+  //
+  // CINQ sections consomment les chateaux (BarreRecherche, PastillesInspiration,
+  // ToggleCarteListe, UneDeLaSemaine, HeureAuxDemeures). Si chacune affichait son
+  // propre message, une panne reseau empilerait SIX blocs identiques — pire que
+  // le vide muet qu'on remplace.
+  //
+  // Cet appel supplementaire ne coute AUCUN aller-retour : le service memorise la
+  // promesse, donc les six consommateurs partagent la meme requete (cf. PR #121).
+  //
+  // ⚠ DONNEE PRINCIPALE SEULEMENT. `useCompteurs` (BandeauOffres) n'entre pas
+  // dans cette decision : un compteur absent degrade en silence, il ne justifie
+  // pas de masquer la page.
+  const { error: erreurDonnees, refetch: rechargerDonnees } = useChateaux();
+
   const [transitionCarte, setTransitionCarte] = useState(null); // { chateau, url }
 
   const ouvrirChateau = (chateau) => {
@@ -154,42 +172,61 @@ function App() {
 
       <Header />
       <main>
-        {/* Accueil (DA) : grille 2 colonnes.
-            Gauche : slogan -> barre -> pastilles (serres verticalement).
-            Droite : carte illustree -> toggle Carte/Liste. */}
-        <section className="accueil-hero">
-          <div className="accueil-hero-inner">
-            <div className="acc-gauche">
-              <Hero />
-              <BarreRecherche />
-              <PastillesInspiration />
-            </div>
-            <div className="acc-droite">
-              <div className="acc-carte">
-                <img src="/homedessin14-detouree.png" alt="Carte des châteaux depuis Paris" className="hero-illus-img" />
-              </div>
-              <ToggleCarteListe onEntrerChateau={(chateau, url) => setTransitionCarte({ chateau, url })} />
-            </div>
+        {/* ── L'ACCUEIL EN PANNE : UN SEUL BLOC, PAS SIX ─────────────────────
+            CINQ sections d'ici consomment les chateaux. Si chacune rendait son
+            propre message, une coupure reseau empilerait autant de blocs
+            identiques — le visiteur lirait cinq fois la meme phrase et croirait
+            a cinq pannes. La decision se prend donc ICI, une fois.
+
+            ⚠ SUR `error`, JAMAIS SUR UNE LISTE VIDE : un catalogue vide est une
+            reponse juste, pas une panne. Le filet garde cette distinction.
+
+            Le Header et le pied de page RESTENT : on ne prend pas le visiteur au
+            piege d'un ecran sans issue — il peut toujours partir ailleurs. */}
+        {erreurDonnees ? (
+          <div className="err-sous-entete">
+            <EtatErreur onReessayer={rechargerDonnees} />
           </div>
-        </section>
-        <BandeauOffres
-          onOuvrirDernieres={() => navigate("/dernieres-cles")}
-          onOuvrirVitrines={() => navigate("/vitrines")}
-        />
-        <UneDeLaSemaine
-          onOuvrirChateau={ouvrirChateau}
-          /* « Voir tout » du carrousel mobile -> catalogue complet. Le lien est
-             masque au-dessus du seuil (une-semaine.css), la prop est inerte en
-             desktop. */
-          onVoirTout={() => navigate("/vitrines")}
-        />
-        <HeureAuxDemeures
-          onOuvrirChateau={ouvrirChateau}
-          onOuvrirDernieres={() => navigate("/dernieres-cles")}
-        />
-        {/* Bandeau « Bientot l'application » : rendu en permanence, masque
-            au-dessus du seuil par banniere-app.css. */}
-        <BanniereApp />
+        ) : (
+          <>
+            {/* Accueil (DA) : grille 2 colonnes.
+                Gauche : slogan -> barre -> pastilles (serres verticalement).
+                Droite : carte illustree -> toggle Carte/Liste. */}
+            <section className="accueil-hero">
+              <div className="accueil-hero-inner">
+                <div className="acc-gauche">
+                  <Hero />
+                  <BarreRecherche />
+                  <PastillesInspiration />
+                </div>
+                <div className="acc-droite">
+                  <div className="acc-carte">
+                    <img src="/homedessin14-detouree.png" alt="Carte des châteaux depuis Paris" className="hero-illus-img" />
+                  </div>
+                  <ToggleCarteListe onEntrerChateau={(chateau, url) => setTransitionCarte({ chateau, url })} />
+                </div>
+              </div>
+            </section>
+            <BandeauOffres
+              onOuvrirDernieres={() => navigate("/dernieres-cles")}
+              onOuvrirVitrines={() => navigate("/vitrines")}
+            />
+            <UneDeLaSemaine
+              onOuvrirChateau={ouvrirChateau}
+              /* « Voir tout » du carrousel mobile -> catalogue complet. Le lien est
+                 masque au-dessus du seuil (une-semaine.css), la prop est inerte en
+                 desktop. */
+              onVoirTout={() => navigate("/vitrines")}
+            />
+            <HeureAuxDemeures
+              onOuvrirChateau={ouvrirChateau}
+              onOuvrirDernieres={() => navigate("/dernieres-cles")}
+            />
+            {/* Bandeau « Bientot l'application » : rendu en permanence, masque
+                au-dessus du seuil par banniere-app.css. */}
+            <BanniereApp />
+          </>
+        )}
       </main>
       <PiedPatrimoine />
 

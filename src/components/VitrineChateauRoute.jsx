@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useChateau } from "../hooks/useChateaux";
 import VitrineChateau from "./VitrineChateau";
+import EtatErreur from "./EtatErreur";
 
 // Route /chateau/:slug — voie canonique SEO/démo Sprint S2-α.1.5.
 // L'overlay legacy (modal depuis home/VitrinePermanente) reste disponible
@@ -9,7 +10,7 @@ import VitrineChateau from "./VitrineChateau";
 export default function VitrineChateauRoute() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { chateau, loading, error } = useChateau(slug);
+  const { chateau, loading, error, refetch } = useChateau(slug);
 
   // ── FERMER N'EST PAS RECULER ────────────────────────────────────────────────
   //
@@ -70,12 +71,38 @@ export default function VitrineChateauRoute() {
   // entre la fin de la TransitionPorte creme et le paint de la vitrine)
   if (loading) return <div className="vitrine-route-placeholder" />;
 
-  // Erreur Supabase → home
-  if (error) return <Navigate to="/" replace />;
+  // ── LA PANNE SE DIT, ELLE NE SE CACHE PLUS ──────────────────────────────────
+  //
+  // Cette ligne renvoyait a l'accueil. Du point de vue du visiteur, c'etait la
+  // pire des reponses : il avait clique une demeure, il se retrouvait sur la
+  // home SANS UN MOT — rien ne distinguait ce rebond d'un clic rate, et le seul
+  // recours qui marchait (recliquer) n'etait suggere nulle part.
+  //
+  // ⚠ ET IL PERDAIT SON RETOUR. `Navigate` EMPILE une entree : la fleche du
+  // navigateur le ramenait a la vitrine en panne, qui le renvoyait a l'accueil.
+  // Une boucle, faite d'un repli qui se voulait doux.
+  if (error) {
+    return (
+      <div className="err-plein">
+        <EtatErreur
+          titre="Cette demeure n'a pas pu être chargée"
+          corps="Nous n'avons pas pu joindre ses pages. Cela tient sans doute à votre connexion, ou à une indisponibilité passagère de notre côté."
+          onReessayer={refetch}
+          onRetour={fermer}
+        />
+      </div>
+    );
+  }
 
   // Slug inconnu, ou château non publié (le service filtre sur statut, donc
   // getChateauBySlug renvoie null) → home. Toute demeure servie a sa vitrine,
   // mise en avant (estLaUne) ou non.
+  //
+  // ⚠ CELUI-CI RESTE UNE REDIRECTION, ET C'EST VOULU. `chateau === null` n'est
+  // pas une panne : le fetch a REUSSI, et sa reponse est « cette demeure n'est
+  // pas servie ». Y afficher « nous n'avons pas pu joindre » serait le meme
+  // mensonge que d'afficher une erreur sur une recherche sans resultat. Le vrai
+  // traitement de ce cas est une page 404, tracee en dette (PR3).
   if (!chateau) return <Navigate to="/" replace />;
 
   return (

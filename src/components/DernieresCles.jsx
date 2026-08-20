@@ -8,6 +8,7 @@ import {
 } from "../services/disponibilitesService.js";
 import CalendrierDK from "./CalendrierDK";
 import SkeletonChateau from "./SkeletonChateau";
+import EtatErreur from "./EtatErreur";
 import { formaterPrix } from "../services/_mapping.js";
 import { formatDate } from "../utils/dates";
 import "../styles/dernieres-cles.css";
@@ -59,7 +60,7 @@ export default function DernieresCles({ onClose, onSelectChateau, onAccueil }) {
   const [filtreRegion, setFiltreRegion] = useState("toutes");
   const [filtreTri, setFiltreTri] = useState("pertinence");
   const [chateauSurvol, setChateauSurvol] = useState(null);
-  const { chateaux, loading, error } = useChateaux();
+  const { chateaux, loading, error, refetch } = useChateaux();
   // Slugs des chateaux ayant une offre Dernieres Cles reelle. null tant que non charge :
   // on attend cette source comme on attend les chateaux, pour ne pas afficher de grille vide.
   const [slugsAvecOffre, setSlugsAvecOffre] = useState(null);
@@ -294,13 +295,21 @@ export default function DernieresCles({ onClose, onSelectChateau, onAccueil }) {
         {/* SECTION 4 : GRILLE */}
         <section className="dk-section dk-section-grille">
           <div className="dk-liste">
+            {/* ⚠ LE COMPTEUR SE TAIT AUSSI. Laisse tel quel, il annoncerait
+                « 0 domaine disponible » AU-DESSUS du message de panne : deux
+                phrases qui se contredisent, dont la premiere est fausse — on
+                n'a jamais pu compter. Un ecran en erreur ne chiffre rien. */}
+            {!error && (
             <div className="dk-liste-header">
               <span className="dk-liste-nb">{chateauxAffiches.length}</span>
               {" "}domaine{chateauxAffiches.length > 1 ? "s" : ""} disponible{chateauxAffiches.length > 1 ? "s" : ""}
               {dateArrivee && dateDepart && <span className="dk-liste-dates"> · {formatDate(dateArrivee)} → {formatDate(dateDepart)}</span>}
             </div>
+            )}
             <div className="dk-liste-items">
-              {loading || slugsAvecOffre === null ? (
+              {error ? (
+                <EtatErreur onReessayer={refetch} />
+              ) : loading || slugsAvecOffre === null ? (
                 <SkeletonChateau count={6} />
               ) : (
                 chateauxAffiches.map(c => {
