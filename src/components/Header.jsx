@@ -47,12 +47,18 @@ const MENU_ITEMS = [
   },
 ];
 
-export default function Header({
-  onOuvrirAPropos,
-  onOuvrirVitrines,
-  onOuvrirDernieresClefs,
-  onOuvrirProprietaires,
-}) {
+// ⚠ LE HEADER N'A PLUS AUCUNE PROP DE NAVIGATION, et c'est le coeur du
+// correctif — pas une simplification cosmetique.
+//
+// Il en avait quatre, et deux ecrans les cablaient DIFFEREMMENT : `App` ouvrait
+// des calques, `PageResultats` retombait sur un `versHome` de secours faute de
+// pouvoir en ouvrir depuis une route. Le meme bouton menait donc a deux
+// endroits selon la page — le visiteur perdait sa recherche SANS obtenir
+// l'ecran demande.
+//
+// Sans prop, le Header ne PEUT PLUS se comporter differemment selon qui le
+// monte. Le defaut disparait par construction, pas par vigilance.
+export default function Header() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [menuOuvert, setMenuOuvert] = useState(false);
@@ -73,18 +79,26 @@ export default function Header({
   const fermer = () => setMenuOuvert(false);
 
   const handleAction = (action) => {
-    // 1. Ouvrir la destination IMMEDIATEMENT (elle se monte par-dessus le menu, z-index superieur)
-    if (action === "vitrines") onOuvrirVitrines?.();
-    else if (action === "dernieres") onOuvrirDernieresClefs?.();
-    else if (action === "apropos") onOuvrirAPropos?.();
-    else if (action === "proprietaires") onOuvrirProprietaires?.();
+    // CINQ ENTREES, CINQ DESTINATIONS. Plus de callback : chacune a une URL.
+    if (action === "vitrines") navigate("/vitrines");
+    else if (action === "dernieres") navigate("/dernieres-cles");
+    else if (action === "apropos") navigate("/a-propos");
+    else if (action === "proprietaires") navigate("/proprietaires");
     // Un visiteur qui vient au Club A DEJA UN COMPTE le plus souvent : on le
     // mene a la CONNEXION, et non a l'inscription ou il devait trouver
     // lui-meme « Deja membre ? ». Et l'on dit ou revenir ensuite.
     else if (action === "club") navigate(user ? "/club" : cheminAuth("/connexion", NEXT_CLUB));
-    // 2. Fermer le menu APRES le fondu d'entree de la destination (~550ms),
-    //    pour qu'il serve de backdrop opaque pendant le cross-fade (jamais la home).
-    setTimeout(() => setMenuOuvert(false), 550);
+    // ⚠ LA MINUTERIE DE 550 ms EST RETIREE, parce qu'elle ne servait plus rien.
+    // Elle gardait le menu ouvert pour qu'il serve de fond opaque pendant le
+    // fondu d'entree de la destination. Depuis que les entrees NAVIGUENT, le
+    // Header se demonte aussitot : la minuterie s'executait sur un composant
+    // demonte, donc dans le vide.
+    //
+    // Et le fond, lui, est deja bon : mesure du 20 aout, `.route-catalogue` est
+    // present des la PREMIERE image, en creme — le meme creme que le menu. Le
+    // fondu de l'ecran joue donc par-dessus la bonne couleur. C'est le correctif
+    // du flash navy (pilote) qui a regle celui-ci par la meme occasion.
+    setMenuOuvert(false);
   };
 
   return (
