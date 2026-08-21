@@ -32,10 +32,20 @@ Ton général : **patrimonial / éditorial**, jamais promotionnel. Pas de superl
 - **Cartes** : Leaflet 1.9 **en npm** (`leaflet ^1.9.4`) + `leaflet.markercluster ^1.5.3` — `react-leaflet` retiré en Chantier 2.2 avec la suppression de `CarteExplorer`
 - **Tests** : Playwright 1.59 + axe-core 4.11 (E2E, visuels, a11y)
 - **Performance** : Lighthouse 13 via scripts QA
-- **Backend** : Supabase **planifié** (couche services async-ready depuis Phase 2.3 / 6 mai 2026, swap data layer trivial)
+- **Backend** : Supabase — **en service, plan Pro** (projet `lcc-prod`, eu-west-1, ref `ynoieryxfqiqjscqieum`). ⚠ Cette ligne annonçait « **planifié** » longtemps après la bascule : la base sert les demeures depuis le Sprint S1-δ, et tout le code passe par elle. Cf. § Plan Supabase Pro.
 - **Paiement** : Stripe **planifié**
-- **Déploiement** : Vercel
+- **Déploiement** : Vercel — plan **Hobby** à ce jour. ⚠ **Un passage en Pro est requis** : l'usage est commercial, ce que le plan Hobby n'autorise pas. Décidé le 21 août 2026, à consigner ici quand ce sera fait.
 - **Email transactionnel** : Brevo
+
+#### Plan Supabase Pro — souscrit le 21 août 2026
+
+Ce qui change, et pourquoi cela compte au-delà de la facture :
+
+- **Sauvegardes quotidiennes automatiques, 7 jours de rétention.** ⚠ **C'est un prérequis à la mise en production** : à partir du moment où de vraies réservations sont enregistrées, une base sans sauvegarde n'est pas exploitable. Ce point était bloquant, il ne l'est plus.
+- **Le projet ne se met plus en pause après inactivité.** Sur le plan gratuit, `lcc-prod` pouvait s'endormir — un premier visiteur après un creux payait le réveil, et une démo commerciale pouvait tomber sur une base assoupie. `lcc-prod` reste désormais actif en permanence.
+- **Quotas** : 100 000 MAU · 8 Go de base · 250 Go d'egress · 100 Go de stockage. Dépassement facturé **à la consommation**, sans coupure.
+
+⚠ **Ce plan ne change RIEN au code.** Ni les clés, ni la RLS, ni le schéma. Ne pas y voir une autorisation d'assouplir quoi que ce soit côté sécurité : les policies restent la seule barrière, et les dettes RLS tracées au Sprint S1 (rôles authentifiés hors scope des tests, `audit_log` élargi à `authenticated`) restent entières.
 
 ## Comment ajouter un nouveau château
 
@@ -622,7 +632,23 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - **[Phase 4.x] SkeletonChateau réutilisable VitrinePermanente / ClubMembres** : actuellement utilisé uniquement dans `DernieresCles` (Phase 2.3 C8). Si UX premium souhaitée pour les autres listes, intégrer le ternaire `{ loading ? <SkeletonChateau /> : map }`. ~30 min total (2 composants × 15 min). Identifié 6 mai 2026.
 
-- **[Phase 4.x] ⚠ À VÉRIFIER EN BASE — Fontainebleau orphelin du path UI nominal** : référencé uniquement dans `data/chateaux.js`, absent de `HeureAuxDemeures.idsCartes [6,5,1]` et `idsIndex [7,8,2,3]`. Aucun parcours utilisateur ne l'ouvre en `ChateauModal` aujourd'hui. Hors couverture E2E `chateaux-modal-smoke.spec.cjs` (Sprint 5-β v2 — 1 château sur 6 mocks non-couvert). Soit (a) ajouter id 4 à `idsIndex` dans `HeureAuxDemeures.jsx:55` (+1 château dans la grille), soit (b) supprimer Fontainebleau de `chateaux.js` s'il est juste un mock orphelin. ~5-10 min selon décision business. Identifié Sprint 5-β v2 le 7 mai 2026.
+- ~~**[Phase 4.x] Fontainebleau orphelin du path UI nominal**~~ **CADUQUE — la base a été interrogée le 21 août 2026, et elle tranche.** Cette dette raisonnait sur `data/chateaux.js` (supprimé), sur `HeureAuxDemeures.idsCartes`/`idsIndex` (qui n'existent plus), et sur `ChateauModal` (supprimé). Surtout : **Fontainebleau n'existe plus en base**, non plus que les cinq autres mocks. Les demeures servies sont désormais :
+
+  ```
+  blanc-buisson · chateau-de-bonnemare · chateau-de-la-riviere
+  chateau-de-saint-paterne · chateau-du-boulay-morin
+  chateau-royal-de-benays · les-briottieres        (sept, toutes est_la_une = true)
+  ```
+
+  Absents : `vaux-le-vicomte`, `pierrefonds`, `chantilly`, `fontainebleau`, `ferte-saint-aubin`, `pierreclos`. Ils ne subsistent que comme **fixtures de test** (`__fixtures__/chateaux.fixtures.js`), ce qui est légitime.
+
+- **[Données] `est_la_une` ne discrimine plus rien** : les **sept** demeures servies sont à `true` (mesuré le 21 août). Le champ n'est d'ailleurs consommé que pour **ordonner** la liste (`chateauxService.js:158`), jamais pour filtrer — le seul filtre est `.eq("statut", "publie")`. Même famille que le champ `urgence` en texte libre : un drapeau qui ne trie plus. Sujet **données**, pas code — à voir avec Dimitri.
+
+- **[Purge] La chaîne des « ambiances » est morte en entier** (découvert le 21 août 2026). `src/utils/ambiance.js` **n'a aucun consommateur** — `grep` sur `utils/ambiance`, `getPhraseAmbiance`, `getMeteoPhrase` dans les `.jsx` ne rend rien — et il est le **seul** consommateur de `src/data/ambiances.js`. Les 64 phrases éditoriales de Tanguy ne sont donc plus affichées nulle part.
+
+  ⚠ Et la divergence que cette même documentation redoutait a bien eu lieu : sur les **8** clés d'`ambiances.js`, **6 sont orphelines** (écrites pour des demeures qui n'existent plus), et **5 des 7 demeures servies n'ont aucune ambiance**.
+
+  ⚠⚠ **NE PAS PURGER — décision de Matthieu, 21 août 2026.** Ce contenu reste en liste **avec sa réserve**, et n'a pas été touché par PR3. La question à trancher n'est pas technique : ces phrases étaient-elles **censées s'afficher** (auquel cas c'est du contenu perdu, à rebrancher) ou **abandonnées** (auquel cas la purge est légitime) ? Matthieu vérifie avec Tanguy. Tant que la réponse n'est pas connue, **le code mort reste** : effacer soixante-quatre phrases éditoriales sur une déduction de `grep` serait exactement le genre de raccourci que ce dépôt s'interdit.
 
 - ~~**[Phase 4.x] Investigation "Load request cancelled" mobile-safari sur /bri-1.avif**~~ ✅ Résolue (Chantier 1.9, 7 mai 2026, commit `062c490`) — diagnostic empirique : reproduction locale Windows mobile-safari (`npx playwright` + agent console-errors mode mobile-safari only) a révélé qu'il s'agissait d'une **CLASSIFICATION ERRONÉE** dans l'agent QA, pas d'un bug applicatif. Les images sont chargées passivement via `background-image` inline CSS dans 5 composants (`VitrinePermanente`, `DernieresCles`, `ClubMembres`, `HeureAuxDemeures`, `UneDeLaSemaine`). Aucun useEffect avec cleanup AbortController sur les images. L'AbortController existe uniquement pour le fetch météo dans `VitrineChateau.jsx:42-96`, sans rapport. Mes 3 hypothèses initiales (re-render, Phase 2.3 abort, prefetch Safari) toutes invalidées. Fix dans `scripts/agents/console-errors.cjs:311-317` : reclassification des cancels (`/cancel|abort/i`) comme avertissement quel que soit l'origine. Les vraies régressions (404/500) restent couvertes par le test E2E `Images locales /bri-*.avif sans 404`. Baseline resserrée : `erreurs.max` 2→1, `avertissements.max` 1→2.
 
@@ -654,11 +680,27 @@ Chaque ligne a été **vérifiée par lecture ou mesure**, pas déduite. Les ré
 
 **Cassures silencieuses — l'utilisateur ne voit rien, ou voit du vide**
 
-- **Aucun `ErrorBoundary` dans tout le projet.** Une exception au rendu blanchit l'application entière. ~4-6 h avec une page de repli patrimoniale.
+- ~~**Aucun `ErrorBoundary` dans tout le projet.**~~ ✅ Résolue (PR3, 21 août 2026) — `src/components/FiletErreur.jsx`, monté sous `BrowserRouter` et au-dessus d'`AuthProvider`.
+
+  ⚠ **C'est le SEUL composant de classe du dépôt, et il n'y a pas d'alternative** : `getDerivedStateFromError` et `componentDidCatch` n'existent que sur une classe. Ce n'est pas un choix de style.
+
+  ⚠ **Le repli recharge le document (`window.location.assign("/")`), il ne navigue pas.** Un boundary **ne se réinitialise pas tout seul** : un repli qui naviguerait par le routeur changerait l'URL **en restant affiché**, et le visiteur croirait le site mort. Un test garde ce comportement.
+
+  ⚠ **En développement, React relance l'erreur dans la console même quand le filet l'attrape.** Ne pas en conclure qu'il est cassé : si le repli s'affiche, il a fait son travail.
+
+  ⚠ **Il n'attrape PAS** les rejets de promesse (c'est le rôle des `.catch` — PR2a/PR2b), ni les erreurs des gestionnaires d'événement ou des minuteurs. React ne les lui donne pas.
+
+- **⚠ L'accueil n'avait AUCUNE route à lui** (découvert et corrigé en PR3, 21 août 2026). Il n'était servi que par le catch-all `<Route path="*">`. Remplacer ce catch-all par la page 404 a donc **supprimé l'accueil du site** — `/` rendait « Cette porte n'existe pas ». Le build restait vert : Vite compile sans broncher une application dont l'accueil a disparu. Deux tests du filet l'ont attrapé avant le commit. `<Route path="/" element={homeEtOverlays} />` est désormais explicite ; ne pas la retirer.
 - **Les hooks ne relancent jamais après une erreur réseau** (`useChateaux.js:26-48` — `useEffect` à deps `[excludeMocks]`, aucun `refetch` exposé). Une coupure d'une seconde laisse l'écran vide **jusqu'au rechargement**. Vérifié sur `main` avant et après la déduplication : comportement identique, donc antérieur à elle.
 - **`error` est déstructuré puis jamais affiché** — `VitrinePermanente.jsx:27`, `DernieresCles.jsx:48`. Le hook signale la panne, l'écran la tait.
 - **9 `.then` sans `.catch`** : `vitrine/ContenuClub.jsx:11`, `vitrine/ContenuDernieresCles.jsx:11`, `vitrine/offresResume.js:31,34`, `vitrine/OngletsNiveau1.jsx:34,43`, `contexts/AuthContext.jsx:50,80`, `auth/ReinitialiserMotDePasse.jsx:57`. Rejets non gérés, états bloqués en chargement.
-- **Aucune page 404** : la route `*` (`App.jsx`) sert l'accueil pour n'importe quelle URL.
+- ~~**Aucune page 404**~~ ✅ Résolue côté **visiteur** (PR3, 21 août 2026) — `PageIntrouvable` sert la route `*` et les trois `Navigate` déguisées. ⚠ **La dette SEO reste ouverte, cf. ci-dessous.**
+
+- **[SEO — chantier Julien] Le statut HTTP d'une URL inconnue est 200, pas 404.** Mesuré en production le 21 août : `/cette-page-nexiste-pas` répond **200**, exactement comme l'accueil. `vercel.json` réécrit `/(.*)` vers `index.html`, et ce rewrite est **nécessaire** au routage SPA — le retirer casserait le rechargement direct de `/vitrines`.
+
+  La page 404 de PR3 règle ce que **le visiteur** voit ; elle ne change rien à ce que **Google** comprend. Aujourd'hui l'indexeur voit une infinité d'URL qui répondent toutes 200 — du contenu dupliqué à l'échelle du site.
+
+  Deux voies, et l'arbitrage revient à Julien : **lister les routes valides** dans `vercel.json` (simple, mais la liste devrait rester synchronisée avec `App.jsx` — une nouvelle route oubliée deviendrait un 404 silencieux), ou une **fonction Edge** (pas de liste à tenir, plus de machinerie). ⚠ **Ne pas toucher au rewrite sans traiter les deux ensemble.**
 
 **Duplications restantes**
 
@@ -736,8 +778,29 @@ Un flake vert n'est pas un incident ; **deux occurrences du même sont un sujet*
 |---|---|---|---|
 | `blanc-buisson.spec.cjs:25` — « la home rend la section à la une » | **1** (18 août) | chromium | `toBeVisible` à 5 s sur `.une-semaine-carte`, qui n'existe pas tant que Supabase n'a pas répondu. Fragilité intrinsèque du test. |
 | ~~`blanc-buisson.spec.cjs:88` — « Escape ferme la vitrine »~~ | **2** (19 août) | webkit | ✅ **RÉSOLU le 20 août** — cf. § ci-dessous. ⚠ La cause notée ici, « le délai de `navigate(-(delta+1))` sur WebKit mobile », était **fausse** : ce saut n'est même pas exercé par ce test. |
+| ⚠ **`vitrines-tous-chateaux.spec.cjs:111`** — « Chaque vitrine servie rend ses sections » | **4** (20 et 21 août) | **3 × webkit**, 1 × mobile-safari | **SEUIL FRANCHI — à traiter juste après PR3.** Cf. § dédié ci-dessous. |
 
 **Si l'un se répète au prochain `main`, le traiter** — ce serait la deuxième fois sur le même geste, pas un hasard.
+
+#### `vitrines-tous-chateaux:111` — le seuil est franchi (21 août 2026)
+
+**Quatre occurrences en deux jours, dont trois sur webkit.** En CI, le rejeu automatique le rattrape et le run reste vert — ce n'est donc pas une urgence. ⚠ **Mais en local, où Playwright ne rejoue pas, il reste ROUGE** : c'est le seul échec hors tests visuels de la passe complète du 21 août. Il ne dépend d'aucun changement de PR1/PR2/PR3 — aucune de ces PR ne touche le catalogue ni son toggle.
+
+| date | contexte | navigateur | rejoué ? |
+|---|---|---|---|
+| 20 août | passe locale (PR1) | mobile-safari | non — rouge |
+| 21 août | `qa-full` sur `main` (#136) | webkit | oui — vert |
+| 21 août | `qa-full` sur `main` (#137) | webkit | oui — vert |
+| 21 août | passe locale (PR3) | webkit | non — rouge |
+
+⚠ **Ce qui suit est une PISTE, pas un diagnostic.** Elle vient de la lecture et d'un run isolé, pas d'une mesure sous charge. Quatre fois cette semaine une cause « évidente » n'a pas résisté à la mesure (la dette « vidéo du Hero », le CDN Playwright accusé à la place d'apt, le « rejet non attrapé » de `getSession`, et le `.catch` inerte de la page de réinitialisation). **Diagnostic en lecture seule avant tout correctif.**
+
+- Ce spec est **le seul qui garde volontairement le vrai clic Playwright** sur le toggle « Liste ». Les harnais QA passent par le DOM depuis le 18 août, précisément parce que ce clic échouait — mais ce spec teste *le geste*, pas l'*état de page*, et son commentaire l'explique. Ne pas l'aligner sur `scripts/lib/ouvrir-catalogue.cjs` sans avoir compris.
+- Son propre commentaire (lignes 42-44) dit : « une fois sur mobile-safari en suite complète, jamais en isolé. Un délai plus long n'y changerait rien : le clic est **perdu, pas en retard** ».
+- Vérifié le 20 août : **2/2 verts en isolé**. La piste est donc la **charge de la suite complète**, pas le geste lui-même.
+- L'échec observé le 20 août portait sur `chateau-royal-de-benays` et mourait sur `locator('.tcl-onglet').filter({ hasText: 'Liste' })` après 10 s.
+
+**Ce qu'il faudrait mesurer** : ce que le DOM porte au moment du clic perdu (le toggle est-il présent ? recouvert ? remonté ?), et si l'échec suit un rang dans la suite plutôt qu'un château.
 
 
 #### La course peinture/effet en mode route — fermée le 20 août 2026

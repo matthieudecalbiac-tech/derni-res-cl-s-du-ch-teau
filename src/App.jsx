@@ -26,6 +26,7 @@ import PartenairesChateaux from "./components/PartenairesChateaux";
 // Sprint S2-α.1 — routing react-router pour les nouveaux écrans transactionnels
 // (pattern strangler fig : les overlays historiques restent inchangés).
 import RequireAuth from "./components/auth/RequireAuth";
+import PageIntrouvable from "./components/PageIntrouvable";
 import RequireRole from "./components/auth/RequireRole";
 import BookingFlowPlaceholder from "./components/placeholders/BookingFlowPlaceholder";
 import BookingConfirmationPlaceholder from "./components/placeholders/BookingConfirmationPlaceholder";
@@ -135,6 +136,13 @@ function RouteDernieresCles() {
       />
     </div>
   );
+}
+
+// Leve au rendu, pour que le filet d'erreur ait quelque chose a attraper.
+// Montee par la seule route `/__sonde-filet-erreur`, elle-meme absente du
+// bundle de production (cf. le commentaire de cette route, plus bas).
+function SondeQuiLeve() {
+  throw new Error("sonde du filet d'erreur");
 }
 
 function App() {
@@ -260,6 +268,13 @@ function App() {
 
   return (
     <Routes>
+      {/* ⚠ CETTE LIGNE N'EXISTAIT PAS, ET C'EST LE PIEGE DE PR3. L'accueil
+          n'avait AUCUNE route a lui : il n'etait servi QUE par le catch-all
+          `*`. Remplacer ce catch-all par la page introuvable a donc supprime
+          l'accueil du site — mesure immediate, `/` rendait « Cette porte
+          n'existe pas ». Deux tests du filet l'ont attrape avant le commit.
+          L'accueil a desormais son chemin, et `*` ne sert plus que l'inconnu. */}
+      <Route path="/" element={homeEtOverlays} />
       <Route path="/reserver/:chateauSlug" element={<BookingFlowPlaceholder />} />
       <Route path="/reservation/:id/confirmation" element={<BookingConfirmationPlaceholder />} />
       <Route path="/club" element={<RequireAuth><PageClub /></RequireAuth>} />
@@ -320,7 +335,27 @@ function App() {
       <Route path="/vitrines" element={<RouteVitrines />} />
       <Route path="/proprietaires" element={<RouteProprietaires />} />
       <Route path="/a-propos" element={<RouteAPropos />} />
-      <Route path="*" element={homeEtOverlays} />
+      {/* ⚠ CETTE ROUTE SERVAIT L'ACCUEIL COMPLET pour n'importe quelle URL.
+          Mesure du 21 aout sur le build de production : /cette-page-nexiste-pas,
+          /chateau/ et /admin/nimporte-quoi rendaient tous les trois l'accueil
+          entier, URL inchangee. Le visiteur ne savait pas qu'il s'etait trompe.
+          ⚠ Le statut HTTP reste 200 (rewrite SPA de vercel.json) : cette page
+          regle ce que le VISITEUR voit, pas ce que Google comprend. Dette SEO
+          assumee, tracee dans CLAUDE.md. */}
+      {/* ── LA SONDE DU FILET D'ERREUR ─────────────────────────────────────
+          Un filet qui n'a jamais rien attrape ne prouve rien. Cette route leve
+          volontairement, pour que le E2E constate que `FiletErreur` intercepte
+          et que le repli s'affiche — au lieu de l'ecran blanc.
+
+          ⚠ ELLE N'EXISTE PAS EN PRODUCTION. `import.meta.env.DEV` est remplace
+          par `false` a la compilation : la branche entiere disparait du bundle.
+          Verifie — 0 occurrence de « sonde-filet-erreur » dans `dist/`.
+          Les tests E2E tournent contre le serveur de DEV (playwright.config.cjs,
+          `webServer: npm run dev`), la sonde y est donc bien presente. */}
+      {import.meta.env.DEV && (
+        <Route path="/__sonde-filet-erreur" element={<SondeQuiLeve />} />
+      )}
+      <Route path="*" element={<PageIntrouvable />} />
     </Routes>
   );
 }

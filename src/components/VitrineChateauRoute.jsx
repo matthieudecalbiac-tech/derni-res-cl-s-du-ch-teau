@@ -1,8 +1,9 @@
 import { useRef } from "react";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useChateau } from "../hooks/useChateaux";
 import VitrineChateau from "./VitrineChateau";
 import EtatErreur from "./EtatErreur";
+import PageIntrouvable from "./PageIntrouvable";
 
 // Route /chateau/:slug — voie canonique SEO/démo Sprint S2-α.1.5.
 // L'overlay legacy (modal depuis home/VitrinePermanente) reste disponible
@@ -98,12 +99,15 @@ export default function VitrineChateauRoute() {
   // getChateauBySlug renvoie null) → home. Toute demeure servie a sa vitrine,
   // mise en avant (estLaUne) ou non.
   //
-  // ⚠ CELUI-CI RESTE UNE REDIRECTION, ET C'EST VOULU. `chateau === null` n'est
-  // pas une panne : le fetch a REUSSI, et sa reponse est « cette demeure n'est
-  // pas servie ». Y afficher « nous n'avons pas pu joindre » serait le meme
-  // mensonge que d'afficher une erreur sur une recherche sans resultat. Le vrai
-  // traitement de ce cas est une page 404, tracee en dette (PR3).
-  if (!chateau) return <Navigate to="/" replace />;
+  // ⚠ CE N'EST PAS UNE PANNE, ET LA DISTINCTION TIENT TOUJOURS. `chateau === null`
+  // signifie que le fetch a REUSSI et repond « cette demeure n'est pas servie ».
+  // Afficher « nous n'avons pas pu joindre » serait faux — c'est le cas `error`
+  // juste au-dessus qui porte cela, et lui seul.
+  //
+  // Ce qui change en PR3, c'est la DESTINATION : cette ligne renvoyait a
+  // l'accueil, sans un mot. Le visiteur cliquait une demeure et se retrouvait
+  // ailleurs, sans savoir pourquoi. La reponse juste est une page qui le DIT.
+  if (!chateau) return <PageIntrouvable />;
 
   return (
     <VitrineChateau
