@@ -1,8 +1,9 @@
-import { Navigate, useParams, Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { usePersonnage } from "../hooks/useChateaux";
 import { libelleNature } from "../utils/personnages";
 import EnteteEditoriale from "./EnteteEditoriale";
 import EtatErreur from "./EtatErreur";
+import PageIntrouvable from "./PageIntrouvable";
 import { useRetour } from "./BoutonRetour";
 import "../styles/page-personnage.css";
 
@@ -45,12 +46,19 @@ export default function PagePersonnage() {
     );
   }
 
-  // Slug inconnu → home. ⚠ REDIRECTION MAINTENUE, comme a la vitrine : le fetch
-  // a REUSSI et repond « ce personnage n'existe pas ». Ce n'est pas une panne,
-  // et le dire comme telle serait faux. Sa vraie reponse est une 404 (PR3).
-  if (!personnage) return <Navigate to="/" replace />;
-  // Un personnage sans château publié ne raconte rien → home.
-  if (personnage.chateaux.length === 0) return <Navigate to="/" replace />;
+  // ⚠ NI L'UN NI L'AUTRE N'EST UNE PANNE. Le fetch a REUSSI dans les deux cas ;
+  // c'est le bloc `error` ci-dessus qui porte l'echec, et lui seul. Ce qui change
+  // en PR3, c'est qu'on le DIT au lieu de rebondir en silence vers l'accueil.
+  //
+  // Slug inconnu : rien de ce nom.
+  if (!personnage) return <PageIntrouvable />;
+
+  // ⚠ CE SECOND CAS EST D'UNE AUTRE NATURE, et le choix a ete pose. Le
+  // personnage EXISTE en base, mais aucune de ses demeures n'est publiee : il
+  // n'y a donc AUCUNE page a servir a cette adresse. La nuance base/web ne
+  // regarde pas le visiteur — un seul comportement pour les trois cas, une seule
+  // phrase, rien a lui expliquer.
+  if (personnage.chateaux.length === 0) return <PageIntrouvable />;
 
   const titreDemeures = personnage.chateaux.length > 1 ? "Les demeures" : "La demeure";
 

@@ -206,14 +206,55 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     }
   });
 
-  test('Test 8 · /chateau/vaux-le-vicomte (estLaUne:false) → redirect /', async ({ page }) => {
+  // ── UN NOM QUI MENTAIT, ET LE FOSSILE QU'IL FAUT EMPECHER DE SE REFORMER ────
+  //
+  // Ce test s'appelait « /chateau/vaux-le-vicomte (estLaUne:false) → redirect / »
+  // et il a passé pendant des mois — pour une raison qui n'avait RIEN a voir avec
+  // son nom.
+  //
+  // ⚠ `estLaUne` N'AIGUILLE RIEN, ET N'A JAMAIS RIEN AIGUILLE ICI. Verifie le
+  // 21 aout : le champ n'apparait ni dans `VitrineChateauRoute` ni dans les
+  // routes d'`App.jsx`. Le service ne s'en sert que pour ORDONNER la liste
+  // (`.order("est_la_une", { ascending: false })`) ; son seul filtre est
+  // `.eq("statut", "publie")`. Une demeure `est_la_une: false` ouvrirait donc sa
+  // vitrine tout a fait normalement.
+  //
+  // Le nom datait de l'epoque ou Vaux etait un mock de demonstration dans
+  // `src/data/chateaux.js`, avec `estLaUne: false`. Ce fichier a disparu, et Vaux
+  // avec lui. Interrogation de la base le 21 aout — SEPT demeures servies :
+  //
+  //     blanc-buisson, chateau-de-bonnemare, chateau-de-la-riviere,
+  //     chateau-de-saint-paterne, chateau-du-boulay-morin,
+  //     chateau-royal-de-benays, les-briottieres        (toutes est_la_une=true)
+  //
+  // `vaux-le-vicomte` n'y est pas. Ce test verifiait donc « un slug INEXISTANT
+  // ne rend pas de vitrine » en croyant verifier autre chose. Le libelle avait
+  // survecu a son motif — et le prochain lecteur en aurait conclu qu'`estLaUne`
+  // aiguille. C'est ce piege que ce commentaire ferme.
+  //
+  // ── LE CONTRAT, LUI, N'A PAS CHANGE ─────────────────────────────────────────
+  //
+  // Une demeure qui n'est pas servie n'ouvre pas de vitrine : c'est ce que ce
+  // test a toujours protege, et il continue. Ce qui change en PR3, c'est la
+  // REPONSE — la redirection silencieuse vers l'accueil devient une page qui le
+  // dit, a l'URL demandee.
+  //
+  // ⚠ VAUX RESTE LE TEMOIN, POUR SON ABSENCE. Un slug historiquement plausible
+  // est le meilleur cas de lien mort : c'est exactement ce qu'un visiteur peut
+  // suivre depuis un vieux partage. Si une AUTRE demeure disparaissait un jour,
+  // ce test resterait juste — il ne depend d'aucune propriete de Vaux, seulement
+  // du fait qu'aucune ligne ne porte ce slug.
+  test('Test 8 · /chateau/<slug non servi> → page introuvable, a l\'URL demandee', async ({ page }) => {
     await page.goto('/chateau/vaux-le-vicomte');
     await page.waitForLoadState('domcontentloaded');
 
-    // L'URL doit être / (redirect Navigate replace)
-    await expect(page).toHaveURL(/\/$/, { timeout: 5000 });
-    // La home doit afficher la section "Une de la semaine"
-    await expect(page.locator('.une-semaine-carte').first()).toBeVisible({ timeout: 5000 });
+    await expect(page.locator('.err-titre')).toContainText(/Cette porte n.existe pas/i, { timeout: 20000 });
+    // ⚠ L'URL EST PRESERVEE. La redirection l'effacait : le visiteur ne pouvait
+    // ni relire l'adresse ni la corriger, et rien ne lui disait ce qui s'etait
+    // passe. C'est le defaut que PR3 ferme, et cette ligne le garde.
+    expect(new URL(page.url()).pathname).toBe('/chateau/vaux-le-vicomte');
+    // Et ce n'est plus l'accueil.
+    await expect(page.locator('.une-semaine-carte')).toHaveCount(0);
   });
 
   test('Test 9 · Régression home /', async ({ page }) => {
