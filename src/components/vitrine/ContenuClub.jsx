@@ -3,18 +3,34 @@ import { getOffresPourChateau } from "../../services/offresService";
 
 export default function ContenuClub({ chateau, offreCible, onReserver }) {
   const [offres, setOffres] = useState(null);
+  const [erreur, setErreur] = useState(false);
+  const [tentative, setTentative] = useState(0);
   const [highlight, setHighlight] = useState(null);
   const cardsRef = useRef({});
 
+  // Meme regle qu'a `ContenuDernieresCles`, et pour la meme raison : trois etats
+  // (chargement / vide / erreur) la ou il n'y en avait que deux, un `.catch` qui
+  // sort du `null`, et la remise a zero en tete d'effet pour qu'une demeure en
+  // panne ne legue pas son erreur a la suivante. Le drapeau `cancelled` couvre
+  // le rejet comme il couvrait la reponse.
+  //
+  // ⚠ CETTE SECTION EST MOINS EXPOSEE : `VitrineChateau:388` ne la monte que
+  // pour les membres du Club. Le defaut y est donc plus rare — pas moins reel.
   useEffect(() => {
     let cancelled = false;
-    getOffresPourChateau(chateau.slug, "club").then((data) => {
-      if (!cancelled) setOffres(data);
-    });
+    setErreur(false);
+    setOffres(null);
+    getOffresPourChateau(chateau.slug, "club")
+      .then((data) => {
+        if (!cancelled) setOffres(data);
+      })
+      .catch(() => {
+        if (!cancelled) setErreur(true);
+      });
     return () => {
       cancelled = true;
     };
-  }, [chateau.slug]);
+  }, [chateau.slug, tentative]);
 
   useEffect(() => {
     if (!offreCible || !offres) return;
@@ -25,6 +41,24 @@ export default function ContenuClub({ chateau, offreCible, onReserver }) {
     const t = setTimeout(() => setHighlight(null), 3000);
     return () => clearTimeout(t);
   }, [offreCible, offres]);
+
+  // L'erreur passe AVANT le chargement — `offres` vaut encore `null` a l'echec.
+  if (erreur) {
+    return (
+      <section className="vc4-contenu-club" data-onglet-contenu="club">
+        <p className="vc4-dc-erreur">
+          Les offres n&rsquo;ont pas pu être chargées.{" "}
+          <button
+            type="button"
+            className="vc4-dc-erreur-lien"
+            onClick={() => setTentative((n) => n + 1)}
+          >
+            Réessayer
+          </button>
+        </p>
+      </section>
+    );
+  }
 
   if (offres === null) {
     return (

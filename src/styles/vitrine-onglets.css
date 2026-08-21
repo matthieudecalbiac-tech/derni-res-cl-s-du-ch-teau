@@ -273,6 +273,37 @@
   color: var(--vc4-ink-faint);
 }
 
+/* L'erreur des offres. MEME REGISTRE QUE LE VIDE, PAS CELUI D'UNE ALERTE : la
+   dégradation est locale, la demeure va bien, et un bandeau rouge au milieu
+   d'une vitrine patrimoniale dirait une gravité qui n'existe pas. Ce qui la
+   distingue du vide n'est pas sa couleur, c'est SA PHRASE — et le lien de
+   réessai, que le vide n'a pas. */
+.vc4-dc-erreur {
+  text-align: center;
+  font-family: "Cormorant Garamond", serif;
+  font-style: italic;
+  color: var(--vc4-ink-faint);
+  padding: 60px 0;
+}
+
+.vc4-dc-erreur-lien {
+  font: inherit;
+  color: var(--vc4-or, #C09840);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.vc4-dc-erreur-lien:hover,
+.vc4-dc-erreur-lien:focus-visible { text-decoration-thickness: 2px; }
+
+@media (max-width: 768px) {
+  .vc4-dc-erreur-lien { min-height: var(--hm-tap, 44px); display: inline-flex; align-items: center; }
+}
+
 .vc4-loading {
   text-align: center;
   font-family: "Cormorant Garamond", serif;
