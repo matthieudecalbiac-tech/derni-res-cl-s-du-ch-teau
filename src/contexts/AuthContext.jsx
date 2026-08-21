@@ -37,6 +37,13 @@ import { supabase } from "../lib/supabase";
 
 const AuthContext = createContext(null);
 
+// Combien de temps on attend la session avant de conclure. Huit secondes :
+// assez pour une connexion lente et honnete, trop peu pour un ecran blanc.
+// ⚠ CE N'EST PAS UN DELAI DE REQUETE mais une BORNE D'ATTENTE : `getSession()`
+// peut ne jamais se regler (mesure du 21 aout : blanc a 120 s, 13 tentatives),
+// et une promesse qui ne se regle pas n'a pas de `.catch` a declencher.
+const DELAI_SESSION_MS = 8000;
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null);
   const [profile, setProfile] = useState(null);
@@ -46,21 +53,92 @@ export function AuthProvider({ children }) {
   // 1. Bootstrap session + listener onAuthStateChange
   // ──────────────────────────────────────────────────────────────────────
   useEffect(() => {
-    // Récupère la session initiale (persistée par Supabase dans localStorage)
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session ?? null);
-      setLoading(false);
+    let annule = false;
+
+    // ── L'ECRAN BLANC N'ETAIT PAS UN REJET : C'ETAIT UNE ATTENTE SANS FIN ─────
+    //
+    // Ce `.then` n'avait pas de `.catch`, et l'on a d'abord cru a un rejet non
+    // attrape. LA MESURE DIT AUTRE CHOSE, et c'est ce qui commande la forme du
+    // correctif — reconstruit apres coup, session stockee et auth coupee :
+    //
+    //   /club  TOUJOURS BLANC apres 120 s   —   13 requetes auth tentees
+    //
+    // `supabase.auth.getSession()` NE SE REGLE JAMAIS : ni resolution, ni rejet.
+    // Il boucle. UN `.catch` SEUL EST DONC IMPUISSANT — il attend un rejet qui
+    // n'arrive pas. C'est pourquoi il y a une BORNE, et pas seulement un `.catch`.
+    //
+    // ⚠ « Suspendu » serait un euphemisme : `RequireAuth` rend `null` pendant le
+    // chargement, si bien qu'une route protegee ne rendait RIEN — page
+    // entierement blanche, sans un mot, sans issue.
+    //
+    // ⚠ ET CELA NE FRAPPAIT QUE LES GENS CONNECTES :
+    //
+    //   sans session stockee, auth coupee   /club -> /connexion   (normal)
+    //   AVEC session stockee, auth coupee   /club -> PAGE BLANCHE
+    //
+    // `getSession()` lit d'abord `localStorage` : sans session enregistree il
+    // n'y a aucun appel reseau a echouer, ni meme a tenter. Le defaut visait donc
+    // precisement les membres du Club, ceux pour qui il compte le plus.
+    //
+    // ── LA BORNE, ET LE REPLI QU'ELLE DECLENCHE ───────────────────────────────
+    //
+    // Huit secondes, decision actee. Au-dela : `session = null`, `loading = false`
+    // — non-connecte SUR. La securite prime : jamais d'etat ambigu, jamais les
+    // donnees d'un autre. Le prix est un faux verrou passager, un membre qui doit
+    // recharger apres une coupure. C'est assume, et sans commune mesure avec un
+    // ecran blanc dont on ne sort pas.
+    //
+    // Le `.catch` attrape DESORMAIS LES DEUX — le vrai rejet reseau et le
+    // depassement — et les traite pareil : on ne sait pas qui est cette personne.
+    //
+    // ⚠ « ANONYME » N'EST PAS UNE ERREUR, ET LA BORNE NE LE MENACE PAS. Pour un
+    // visiteur sans session, `getSession()` lit `localStorage` et REUSSIT
+    // immediatement avec `data.session === null` — sans reseau, sans attente. Le
+    // `.then` traite ce cas depuis toujours, bien avant la huitieme seconde. Ni
+    // la borne ni le `.catch` ne le voient jamais.
+    //
+    // ⚠ LE MINUTEUR EST NETTOYE. Une fois la course gagnee par `getSession`, le
+    // rejet tardif du minuteur serait ignore — une promesse deja reglee ne se
+    // regle pas deux fois. Mais le `setTimeout` continuerait de courir jusqu'a
+    // son terme pour rien, et sur un demontage il tiendrait l'effet en vie
+    // huit secondes de plus. On l'annule donc explicitement, dans les deux cas.
+    let minuteur;
+    const borne = new Promise((_, rejeter) => {
+      minuteur = setTimeout(() => rejeter(new Error("delai-session")), DELAI_SESSION_MS);
     });
+
+    Promise.race([supabase.auth.getSession(), borne])
+      .then(({ data }) => {
+        clearTimeout(minuteur);
+        if (annule) return;
+        setSession(data.session ?? null);
+        setLoading(false);
+      })
+      .catch(() => {
+        clearTimeout(minuteur);
+        if (annule) return;
+        setSession(null);
+        setLoading(false);
+      });
 
     // Listener : magic link callback, signOut, refresh token, expiration
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      if (annule) return;
       setSession(newSession);
     });
 
-    // Cleanup obligatoire — évite memory leak + accumulation de listeners
-    return () => subscription.unsubscribe();
+    // Cleanup obligatoire — évite memory leak + accumulation de listeners.
+    // ⚠ `annule` s'y ajoute pour le meme motif que partout ailleurs : StrictMode
+    // monte deux fois en dev, et une reponse tardive ne doit pas ecrire dans un
+    // provider demonte. Il ne change RIEN au parcours normal — il ne se leve
+    // qu'au demontage.
+    return () => {
+      annule = true;
+      clearTimeout(minuteur);
+      subscription.unsubscribe();
+    };
   }, []);
 
   // ──────────────────────────────────────────────────────────────────────
@@ -72,6 +150,21 @@ export function AuthProvider({ children }) {
       return;
     }
     let cancelled = false;
+
+    // ⚠ CE SITE-CI GERAIT DEJA L'ECHEC — A MOITIE. Le corps du `.then` traitait
+    // l'erreur APPLICATIVE (`error` renvoye par Supabase : ligne introuvable,
+    // RLS qui refuse). Il ne voyait pas le REJET reseau, qui ne passe pas par
+    // `error` mais par la promesse elle-meme.
+    //
+    // Les deux appellent pourtant le meme traitement : on ne sait pas qui est
+    // cette personne, donc pas de profil. Un seul chemin, ecrit une fois — un
+    // `.catch` qui recopierait le corps du `.then` divergerait tot ou tard.
+    const sansProfil = (motif) => {
+      if (cancelled) return;
+      console.error("[AuthContext] Failed to fetch profile:", motif);
+      setProfile(null);
+    };
+
     supabase
       .from("users")
       .select("id, email, role, full_name, first_name, last_name, civilite, telephone, marketing_consent, created_at")
@@ -80,12 +173,12 @@ export function AuthProvider({ children }) {
       .then(({ data, error }) => {
         if (cancelled) return;
         if (error) {
-          console.error("[AuthContext] Failed to fetch profile:", error);
-          setProfile(null);
+          sansProfil(error);
           return;
         }
         setProfile(data);
-      });
+      })
+      .catch(sansProfil);
     return () => {
       cancelled = true;
     };

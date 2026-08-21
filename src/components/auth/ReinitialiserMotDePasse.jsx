@@ -36,6 +36,11 @@ import { supabase } from "../../lib/supabase";
 import { useAuth } from "../../contexts/AuthContext";
 import "../../styles/reinitialiser-mot-de-passe.css";
 
+// Le delai de grace avant de conclure. Trois secondes : le visiteur vient de
+// cliquer un lien dans sa boite mail et regarde l'ecran — on ne le fait pas
+// patienter comme au chargement du site (huit secondes a `AuthContext`).
+const DELAI_VERIFICATION_MS = 3000;
+
 export default function ReinitialiserMotDePasse() {
   const { updatePassword } = useAuth();
   const navigate = useNavigate();
@@ -48,15 +53,64 @@ export default function ReinitialiserMotDePasse() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [initError, setInitError] = useState(null);
+  // ⚠ LE TITRE DE CET ECRAN EST EN DUR : « Trousseau expire ». Juste quand le
+  // lien a vraiment expire, FAUX quand c'est le reseau qui a manque — et un
+  // titre ment aussi surement qu'un paragraphe. On retient donc la CAUSE, pas
+  // seulement le message.
+  const [panneReseau, setPanneReseau] = useState(false);
 
   // Détection session recovery — fix A : 3 pistes défensives
   useEffect(() => {
+    let annule = false;
+
+    // ── UN SEUL MECANISME DE DELAI, QUI TRANCHE ENTRE DEUX CAUSES ─────────────
+    //
+    // Le repli existant concluait toujours la meme chose au bout de trois
+    // secondes : « Lien invalide ou expire ». Mesure du 21 aout, session stockee
+    // et auth injoignable —
+    //
+    //   /reinitialiser-mot-de-passe   3 640 ms   « Lien invalide ou expire »
+    //
+    // ... alors que le lien n'y etait pour rien. `supabase.auth.getSession()` NE
+    // SE REGLE JAMAIS quand l'auth ne repond pas (meme mecanique qu'a
+    // `AuthContext` : ni resolution, ni rejet, il boucle). Un `.catch` n'y peut
+    // rien, et le repli parlait donc seul — pour accuser le lien a tort et
+    // envoyer demander un nouveau lien POUR RIEN.
+    //
+    // ⚠ ON N'AJOUTE PAS UN SECOND MINUTEUR. Le repli reste l'unique horloge ; ce
+    // qui change, c'est qu'il SAIT desormais pourquoi il s'est reveille :
+    //
+    //   getSession a REPONDU, pas de session, pas d'evenement  -> lien expire
+    //   getSession n'a PAS repondu (ou a echoue)               -> reseau
+    //
+    // Deux causes, deux messages, une seule horloge. Croiser deux minuteurs avec
+    // des `clearTimeout` reciproques aurait rouvert le risque qu'on ferme :
+    // deux mecanismes qui posent la meme erreur finissent par se contredire.
+    //
+    // ⚠ LES TROIS SECONDES NE SONT PAS UN DELAI RESEAU, C'EST UN DELAI DE GRACE.
+    // La piste 2 existe parce que `PASSWORD_RECOVERY` peut arriver APRES que
+    // `getSession` a repondu sans session. Conclure des sa reponse condamnerait
+    // les liens valides dont l'evenement traine. On attend donc, puis on tranche.
+    //
+    // Plus court qu'`AuthContext` (huit secondes) : ici le visiteur vient de
+    // cliquer un lien dans sa boite mail et regarde l'ecran.
+    let etatSession = "en-vol"; // "en-vol" | "repondu" | "echoue"
+
     // 1. Race-safe : session déjà active si l'event PASSWORD_RECOVERY
     //    a fired avant le mount (detectSessionInUrl parse le hash au
     //    boot du module supabase.js).
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setRecoveryReady(true);
-    });
+    supabase.auth
+      .getSession()
+      .then(({ data }) => {
+        etatSession = "repondu";
+        if (annule) return;
+        if (data.session) setRecoveryReady(true);
+      })
+      .catch(() => {
+        // Un rejet franc est un probleme de RESEAU, pas un lien perime : on ne
+        // le marque donc pas « repondu ». Il rejoint le silence.
+        etatSession = "echoue";
+      });
 
     // 2. Late-arriving event (hash parsé après le mount)
     const {
@@ -65,25 +119,41 @@ export default function ReinitialiserMotDePasse() {
       if (event === "PASSWORD_RECOVERY") {
         setRecoveryReady(true);
         setInitError(null);
+        setPanneReseau(false);
       }
     });
 
-    // 3. Timeout fallback — functional setState pour éviter la closure
+    // 3. L'horloge unique — functional setState pour éviter la closure
     //    stale qui figerait recoveryReady à l'instant de l'effet.
-    const timeoutId = setTimeout(() => {
+    const minuteur = setTimeout(() => {
+      if (annule) return;
       setRecoveryReady((ready) => {
         if (!ready) {
-          setInitError(
-            "Lien invalide ou expiré. Demandez un nouveau lien de réinitialisation.",
-          );
+          if (etatSession === "repondu") {
+            // ⚠ LE CAS NORMAL DE CETTE FORMULE, ET IL RESTE. Supabase a repondu,
+            // il n'y a pas de session, aucun evenement n'est venu : le lien est
+            // reellement perime. « Trousseau expire » est alors vrai, et
+            // « demandez un nouveau lien » est le bon geste.
+            setInitError(
+              "Lien invalide ou expiré. Demandez un nouveau lien de réinitialisation.",
+            );
+          } else {
+            // On n'a jamais su. On ne condamne donc pas le lien : il est
+            // peut-etre parfaitement valide.
+            setPanneReseau(true);
+            setInitError(
+              "Nous n’avons pas pu vérifier ce lien — votre connexion a peut-être été interrompue.",
+            );
+          }
         }
         return ready;
       });
-    }, 3000);
+    }, DELAI_VERIFICATION_MS);
 
     return () => {
+      annule = true;
       subscription.unsubscribe();
-      clearTimeout(timeoutId);
+      clearTimeout(minuteur);
     };
   }, []); // deps vides — un seul cycle de détection au mount
 
@@ -121,13 +191,28 @@ export default function ReinitialiserMotDePasse() {
       <div className="rmdp-page">
         <div className="rmdp-container">
           <span className="rmdp-lys">⚜</span>
-          <h1 className="rmdp-titre">Trousseau expiré</h1>
+          <h1 className="rmdp-titre">
+            {panneReseau ? "Vérification impossible" : "Trousseau expiré"}
+          </h1>
           <p className="rmdp-error-msg" role="alert">
             {initError}
           </p>
-          <Link to="/mot-de-passe-oublie" className="rmdp-back-link">
-            Demander un nouveau lien →
-          </Link>
+          {/* ⚠ LE GESTE PROPOSE SUIT LA CAUSE, comme le titre. « Demander un
+              nouveau lien » sur une panne reseau enverrait refaire un lien qui
+              n'a peut-etre rien — et la demande echouerait de la meme facon. */}
+          {panneReseau ? (
+            <button
+              type="button"
+              className="rmdp-back-link"
+              onClick={() => window.location.reload()}
+            >
+              Réessayer →
+            </button>
+          ) : (
+            <Link to="/mot-de-passe-oublie" className="rmdp-back-link">
+              Demander un nouveau lien →
+            </Link>
+          )}
         </div>
       </div>
     );
