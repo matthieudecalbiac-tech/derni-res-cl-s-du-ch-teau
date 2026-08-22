@@ -71,6 +71,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # ⚠ FAIL-FAST — avant l installation de Playwright, comme validate:chateaux
+      # (PR #12). Une derive de schema doit couter 5 secondes, pas huit minutes.
+      #
+      # Ce controle porte sur les NOMS de tables, pas sur leur structure : il
+      # attrape une table entiere oubliee dans schema.sql, pas une colonne. Cf.
+      # l en-tete de scripts/validate-schema.cjs, et CLAUDE.md § sous-audit D.
+      - name: Hygiene du schema (fail-fast)
+        run: npm run validate:schema
+
       # ⚠ BORNE D'ETAPE — pour que l'incident soit LISIBLE, pas opaque.
       #
       # Cette etape a fait tuer le job DEUX FOIS au plafond de 15 min (runs
@@ -171,6 +180,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # ⚠ FAIL-FAST — avant l installation de Playwright, comme validate:chateaux
+      # (PR #12). Une derive de schema doit couter 5 secondes, pas huit minutes.
+      #
+      # Ce controle porte sur les NOMS de tables, pas sur leur structure : il
+      # attrape une table entiere oubliee dans schema.sql, pas une colonne. Cf.
+      # l en-tete de scripts/validate-schema.cjs, et CLAUDE.md § sous-audit D.
+      - name: Hygiene du schema (fail-fast)
+        run: npm run validate:schema
 
       # Meme borne d'etape, mais PAS la meme valeur — les profils different.
       # Ce job installe webkit EN PLUS et dispose de 60 min ; il n'a jamais ete
