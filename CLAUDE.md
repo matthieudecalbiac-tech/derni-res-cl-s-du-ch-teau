@@ -777,8 +777,9 @@ Un flake vert n'est pas un incident ; **deux occurrences du même sont un sujet*
 | Test | Occurrences | Navigateur | Lecture |
 |---|---|---|---|
 | `blanc-buisson.spec.cjs:25` — « la home rend la section à la une » | **1** (18 août) | chromium | `toBeVisible` à 5 s sur `.une-semaine-carte`, qui n'existe pas tant que Supabase n'a pas répondu. Fragilité intrinsèque du test. |
-| ~~`blanc-buisson.spec.cjs:88` — « Escape ferme la vitrine »~~ | **2** (19 août) | webkit | ✅ **RÉSOLU le 20 août** — cf. § ci-dessous. ⚠ La cause notée ici, « le délai de `navigate(-(delta+1))` sur WebKit mobile », était **fausse** : ce saut n'est même pas exercé par ce test. |
+| ⚠ **`blanc-buisson.spec.cjs:88`** — « Escape ferme la vitrine » | **3** (19 août ×2, **21 août**) | webkit | ⚠ **LE ✅ EST LEVÉ.** Corrigé le 20 août par `useLayoutEffect` (30/30 en boucle), il a **reparu le 21 août : 1 échec sur 15 passes webkit**, sur la même assertion `toHaveCount(0, {timeout: 2000})` avec `4 × locator resolved to 1 element`. La course décrite ci-dessous était réelle et sa fermeture mesurée — mais elle **n'était pas la seule**, ou pas entièrement close. Cause de la rechute **inconnue** ; ne pas ré-appliquer le raisonnement de 20 août sans nouvelle mesure. |
 | ⚠ **`vitrines-tous-chateaux.spec.cjs:111`** — « Chaque vitrine servie rend ses sections » | **4** (20 et 21 août) | **3 × webkit**, 1 × mobile-safari | **SEUIL FRANCHI — à traiter juste après PR3.** Cf. § dédié ci-dessous. |
+| `retour-intelligent.spec.cjs:52` — « resultats filtrés → château → retour » | **1** (21 août, `qa-full` #138) | chromium | Meurt sur la PREMIÈRE ligne, avant toute logique de retour : `waitForSelector('.pr-carte--cliquable', 15000)`. C'est le garde-fou du test, pas ce qu'il vérifie. ⚠ **Pas causé par PR3** — le commit `d6225de` ne touche aucun fichier de `/resultats` et cette route avait déjà la sienne ; vert sur les trois `qa-full` précédents. Famille **apparente** de `blanc-buisson:25` (attente d'un DOM qui dépend de Supabase) — à confirmer par mesure, pas à croire. |
 
 **Si l'un se répète au prochain `main`, le traiter** — ce serait la deuxième fois sur le même geste, pas un hasard.
 
@@ -828,6 +829,19 @@ En mode **route**, `visible` vaut `true` dès le premier rendu : `.vc3-overlay.v
 | après | **30 / 30** |
 
 ⚠ `briottieres.spec.cjs:103` portait le même défaut sans l'avoir encore manifesté en CI. Les deux tests passent **sans modification** — c'est le juge : la course est fermée, pas contournée.
+
+##### ⚠ Mais elle n'était pas la seule — rechute du 21 août 2026
+
+Le titre de cette section dit « fermée », et **il faut le lire au sens strict** : la course peinture/effet décrite ci-dessus est bien fermée, et sa mesure (26/30 → 30/30) reste valable. Elle n'était simplement **pas la seule cause** de ce flake.
+
+Boucle webkit du 21 août, 15 passes, code inchangé depuis le correctif : **`blanc-buisson:88` a échoué une fois**, sur la même assertion, avec la même signature —
+
+```
+> await expect(page.locator('.vc3-overlay')).toHaveCount(0, { timeout: 2000 });
+    4 × locator resolved to 1 element — unexpected value "1"
+```
+
+⚠ **Ne pas ré-appliquer le raisonnement de 20 août.** Il a été juste, il a été mesuré, et il ne suffit pas. La cause de la rechute est **inconnue** — la chercher sur une nouvelle mesure, pas sur l'analogie avec celle-ci. C'est précisément le piège qui a fait vivre pendant des mois l'explication fausse de `vitrines-tous-chateaux` (« nœud détaché »), réfutée le 21 août.
 
 
 ### Dette DONNÉES / MÉTIER (distincte de la dette code)

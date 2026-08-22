@@ -11,6 +11,7 @@
  * en remplacement — d'où les checks de non-régression 4 et 5.
  */
 const { test, expect } = require('@playwright/test');
+const { attendreContenu } = require('./_attendreContenu.cjs');
 
 test.describe('S2-α.1 · routing smoke + non-régression', () => {
 
@@ -59,7 +60,7 @@ test.describe('S2-α.1 · routing smoke + non-régression', () => {
     // Pas de placeholder S2 sur la home.
     await expect(page.locator('.s2-placeholder')).toHaveCount(0);
     // Section historique "Une de la semaine" présente.
-    await expect(page.locator('.une-semaine-carte').first()).toBeVisible();
+    await attendreContenu(page, '.une-semaine-carte');
   });
 
   test('Régression : ouvrir un château depuis la home fonctionne toujours', async ({ page }) => {
@@ -67,8 +68,7 @@ test.describe('S2-α.1 · routing smoke + non-régression', () => {
     await page.waitForLoadState('domcontentloaded');
     // Générique : la vedette « à la une » est un choix éditorial libre. On teste
     // le MÉCANISME (une carte vedette ouvre une vitrine), pas QUEL château.
-    const carte = page.locator('.une-semaine-carte').first();
-    await expect(carte).toBeVisible();
+    const carte = (await attendreContenu(page, '.une-semaine-carte')).first();
     const cta = carte.locator('.une-semaine-cta');
     await cta.scrollIntoViewIfNeeded();
     let ouvert = false;

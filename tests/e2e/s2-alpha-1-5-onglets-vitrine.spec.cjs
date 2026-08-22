@@ -39,6 +39,7 @@
  * URL params en camelCase (alignés sur chateau.modules.dernieresCles).
  */
 const { test, expect } = require('@playwright/test');
+const { attendreContenu } = require('./_attendreContenu.cjs');
 const { selModule, selTheme, ouvrirNavVitrine } = require('./_navVitrine.cjs');
 
 test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
@@ -261,7 +262,7 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
     await expect(page.locator('.s2-placeholder')).toHaveCount(0);
-    await expect(page.locator('.une-semaine-carte').first()).toBeVisible();
+    await attendreContenu(page, '.une-semaine-carte');
   });
 
   // Ce test tourne désormais sur LES TROIS navigateurs, mobile-safari compris.

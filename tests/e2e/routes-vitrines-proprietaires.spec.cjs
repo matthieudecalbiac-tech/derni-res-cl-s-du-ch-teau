@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { attendreContenu } = require('./_attendreContenu.cjs');
 
 /**
  * Tests E2E · /vitrines et /proprietaires — filet ECRIT AVANT la conversion.
@@ -42,7 +43,7 @@ test.describe('Temps 2 · le menu mene aux ecrans de catalogue', () => {
 
   test('depuis /resultats, « Vitrines permanentes » mene a /vitrines', async ({ page }) => {
     await page.goto(DEPART);
-    await page.waitForSelector('.pr-carte--cliquable', { timeout: 15000 });
+    await attendreContenu(page, '.pr-carte--cliquable');
 
     await parLeMenu(page, /Vitrines permanentes/i);
 
@@ -61,7 +62,7 @@ test.describe('Temps 2 · le menu mene aux ecrans de catalogue', () => {
     test.skip(isMobile, 'Entree masquee sous 768 px par choix (header.css:300).');
 
     await page.goto(DEPART);
-    await page.waitForSelector('.pr-carte--cliquable', { timeout: 15000 });
+    await attendreContenu(page, '.pr-carte--cliquable');
 
     await parLeMenu(page, /Propri[ée]taires/i);
 

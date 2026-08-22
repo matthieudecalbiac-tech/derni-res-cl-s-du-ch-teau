@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { attendreContenu } = require('./_attendreContenu.cjs');
 
 /**
  * Tests E2E · La route /dernieres-cles — filet ECRIT AVANT la conversion.
@@ -43,7 +44,7 @@ test.describe('Route /dernieres-cles · le menu mene au bon ecran', () => {
 
   test('depuis /resultats, le menu ouvre les Dernieres Cles (et non l\'accueil)', async ({ page }) => {
     await page.goto(DEPART);
-    await page.waitForSelector('.pr-carte--cliquable', { timeout: 15000 });
+    await attendreContenu(page, '.pr-carte--cliquable');
 
     await page.locator(BURGER).click();
     // Le menu joue un fondu d'entree : on attend que l'entree soit reellement
@@ -83,7 +84,7 @@ test.describe('Route /dernieres-cles · le menu mene au bon ecran', () => {
     // « Accueil » ramene aux resultats. Regle du chantier retour : le logo est
     // un ancrage, le « ← Retour » revient d'ou l'on vient.
     await page.goto('/resultats?region=Normandie&invites=2');
-    await page.waitForSelector('.pr-carte--cliquable', { timeout: 15000 });
+    await attendreContenu(page, '.pr-carte--cliquable');
 
     await page.locator('.header-burger').click();
     const entree = page.locator('.hm-item-titre', { hasText: /Dernières Clés/i }).first();

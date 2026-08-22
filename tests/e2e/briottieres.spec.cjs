@@ -14,6 +14,7 @@
  *   - portrait typo lit proprietaires.initiale + nomAffiche (ex-découpe nom[0] + slice)
  */
 const { test, expect } = require('@playwright/test');
+const { attendreContenu } = require('./_attendreContenu.cjs');
 const { selModule, ouvrirNavVitrine } = require('./_navVitrine.cjs');
 
 async function ouvrirBriottieres(page) {
@@ -34,8 +35,9 @@ test.describe('Vitrine Briottières · parcours critiques', () => {
     await expect(page).toHaveTitle(/./);
     // La vedette « une de la semaine » est un choix éditorial libre : on teste que
     // la section rend au moins une carte, jamais QUEL château y figure.
-    const cartes = page.locator('.une-semaine-carte');
-    await expect(cartes.first()).toBeVisible();
+    // Même attente que `blanc-buisson:25`, qui a flaké : ce jumeau n'avait pas
+    // encore rougi, mais il portait le même défaut au défaut de 5 s.
+    const cartes = await attendreContenu(page, '.une-semaine-carte');
     expect(await cartes.count()).toBeGreaterThan(0);
   });
 
