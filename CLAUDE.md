@@ -242,15 +242,22 @@ Ces deux points sont **écrits nulle part ailleurs** et coûteraient cher oubli�
 
 ### ⚠ PIÈGE 1 — L'ordre de bascule n'est pas négociable
 
-La table `disponibilites` a une sémantique **opt-out**, inscrite dans son propre commentaire de schéma :
+⚠ **CETTE NOTE A ÉTÉ CORRIGÉE le 22 août : la structure mesurée n'est pas celle que l'audit A supposait.**
 
-> *« Absence = disponible au prix par défaut. »*
+L'audit avait lu le commentaire de schéma — *« Absence = disponible au prix par défaut »* — et en avait conclu une sémantique **binaire opt-out** : une ligne = une exception, donc table vide = tout ouvert. **La structure réelle est plus fine** :
 
-Une ligne signifie donc une **exception** (date bloquée, prix spécial), pas une ouverture. Or **la table est vide** — 0 ligne mesurée le 22 août.
+```
+disponibilites (chambre_id, date, est_disponible bool DEFAULT true,
+                prix_special_cents, reservation_id → reservations ON DELETE CASCADE,
+                note_interne, created_at, updated_at)
+UNIQUE (chambre_id, date)     RLS : select public · write chatelain_of / admin
+```
 
-**Conséquence** : brancher le corps de `disponibilitesService` sur cette table **avant de l'avoir remplie** rendrait **tout disponible, indéfiniment**. Ce serait **pire que le proxy actuel**, qui borne au moins à `HORIZON_JOURS = 30`.
+**Une ligne PAR JOUR, avec un booléen EXPLICITE.** Le piège binaire est donc **désamorcé** : une date bloquée s'écrit `est_disponible = false`, elle ne se déduit pas d'une absence.
 
-> **RÈGLE : remplir la table AVANT toute bascule.** Le service est conçu pour que la bascule ne touche qu'un corps de fonction — c'est vrai techniquement, et c'est précisément ce qui rend le piège facile à tomber dedans : le changement paraîtra anodin.
+⚠ **Mais une question reste entière, et elle se tranchera à l'étape 2 du moteur : que signifie une date SANS LIGNE ?** Le commentaire de schéma dit « disponible » ; la table est vide ; brancher dessus aujourd'hui rendrait donc toujours **tout ouvert**. La réponse n'est pas dans la structure — elle est à décider, et à écrire explicitement dans le composeur de `estDisponible`.
+
+> **RÈGLE INCHANGÉE : remplir la table AVANT toute bascule.** Le service est conçu pour que la bascule ne touche qu'un corps de fonction — et c'est précisément ce qui rend le piège facile : le changement paraîtra anodin.
 
 ### ⚠ PIÈGE 2 — Le proxy `urgence` n'est pas une disponibilité
 
@@ -276,6 +283,60 @@ Mesure du 22 août sur les **sept** demeures servies :
 - **Aucune fonction ne prend une PLAGE.** `chateauxDisponibles` ne regarde que la date d'**arrivée** ; la durée n'entre nulle part. Réserver trois nuits demandera une **quatrième fonction**, pas seulement un nouveau corps.
 - **`chateaux.mode_dispo` n'existe pas.** Mesuré : `column chateaux.mode_dispo does not exist`. Sa seule trace du dépôt est une **comparaison en commentaire** dans la migration `mode_paiement`. Ce n'est pas un placeholder d'architecture, c'est une intention mentionnée en passant.
 - **Aucune UI de saisie.** Douze écrans admin, un dashboard châtelain, **aucun calendrier éditable**. Les trois composants calendrier du dépôt sont en lecture, côté visiteur. Seules les **policies** d'écriture existent (`disponibilites_write_chatelain_admin`) — la sécurité du chemin est prête avant le chemin.
+
+## Anti-survente & modèle de paiement cible (22 août 2026)
+
+### ✅ Couche 1 — la survente est fermée en base
+
+**Découvert en cherchant si `demande-reservation` consultait une disponibilité. La réponse était non — et personne ne le savait.** Ni l'Edge Function (ses trois `ERR_INDISPO` couvrent le château, l'appartenance de la chambre et le module, jamais les dates), ni la base (aucune contrainte de chevauchement) n'empêchaient de vendre deux fois la même nuit.
+
+Contrainte d'exclusion partielle posée sur `reservations` — `migrations/2026-08-22-anti-survente.sql`, appliquée sur `lcc-prod`, test **6/6** :
+
+```sql
+EXCLUDE USING gist (chambre_id WITH =, daterange(date_arrivee, date_depart, '[)') WITH &&)
+WHERE (status IN ('confirmed', 'completed'))
+```
+
+⚠ **`pending` N'OCCUPE PAS — décision produit.** Plusieurs demandes peuvent viser les mêmes dates ; **la confirmation tranche**. Faire occuper `pending` aurait supprimé l'arbitrage du châtelain et **gelé l'inventaire** : `repondre_demande` refuse de retraiter une demande, et **aucune expiration automatique des `pending` n'existe**.
+
+⚠ **Borne `'[)'`** — arrivée incluse, départ exclu. Sans elle, un départ le 10 et une arrivée le 10 seraient en conflit alors que la chambre est **libre** ce soir-là.
+
+**Il reste deux couches**, dans des chantiers distincts : un contrôle lisible dans `demande-reservation` (le `23P01` brut ne doit jamais atteindre un visiteur), et le traitement de la violation dans `repondre_demande` côté châtelain. ⚠ Aucune ne remplacera la contrainte : entre une lecture applicative et son écriture subsiste une fenêtre de course que **seule la base ferme**.
+
+### ⚠ MODÈLE DE PAIEMENT CIBLE — autorisation à la demande, capture à la confirmation
+
+**À ne pas coder maintenant** (dépend de l'immatriculation Atout France), mais **à décider maintenant** : c'est la bonne façon de brancher Stripe le moment venu, et ce n'est pas « un bouton payer ».
+
+```
+le voyageur saisit sa carte à la DEMANDE
+   → Stripe AUTORISE : empreinte, montant pré-bloqué, RIEN n'est encaissé
+   → le châtelain CONFIRME
+      → SEULEMENT ALORS : capture, encaissement réel
+   → refus, ou pas de réponse dans le délai
+      → l'autorisation est RELÂCHÉE — le voyageur n'est jamais débité
+```
+
+**Ce modèle réconcilie les trois contraintes du projet** :
+
+- **l'arbitrage du châtelain est préservé** — cohérent avec l'option B de l'anti-survente ci-dessus, et avec ce qui est annoncé aux associés ;
+- **le voyageur s'engage sérieusement** — la carte est saisie, les demandes fantaisistes disparaissent ;
+- **rien n'est encaissé sans confirmation.**
+
+Stripe le gère nativement (`authorize` + capture différée). ⚠ **Ne pas partir sur un paiement instantané bloquant** : il retirerait au châtelain le choix entre deux candidats, et casserait le modèle établi au sous-audit B.
+
+### ⚠ CHANTIER À AUDITER — l'espace châtelain affiche-t-il les demandes ?
+
+Le châtelain **reçoit un email** à chaque demande. Mais **la demande apparaît-elle dans son tableau de bord**, pour qu'il réponde depuis l'interface plutôt que depuis sa boîte mail ?
+
+**À auditer en lecture seule**, plus tard. Ne pas creuser avant : c'est un chantier, pas une note.
+
+### Les trois emails transactionnels — comportement VOULU
+
+Une demande déclenche **trois emails vers trois destinataires distincts** : le **client**, la **supervision LCC**, le **châtelain**. ⚠ **Ce n'est pas une duplication** — Matthieu les reçoit tous les trois en test parce qu'il porte les trois rôles.
+
+**Aucun n'est à supprimer sans mesure.** Une revue de leur contenu et de leur pertinence est possible plus tard (l'email de supervision doit-il être systématique ?), mais elle devra s'appuyer sur l'usage réel.
+
+⚠ Rappel de la dette du sous-audit C : **l'expéditeur est une adresse Gmail personnelle en dur** (`send-email:147`). À corriger au passage au domaine LCC dans Brevo.
 
 ## La frontière : ce qui marche, ce qui manque pour encaisser (sous-audit B, 22 août 2026)
 
