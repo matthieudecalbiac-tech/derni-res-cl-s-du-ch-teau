@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { attendreContenu } = require('./_attendreContenu.cjs');
 
 /**
  * Tests E2E · Le Header mene partout au meme endroit — CLOTURE du Temps 2.
@@ -41,7 +42,7 @@ for (const e of ENTREES) {
       'Entree masquee sous 768 px par choix (header.css).');
 
     await page.goto(DEPART);
-    await page.waitForSelector('.pr-carte--cliquable', { timeout: 15000 });
+    await attendreContenu(page, '.pr-carte--cliquable');
 
     await page.locator(BURGER).click();
     const entree = page.locator('.hm-item-titre', { hasText: e.libelle }).first();
@@ -62,7 +63,7 @@ test('« Decouvrir la plateforme » mene a l\'accueil, pas en arriere', async ({
   // /resultats, ce bouton aurait ramene AUX RESULTATS, ce que son libelle ne
   // promet pas. Le libelle dit une navigation ; le gestionnaire doit la faire.
   await page.goto(DEPART);
-  await page.waitForSelector('.pr-carte--cliquable', { timeout: 15000 });
+  await attendreContenu(page, '.pr-carte--cliquable');
 
   await page.locator(BURGER).click();
   const entree = page.locator('.hm-item-titre', { hasText: /À propos|A propos/i }).first();

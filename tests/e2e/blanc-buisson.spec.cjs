@@ -10,6 +10,7 @@
  * voir briottieres.spec.cjs — côté Blanc Buisson ces valeurs sont justes par hasard.
  */
 const { test, expect } = require('@playwright/test');
+const { attendreContenu } = require('./_attendreContenu.cjs');
 const { selModule, ouvrirNavVitrine } = require('./_navVitrine.cjs');
 
 async function ouvrirBlancBuisson(page) {
@@ -27,8 +28,11 @@ test.describe('Vitrine Blanc Buisson · parcours critiques', () => {
     await page.waitForLoadState('domcontentloaded');
     // Vedette = choix éditorial libre : on teste que la section rend au moins une
     // carte, jamais QUEL château y figure.
-    const cartes = page.locator('.une-semaine-carte');
-    await expect(cartes.first()).toBeVisible();
+    // ⚠ CE TEST FLAKAIT ICI (table de surveillance, 18 août, chromium). Il
+    // attendait au défaut de 5 s un élément qui n'existe qu'après Supabase —
+    // mesuré à 5126 ms sur un serveur froid, soit AUCUNE marge. Le harnais porte
+    // le patron des tests robustes ; ce que le test vérifie ne change pas.
+    const cartes = await attendreContenu(page, '.une-semaine-carte');
     expect(await cartes.count()).toBeGreaterThan(0);
   });
 

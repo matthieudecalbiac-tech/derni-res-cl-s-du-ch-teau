@@ -35,12 +35,34 @@ async function ouvrirCatalogue(page) {
   for (let essai = 0; essai < 3; essai++) {
     // Ne reclique QUE si la modale n'est pas deja ouverte : une fois ouverte,
     // elle recouvre le toggle et le clic serait intercepte.
-    // Pourquoi ce retry : a l'arrivee des donnees Supabase, useChateaux fait
-    // re-rendre tout le sous-arbre .tcl et remplace le noeud du bouton. Si le
-    // clic part entre le controle d'actionnabilite de Playwright et sa
-    // dispatch, il atterrit sur un noeud detache et n'ouvre rien - observe une
-    // fois sur mobile-safari en suite complete, jamais en isole. Un delai plus
-    // long n'y changerait rien : le clic est perdu, pas en retard.
+    // ── ⚠ LA CAUSE ECRITE ICI ETAIT FAUSSE. ELLE A ETE REFUTEE PAR MESURE ────
+    //
+    // Ce commentaire affirmait : « a l'arrivee des donnees Supabase, useChateaux
+    // fait re-rendre tout le sous-arbre .tcl et REMPLACE le noeud du bouton ; le
+    // clic atterrit sur un noeud detache ». C'etait ecrit comme une certitude.
+    // Mesure du 21 aout, sur les DEUX moteurs :
+    //
+    //   chromium   bouton a 557 ms, donnees a 1362 ms
+    //   webkit     bouton a 489 ms, donnees a  849 ms
+    //   MEME NOEUD apres l'arrivee des donnees : true   (les deux)
+    //   noeud d'avant encore attache            : true   (les deux)
+    //   MutationObserver pose avant le boot     : 0 retrait d'un .tcl-onglet
+    //
+    // React RECONCILIE, il ne remplace pas. Le clic n'atterrit donc PAS sur un
+    // noeud detache. LA CAUSE REELLE DE CE FLAKE EST INCONNUE A CE JOUR.
+    //
+    // Ce qu'on sait, et qui n'est pas rien : CE N'EST PAS UN PROBLEME DE
+    // DONNEES. `.tcl-onglet` parait a 386-557 ms, BIEN AVANT elles. Ce test
+    // n'appartient donc pas a la famille de `retour-intelligent:52` et
+    // `blanc-buisson:25`, et le harnais `_attendreContenu` ne le concerne pas.
+    // Le log CI dit `waiting for locator` SANS `resolved to` : l'element n'a
+    // jamais ete trouve — ni noeud detache, ni donnee lente.
+    //
+    // Le retry ci-dessous est CONSERVE : il rattrape le symptome, quel qu'en
+    // soit le mecanisme. Diagnostic a reprendre sur l'artefact du prochain rouge
+    // CI (4 occurrences au 21 aout, cf. CLAUDE.md § Flakes sous surveillance).
+    // ⚠ NE PAS reconstruire une explication par ressemblance : c'est exactement
+    // ainsi que la precedente s'etait installee.
     if ((await page.locator('.tcl-liste').count()) === 0) await onglet.click();
     try {
       await expect(items.first()).toBeVisible({ timeout: 8000 });

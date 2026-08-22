@@ -1,4 +1,5 @@
 const { test, expect } = require('@playwright/test');
+const { attendreContenu } = require('./_attendreContenu.cjs');
 
 /**
  * Tests E2E · Le retour intelligent — filet ECRIT AVANT le cablage.
@@ -51,7 +52,7 @@ test.describe('Retour intelligent · on revient d\'ou l\'on vient', () => {
 
   test('resultats filtres -> chateau -> retour : on retrouve SA recherche', async ({ page }) => {
     await page.goto(DEPART);
-    await page.waitForSelector(CARTE, { timeout: 15000 });
+    await attendreContenu(page, CARTE);
 
     // Garde-fou : si le depart ne rend pas ses cartes, tout ce qui suit
     // mesurerait autre chose que le retour.
@@ -72,7 +73,7 @@ test.describe('Retour intelligent · on revient d\'ou l\'on vient', () => {
     expect(url.searchParams.get('region')).toBe('Normandie');
     expect(url.searchParams.get('invites')).toBe('2');
 
-    await page.waitForSelector(CARTE, { timeout: 15000 });
+    await attendreContenu(page, CARTE);
     expect(await page.locator(CARTE).count()).toBe(CARTES_ATTENDUES);
   });
 
@@ -84,7 +85,7 @@ test.describe('Retour intelligent · on revient d\'ou l\'on vient', () => {
     // On decouvre d'abord une vitrine reelle plutot que d'ecrire un slug en dur
     // (la base evolue ; un slug fige serait un filet qui rougit sans bug).
     await page.goto(DEPART);
-    await page.waitForSelector(CARTE, { timeout: 15000 });
+    await attendreContenu(page, CARTE);
     await page.locator(CARTE).first().click();
     await page.waitForURL(/\/chateau\/[^/]+$/, { timeout: 15000 });
     const vitrine = new URL(page.url()).pathname;
