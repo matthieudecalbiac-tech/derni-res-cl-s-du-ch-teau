@@ -407,7 +407,21 @@ rétro-portées            →   amenity_equipements · chateau_contacts        
 
 **`schema.sql` est tenu à 91 % — ni mort, ni mensonger : « presque juste, donc trompeur ».** C'est plus dangereux qu'un fichier manifestement obsolète, auquel personne ne se fierait. Le risque concret n'est pas « des tables manquent », c'est qu'un lecteur **croie la référence complète** : `paliers` porte les niveaux du Club (réductions, surclassements) et elle est requêtée par `clubService.js:18`.
 
-**RECOMMANDATION** — rétro-porter les deux tables, **et poser un garde-fou CI** : un script qui compare la liste des tables de `schema.sql` à celle des migrations et **rougit sur écart**, dans l'esprit de `qa-baseline.json`. La dérive redeviendrait alors impossible à installer en silence.
+**✅ FAIT le 22 août 2026** — les deux tables sont rétro-portées (`schema.sql`, section **8 bis**), et le garde-fou est posé.
+
+`scripts/validate-schema.cjs` · `npm run validate:schema` · branché **dans les deux jobs CI**, en fail-fast **avant l'installation de Playwright** (comme `validate:chateaux`, PR #12) : une dérive coûte cinq secondes, pas huit minutes.
+
+**Preuve — le garde-fou a rougi avant de virer au vert**, et rougit encore sur une régression :
+
+```
+avant le rétro-port   ✗ 2 tables : messages (2026-07-09) · paliers (2026-07-04)   EXIT 1
+après                 ✓ 23 déclarées, aucune dérive                               EXIT 0
+paliers renommée      ✗ 1 table : paliers                                          ← détecte le retour
+```
+
+⚠ **Les définitions viennent de la BASE, pas des migrations.** `paliers` est touchée par **trois** migrations (création, GRANT, accents) : recopier la première aurait produit un état faux. Extraction par `pg_attribute` / `pg_constraint` / `pg_indexes` / `pg_policies` / `role_table_grants`. **Fidélité y compris sur ce qui manque** : aucune des deux tables ne porte de `COMMENT` en base, aucun n'a donc été inventé.
+
+⚠⚠ **CE QUE LE GARDE-FOU NE VOIT PAS.** Il compare des **noms de tables**, pas des **structures**. Une colonne ajoutée par `ALTER TABLE` sans être reportée passera au vert. Il ferme la dérive **grossière** — celle qu'on a subie — pas la fine. Ne pas en conclure « `schema.sql` est à jour », seulement « aucune table entière ne manque ».
 
 ⚠⚠ **NE PAS RÉGÉNÉRER `schema.sql` depuis la base.** Un `db dump` serait vrai par construction mais **détruirait les 64 `COMMENT` rédigés à la main** — c'est là qu'est écrit « `en_ligne` DÉCLARÉ mais NON IMPLÉMENTÉ (Stripe non branché, immatriculation Atout France non faite) », qui a fondé le sous-audit B. Cette documentation est irremplaçable.
 

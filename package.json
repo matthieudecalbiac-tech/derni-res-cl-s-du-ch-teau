@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "validate:schema": "node scripts/validate-schema.cjs",
     "qa": "node scripts/qa-run.cjs",
     "qa:fast": "node scripts/qa-run.cjs --fast",
     "qa:visual": "node scripts/qa-run.cjs --visual",

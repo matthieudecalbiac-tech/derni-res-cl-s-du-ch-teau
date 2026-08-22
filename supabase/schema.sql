@@ -862,6 +862,118 @@ COMMENT ON TABLE public.email_log IS
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
+-- 8 bis. TABLES — CLUB DES CHÂTELAINS & MESSAGERIE
+-- ═══════════════════════════════════════════════════════════════════════════
+-- ⚠ RÉTRO-PORTÉES le 22 août 2026, après le sous-audit D. Ces deux tables
+-- existaient EN BASE depuis juillet — créées par `migrations/2026-07-04-club-paliers.sql`
+-- et `migrations/2026-07-09-messages.sql` — mais n'avaient jamais été reportées
+-- ici. `schema.sql` déclarait 21 tables quand la base en comptait 23.
+--
+-- Sept autres tables créées par migration l'avaient bien été : la convention
+-- était donc tenue SEPT FOIS SUR NEUF, et c'est ce qui rendait la dérive
+-- dangereuse — un fichier juste à 91 % n'est pas ignoré, il est CRU. `paliers`
+-- est requêtée par `clubService.js:18` et manquait à la référence.
+--
+-- ⚠ CES DÉFINITIONS VIENNENT DE LA BASE, PAS DES MIGRATIONS. `paliers` est
+-- touchée par TROIS migrations (création, GRANT, accents) : recopier la
+-- première aurait produit un état faux. Extraction du 22 août via `pg_attribute`,
+-- `pg_constraint`, `pg_indexes`, `pg_policies` et `role_table_grants`.
+--
+-- ⚠ AUCUN `COMMENT` ci-dessous, et ce n'est pas un oubli : les deux tables n'en
+-- portent aucun en base (requête ⑤ vide). Fidélité à l'état réel — on ne
+-- « complète » pas ce que la mesure n'a pas trouvé.
+-- Aucun trigger applicatif non plus (requête ⑥ vide) : ni l'une ni l'autre n'a
+-- de colonne `updated_at`, elles sont donc absentes de la section 9.
+
+
+-- ── paliers — la grille de fidélité du Club ────────────────────────────────
+-- Référentiel PUBLIC en lecture : la grille des paliers est une promesse
+-- commerciale, tout visiteur peut la consulter. Personne ne l'écrit côté client.
+--
+-- `id` est un `text` porteur de sens ('hote', 'habitue', 'familier',
+-- 'compagnon') et non un uuid : c'est un référentiel fermé, pas une donnée.
+CREATE TABLE IF NOT EXISTS public.paliers (
+  id                        text          PRIMARY KEY,
+  nom                       text          NOT NULL,
+  rang                      int           NOT NULL,
+  seuil_sejours             int           NOT NULL,
+  reduction_pct             numeric(5,2)  NOT NULL DEFAULT 0,
+  surclassement             boolean       NOT NULL DEFAULT false,
+  nuit_offerte              boolean       NOT NULL DEFAULT false,
+  newsletter_avant_premiere boolean       NOT NULL DEFAULT false,
+  avantages                 jsonb         NOT NULL DEFAULT '[]'::jsonb,
+  created_at                timestamptz   NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE public.paliers ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS paliers_select_all ON public.paliers;
+CREATE POLICY paliers_select_all ON public.paliers
+  FOR SELECT USING (true);
+
+GRANT SELECT ON public.paliers TO anon, authenticated;
+
+
+-- ── messages — la messagerie membre ↔ équipe ───────────────────────────────
+-- Un fil par membre, pas de table « conversation » : `user_id` EST le fil, et
+-- `expediteur` dit de quel côté vient la ligne.
+--
+-- ⚠ LES TROIS POLICIES SE LISENT ENSEMBLE. Un membre n'écrit que des messages
+-- 'membre' et l'admin que des 'equipe' (INSERT) ; chacun ne lit que son fil
+-- (SELECT) ; et l'UPDATE — qui sert à marquer LU — est croisé : le membre ne
+-- peut marquer lus que les messages de l'ÉQUIPE, l'admin que ceux du MEMBRE.
+-- Personne ne marque lu ce qu'il a écrit lui-même.
+CREATE TABLE IF NOT EXISTS public.messages (
+  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     uuid        NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  expediteur  text        NOT NULL,
+  contenu     text        NOT NULL,
+  lu_le       timestamptz,
+  created_at  timestamptz NOT NULL DEFAULT NOW(),
+
+  CONSTRAINT messages_contenu_non_vide CHECK (length(trim(contenu)) > 0),
+  CONSTRAINT messages_expediteur_valide CHECK (expediteur IN ('membre', 'equipe'))
+);
+
+-- Le fil d'un membre, dans l'ordre.
+CREATE INDEX IF NOT EXISTS messages_fil_idx ON public.messages (user_id, created_at);
+-- Index PARTIEL : seules les lignes non lues sont indexées. Le compteur de
+-- non-lus est la requête la plus fréquente de l'écran, et elle ne regarde
+-- jamais les autres.
+CREATE INDEX IF NOT EXISTS messages_non_lus_idx ON public.messages (user_id, expediteur)
+  WHERE lu_le IS NULL;
+
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS messages_insert ON public.messages;
+CREATE POLICY messages_insert ON public.messages
+  FOR INSERT
+  WITH CHECK (
+    (user_id = auth.uid() AND expediteur = 'membre')
+    OR (public.is_admin() AND expediteur = 'equipe')
+  );
+
+DROP POLICY IF EXISTS messages_select ON public.messages;
+CREATE POLICY messages_select ON public.messages
+  FOR SELECT
+  USING (user_id = auth.uid() OR public.is_admin());
+
+DROP POLICY IF EXISTS messages_update_lu ON public.messages;
+CREATE POLICY messages_update_lu ON public.messages
+  FOR UPDATE
+  USING (
+    (user_id = auth.uid() AND expediteur = 'equipe')
+    OR (public.is_admin() AND expediteur = 'membre')
+  )
+  WITH CHECK (
+    (user_id = auth.uid() AND expediteur = 'equipe')
+    OR (public.is_admin() AND expediteur = 'membre')
+  );
+
+GRANT SELECT, INSERT, UPDATE ON public.messages TO authenticated;
+
+
+-- ═══════════════════════════════════════════════════════════════════════════
 -- 9. TRIGGERS updated_at
 -- ═══════════════════════════════════════════════════════════════════════════
 -- DROP TRIGGER IF EXISTS systématique avant CREATE — Postgres ne supporte pas
