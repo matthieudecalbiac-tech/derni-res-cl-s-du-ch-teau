@@ -236,6 +236,389 @@ Demain : `await supabase.from("chateaux").select(...)` — hooks et composants n
 
 ⚠ **Règle stricte** : aucun hook ne doit `import { chateaux } from "../data/chateaux"`. Tous les hooks data passent désormais par `chateauxService`.
 
+## Disponibilités — deux pièges à ne pas perdre (sous-audit A, 22 août 2026)
+
+Ces deux points sont **écrits nulle part ailleurs** et coûteraient cher oubliés. L'architecture de la disponibilité est propre — table, RLS, point de bascule unique dans `disponibilitesService.js` — mais **aucune disponibilité réelle n'est enregistrée à ce jour**.
+
+### ⚠ PIÈGE 1 — L'ordre de bascule n'est pas négociable
+
+La table `disponibilites` a une sémantique **opt-out**, inscrite dans son propre commentaire de schéma :
+
+> *« Absence = disponible au prix par défaut. »*
+
+Une ligne signifie donc une **exception** (date bloquée, prix spécial), pas une ouverture. Or **la table est vide** — 0 ligne mesurée le 22 août.
+
+**Conséquence** : brancher le corps de `disponibilitesService` sur cette table **avant de l'avoir remplie** rendrait **tout disponible, indéfiniment**. Ce serait **pire que le proxy actuel**, qui borne au moins à `HORIZON_JOURS = 30`.
+
+> **RÈGLE : remplir la table AVANT toute bascule.** Le service est conçu pour que la bascule ne touche qu'un corps de fonction — c'est vrai techniquement, et c'est précisément ce qui rend le piège facile à tomber dedans : le changement paraîtra anodin.
+
+### ⚠ PIÈGE 2 — Le proxy `urgence` n'est pas une disponibilité
+
+Mesure du 22 août sur les **sept** demeures servies :
+
+| slug | `urgence` | fenêtre appliquée | reconnue ? |
+|---|---|---|---|
+| `blanc-buisson`, `chateau-de-bonnemare`, `chateau-royal-de-benays` | `J-15` | 15 j | oui |
+| `chateau-de-la-riviere` | « Vitrine premium » | 15 j | **non → défaut** |
+| `chateau-du-boulay-morin` | « Idéal week-end » | 15 j | **non → défaut** |
+| `chateau-de-saint-paterne`, `les-briottieres` | `null` | 15 j | **non → défaut** |
+
+**Les sept aboutissent à la même fenêtre.** Trois par une valeur reconnue, quatre par le repli silencieux : **le proxy ne discrimine rien**, et produirait le même résultat si toutes les valeurs étaient absentes.
+
+⚠ **Et Briottières — seule demeure portant une offre, donc seule à ouvrir des dates — est à `null`.** Le calendrier ouvre donc quinze jours sur une **valeur par défaut**, sans aucune information de disponibilité réelle.
+
+**Aujourd'hui c'est tenable** : le parcours produit une *demande*, filtrée par le châtelain, sans encaissement.
+
+> **LIEN DUR : pas d'encaissement avant que des disponibilités réelles soient saisies.** Le jour où Stripe encaisse, ce défaut devient « on encaisse pour une nuit peut-être occupée ». Ce n'est pas un retard qu'on s'impose, c'est un garde-fou.
+
+### Trois manques annexes, relevés au même audit
+
+- **Aucune fonction ne prend une PLAGE.** `chateauxDisponibles` ne regarde que la date d'**arrivée** ; la durée n'entre nulle part. Réserver trois nuits demandera une **quatrième fonction**, pas seulement un nouveau corps.
+- **`chateaux.mode_dispo` n'existe pas.** Mesuré : `column chateaux.mode_dispo does not exist`. Sa seule trace du dépôt est une **comparaison en commentaire** dans la migration `mode_paiement`. Ce n'est pas un placeholder d'architecture, c'est une intention mentionnée en passant.
+- **Aucune UI de saisie.** Douze écrans admin, un dashboard châtelain, **aucun calendrier éditable**. Les trois composants calendrier du dépôt sont en lecture, côté visiteur. Seules les **policies** d'écriture existent (`disponibilites_write_chatelain_admin`) — la sécurité du chemin est prête avant le chemin.
+
+## La frontière : ce qui marche, ce qui manque pour encaisser (sous-audit B, 22 août 2026)
+
+### FAIT — et en service, pas en maquette
+
+Le **flux de demande de séjour** fonctionne de bout en bout :
+
+```
+visiteur SANS COMPTE  →  Edge Function demande-reservation (service_role, hors RLS)
+                         revalide tout · recalcule le prix ET la commission SERVEUR
+                      →  demande durable en base
+                      →  châtelain accepte / refuse via RPC repondre_demande
+```
+
+**Neuf réservations réelles en base** au 22 août : 5 `confirmed`, 3 `pending`, 1 `cancelled`.
+
+⚠ **La mécanique économique est CODÉE**, sans paiement : le taux (`chateau_modules.commission_pct_negociee`) n'est **jamais exposé au front** et la commission est recalculée côté serveur — *« un montant venu du client serait falsifiable »*. Écran `/admin/commissions` + RPC `admin_set_commission`, appelée avec le **JWT de l'admin** (jamais en `service_role` : la garde interne lit `auth.uid()`).
+
+⚠ **Ne pas se fier à `BookingFlowPlaceholder`** (9 lignes, route `/reserver/:slug`) : c'est un **stub sur une route morte**. Le vrai flux est câblé dans `VitrineChateau.jsx:334`. Cette confusion a fait classer la zone « placeholder » à tort lors du cadrage.
+
+### MANQUE pour encaisser — trois choses, une seule est du développement
+
+1. **Stripe** — le seul vrai chantier dev. 0 dépendance, 0 code, 0 clé ; `stripe_payment_intent_id`, `stripe_charge_id`, `payout_status`, `payout_sent_at` sont **déclarées et jamais écrites**.
+2. **Atout France** — **bloqueur LÉGAL, hors du code** : immatriculation d'opérateur de voyages, préalable au *droit* d'encaisser. Délai subi. ⚠ Les commentaires du schéma l'empilent dans la même phrase que Stripe (« Stripe non branché, immatriculation Atout France non faite ») : **ce sont deux natures différentes**, à ne pas confondre dans un plan de charge.
+3. **Disponibilités réelles** — le **lien dur** du sous-audit A.
+
+### ⚠ PIÈGE — `mode_paiement = 'en_ligne'` rendrait un château NON réservable
+
+```sql
+CHECK (mode_paiement IN ('sur_place', 'en_ligne'))   DEFAULT 'sur_place'
+```
+
+La valeur est **autorisée en base** mais **rejetée par le code** : `demande-reservation:176` n'accepte qu'un château `publie` **et** `sur_place`. Basculer un château en `en_ligne` aujourd'hui le sortirait donc du parcours, en silence.
+
+**C'est à IMPLÉMENTER, pas à basculer.** Les sept demeures sont en `sur_place`.
+
+## Backend Edge — il fonctionne ; ce qui manque, c'est le filet (sous-audit C, 22 août 2026)
+
+**1 194 lignes** en production : `demande-reservation` (538), `send-email` (640), `ping` (16).
+
+⚠ **Trois trous avaient été relevés ; DEUX SONT TOMBÉS à la vérification hors dépôt.** Le cron existe, les emails arrivent. **Il ne reste qu'un défaut réel : l'absence de tests et de déploiement versionné.** Lire cette section en entier avant d'en citer un point — deux de ses alertes initiales étaient fausses, et elles sont conservées barrées pour que la leçon serve.
+
+### Ce qui est bon, et qu'il faut savoir avant d'y toucher
+
+- **Aucun secret exposé.** Balayage `eyJ…` / `sk_live` / `sk_test` / `xkeysib-` / `Bearer <token>` sur `supabase/functions/` et `src/` : **zéro**. Aucun secret journalisé non plus — `send-email:488` journalise l'**absence** du header, jamais sa valeur.
+- **Les deux fonctions sensibles sont protégées, et le raisonnement est juste.** `demande-reservation` tourne en `service_role` et **revalide tout** (le visiteur n'a pas de session : `signInWithOtp` n'en crée pas de synchrone). `send-email` est derrière une barrière `X-Internal-Secret` posée **avant toute lecture, DB ou appel Brevo** — parce que *« l'anon key est publique, donc `verify_jwt` seul ne discrimine rien »*.
+- **Le rate-limit est fermé en amont**, pas dans `send-email` : 3 demandes / 15 min par IP et 2 `pending` par compte, dans `demande-reservation`. `send-email` n'étant pas exposée, elle n'en a pas besoin.
+- **Les états partiels sont traités, et c'est le meilleur passage du backend.** La demande est durable **avant** tout email ; `email_log` est écrit **synchrone avant le return** ; *« RIEN ci-dessous ne peut faire échouer le return »*. Reprise par `claim_emails` — `UPDATE … RETURNING` atomique, `tentatives` incrémenté **au claim et non à l'envoi** (une ligne qui tue le worker brûle son budget au lieu de boucler), reprise des drains morts à 10 min, plafond 5.
+
+⚠ **Ne pas « simplifier » ces mécanismes sans avoir lu pourquoi ils existent.** Chacun répond à un incident ou à un raisonnement écrit sur place.
+
+### 🟠 TROU 1 — REQUALIFIÉ · la délivrabilité tient ; reste l'image et le domaine
+
+```js
+// supabase/functions/send-email/index.ts:147
+const SENDER = { name: "Les Clés du Château", email: "matthieu.de.calbiac@gmail.com" };
+```
+
+⚠ **L'AUDIT AVAIT CONCLU TROP VITE, ET LA MESURE L'A CORRIGÉ.** J'avais classé ce point 🔴 en raisonnant depuis cette seule ligne : « `gmail.com` publie une politique DMARC, donc l'envoi ne s'aligne pas, donc risque de spam ». Mesure de Matthieu le 22 août, logs Brevo du 30 juillet — **98 événements** :
+
+```
+statuts        Délivré · Ouvert · 1re ouverture     — TOUS positifs
+spam           0        bounce  0        rejet  0
+expéditeur     matthieu.de.calbiac@11712207.brevosend.com   (domaine Brevo VÉRIFIÉ)
+```
+
+**Brevo habille l'envoi avec son propre domaine authentifié.** L'adresse `gmail.com` du code n'est pas l'expéditeur technique réel : le risque DMARC que la lecture laissait craindre **ne se matérialise pas**. La délivrabilité tient aujourd'hui, et c'est mesuré, pas supposé.
+
+**Ce qui reste — 🟠, non bloquant, lié au nom de domaine :**
+
+1. **Image de marque.** Les emails partent en `@brevosend.com` / `@gmail.com`, pas en `@lesclesduchateau.fr`. Pour une plateforme patrimoniale qui vend des séjours d'exception, l'écart se voit.
+2. **Robustesse à l'échelle.** Passer sur un domaine LCC authentifié (SPF/DKIM/DMARC) est la bonne pratique **avant gros volume** — pas une urgence à 98 événements.
+
+**FIX** : configurer le domaine LCC comme expéditeur authentifié dans Brevo, **au moment du passage en public**. Le `SENDER` en dur de `send-email:147` sera alors à remplacer par l'adresse du domaine.
+
+⚠ **Une deuxième leçon, la même semaine que celle du cron.** Deux fois de suite, une conclusion tirée du seul code s'est révélée fausse une fois l'infrastructure interrogée. Le code dit ce qu'il *demande* ; il ne dit pas ce que la plateforme en *fait*. Pour tout ce qui touche Brevo, Supabase ou Vercel : **mesurer côté service avant de conclure**.
+
+### ✅ TROU 2 — LEVÉ · le balayage `pg_cron` existe, hors du dépôt
+
+**L'audit avait relevé une absence qui n'en était pas une.** Aucun `cron.schedule` ni `CREATE EXTENSION … cron` dans les 46 migrations — c'est exact, et cela ne prouvait rien. Mesure de Matthieu le 22 août, `SELECT * FROM cron.job` :
+
+```
+jobname   drain-email-log
+schedule  */2 * * * *        (toutes les 2 minutes)
+active    true
+appelle   send-email, avec X-Internal-Secret tiré du VAULT
+```
+
+**Le mécanisme de reprise de la file email fonctionne.** Le claim atomique, les tentatives bornées et la reprise des drains morts ont bien le déclencheur pour lequel ils ont été écrits. Les trois commentaires qui parlaient du balayage « comme d'un acquis » **disaient vrai**.
+
+⚠ **LA LEÇON, ET ELLE VAUT POUR TOUT AUDIT FUTUR DE CE PROJET.** Une partie de l'infrastructure vit **côté Supabase** — `pg_cron`, le Vault, les secrets des Edge Functions — et elle est **invisible à toute lecture du dépôt**. Un `grep` qui ne trouve rien n'y démontre pas une absence : il démontre que la chose n'est pas *dans le code*. Ne jamais conclure « ça n'existe pas » sur une zone dont on sait qu'elle est partiellement hors dépôt — **interroger la base ou le Dashboard**, comme pour les données.
+
+### 🟠 Dette mineure — le cron n'est pas versionné
+
+Il vit dans Supabase, **pas dans les migrations**. Une **recréation du projet à zéro ne le recréerait pas**, et la file email resterait sans balayage — sans que rien ne le signale, puisque le nudge continuerait de fonctionner sur le chemin nominal.
+
+Même famille que le trou 3 : le backend n'a pas de déploiement versionné. **Candidat au plan de remédiation, pas urgent.**
+
+### 🔴 TROU 3 — PROUVÉ · zéro test, zéro déploiement reproductible
+
+```
+tests sur supabase/functions/   aucun fichier
+déploiement en CI               aucun step
+```
+
+**1 194 lignes en production, déployées à la main, sans filet.** Le contraste est net : **front 288 tests, backend 0**. Aucune régression n'y serait détectée.
+
+`config.toml` est posé à la main (sans `supabase init`, pour ne pas écraser `seed.sql`), et le lien au projet distant vit dans `supabase/.temp`, **gitignoré** : le déploiement dépend donc d'un **état local non versionné**.
+
+**Candidat chantier de remédiation** : tests backend + déploiement reproductible — et **y inclure le cron** (cf. dette ci-dessus) ainsi que l'inventaire des secrets, qui souffrent du même mal : l'infrastructure réelle n'est pas décrite par le dépôt.
+
+## Supabase — dérive du schéma & sécurité RLS (sous-audit D, 22 août 2026)
+
+### La dérive : DEUX tables, pas neuf
+
+⚠ **Le chiffre du cadrage était faux.** J'avais listé les tables créées par migration et affirmé qu'elles étaient absentes de `schema.sql` **sans faire la comparaison**. La voici :
+
+```
+tables déclarées dans schema.sql   21
+tables créées par migration         9
+
+absentes de schema.sql   →   messages · paliers                              (2)
+rétro-portées            →   amenity_equipements · chateau_contacts          (7)
+                             chateau_personnages · demande_rate_limit
+                             email_log · equipements · personnages
+```
+
+**Sept sur neuf ont été rétro-portées** : la convention « `schema.sql` = état désiré final » est une discipline **observée**, pas abandonnée. Les 23 tables existent réellement en base, `messages` et `paliers` comprises.
+
+**`schema.sql` est tenu à 91 % — ni mort, ni mensonger : « presque juste, donc trompeur ».** C'est plus dangereux qu'un fichier manifestement obsolète, auquel personne ne se fierait. Le risque concret n'est pas « des tables manquent », c'est qu'un lecteur **croie la référence complète** : `paliers` porte les niveaux du Club (réductions, surclassements) et elle est requêtée par `clubService.js:18`.
+
+**RECOMMANDATION** — rétro-porter les deux tables, **et poser un garde-fou CI** : un script qui compare la liste des tables de `schema.sql` à celle des migrations et **rougit sur écart**, dans l'esprit de `qa-baseline.json`. La dérive redeviendrait alors impossible à installer en silence.
+
+⚠⚠ **NE PAS RÉGÉNÉRER `schema.sql` depuis la base.** Un `db dump` serait vrai par construction mais **détruirait les 64 `COMMENT` rédigés à la main** — c'est là qu'est écrit « `en_ligne` DÉCLARÉ mais NON IMPLÉMENTÉ (Stripe non branché, immatriculation Atout France non faite) », qui a fondé le sous-audit B. Cette documentation est irremplaçable.
+
+*Hygiène, candidat au plan de remédiation. Non urgent.*
+
+### Sécurité RLS — bilan globalement BON (mesuré en base, pas déduit)
+
+⚠ **Ces résultats viennent de requêtes SQL lancées par Matthieu sur la base réelle.** L'audit depuis les fichiers ne pouvait pas les établir : les fichiers *déclarent* l'activation, seule la base dit si elle *est* active. Un refus anon (401) ne prouve rien — la défense en profondeur du Sprint S1 fait qu'un GRANT absent renvoie 42501 **avant** toute évaluation RLS.
+
+- ✅ **RLS activée sur les 23 tables** (`relrowsecurity = true` partout), les sensibles comprises : `reservations`, `users`, `email_log`, `messages`, `chateau_contacts`, `paliers`. **Le piège « policy écrite mais RLS désactivée » n'existe pas ici.**
+- ✅ **Anon n'a aucun droit réel** de lecture ou d'écriture sur les tables sensibles — seulement `TRIGGER` / `TRUNCATE` / `REFERENCES`, inoffensifs.
+- ✅ **`email_log` et `demande_rate_limit` : RLS active + 0 policy = verrouillage total.** C'est voulu et c'est bon — réservé au backend en `service_role`. ⚠ Ne pas « corriger » cette absence de policy en croyant à un oubli.
+- ✅ **Les fonctions admin / châtelain `SECURITY DEFINER` sont toutes gardées** (`is_admin` / `is_chatelain*` / `auth.uid()`).
+- ✅ **`handle_new_user`** est un trigger : pas de garde nécessaire, sûr.
+
+### ⚠ Le seul point à durcir — gravité FAIBLE, avant ouverture publique
+
+**`count_sejours_confirmes` et `palier_du_membre`** sont `SECURITY DEFINER`, prennent **`p_user_id` en paramètre**, et sont **`GRANT EXECUTE` à `PUBLIC` sans garde interne**.
+
+Conséquence : un membre — ou un anonyme — connaissant un `user_id` (UUID) pourrait lire **le nombre de séjours et le palier Club d'un AUTRE membre**.
+
+**Fuite mineure** : ni email, ni nom, ni donnée de paiement. Mais c'est **le seul écart au standard du projet** — toutes les autres `SECURITY DEFINER` sont gardées.
+
+**FIX simple, quelques lignes**, au choix : garde `p_user_id = auth.uid()`, ou retrait de l'`EXECUTE` à `PUBLIC`, ou appel serveur uniquement.
+
+#### ✅ CORRIGÉ le 22 août — migration appliquée et validée en production
+
+`supabase/migrations/2026-08-22-garde-fonctions-club.sql`, appliquée sur `lcc-prod`.
+
+La garde `(p_user_id = auth.uid() OR public.is_admin())` est posée dans **les deux** fonctions — garder la seule appelante aurait laissé `count_sejours_confirmes` directement appelable. `EXECUTE` retiré à `PUBLIC`, accordé à `authenticated` seul.
+
+**Preuve — `supabase/tests-garde-club.sql`, 7/7 PASS en base de production :**
+
+```
+SETUP  auth.uid() posee                                    PASS
+1      membre A -> count(A)          3 sejours             PASS  ← corps metier inchange
+2      membre A -> palier(A)         Habitue [+ imbrique]  PASS
+3      membre A -> count(B)          42501                 PASS  ← la fuite est fermee
+4      membre A -> palier(B)         42501                 PASS  ← la fuite est fermee
+5      anon -> count(A)              42501                 PASS
+6      anon -> palier(A)             42501                 PASS
+```
+
+`PUBLIC` re-mesuré comme retiré, `authenticated` seul conservé. **`/club` vérifié en production** sur `lcc-black.vercel.app` : palier « Habitué » et séjours s'affichent, aucune régression. `clubService.js` **n'a pas été touché** — il passait déjà `user.id`, et c'était le meilleur indice que la garde avait la bonne forme.
+
+⚠ **Le test est VERSIONNÉ et rejouable.** Un correctif de sécurité sans test qui le prouve dans les deux sens n'en est pas un.
+
+#### ⚠ Ce qui avait été réévalué le 22 août — le déclencheur était DÉJÀ atteint
+
+La première rédaction disait « tant que le Club ne compte que des comptes de test, le risque est nul ; il devient réel au premier membre authentique ». **La mesure en base a démenti la prémisse** :
+
+```
+8 clients · 1 membre_club · 1 chatelain · 1 admin
+1 membre à 3 séjours confirmés  →  palier « Habitué » franchi
+```
+
+**Ce ne sont pas que des comptes de test**, et un palier a réellement été franchi. Le déclencheur que la note attendait est donc **techniquement passé**.
+
+Le risque **concret** reste faible — ces comptes sont l'entourage de test, et la fuite se limite au palier Club et au nombre de séjours. Mais l'échéance n'est plus « un jour » :
+
+> **→ C'ÉTAIT LE RANG 1 DE LA LISTE DE REMÉDIATION. ✅ FAIT le 22 août** — cf. section ci-dessus. Il restait à faire « avant d'ouvrir à de vrais inconnus », pas avant « les vrais membres » : ils étaient déjà là.
+
+⚠ **La leçon, une de plus** : une note de dette dont le déclencheur est une hypothèse (« tant qu'il n'y a que des comptes de test ») vieillit mal. La base change sans que la note le sache. **Dater et mesurer les prémisses**, comme pour tout le reste.
+
+## Club & paliers — le plus sain des cinq (sous-audit E, 22 août 2026)
+
+**Rien à réparer.** Zéro code mort, données réelles, palier infalsifiable, cas limite couvert par la donnée, aucun écart à la stratégie. C'est le seul des cinq sous-audits qui ne produit pas de correctif.
+
+### La mécanique — le palier n'est JAMAIS stocké
+
+`getEspaceClub(userId)` agrège quatre lectures en parallèle : la grille `paliers`, la RPC `count_sejours_confirmes`, la RPC `palier_du_membre`, et `reservations` (filtrées par RLS). La progression est dérivée côté front **à partir de données serveur**.
+
+⚠ **Le palier est dérivé à la lecture, jamais écrit.** Une colonne « palier » aurait divergé du compte réel de séjours à la première anomalie. C'est aussi ce qui rend le Club **insensible à une inscription incomplète** : rien n'a besoin d'être posé au moment de créer le compte.
+
+### La grille — mesurée en base, pas lue dans un fichier
+
+```
+rang  id          nom         seuil  réduc  surclass  nuit  newsl  avantages
+0     hote        Hôte          0      0 %    non      non   non    2
+1     habitue     Habitué       2     10 %    non      non   non    2
+2     familier    Familier      5     20 %    OUI      non   OUI    4
+3     compagnon   Compagnon     9     50 %    OUI      OUI   OUI    4
+```
+
+**Rangs contigus 0-1-2-3, seuils croissants, avantages qui s'empilent.** Aucun placeholder.
+
+**Le cas « 0 séjour » est couvert par la DONNÉE, pas par du code défensif** : `seuil_sejours = 0` sur `hote` satisfait la condition de `palier_du_membre`, donc aucun membre ne se retrouve sans palier. Le front garde tout de même sa ceinture (`palierActuel?.nom || "Hôte"`) — redondante aujourd'hui, utile si `hote` disparaissait un jour.
+
+### Le reste, en bref
+
+- **8 composants sur 8 vivants** (`PageClub` monté par `App.jsx` sur `/club` derrière `RequireAuth`, les sept autres montés par lui). **Zéro orphelin** — contrairement à `OngletsNiveau1`, `Services.jsx` ou la chaîne des ambiances.
+- **Entièrement câblé sur la base, aucun mock.** Les seules occurrences de « placeholder » sont des attributs HTML de champs de saisie.
+- **Zéro écart à la stratégie « Club gratuit »** : recherche `abonnement` / `cotisation` / `payant` / `subscription` → aucun résultat. Fidélité à l'usage, jamais au paiement.
+- **Parcours d'inscription câblé de bout en bout** (`/inscription` → `lcc_auth_next` → email → `/auth/callback` → `/completer-profil`) mais **jamais validé E2E** — constat de `CLAUDE.md` inchangé. ⚠ Le Club n'y ajoute **aucun risque** : palier dérivé à la lecture, aucune écriture à l'inscription.
+
+### Deux points, non bloquants
+
+- ⚠ **PRODUIT (Dimitri) — la réduction de 50 % au palier `compagnon`.** Elle engage lourdement la marge sur les membres **les plus fidèles et les plus actifs**, alors que la commission LCC est déjà faible (8-12 %). Décision arbitrée, ou valeur de départ posée pour peupler la table ? **À trancher.**
+- ⚠ **TECH mineur — `calculerProgression` suppose des rangs CONTIGUS** (`paliers.find(p => p.rang === rangActuel + 1)`). Ajouter un palier en laissant un trou de rang **casserait la progression silencieusement** : pas d'erreur, seulement « palier max atteint » affiché à tort. Sans effet aujourd'hui (0-1-2-3). **À savoir avant d'éditer la grille.**
+
+## Onboarding d'un château — outillé et dégressif (sous-audit F, 22 août 2026)
+
+**C'est la réponse à « la charge va exploser avec le nombre ». Elle est non.**
+
+### Ce qui est outillé — création de A à Z, sans SQL
+
+| écran | rôle |
+|---|---|
+| `AdminChateauNouveau` (83 l.) | crée la **coquille** : nom + slug auto-généré, éditable |
+| `AdminChateauEdition` (871 l.) | **tout le reste — 17 sections** |
+
+Identité · Localisation · Éditorial · Propriétaires · Média & thème · Mise en avant · **Chambres** · **Chronologie** · **Alentours** · **Équipements** · Histoire des lieux · **Galerie images** · trois blocs d'accroches · Chiffres clés (lecture seule) · Zone dangereuse.
+
+**Les tables filles sont éditables depuis l'UI. Aucun SQL manuel n'est requis pour le contenu.** Seule la commission passe par un écran séparé (`/admin/commissions` + RPC `admin_set_commission`).
+
+### Le filet de validation — 43 règles, en CI
+
+`scripts/agents/validation-donnees.cjs` (24 ko) tourne à chaque run QA. **Ce n'est pas un lint, c'est un filet de CONTENU** :
+
+```
+UNICITÉ      id / slug / nom dupliqués · coordonnées identiques (copier-coller ?)
+OBLIGATOIRE  slug kebab-case · région · département · chambres (nom, prix, capacité,
+             superficie, description) · propriétaires · images ≥ 2
+GÉOGRAPHIE   lat/lng dans les bornes France · cohérence région ↔ département
+PRIX         prixBarre > prix · réduction ∈ [0,100] · réduction RECALCULÉE vs déclarée
+NARRATION    accroche ≥ 20 (avert. < 40) · histoire ≥ 100 (< 200) · description ≥ 80
+TYPO         apostrophe droite → ’ · guillemets droits → « » · double espace
+PLACEHOLDER  détection de texte factice resté en place
+IMAGES       chaque URL testée ; toutes inaccessibles = ERREUR
+```
+
+⚠ **C'est ce filet qui rend l'échelle tenable** : il relit à notre place. Sans lui, c'est la relecture manuelle qui aurait explosé avec le nombre — pas la saisie.
+
+### Les images — Supabase Storage, mesuré
+
+`BoutonTeleverser` → `uploadImage` → bucket `chateaux-images` → URL publique écrite dans le champ.
+
+```
+Storage 23 · /public local 5 · externe 0     (URLs, sur les publiés)
+bucket : 132 fichiers · 30 Mo · 0,03 % du quota Pro (100 Go)
+```
+
+Les cinq châteaux ajoutés après la mise en place du téléversement sont **tous en Storage** ; les deux en `/public` sont les historiques. ✅ **Aucune inquiétude de quota avant des années.**
+
+### La charge : fixe vs outillable
+
+**Coût FIXE incompressible — le métier** : rédiger l'accroche, l'histoire, la description ; obtenir, trier et optimiser les photos. C'est précisément ce qu'on **ne veut pas** automatiser.
+
+**Coût OUTILLABLE — déjà outillé** : saisie, upload, validation, publication.
+
+**Pourquoi c'est dégressif** : l'apprentissage des 17 sections ne se paie qu'une fois ; les 43 règles rattrapent les oublis sans relecture ; les référentiels (`equipements`, régions, modules) se mutualisent ; sept histoires écrites donnent une forme, un rythme, une longueur cible — la page blanche est le coût du premier.
+
+**Trois outillages qui allégeraient la part fixe**, par rentabilité :
+1. **Import CSV/JSON** des champs structurés (chambres, alentours, timeline) — aujourd'hui saisis un par un. *Le plus rentable.*
+2. **Optimisation d'image automatique au téléversement** (AVIF, redimensionnement) — le bucket accepte aujourd'hui ce qu'on lui donne.
+3. **Pont depuis la prospection** — évite une re-saisie, pas la rédaction.
+
+### ⚠⚠ DÉCOUVERTE 1 — IL Y A 13 CHÂTEAUX EN BASE, PAS 7. Correction majeure.
+
+**Les six anciens mocks n'ont jamais été supprimés : ils ont été MIGRÉS en base**, très probablement avec un `statut` autre que `publie` — `chantilly`, `fontainebleau`, `pierrefonds`, `vaux-le-vicomte`, `ferte-saint-aubin`, `pierreclos`.
+
+⚠ **MA MÉTHODE DE MESURE ÉTAIT FAUSSE, ET ELLE A CONTAMINÉ PLUSIEURS CONCLUSIONS DU 22 AOÛT.** J'interrogeais PostgREST **en `anon`**, or la policy `chateaux_select_public` filtre `statut = 'publie'`. Je lisais donc « 7 châteaux **publiés et visibles d'un anonyme** » et j'écrivais « 7 châteaux **en base** ». Ce n'est pas la même phrase.
+
+**Ce qui doit être corrigé en conséquence :**
+
+- La dette « Fontainebleau orphelin », que j'ai marquée **CADUQUE au motif qu'il « n'existe plus en base »** — c'est **faux**. Il existe, non publié. La dette reste caduque pour d'autres raisons (`data/chateaux.js`, `idsCartes`, `ChateauModal` ont bien disparu), mais **pas pour celle-là**.
+- Le sous-audit D affirmait que `vaux-le-vicomte` « n'existe pas ». **Il existe, non publié.**
+- ⚠ Le commentaire de `tests/e2e/s2-alpha-1-5-onglets-vitrine.spec.cjs` (Test 8, commit `d6225de`) écrit que Vaux « n'existe tout simplement plus en base ». **Le test reste JUSTE** — `getChateauBySlug` filtre sur `statut`, rend `null`, la 404 s'affiche — mais **sa justification écrite est fausse**. À corriger au prochain passage : la bonne formulation est « non servi », pas « inexistant ».
+- Partout où ce fichier dit « les 7 demeures », lire **« les 7 demeures PUBLIÉES »**.
+
+**Mesuré — le catalogue exact au 22 août : 7 publiés + 6 brouillons.**
+
+```
+PUBLIÉS (servis)      blanc-buisson · bonnemare · la-riviere · saint-paterne
+                      boulay-morin · benays · briottieres
+
+BROUILLONS (en base,  chantilly · ferte-saint-aubin · fontainebleau
+NON servis)           pierreclos · pierrefonds · vaux-le-vicomte
+```
+
+**Les mocks n'ont pas été supprimés : ils ont été passés en brouillon.** Le filtre `statut = 'publie'` les masque au public — c'est cohérent, et c'est le comportement voulu.
+
+⚠ **Les deux formulations sont vraies, mais leurs portées diffèrent** : « `vaux-le-vicomte` n'est pas servi » est exact ; « il n'existe pas en base » ne l'est pas. Cette confusion vient de ma méthode de mesure, pas d'un changement de la base. **Écrire « non servi » ou « non publié », jamais « inexistant ».**
+
+### 🔴 DÉCOUVERTE 2 — COMMISSIONS À CORRIGER (revenu direct)
+
+```
+chateau-de-la-riviere   module B   0.00 %   est_actif = true   ⚠ PUBLIÉ  → rapporte 0 € si réservé
+chantilly               module B   0.01 %                         brouillon → moins urgent
+```
+
+⚠ **La priorité est `chateau-de-la-riviere` : il est PUBLIÉ, donc réservable dès maintenant, à commission nulle.** `chantilly` est un brouillon — non servi, donc sans effet tant qu'il le reste ; à corriger avant sa publication.
+
+**C'est exactement le trou qui a déjà coûté 0 %** et que `commissionService.js` documente : *« le taux se posait en SQL manuel, et deux châteaux publiés ont encaissé 0 % sans que rien ne le signale »*. L'écran `/admin/commissions` existe désormais — **il reste à s'en servir**.
+
+**Correction par l'UI. Priorité : revenu direct.** Pour Dimitri et Matthieu.
+
+### ⚠ DÉCOUVERTE 3 — la mutualisation des personnages est THÉORIQUE
+
+Requête ③ : **aucune ligne**. **Aucun personnage ne sert plus d'un château** aujourd'hui. La structure `chateau_personnages` est bien du many-to-many, mais les faits ne l'exercent pas.
+
+⚠ **Ne pas surestimer l'argument « réutilisation » dans le mail aux associés** : il est vrai pour les **équipements** et les **régions**, pas pour les personnages.
+
+### ✅ DÉCOUVERTE 4 — le remplissage éditorial des publiés est bon
+
+Histoire de **500 à 1 236 caractères**, 3 à 7 images. Les « courts » (~450-500) sont les **mocks non publiés** — `chantilly`, `fontainebleau`, `pierrefonds`, `ferte-saint-aubin` — à enrichir avant publication. ⚠ `pierrefonds` n'a **qu'une image**, sous le minimum de 2 exigé par l'agent : non publié, donc non bloquant, **mais bloquant le jour de sa publication**.
+
+### Ce que le dépôt ne peut pas auditer
+
+L'outil de prospection (`relaxed-jalebi`, table `lcc_prospection`) **n'existe ni en fichier ni en table Supabase**. Le pont prospection → mise en ligne est donc, au mieux, manuel. Hors de portée d'un audit du code.
+
 ## Roadmap stratégique post-audit (avr 2026)
 
 ### PHASE 1 — Démine immédiat ✅ TERMINÉE
@@ -632,17 +1015,22 @@ Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne 
 
 - **[Phase 4.x] SkeletonChateau réutilisable VitrinePermanente / ClubMembres** : actuellement utilisé uniquement dans `DernieresCles` (Phase 2.3 C8). Si UX premium souhaitée pour les autres listes, intégrer le ternaire `{ loading ? <SkeletonChateau /> : map }`. ~30 min total (2 composants × 15 min). Identifié 6 mai 2026.
 
-- ~~**[Phase 4.x] Fontainebleau orphelin du path UI nominal**~~ **CADUQUE — la base a été interrogée le 21 août 2026, et elle tranche.** Cette dette raisonnait sur `data/chateaux.js` (supprimé), sur `HeureAuxDemeures.idsCartes`/`idsIndex` (qui n'existent plus), et sur `ChateauModal` (supprimé). Surtout : **Fontainebleau n'existe plus en base**, non plus que les cinq autres mocks. Les demeures servies sont désormais :
+- ~~**[Phase 4.x] Fontainebleau orphelin du path UI nominal**~~ **CADUQUE** — mais ⚠ **pas pour la raison écrite ici le 21 août, qui était FAUSSE.** Cette dette raisonnait sur `data/chateaux.js` (supprimé), sur `HeureAuxDemeures.idsCartes`/`idsIndex` (qui n'existent plus) et sur `ChateauModal` (supprimé) : **ces trois motifs-là suffisent, et ils tiennent**.
+
+  ⚠ **En revanche, « Fontainebleau n'existe plus en base » était faux.** Mesure du 22 août : il **existe**, en **brouillon**. Les six anciens mocks n'ont pas été supprimés, ils ont été passés en `statut` non publié. J'avais interrogé PostgREST en `anon`, dont la policy filtre `statut = 'publie'` — je lisais « publiés visibles » et j'écrivais « en base ». Cf. sous-audit F, découverte 1.
 
   ```
-  blanc-buisson · chateau-de-bonnemare · chateau-de-la-riviere
-  chateau-de-saint-paterne · chateau-du-boulay-morin
-  chateau-royal-de-benays · les-briottieres        (sept, toutes est_la_une = true)
+  PUBLIÉS (7, servis)    blanc-buisson · chateau-de-bonnemare · chateau-de-la-riviere
+                         chateau-de-saint-paterne · chateau-du-boulay-morin
+                         chateau-royal-de-benays · les-briottieres
+
+  BROUILLONS (6, en base, NON servis)   chantilly · ferte-saint-aubin · fontainebleau
+                                        pierreclos · pierrefonds · vaux-le-vicomte
   ```
 
   Absents : `vaux-le-vicomte`, `pierrefonds`, `chantilly`, `fontainebleau`, `ferte-saint-aubin`, `pierreclos`. Ils ne subsistent que comme **fixtures de test** (`__fixtures__/chateaux.fixtures.js`), ce qui est légitime.
 
-- **[Données] `est_la_une` ne discrimine plus rien** : les **sept** demeures servies sont à `true` (mesuré le 21 août). Le champ n'est d'ailleurs consommé que pour **ordonner** la liste (`chateauxService.js:158`), jamais pour filtrer — le seul filtre est `.eq("statut", "publie")`. Même famille que le champ `urgence` en texte libre : un drapeau qui ne trie plus. Sujet **données**, pas code — à voir avec Dimitri.
+- **[Données] `est_la_une` ne discrimine plus rien** : les **sept demeures PUBLIÉES** sont à `true` (mesuré le 21 août — ⚠ mesure faite en `anon`, donc sur les publiés seuls ; les 6 brouillons n'ont pas été regardés). Le champ n'est d'ailleurs consommé que pour **ordonner** la liste (`chateauxService.js:158`), jamais pour filtrer — le seul filtre est `.eq("statut", "publie")`. Même famille que le champ `urgence` en texte libre : un drapeau qui ne trie plus. Sujet **données**, pas code — à voir avec Dimitri.
 
 - **[Purge] La chaîne des « ambiances » est morte en entier** (découvert le 21 août 2026). `src/utils/ambiance.js` **n'a aucun consommateur** — `grep` sur `utils/ambiance`, `getPhraseAmbiance`, `getMeteoPhrase` dans les `.jsx` ne rend rien — et il est le **seul** consommateur de `src/data/ambiances.js`. Les 64 phrases éditoriales de Tanguy ne sont donc plus affichées nulle part.
 
