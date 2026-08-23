@@ -16,6 +16,16 @@ import { logErreurSupabase } from "../utils/logSupabase.js";
 // libellé affiché appartient à l'UI, pas au service.
 export const ERR_DEJA_TRAITEE = "DEMANDE_DEJA_TRAITEE";
 
+// Code porté par l'Error levée quand la contrainte anti-survente refuse la
+// confirmation : une AUTRE demande a été confirmée entre-temps sur les mêmes
+// dates (RPC -> P0003, traduction du 23P01 de
+// `reservations_pas_de_chevauchement`).
+//
+// ⚠ DISTINCT DE `ERR_DEJA_TRAITEE`, et ce n'est pas un détail : « vous avez déjà
+// répondu » et « quelqu'un d'autre a pris ces dates » envoient le châtelain
+// chercher à deux endroits différents.
+export const ERR_DATES_PRISES = "DATES_DEJA_CONFIRMEES";
+
 // Demandes de séjour des châteaux du châtelain courant, plus récente arrivée en
 // tête. La vue n'expose ni user_id ni contact client (LCC intermédiaire).
 export async function getDemandesChatelain() {
@@ -54,14 +64,22 @@ export async function repondreDemande(reservationId, decision) {
 
   if (error) {
     logErreurSupabase("[chatelainService] repondreDemande:", error, status);
-    // La RPC lève 4 exceptions, chacune avec son ERRCODE : P0002 introuvable,
-    // 42501 pas le châtelain, 22023 décision invalide, et P0001 UNIQUEMENT pour
-    // la garde "déjà traitée". On discrimine donc sur le code (stable), pas sur
-    // le message (accentué côté SQL, et susceptible de bouger).
+    // La RPC lève 5 exceptions, chacune avec son ERRCODE : P0002 introuvable,
+    // 42501 pas le châtelain, 22023 décision invalide, P0001 pour la garde
+    // "déjà traitée", et P0003 pour la contrainte anti-survente. On discrimine
+    // donc sur le code (stable), pas sur le message (accentué côté SQL, et
+    // susceptible de bouger).
     if (error.code === "P0001") {
       const dejaTraitee = new Error("Demande déjà traitée.");
       dejaTraitee.code = ERR_DEJA_TRAITEE;
       throw dejaTraitee;
+    }
+    if (error.code === "P0003") {
+      const datesPrises = new Error(
+        "Ces dates viennent d'être confirmées pour une autre demande.",
+      );
+      datesPrises.code = ERR_DATES_PRISES;
+      throw datesPrises;
     }
     throw error;
   }
