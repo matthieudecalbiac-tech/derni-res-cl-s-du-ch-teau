@@ -305,7 +305,7 @@ Ordre de composition, pour les nuits `[arrivée, départ)` :
 |---|---|---|
 | **2.1** ✅ | colonne `dispo_geree` + COMMENT corrigés + `admin_upsert_chateau` + toggle admin | non |
 | **2.2** ✅ | `est_disponible` + `chateau_disponible` — SQL, `SECURITY DEFINER` | non |
-| 2.3 | `jours_disponibles(cible, du, au)` — même corps, forme plage, pour le calendrier | non |
+| **2.3** ✅ | `jours_disponibles_chambre` + `_chateau` — `SETOF date`, pour le calendrier | non |
 | 2.4 | wrapper JS — **nouvelle** fonction, les trois existantes intactes | non |
 | 2.5 | contrôle des dates dans `demande-reservation` | **oui** |
 
@@ -345,6 +345,45 @@ Le prédicat de la source 1 est copié **mot pour mot** de `reservations_pas_de_
 Les tests 15-16 ne relisent donc pas les deux prédicats, ils les **confrontent** sur la même fenêtre : la fonction dit *disponible* → l'`INSERT` réel doit **passer** ; la fenêtre est occupée, elle dit *indisponible* → l'`INSERT` doit être **rejeté par la contrainte**. Les deux, ou aucun des deux.
 
 ⚠ **Modèle à réutiliser** partout où une lecture applicative double une contrainte de base : c'est le seul test qui voit l'écart qu'aucune relecture ne voit.
+
+### L'étape 2.3 — la forme calendrier, et un piège à retenir pour 2.4/2.5 (23 août 2026)
+
+```
+jours_disponibles_chambre(chambre, du, au) -> setof date
+jours_disponibles_chateau(chateau, du, au) -> setof date
+```
+
+**La règle n'est pas réécrite, elle est APPELÉE** : chaque nuit N passe par `est_disponible(chambre, N, N+1)`. Recopier le prédicat de `reservations_pas_de_chevauchement` une **troisième** fois (la contrainte, `est_disponible`, puis le calendrier) aurait garanti la divergence — et une divergence entre le calendrier et le contrôle se voit au pire moment : le visiteur clique sur une date verte et reçoit un refus.
+
+**Coût mesuré, assumé** : ~90 accès index par mois affiché. ⚠ Si cela pesait un jour, la réponse serait **un cache côté appelant, pas une seconde copie de la règle**.
+
+⚠ **La factorisation inverse a été considérée et écartée** : faire du calcul par nuit la primitive et réécrire `est_disponible` par-dessus serait plus élégant, mais imposerait de toucher une fonction déjà validée en production, pour un gain d'élégance et une perte de garantie. Le sens actuel de la dépendance (le calendrier appelle le contrôle) est aussi le bon sens de l'autorité.
+
+#### ⚠ Deux objets différents — le décalage `D − 1`
+
+```
+est_disponible(ch, A, D)              un SÉJOUR — départ EXCLU, nuits A .. D-1
+jours_disponibles_chambre(ch, du, au) un ENSEMBLE DE NUITS — du et au INCLUS
+```
+
+**Équivalence** : `est_disponible(ch, A, D)` est vrai **SSI** `jours_disponibles_chambre(ch, A, D − 1)` compte `D − A` nuits. On ne dort pas le soir du départ. Le test 07 confronte les deux fonctions sur trois plages plutôt que de faire confiance à la lecture.
+
+#### ⚠⚠ LE CALENDRIER CHÂTEAU N'AUTORISE PAS UN SÉJOUR — à retenir pour 2.4 et 2.5
+
+```
+nuit 1   chambre A libre, chambre B prise
+nuit 2   chambre A prise, chambre B libre
+   -> les DEUX nuits sortent du calendrier château
+   -> et pourtant chateau_disponible(château, nuit1, nuit3) = FAUX
+```
+
+`jours_disponibles_chateau` rend les nuits où **au moins une chambre** est libre — chambre qui peut **changer d'une nuit à l'autre**.
+
+⚠ **Un écran qui affiche ces nuits en vert DOIT revalider la plage choisie par `chateau_disponible` avant de proposer une réservation.** Ce n'est pas un défaut : c'est ce que « au moins une chambre ce soir-là » veut dire, et l'alternative — ne montrer que les nuits couvertes par une même chambre sur tout un mois — n'aurait aucun sens pour un calendrier. Le **test 08 fixe ce comportement** ; son échec dans l'autre sens serait une **survente**.
+
+#### La garde d'horizon lève, contrairement aux bornes de 2.2
+
+366 jours maximum, sinon `22023`. ⚠ L'asymétrie est voulue : `est_disponible` rend `false` sur une plage aberrante — « non disponible » est une réponse honnête. Ici un **ensemble vide se lirait « rien n'est libre »**, réponse *fausse* et indiscernable d'un mois complet. Une fenêtre inversée rend en revanche l'ensemble vide **sans lever** : un intervalle vide n'a légitimement aucune nuit.
 
 #### Convention : les RPC métier ne sont PAS rétro-portées
 
