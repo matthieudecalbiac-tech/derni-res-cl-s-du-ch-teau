@@ -546,6 +546,40 @@ Une demande déclenche **trois emails vers trois destinataires distincts** : le 
 
 ⚠ Rappel de la dette du sous-audit C : **l'expéditeur est une adresse Gmail personnelle en dur** (`send-email:147`). À corriger au passage au domaine LCC dans Brevo.
 
+### ⚠ CHANTIER À PART — l'email de notification au châtelain est à revoir
+
+**Deux défauts mesurés sur le mail réellement reçu au test du 23 août 2026.** Ce n'est pas une hypothèse de lecture : c'est le contenu du message arrivé dans la boîte.
+
+#### 1. Le CTA est FAUX
+
+> *« Vous pouvez répondre directement au visiteur à l'adresse indiquée ci-dessus. »* — `send-email/index.ts:328`
+
+⚠ **Le châtelain ne répond PAS par email.** Il répond depuis son **espace châtelain** (`repondre_demande`, accepter/refuser), ou à terme depuis son PMS. Suivre ce conseil **court-circuiterait tout le circuit** : la demande resterait `pending` indéfiniment, aucune réservation ne serait enregistrée, et **la commission serait perdue**.
+
+⚠ Et le défaut se double d'un autre, réparé le 22 août mais qui montre que ce chemin n'a jamais été exercé : le bouton « Refuser » du tableau de bord ne fonctionnait pas non plus. **Le châtelain n'avait donc, en pratique, aucune voie correcte** — et l'email lui en indiquait une mauvaise.
+
+#### 2. Fuite d'intermédiation
+
+> `ligneFait("Contact", escapeHtml(p.emailClient))` — `send-email/index.ts:317` (et `:337`)
+
+Le mail affiche **l'adresse email du client**. Cela contredit le rôle d'intermédiaire de LCC — et le dépôt le sait déjà : `reservations_chatelain_view` masque délibérément le contact client, et `chatelainService` commente *« la vue n'expose ni user_id ni contact client (LCC intermédiaire) »*. **L'email défait ce que la vue protège.** Un châtelain pourrait contourner la plateforme dès la première demande.
+
+#### Décisions produit à trancher (Matthieu) — hors du chantier 2.5
+
+- **Quel CTA ?** Un lien vers l'espace châtelain semble l'évidence, mais il suppose que le châtelain ait un compte et sache s'y connecter.
+- **Masquer ou limiter le contact client ?** Prénom seul ? Rien du tout ? ⚠ Attention : le châtelain a des raisons légitimes de joindre un voyageur *une fois le séjour confirmé* — la question n'est pas la même avant et après.
+- **Cohérence avec les trois emails transactionnels** : celui du client et celui de supervision partagent le même gabarit de faits. Toucher l'un demande de relire les trois.
+
+#### Où c'est écrit (localisé le 23 août, lecture seule)
+
+```
+supabase/functions/send-email/index.ts:465   demande_chatelain -> gabaritChatelain
+supabase/functions/send-email/index.ts:317   ligneFait("Contact", …emailClient)
+supabase/functions/send-email/index.ts:328   le CTA fautif
+```
+
+`emailClient` vient du `payload` écrit par `demande-reservation` (§8) dans `email_log`. ⚠ **Deux endroits à traiter ensemble** : retirer l'affichage sans retirer le champ du payload laisserait la donnée voyager pour rien ; retirer le champ sans vérifier les autres gabarits casserait l'email de supervision, qui l'utilise légitimement.
+
 ### ⚠ QUESTION PRODUIT à trancher plus tard — le motif de refus
 
 **`repondre_demande` est la seule des quatre RPC d'annulation à ne prendre aucun motif.** Les trois autres — `annuler_ma_reservation`, `admin_annuler_reservation`, `admin_forcer_statut` — acceptent un `p_motif text DEFAULT NULL` qu'elles écrivent dans `reservations.cancellation_reason`. Le châtelain, lui, refuse sans pouvoir dire pourquoi.
@@ -1562,6 +1596,14 @@ Ces deux points ne sont pas des défauts de code : le mécanisme est juste, c'es
 - **[Données/Contenu] Un SEUL château porte une offre Module B visible** : au 17 août 2026, `offres` ne contient **qu'une** ligne visible (Briottières, Chambre Verte). Le calendrier n'a donc qu'une source à refléter, et la grille n'affiche qu'une carte. Non bloquant — le mécanisme est correct et se peuplera tout seul — mais **la démo Dernières Clés restera pauvre** tant que d'autres offres ne sont pas saisies. Sujet contenu, à coordonner avec Dimitri (stratégie) : cf. aussi la dette du générateur de seed (`buildOffresSQL()` absent, Sprint S2).
 
 - **[Phase 4.4] Vidéo Le Blanc Buisson YouTube → HTML5 natif** : (a) −3 critical a11y absorbés au baseline ; (b) +1 erreur "Permissions policy violation: compute-pressure" en local Chromium (Phase 1.x C2 absorbée par baseline `console-errors.erreurs.max=2`, à resserrer post-migration). iframe YouTube `JQ9m51Bl900` actuelle non a11y-compliante. Migration vers vidéo HTML5 native dans `/public/` retire ces faux positifs et donne le contrôle complet sur le poster, l'autoplay et la coupure mobile. **Bloqueur business** : récupérer auprès de Maïté & Éric de la Fresnaye le master vidéo source haute qualité + cession de droits écrite pour usage LCC commercial. **Périmètre tech post-réception** : ⚠ à ré-établir. Le périmètre écrit ici (« 4 composants dont `ChateauModal` ») est **faux** — `ChateauModal` n'existe plus. Au 19 août 2026 il ne reste **qu'une** occurrence : `VitrineChateau.jsx:402`. Sera triviale après Phase 4.2 ChateauCarte mutualisé. **Reset baseline post-migration** : Sprint S1 Phase 5 a passé `qa-baseline.json:seuils.a11y-axe.violationsCritical.max` de 3 à 10 pour absorber 5 occurrences cross-browser du faux positif YouTube. Après migration HTML5 + suppression de `videoBackground: 'JQ9m51Bl900'` du legacy `src/data/chateaux.js` id 8, les 5 critical button-name disparaissent automatiquement → reset `max` à 0 (et `actuel` à 0).
+
+#### ⚠ Trois chantiers visuels / DA — À PRÉCISER (Matthieu, 23 août 2026)
+
+Notés à chaud pour ne pas se perdre. **Aucun n'a de périmètre établi** : ce sont des intentions, pas des spécifications, et il faudra un cadrage avant d'y toucher. ⚠ Ne pas les traiter comme des tickets prêts — les trois touchent la direction artistique, donc Tanguy.
+
+- **(6) L'onglet « chambres » des vitrines est à reprendre.** ⚠ Reste à dire *ce qui* ne va pas — présentation, hiérarchie, densité, parcours vers la demande ? À préciser avant tout audit, sous peine de refaire ce qui convenait.
+- **(7) Audit des fleurs de lys (⚜).** Où le motif est-il employé, avec quelle cohérence, et est-ce le bon signe pour LCC ? ⚠ C'est une question de **direction artistique**, pas de code : l'inventaire technique (où le glyphe apparaît) est trivial, l'arbitrage ne l'est pas.
+- **(8) L'animation d'entrée de vitrine est à reprendre.** ⚠ Rappel de deux mesures qui la concernent : le clic du catalogue a déjà été perdu à cause d'animations décalées (`.tcl-row`, `animation-delay: 1.3s`), et `blanc-buisson:88` a rougi sur une course peinture/effet à l'ouverture. **Toucher à cette animation peut réveiller des flakes** — prévoir une passe QA, pas seulement un test visuel.
 
 - **[Phase 6.x] Sticky barre N1 (`.vc4-onglets-n1-wrap`) décolle au scroll** : le wrapper `ongletsN1Ref` (`VitrineChateau.jsx`, commit `79d6a36`, cible `scrollIntoView` du parcours dispo) est trop court pour le `position:sticky` — la barre d'onglets N1 se décolle dès qu'on scrolle au-delà. Fix = relocaliser le ref (forwardRef sur `OngletsNiveau1`) sans casser le scroll dispo. Test 11 de `s2-alpha-1-5-onglets-vitrine.spec.cjs` skippé en attendant (corps conservé pour réactivation). Pass polish Phase 6.x.
 
