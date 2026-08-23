@@ -338,6 +338,35 @@ Une demande déclenche **trois emails vers trois destinataires distincts** : le 
 
 ⚠ Rappel de la dette du sous-audit C : **l'expéditeur est une adresse Gmail personnelle en dur** (`send-email:147`). À corriger au passage au domaine LCC dans Brevo.
 
+### ⚠ QUESTION PRODUIT à trancher plus tard — le motif de refus
+
+**`repondre_demande` est la seule des quatre RPC d'annulation à ne prendre aucun motif.** Les trois autres — `annuler_ma_reservation`, `admin_annuler_reservation`, `admin_forcer_statut` — acceptent un `p_motif text DEFAULT NULL` qu'elles écrivent dans `reservations.cancellation_reason`. Le châtelain, lui, refuse sans pouvoir dire pourquoi.
+
+Deux choses à décider ensemble, **hors du chantier `cancelled_at`** (qui ne change pas la signature) :
+
+1. **Le châtelain doit-il pouvoir motiver son refus ?** Cela suppose un champ dans la modale de confirmation de `ChatelainDashboard` et un paramètre de plus sur la RPC.
+2. **Le motif doit-il atteindre le voyageur ?** ⚠ La réponse des trois autres RPC est **non**, et elle est écrite sur place : *« Le motif n'entre pas dans l'email — il reste en base pour le support »*. Texte libre non relu ; le rappeler avant de trancher autrement.
+
+⚠ **La colonne est LISIBLE PAR LE CLIENT**, même si rien ne l'affiche aujourd'hui : `reservations_client_view` l'expose (`policies.sql:206`) et la vue est en `GRANT SELECT … TO anon, authenticated` avec `security_invoker`. Tout ce qu'on y écrit doit donc être rédigé comme si le voyageur pouvait le lire. Vaut aussi pour le marqueur d'`admin_forcer_statut`.
+
+⚠ Le jour où un paramètre de motif sera ajouté, la forme est déjà établie par `admin_forcer_statut` : `COALESCE(p_motif, '<marqueur>')` — le motif humain s'il existe, la provenance à défaut.
+
+### ⚠ LE REFUS N'A JAMAIS FONCTIONNÉ — réparé le 22 août 2026
+
+**Depuis le 21 juillet, le bouton « Refuser » du tableau de bord châtelain était inopérant.** `repondre_demande` posait `status = 'cancelled'` sans `cancelled_at`, ce que `reservations_cancelled_coherent` (présente depuis le schéma initial du 8 mai) refuse en `23514`. Le châtelain lisait « Réessayez dans un instant » et pouvait réessayer indéfiniment.
+
+⚠ **Trouvé par un test, pas par un incident** — le test 4 de la couche 3 anti-survente, écrit pour tout autre chose. Personne ne l'avait vu parce qu'**aucun châtelain n'avait encore refusé une demande**.
+
+⚠ **La mesure qui a tranché, et la leçon qui va avec.** Une ligne `cancelled` existait en base avec `cancelled_at` renseigné, ce qui donnait à croire que le refus fonctionnait. **C'était une tautologie** : le CHECK interdit qu'il en soit autrement, quel que soit l'écrivain. Le vrai discriminant était `email_log` — `sejour_refuse` = **0**, contre `sejour_confirme` = **2** — un type d'email qu'aucune autre fonction ne produit. **Ne jamais conclure d'une colonne dont une contrainte garantit déjà la valeur.**
+
+#### ⚠ RESTE À FAIRE — le test manuel du refus, dès qu'un accès châtelain sera disponible
+
+La mécanique est prouvée **jusqu'à la RPC** : `supabase/tests-repondre-demande-anti-survente.sql` appelle la vraie `repondre_demande(…, 'refuser')` sous l'identité d'un châtelain, 5/5 en base de production. **La chaîne front, elle, a été lue et corrigée mais jamais exercée** — bouton de `ChatelainDashboard` → `chatelainService.repondreDemande` → RPC.
+
+Il manquait au moment du commit un accès châtelain **et** une demande en attente sous la main. **Non bloquant** : vérification de confort, le maillon incertain est le plus court des trois. À faire au premier accès.
+
+⚠ Même famille que le tunnel d'inscription (cf. § À VALIDER AVEC UN COMPTE DE TEST) : un chemin câblé en raisonnant depuis le code, jamais vu tourner.
+
 ## La frontière : ce qui marche, ce qui manque pour encaisser (sous-audit B, 22 août 2026)
 
 ### FAIT — et en service, pas en maquette

@@ -4,6 +4,7 @@ import {
   getDemandesChatelain,
   repondreDemande,
   ERR_DEJA_TRAITEE,
+  ERR_DATES_PRISES,
 } from "../../services/chatelainService";
 import { libelleStatutChatelain } from "../../utils/reservations";
 import "../../styles/chatelain.css";
@@ -127,6 +128,15 @@ export default function ChatelainDashboard() {
         // pas une panne. On referme, on le dit en clair, et on relit la base.
         setConfirmation(null);
         setAvis("Cette demande a déjà été traitée.");
+        await rafraichir();
+      } else if (e?.code === ERR_DATES_PRISES) {
+        // ⚠ SANS CETTE BRANCHE, P0003 tombait dans le `else` générique — qui dit
+        // « Réessayez dans un instant » et laisse la modale ouverte. C'est un
+        // CONSEIL FAUX : les dates sont prises, le réessai échouera toujours.
+        // Même traitement que « déjà traitée » : on referme, on l'explique, et
+        // on relit pour qu'il voie l'état réel de son calendrier.
+        setConfirmation(null);
+        setAvis("Ces dates viennent d'être confirmées pour une autre demande.");
         await rafraichir();
       } else {
         // Message générique : le détail brut de la RPC (SQL, ERRCODE, ids) ne
