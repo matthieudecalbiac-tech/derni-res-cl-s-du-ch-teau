@@ -122,6 +122,7 @@ function formFromChateau(c) {
     uneDeLaSemaine: c.uneDeLaSemaine === true,
     ordreHome: c.ordreHome ?? null,
     modePaiement: c.modePaiement ?? "sur_place",
+    dispoGeree: c.dispoGeree === true,
     coordonnees: {
       lat: c.coordonnees?.lat ?? "",
       lng: c.coordonnees?.lng ?? "",
@@ -196,6 +197,7 @@ function preparerBase(form) {
     uneDeLaSemaine: form.uneDeLaSemaine === true,
     ordreHome: entierOuNull(form.ordreHome),
     modePaiement: form.modePaiement,
+    dispoGeree: form.dispoGeree === true,
     coordonnees: {
       lat: nbOuNull(form.coordonnees.lat),
       lng: nbOuNull(form.coordonnees.lng),
@@ -597,6 +599,20 @@ export default function AdminChateauEdition() {
             <span className="adm-champ-aide">Section « Découvrez aussi » : plus petit = affiché en premier ; vide = à la fin.</span>
           </label>
           <ChampSelect label="Mode de paiement" value={form.modePaiement} options={MODES_PAIEMENT} onChange={setChamp("modePaiement")} />
+          {/* Opt-in du moteur de disponibilité. DORMANT tant que `estDisponible`
+              n'existe pas (étape 2.2) : cocher aujourd'hui ne change rien à
+              l'écran. L'avertissement est là dès maintenant parce qu'il sera
+              vrai avant qu'on repasse par ici — et qu'un interrupteur qui ferme
+              un château en silence n'a rien à faire dans un formulaire. */}
+          <div className="adm-champ">
+            <ChampCase label="Gestion des disponibilités activée" checked={form.dispoGeree} onChange={setCheck("dispoGeree")} />
+            <span className="adm-champ-aide">
+              Décoché : les dates ouvertes sont déduites comme aujourd'hui. Coché : le calendrier
+              saisi par le châtelain fait foi, et <strong>toute date non saisie est fermée</strong> —
+              n'activer qu'une fois le calendrier rempli, sous peine de rendre le château
+              inréservable. Réversible à tout moment.
+            </span>
+          </div>
         </section>
 
         {/* ── Chambres ── */}

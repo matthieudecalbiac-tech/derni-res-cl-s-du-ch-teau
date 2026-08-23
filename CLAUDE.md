@@ -255,9 +255,77 @@ UNIQUE (chambre_id, date)     RLS : select public · write chatelain_of / admin
 
 **Une ligne PAR JOUR, avec un booléen EXPLICITE.** Le piège binaire est donc **désamorcé** : une date bloquée s'écrit `est_disponible = false`, elle ne se déduit pas d'une absence.
 
-⚠ **Mais une question reste entière, et elle se tranchera à l'étape 2 du moteur : que signifie une date SANS LIGNE ?** Le commentaire de schéma dit « disponible » ; la table est vide ; brancher dessus aujourd'hui rendrait donc toujours **tout ouvert**. La réponse n'est pas dans la structure — elle est à décider, et à écrire explicitement dans le composeur de `estDisponible`.
+⚠ ~~**Mais une question reste entière, et elle se tranchera à l'étape 2 du moteur : que signifie une date SANS LIGNE ?**~~ ✅ **TRANCHÉE le 23 août 2026** — cf. § Moteur de disponibilité ci-dessous. La réponse dépend désormais d'un drapeau par château (`chateaux.dispo_geree`) : hors gestion, la table n'est pas consultée ; en gestion, une date sans ligne est **indisponible**.
 
-> **RÈGLE INCHANGÉE : remplir la table AVANT toute bascule.** Le service est conçu pour que la bascule ne touche qu'un corps de fonction — et c'est précisément ce qui rend le piège facile : le changement paraîtra anodin.
+> **RÈGLE INCHANGÉE : remplir la table AVANT toute bascule.** ⚠ Elle n'est plus seulement une consigne : depuis l'étape 2.1, la bascule est une **opération de données** (`dispo_geree = true`, château par château) et non plus un changement de code global. La structure porte le garde-fou.
+
+## Moteur de disponibilité — les décisions, et l'étape 2.1 (23 août 2026)
+
+Trois questions tranchées avant d'écrire la moindre ligne du moteur. Elles engagent tout le futur paiement : `estDisponible` sera consultée par l'écran **et** par le serveur au moment d'encaisser.
+
+### Q1 — SQL, pas JS. Et pas pour la raison attendue
+
+⚠ **Une `estDisponible` écrite en JS et exécutée dans le navigateur ne PEUT PAS voir ce qui bloque.** `reservations` est sous RLS : un visiteur anonyme n'en lit **rien**. Une lecture `.from("reservations")` depuis le front rendrait un tableau vide, et la fonction répondrait **« libre » sur une chambre réservée** — systématiquement, sans erreur, sans trace.
+
+Ce n'est pas un risque de divergence entre deux implémentations, c'est une **incapacité structurelle**. D'où : fonction SQL `SECURITY DEFINER` (sans paramètre d'utilisateur, ne rendant qu'un booléen ou des dates — rien à fuiter), `GRANT EXECUTE` à `anon` et `authenticated`, et un wrapper JS mince dans `disponibilitesService`, qui reste le seul endroit du front à répondre à la question.
+
+### Q2 — `chateaux.dispo_geree`, opt-in par château
+
+```
+false (défaut)  la table disponibilites est IGNORÉE — comportement historique (proxy urgence)
+true            la table FAIT FOI, et une date SANS LIGNE vaut INDISPONIBLE
+```
+
+⚠ **Pourquoi l'opt-in, alors que le schéma disait l'inverse.** Les deux erreurs ne coûtent pas la même chose : un oubli en opt-in **ferme** une date — on perd une réservation, c'est rattrapable ; un oubli en opt-out **ouvre** une date — on promet une nuit qu'on ne peut pas tenir. La contrainte anti-survente protège la **base** contre la double vente ; elle ne protège pas la **promesse faite à l'écran**.
+
+⚠ **Le COMMENT de `disponibilites` a été corrigé** — « Absence = disponible au prix par défaut » décrivait un opt-out jamais implémenté, qui aurait tout ouvert sur une table vide. `est_disponible` a reçu son premier COMMENT au passage : c'était la colonne qui porte la sémantique, et la seule non documentée des quatre.
+
+### Q3 — L'offre qualifie le prix, elle ne bloque pas
+
+Ordre de composition, pour les nuits `[arrivée, départ)` :
+
+| ordre | source | verdict |
+|---|---|---|
+| 0 | bornes (`départ > arrivée`, `arrivée ≥ aujourd'hui`) | invalide |
+| 1 | **réservation `confirmed`/`completed` chevauchante** | **indisponible, sans appel** |
+| 2 | calendrier, si `dispo_geree` (ligne `false` **ou** absente) | indisponible |
+| 3 | fenêtre d'offre (`offres.date_debut`/`date_fin`) | **ne bloque pas** |
+
+⚠ **Le prédicat de la source 1 doit être écrit MOT POUR MOT comme la contrainte `reservations_pas_de_chevauchement`** — mêmes statuts, même `daterange(…, '[)')`. S'ils divergent, l'écran promet ce que la base refuse, et le visiteur reçoit un `23P01` après avoir cru réserver.
+
+⚠ **`pending` n'occupe pas**, cohérent avec la décision produit de l'anti-survente : l'arbitrage appartient au châtelain.
+
+⚠ **Hors fenêtre d'offre ≠ indisponible.** Une chambre peut être libre en dehors d'une offre Dernières Clés — elle n'est simplement pas à ce tarif. Confondre les deux fermerait le calendrier partout où il n'y a pas de promotion.
+
+⚠ **Ne PAS faire écrire la source 1 dans la source 2.** `disponibilites.reservation_id` invite à marquer les jours réservés dans le calendrier ; ce seraient deux représentations du même fait, qui divergeraient à la première annulation manquée. La source 1 se dérive **à la lecture**, comme le palier du Club.
+
+### Les cinq sous-étapes
+
+| | contenu | visible ? |
+|---|---|---|
+| **2.1** ✅ | colonne `dispo_geree` + COMMENT corrigés + `admin_upsert_chateau` + toggle admin | non |
+| 2.2 | `est_disponible(chambre, arrivée, départ)` — SQL, `SECURITY DEFINER` | non |
+| 2.3 | `jours_disponibles(cible, du, au)` — même corps, forme plage, pour le calendrier | non |
+| 2.4 | wrapper JS — **nouvelle** fonction, les trois existantes intactes | non |
+| 2.5 | contrôle des dates dans `demande-reservation` | **oui** |
+
+⚠ **2.5 est le seul gain de sûreté du lot** : aujourd'hui l'Edge Function ne regarde **pas les dates du tout** — ses trois `ERR_INDISPO` portent sur le château, la chambre et le module.
+
+⚠ **L'ordre est contraint** : la saisie (étape 3) doit exister **avant** qu'un château passe à `true`, sinon on le ferme. Et l'étape 4 — retirer le proxy `urgence` des trois fonctions historiques — ne peut venir qu'une fois tous les châteaux servis basculés.
+
+### ⚠ `admin_upsert_chateau` : sept réémissions, et une liste blanche
+
+Découvert en 2.1, et **à savoir avant d'ajouter la moindre colonne à `chateaux`** : le formulaire admin écrit par une RPC dont l'`UPDATE` **nomme ses colonnes une par une**. `jsonb_populate_record` peuple bien le rowtype, mais une colonne absente de cette liste est peuplée **puis jetée** — le champ serait saisi, sauvegardé, et sans effet, sans la moindre erreur.
+
+**Ajouter une colonne exige donc de réémettre la fonction entière** — et sept migrations du dépôt le font déjà (`mode_paiement`, les 7 `img_*`, les 6 `accroche_*`, les 2 `titre_*`). ⚠ Même piège que `repondre_demande` : repartir de la mauvaise en perdrait d'autres en silence.
+
+⚠ **La parade retenue, à réutiliser** : la migration 2.1 **se prouve elle-même**. Elle capture `pg_get_functiondef` avant, compare l'ensemble des colonnes assignées après, et **lève une exception avant le `COMMIT`** si une seule a disparu ou si le gain n'est pas exactement `{dispo_geree}`. Le contrôle est mécanique — il ne dépend pas de la relecture.
+
+⚠ Le `COMMENT` de la fonction annonçait « 49 colonnes » ; le compte réel était **50**, puis **51**. L'écart préexistait, il est corrigé, et une requête le vérifie au lieu de l'affirmer.
+
+### ⚠ Le SQL Editor n'affiche que le DERNIER résultat
+
+Déjà écrit dans `2026-08-02-titres-editoriaux.sql`, et **oublié en 2.1** : le premier test finissait par un contrôle de propreté, qui masquait le tableau des cinq verdicts. Les tests passaient sans que personne puisse les lire. **Un fichier de test n'a qu'un seul `SELECT`, et c'est celui des verdicts** ; tout contrôle annexe se calcule dans le bloc `DO` et se verse dans la même table.
 
 ### ⚠ PIÈGE 2 — Le proxy `urgence` n'est pas une disponibilité
 

@@ -132,6 +132,10 @@ export function mapChateauBase(row) {
     accentTheme: nullable(row.accent_theme),
     // NOT NULL DEFAULT 'sur_place' côté base ; fallback pour rows partiels/mocks.
     modePaiement: row.mode_paiement ?? "sur_place",
+    // Opt-in du moteur de disponibilité. DORMANT en 2.1 : aucun consommateur
+    // avant `estDisponible` (2.2). Exposé dès maintenant pour que le formulaire
+    // admin puisse le lire et l'écrire.
+    dispoGeree: row.dispo_geree === true,
     coordonnees: {
       lat: nullable(row.coordonnees_lat),
       lng: nullable(row.coordonnees_lng),
@@ -653,6 +657,7 @@ const CHAMP_VERS_COLONNE = {
   couleurTheme: "couleur_theme",
   accentTheme: "accent_theme",
   modePaiement: "mode_paiement",
+  dispoGeree: "dispo_geree",
   // Re-séparation de la distance (mapChateauBase fusionne les deux colonnes).
   distanceParis: "distance_paris_label",
   distanceParisMinutes: "distance_paris",

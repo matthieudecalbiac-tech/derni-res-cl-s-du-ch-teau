@@ -34,6 +34,10 @@ export const FIXTURE_BRIOTTIERES = {
   siecle: "XVIIIe siècle",
   style: "Demeure familiale · Art de vivre anjouvin",
   mode_paiement: "sur_place",
+  // Volontairement à true, alors qu'aucun château réel ne l'est encore : c'est
+  // la fixture de l'aller-retour, et un `false` passerait même si le mapper
+  // renvoyait une constante. Seul un `true` prouve que la valeur voyage.
+  dispo_geree: true,
   distance_paris: 135,
   distance_paris_label: "2h15 de Paris",
   urgence: "J-10",
