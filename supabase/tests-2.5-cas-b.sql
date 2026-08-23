@@ -222,15 +222,55 @@ ORDER BY
 
 
 -- ============================================================
--- ⚠⚠ NETTOYAGE — À JOUER SÉPARÉMENT, APRÈS LE TEST DEPUIS LE SITE.
--- Ce bloc n'est PAS exécuté par le script ci-dessus : copiez-le seul.
+-- ⚠⚠ NETTOYAGE — DEUX BLOCS, À JOUER SÉPARÉMENT. Aucun n'est exécuté par le
+-- script ci-dessus : copiez celui dont vous avez besoin.
 --
--- Il retire le décor ET les demandes que le test manuel aura créées (le cas (a)
--- en produit une, avec son compte et ses lignes email_log).
--- ⚠ email_log AVANT reservations : la FK est en ON DELETE SET NULL, l'ordre
---    inverse laisserait des orphelines invisibles au filtre — et une outbox
---    oubliée PARTIRAIT au prochain drain (toutes les 2 minutes).
+-- ⚠ email_log AVANT reservations, dans les deux : la FK est en
+--   ON DELETE SET NULL, l'ordre inverse laisserait des orphelines invisibles au
+--   filtre — et une outbox oubliée PARTIRAIT au prochain drain (2 minutes).
+--
+-- ⚠ LE DRAIN NE SE RATTRAPE PAS. Supprimer une ligne `email_log` empêche un
+--   envoi À VENIR ; ce qui est déjà parti est parti. Le cas (a) produit trois
+--   emails et le drain tourne toutes les deux minutes : à la première lecture
+--   de ce bloc, ils sont probablement déjà envoyés. Le nettoyage sert la
+--   propreté de la base, pas l'annulation des envois.
+--
+-- ⚠ LE COMPTE UTILISATEUR N'EST PAS SUPPRIMÉ. Si le test (a) a été fait avec
+--   une adresse inconnue, la §6 de l'Edge Function a créé un compte, et il
+--   reste. Avec une adresse déjà en base, rien n'a été créé.
 -- ============================================================
+
+
+-- ── BLOC 1 — PARTIEL : le résidu du test, SANS toucher au décor ─────────────
+-- À jouer entre deux essais du cas (b) : retire les demandes créées depuis le
+-- site (toujours `pending`) et laisse la réservation `confirmed` qui occupe les
+-- nuits — sans elle, il n'y a plus rien à refuser.
+--
+-- DELETE FROM public.email_log
+--  WHERE reservation_id IN (
+--    SELECT id FROM public.reservations
+--     WHERE date_arrivee >= (CURRENT_DATE + 795) AND status = 'pending'
+--  );
+--
+-- DELETE FROM public.reservations
+--  WHERE date_arrivee >= (CURRENT_DATE + 795) AND status = 'pending';
+--
+-- -- Contrôle : 1 seule ligne, la confirmed du décor. Aucune pending, aucune orpheline.
+-- SELECT
+--   (SELECT count(*) FROM public.reservations
+--     WHERE date_arrivee >= (CURRENT_DATE + 795))                        AS total_doit_etre_1,
+--   (SELECT count(*) FROM public.reservations
+--     WHERE date_arrivee >= (CURRENT_DATE + 795) AND status = 'confirmed') AS decor_doit_etre_1,
+--   (SELECT count(*) FROM public.reservations
+--     WHERE date_arrivee >= (CURRENT_DATE + 795) AND status = 'pending')   AS residu_doit_etre_0,
+--   (SELECT count(*) FROM public.email_log e
+--      LEFT JOIN public.reservations r ON r.id = e.reservation_id
+--     WHERE r.id IS NULL AND e.created_at > NOW() - interval '2 hours')    AS orphelines_doit_etre_0;
+
+
+-- ── BLOC 2 — TOTAL : tout retirer, décor compris ────────────────────────────
+-- À jouer UNE FOIS les cas (a) et (b) validés. Après lui, il n'est plus
+-- possible de rejouer le cas (b) sans relancer le script du haut.
 --
 -- DELETE FROM public.email_log
 --  WHERE reservation_id IN (
