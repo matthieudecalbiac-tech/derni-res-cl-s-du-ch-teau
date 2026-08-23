@@ -241,6 +241,11 @@ CREATE TABLE IF NOT EXISTS public.chateaux (
   mode_paiement               text         NOT NULL DEFAULT 'sur_place'
                               CHECK (mode_paiement IN ('sur_place', 'en_ligne')),
 
+  -- Opt-in du moteur de disponibilité (migration 2026-08-23). Dormant tant que
+  -- estDisponible n'existe pas. false = la table disponibilites est ignorée
+  -- pour ce château ; true = elle fait foi, absence de ligne = indisponible.
+  dispo_geree                 boolean      NOT NULL DEFAULT false,
+
   -- Cycle de vie éditorial : on prépare, on diffuse, on retire sans détruire.
   -- Un bootstrap neuf n'a pas d'existant à sauver : le défaut est 'brouillon'.
   -- (La migration 2026-07-10 crée la colonne en 'publie' puis bascule le défaut,
@@ -270,6 +275,8 @@ COMMENT ON COLUMN public.chateaux.date_disponible IS
   '[Plugeable] Prochaine date de disponibilité affichée. Dérivable de disponibilites en MVP.';
 COMMENT ON COLUMN public.chateaux.mode_paiement IS
   'Mode de paiement du CHÂTEAU (pas du voyageur) : un châtelain accepte les cartes ou non. sur_place | en_ligne. en_ligne DÉCLARÉ mais NON IMPLÉMENTÉ (Stripe non branché, immatriculation Atout France non faite). Cf. migration 2026-07-17-mode-paiement.';
+COMMENT ON COLUMN public.chateaux.dispo_geree IS
+  'Opt-in du moteur de disponibilité. false (défaut) = la table disponibilites est IGNORÉE pour ce château, comportement historique (proxy éditorial urgence). true = la table FAIT FOI, et une date SANS LIGNE vaut INDISPONIBLE. ⚠ Basculer à true un château dont le calendrier n''est pas rempli le FERME entièrement : la bascule se fait APRÈS saisie, château par château (cf. piège 1 de l''audit disponibilités du 22 août 2026).';
 
 
 -- ───────────────────────────────────────────────────────────────────────────
@@ -762,7 +769,9 @@ CREATE TABLE IF NOT EXISTS public.disponibilites (
 );
 
 COMMENT ON TABLE  public.disponibilites IS
-  'Calendrier disponibilités par chambre. Une ligne = 1 chambre × 1 date. Absence = disponible au prix par défaut.';
+  'Calendrier disponibilités par chambre. Une ligne = 1 chambre × 1 date. ⚠ L''interprétation d''une date SANS LIGNE dépend de chateaux.dispo_geree : à false (défaut) la table n''est pas consultée du tout ; à true elle fait foi et l''absence de ligne vaut INDISPONIBLE (opt-in — le châtelain ouvre ce qu''il saisit). La formulation antérieure — « Absence = disponible au prix par défaut » — décrivait un opt-out qui n''a jamais été implémenté et qui aurait tout ouvert sur une table vide.';
+COMMENT ON COLUMN public.disponibilites.est_disponible IS
+  'Ouverture EXPLICITE de la date. false = bloquée (entretien, occupation privée, séjour hors plateforme). ⚠ Ne pas confondre avec l''absence de ligne, qui est une NON-RÉPONSE : cf. le commentaire de la table et chateaux.dispo_geree. Une réservation confirmée n''a pas besoin d''être reportée ici — elle est dérivée à la lecture depuis reservations, comme le palier du Club, pour qu''il n''y ait jamais deux représentations du même fait.';
 COMMENT ON COLUMN public.disponibilites.prix_special_cents IS
   '[Plugeable] Override prix chambre pour cette date (ex. saison haute). NULL = utilise chambres.prix_cents.';
 COMMENT ON COLUMN public.disponibilites.reservation_id IS
