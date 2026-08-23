@@ -307,7 +307,7 @@ Ordre de composition, pour les nuits `[arrivée, départ)` :
 | **2.2** ✅ | `est_disponible` + `chateau_disponible` — SQL, `SECURITY DEFINER` | non |
 | **2.3** ✅ | `jours_disponibles_chambre` + `_chateau` — `SETOF date`, pour le calendrier | non |
 | **2.4** ✅ | wrapper JS — quatre **nouvelles** fonctions, les trois existantes intactes | non |
-| 2.5 | contrôle des dates dans `demande-reservation` | **oui** |
+| **2.5** ✅ | contrôle des dates dans `demande-reservation` | **oui** |
 
 ⚠ **2.5 est le seul gain de sûreté du lot** : aujourd'hui l'Edge Function ne regarde **pas les dates du tout** — ses trois `ERR_INDISPO` portent sur le château, la chambre et le module.
 
@@ -418,6 +418,44 @@ PostgREST le sérialiserait en ISO **UTC** ; le cast `::date` côté Postgres pe
 **La règle métier n'est pas retestée en JS.** Elle vit en SQL et elle est prouvée là-bas — 16/16 et 11/11 **en base réelle**. La rejouer avec un client mocké ne prouverait que la qualité du mock. Le test JS verrouille le **contrat d'appel** : noms de RPC, noms de paramètres, format de date, normalisation du retour, propagation de l'erreur.
 
 ⚠ **Les trois fonctions historiques ne sont pas couvertes non plus** : les tester figerait ce qu'on veut retirer à l'étape 4.
+
+### L'étape 2.5 — le contrôle des dates, et le `GRANT` qui l'aurait rendu inerte (23 août 2026)
+
+**Le trou comblé** : `demande-reservation` ne regardait **pas les dates**. Ses trois `ERR_INDISPO` couvrent le château, l'appartenance de la chambre et le module. Un visiteur pouvait donc demander une chambre déjà vendue — la contrainte `reservations_pas_de_chevauchement` ne l'arrêtait pas non plus, puisqu'elle n'occupe que sur `confirmed` et que la demande entre en `pending`. Le refus n'arrivait qu'à la confirmation du châtelain, **et c'est lui qui portait la gêne**.
+
+#### ⚠⚠ Le `GRANT` manquant aurait produit un correctif INERTE et SILENCIEUX
+
+Mesuré le 23 août : `execute_service_role = FALSE` sur les **quatre** fonctions du moteur. Or `demande-reservation` tourne en `service_role`, et sa règle de repli est « ouvrir sur échec ». Sans le `GRANT`, l'appel aurait échoué en `42501` **à chaque demande**, journalisé, et n'aurait **jamais rien bloqué**.
+
+⚠ **Le `REVOKE … FROM PUBLIC` de 2.2 et 2.3 visait l'accès non identifié, pas le backend.** `service_role` n'a pas été écarté par décision — il a été oublié par effet de bord. Et le `GRANT` **n'ouvre aucun pouvoir nouveau** : `service_role` lit déjà `reservations` en direct, en contournant la RLS. C'est de la plomberie, pas de la sécurité — l'argument du moindre privilège n'a ici aucune prise.
+
+⚠ **Les quatre fonctions sont accordées, pas seulement `est_disponible`.** N'en accorder qu'une recréerait le même piège pour le prochain appelant serveur.
+
+⚠ **L'ORDRE N'EST PAS NÉGOCIABLE** : migration `GRANT` → déploiement de l'Edge Function. Dans l'autre sens, le contrôle est inerte et rien ne le signale.
+
+#### Trois choix de forme
+
+- **Placé en fin de §3, avant la §6** — parce que **la §6 crée un compte utilisateur**. Refuser après elle laisserait un compte fantôme derrière chaque demande morte-née : le seul effet de bord de cette fonction qui survive à la requête.
+- **Seul un `false` explicite bloque.** `dispoErr` ou un retour non booléen rejoignent la branche « on ouvre » : un problème de lecture n'est pas un refus. Écrire `!libre` aurait fait bloquer un `null` — l'inverse de la décision.
+- **On ouvre sur échec.** Ce contrôle est une **amélioration d'expérience**, pas la barrière de sûreté : la barrière reste la contrainte d'exclusion, qui tranche à la confirmation. Transformer une erreur de lecture transitoire en panne du tunnel serait un mal plus grand que celui qu'on corrige. Le log dit « contrôle des dates IGNORÉ », pour qu'une relecture ne prenne pas un correctif inerte pour un correctif qui passe.
+
+#### ⚠ `ERR_DATES_PRISES` — la seule exception à la règle des messages génériques
+
+*« Ces dates ne sont plus disponibles pour cette chambre. »* Le message-valise `ERR_INDISPO` aurait mieux servi la discrétion, mais il protégerait une information que **le calendrier public montrera de toute façon** (étape 2.3), au prix d'un visiteur qui ne saurait pas que d'autres dates passeraient. Le sondage reste borné par le rate-limit — 3 par IP par 15 min, **jeton consommé même en cas d'échec**.
+
+⚠ **La discrétion n'est pas abandonnée, elle est CIBLÉE** : les trois autres causes d'`ERR_INDISPO` (statut, `mode_paiement`, module) restent indiscernables entre elles.
+
+#### Le déploiement, mesuré
+
+```
+.github/workflows/*.yml   aucune mention de supabase
+package.json              supabase ^2.109.1 en devDependency (PAS dans le PATH)
+supabase/.temp/           lien à ynoieryxfqiqjscqieum, du 17 juillet — GITIGNORÉ
+```
+
+Déploiement **manuel** : `./node_modules/.bin/supabase functions deploy demande-reservation`, depuis la machine qui porte le lien. Confirmation directe du TROU 3 du sous-audit C.
+
+⚠ **Il n'y a pas de « version précédente » à restaurer côté Supabase** : le rollback consiste à redéployer depuis un commit antérieur. D'où la discipline retenue ici — **commiter avant de déployer**, pour que ce point de retour existe.
 
 #### Convention : les RPC métier ne sont PAS rétro-portées
 

@@ -19,6 +19,11 @@
 //
 // MESSAGES D'ERREUR : génériques côté client (jamais l'existence d'un compte,
 // jamais la structure interne), précis côté logs (console.*).
+// ⚠ UNE EXCEPTION DEPUIS LE 23 AOÛT : ERR_DATES_PRISES est SPÉCIFIQUE. La
+// discrétion aurait été mieux servie par ERR_INDISPO, mais elle protégerait une
+// information que le calendrier public montrera de toute façon — au prix d'un
+// visiteur qui ne saurait pas que changer de dates suffirait. Arbitrage assumé,
+// détaillé au-dessus de la constante.
 //
 // PAS d'email dans ce lot (createUser N'ENVOIE PAS d'email ; Brevo = brique 3).
 // ============================================================
@@ -62,6 +67,23 @@ const ERR_RATE =
 // le paiement sur place (état non "probable" par un tiers).
 const ERR_INDISPO =
   "Cette demande de réservation n'est pas disponible.";
+// ⚠ SPÉCIFIQUE, contrairement aux trois ci-dessus — décision du 23 août 2026.
+//
+// Le message-valise ERR_INDISPO aurait mieux servi la discrétion : le visiteur
+// n'aurait pas pu distinguer « dates prises » de « château non publié ». Trois
+// raisons de ne pas le réutiliser ici :
+//   1. le calendrier public (jours_disponibles, étape 2.3) montrera de toute
+//      façon les dates prises — on protégerait une information déjà publique ;
+//   2. le sondage reste borné par le rate-limit : 3 demandes par IP par 15 min,
+//      et le jeton se consomme MÊME en cas d'échec (cf. §1) ;
+//   3. « Cette demande n'est pas disponible » sur un formulaire rempli, c'est un
+//      visiteur qui abandonne sans savoir que d'autres dates passeraient.
+//
+// ⚠ La discrétion n'est pas abandonnée, elle est CIBLÉE : les trois autres
+// causes d'ERR_INDISPO (statut, mode_paiement, module) restent indiscernables.
+// Factuel, sans nommer de contrainte ni révéler la réservation d'un tiers.
+const ERR_DATES_PRISES =
+  "Ces dates ne sont plus disponibles pour cette chambre.";
 
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
@@ -205,6 +227,60 @@ Deno.serve(async (req) => {
   }
   if (chambre.max_stay_nights != null && nbNuits > chambre.max_stay_nights) {
     return fail(400, `Cette chambre limite le séjour à ${chambre.max_stay_nights} nuit(s).`);
+  }
+
+  // ─────────────────────────────────────────────────────────
+  // 3 bis. LES DATES SONT-ELLES LIBRES ? (moteur de disponibilité, étape 2.5)
+  // ─────────────────────────────────────────────────────────
+  // Ce contrôle MANQUAIT. Les trois ERR_INDISPO ci-dessus couvrent le château,
+  // l'appartenance de la chambre et le module — jamais les dates. Un visiteur
+  // pouvait donc demander une chambre déjà vendue, et la contrainte
+  // reservations_pas_de_chevauchement ne l'arrêtait pas : elle n'occupe que sur
+  // 'confirmed', or la demande entre en 'pending'. Le refus n'arrivait qu'à la
+  // confirmation du châtelain — trop tard, et c'est LUI qui portait la gêne.
+  //
+  // ⚠ PLACÉ ICI, ET PAS PLUS BAS : la section 6 CRÉE un compte utilisateur.
+  //    Refuser après elle laisserait un compte fantôme derrière chaque demande
+  //    morte-née — le seul effet de bord de cette fonction qui survive à la
+  //    requête.
+  //
+  // dateArrivee / dateDepart sont déjà "YYYY-MM-DD", validés par regex en §2 :
+  // aucune conversion, donc aucune question de fuseau (contrairement au front,
+  // où versJour() existe précisément pour ça — cf. disponibilitesService).
+  //
+  // Niveau CHAMBRE, pas château : le visiteur a choisi une chambre précise, et
+  // c'est elle qu'on réserve. Dire « une autre chambre est libre » ne servirait
+  // à rien ici.
+  const { data: libre, error: dispoErr } = await supabase.rpc("est_disponible", {
+    p_chambre_id: chambreId,
+    p_arrivee: dateArrivee,
+    p_depart: dateDepart,
+  });
+
+  if (dispoErr || typeof libre !== "boolean") {
+    // ⚠ ON OUVRE — décision du 23 août. Ce contrôle est une AMÉLIORATION
+    //   D'EXPÉRIENCE, pas la barrière de sûreté : la barrière reste la
+    //   contrainte d'exclusion, qui tranche à la confirmation. Transformer une
+    //   erreur de lecture transitoire en panne totale du tunnel de demande
+    //   serait un mal plus grand que celui qu'on corrige. On retombe alors sur
+    //   le comportement d'avant 2.5 — pas pire, et tracé.
+    //
+    // ⚠ SEUL UN `false` EXPLICITE BLOQUE. Un retour non booléen est un problème
+    //   de lecture, pas un refus : il rejoint cette branche. Écrire `!libre`
+    //   aurait fait bloquer un null, soit l'inverse de la décision.
+    //
+    // Le libellé dit « IGNORÉ » pour qu'une lecture des logs ne prenne jamais un
+    // correctif inerte pour un correctif qui passe.
+    console.error(
+      "[demande-reservation] est_disponible indisponible — contrôle des dates IGNORÉ:",
+      dispoErr?.message ?? `retour inattendu (${typeof libre})`,
+    );
+  } else if (!libre) {
+    // Précis côté logs, factuel côté client — la discipline du fichier.
+    console.warn(
+      `[demande-reservation] dates prises chambre=${chambreId} ${dateArrivee}->${dateDepart}`,
+    );
+    return fail(409, ERR_DATES_PRISES);
   }
 
   // ─────────────────────────────────────────────────────────
