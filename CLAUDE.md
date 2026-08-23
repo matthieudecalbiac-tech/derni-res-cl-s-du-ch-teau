@@ -304,7 +304,7 @@ Ordre de composition, pour les nuits `[arrivée, départ)` :
 | | contenu | visible ? |
 |---|---|---|
 | **2.1** ✅ | colonne `dispo_geree` + COMMENT corrigés + `admin_upsert_chateau` + toggle admin | non |
-| 2.2 | `est_disponible(chambre, arrivée, départ)` — SQL, `SECURITY DEFINER` | non |
+| **2.2** ✅ | `est_disponible` + `chateau_disponible` — SQL, `SECURITY DEFINER` | non |
 | 2.3 | `jours_disponibles(cible, du, au)` — même corps, forme plage, pour le calendrier | non |
 | 2.4 | wrapper JS — **nouvelle** fonction, les trois existantes intactes | non |
 | 2.5 | contrôle des dates dans `demande-reservation` | **oui** |
@@ -322,6 +322,35 @@ Découvert en 2.1, et **à savoir avant d'ajouter la moindre colonne à `chateau
 ⚠ **La parade retenue, à réutiliser** : la migration 2.1 **se prouve elle-même**. Elle capture `pg_get_functiondef` avant, compare l'ensemble des colonnes assignées après, et **lève une exception avant le `COMMIT`** si une seule a disparu ou si le gain n'est pas exactement `{dispo_geree}`. Le contrôle est mécanique — il ne dépend pas de la relecture.
 
 ⚠ Le `COMMENT` de la fonction annonçait « 49 colonnes » ; le compte réel était **50**, puis **51**. L'écart préexistait, il est corrigé, et une requête le vérifie au lieu de l'affirmer.
+
+### L'étape 2.2 — les deux fonctions, et le test qui les confronte (23 août 2026)
+
+```
+est_disponible(chambre, arrivée, départ)     l'atome
+chateau_disponible(chateau, arrivée, départ) EXISTS sur la précédente — aucune logique propre
+```
+
+⚠ **`chateau_disponible` ne duplique rien.** L'accueil raisonne en châteaux, la vitrine en chambres : deux implémentations auraient divergé. Un château **sans chambre** rend `false` — on ne réserve pas ce qui n'existe pas.
+
+⚠ **La source « calendrier » est une JOINTURE, pas une boucle.** Le `JOIN` élimine d'un coup les deux façons d'être fermée — ligne à `false` (le `WHERE`) et **absence de ligne** (le `JOIN` ne trouve rien). L'opt-in tient dans une comparaison de comptes.
+
+⚠ **Les bornes rendent `false`, elles ne lèvent pas** : l'appelant est un écran, une plage inversée est une saisie, pas une panne.
+
+⚠ **Collision de noms** : la FONCTION s'appelle `est_disponible`, et la COLONNE de `disponibilites` aussi. Toutes les références à la colonne sont qualifiées (`d.est_disponible`). Ne pas les déqualifier « pour alléger ».
+
+#### ⚠ Le test de PARITÉ — confronter, pas relire
+
+Le prédicat de la source 1 est copié **mot pour mot** de `reservations_pas_de_chevauchement`. Une copie « à l'œil » peut diverger d'un statut ou d'une borne sans que personne ne le voie — jusqu'au jour où un visiteur reçoit un `23P01` **après avoir cru réserver**.
+
+Les tests 15-16 ne relisent donc pas les deux prédicats, ils les **confrontent** sur la même fenêtre : la fonction dit *disponible* → l'`INSERT` réel doit **passer** ; la fenêtre est occupée, elle dit *indisponible* → l'`INSERT` doit être **rejeté par la contrainte**. Les deux, ou aucun des deux.
+
+⚠ **Modèle à réutiliser** partout où une lecture applicative double une contrainte de base : c'est le seul test qui voit l'écart qu'aucune relecture ne voit.
+
+#### Convention : les RPC métier ne sont PAS rétro-portées
+
+Vérifié le 23 août avant de le faire à tort. `schema.sql` ne contient **qu'une** fonction (`trigger_set_timestamp`) ; `policies.sql` n'en contient que **quatre** (les helpers RLS `is_admin`, `is_chatelain`, `is_chatelain_of`, `handle_new_user`). Toutes les RPC métier — `admin_upsert_chateau`, `repondre_demande`, `count_sejours_confirmes`, `admin_set_commission`, et désormais `est_disponible` / `chateau_disponible` — vivent **uniquement dans leurs migrations**, et ne sont mentionnées ailleurs qu'en commentaire.
+
+⚠ **Conséquence, déjà payée** : il n'existe aucun fichier de référence pour l'état désiré d'une RPC, d'où le piège des sept réémissions d'`admin_upsert_chateau`. Le garde-fou `validate:schema` compare des **noms de tables** : il ne voit rien de tout cela.
 
 ### ⚠ Le SQL Editor n'affiche que le DERNIER résultat
 
