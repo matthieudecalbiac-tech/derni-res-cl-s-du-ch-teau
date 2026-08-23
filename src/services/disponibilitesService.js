@@ -24,6 +24,8 @@
  * changement de comportement. La fonction y etait de portee module, donc
  * inaccessible au futur composant calendrier — c'est la raison de l'extraction.
  */
+import { supabase } from "../lib/supabase.js";
+import { logErreurSupabase } from "../utils/logSupabase.js";
 import { getChateaux } from "./chateauxService.js";
 import { getSlugsAvecOffreDernieresCles } from "./offresService.js";
 
@@ -69,7 +71,15 @@ function joursPleinsAvant(d) {
   return Math.round((minuit(d) - minuit(new Date())) / 86400000);
 }
 
-/** Cle de jour, format interne. Volontairement PRIVEE : voir predicatDateOuverte. */
+/**
+ * Cle de jour, "YYYY-MM-DD" construit sur les composantes LOCALES.
+ * Volontairement PRIVEE : voir predicatDateOuverte.
+ *
+ * ⚠ DEUX ROLES DEPUIS L'ETAPE 2.4, et le second est un garde-fou :
+ *   1. cle interne du Set rendu par datesAvecOffre ;
+ *   2. FORMAT DE TRANSPORT vers Postgres pour les quatre fonctions du moteur.
+ * Cf. versJour() plus bas — on n'envoie JAMAIS un objet Date a une RPC.
+ */
 function cleJour(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
@@ -160,4 +170,200 @@ export async function datesAvecOffre({ horizonJours = HORIZON_JOURS } = {}) {
  */
 export function predicatDateOuverte(datesOuvertes) {
   return (d) => Boolean(d && datesOuvertes && datesOuvertes.has(cleJour(d)));
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ⚠ SECONDE MOITIE DU MODULE — LE MOTEUR, BRANCHE SUR LA BASE (etape 2.4)
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// Tout ce qui precede repond a la disponibilite par le PROXY editorial
+// `urgence` : une fiction, mesuree le 22 aout comme ne discriminant rien (les
+// sept demeures servies aboutissaient a la meme fenetre de quinze jours).
+//
+// Ce qui suit interroge les VRAIES donnees — reservations confirmees et
+// calendrier saisi — par quatre fonctions SQL posees aux etapes 2.2 et 2.3.
+//
+// ⚠ LES DEUX MOITIES COEXISTENT VOLONTAIREMENT. Les trois fonctions
+// historiques ne sont PAS modifiees : ce sont elles que l'ecran consomme
+// aujourd'hui, et leur remplacement est l'ETAPE 4, apres que les chateaux
+// auront bascule en `dispo_geree`. Poser le moteur a cote, teste, avant de
+// debrancher le proxy — pas l'inverse.
+//
+// ⚠ AUCUN COMPOSANT N'APPELLE ENCORE CE QUI SUIT. C'est voulu : le branchement
+// des ecrans est un chantier a lui, avec sa mesure.
+//
+// POURQUOI DES RPC ET PAS UNE LECTURE DIRECTE : `reservations` est sous RLS, un
+// visiteur anonyme n'en lit RIEN. La meme regle ecrite ici en JS verrait zero
+// reservation et repondrait « libre » sur une chambre vendue — systematiquement,
+// sans erreur, sans trace. Les fonctions SQL sont SECURITY DEFINER et ne rendent
+// qu'un booleen ou des dates : rien a fuiter.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Normalise une date d'appelant en la chaine "YYYY-MM-DD" attendue par Postgres.
+ *
+ * ⚠ ON N'ENVOIE JAMAIS UN OBJET Date A UNE RPC, et ce n'est pas une preference
+ * de style. PostgREST le serialiserait en ISO **UTC** ; le cast `::date` cote
+ * Postgres peut alors rendre LE JOUR PRECEDENT selon l'heure et le fuseau du
+ * visiteur. Ce module a deja paye ce bug une fois — cf. le commentaire de
+ * `minuit()` : « une regle de disponibilite ne peut pas dependre de l'heure a
+ * laquelle on la lit ». `cleJour()` construit le jour sur les composantes
+ * LOCALES, ce qui ferme la question.
+ *
+ * Accepte aussi une chaine deja au bon format (l'appelant peut venir d'un champ
+ * `<input type="date">`, qui rend exactement cela).
+ *
+ * @param {Date|string|null|undefined} d
+ * @returns {string|null} "YYYY-MM-DD", ou null si l'entree n'est pas une date.
+ *   ⚠ null est transmis tel quel a la RPC : ses bornes le traitent (false, ou
+ *   ensemble vide). On ne leve pas — l'appelant est un ECRAN.
+ */
+function versJour(d) {
+  if (d instanceof Date && !Number.isNaN(d.getTime())) return cleJour(d);
+  if (typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+  return null;
+}
+
+/**
+ * Appel d'une RPC du moteur rendant un booleen. Patron maison : `status`
+ * transmis a logErreurSupabase (il tait les fetchs annules, status 0, pour ne
+ * pas polluer le budget de l'agent QA), puis `throw error` BRUT.
+ *
+ * ⚠ Le `22023` de la garde d'horizon n'est PAS discrimine : une fenetre de plus
+ * de 366 jours est un defaut d'appelant, pas un cas metier que l'UI rattrape.
+ *
+ * ⚠ POURQUOI DEUX HELPERS PRIVES plutot que le patron recopie quatre fois :
+ * l'oubli du `status` ne casserait rien de visible — il ferait seulement
+ * remonter en console.error des fetchs annules, donc du bruit dans l'agent QA,
+ * des mois plus tard. Une seule ecriture du patron, un seul endroit ou l'oublier.
+ */
+async function appelerRpcBooleen(nomRpc, params, contexte) {
+  const { data, error, status } = await supabase.rpc(nomRpc, params);
+  if (error) {
+    logErreurSupabase(contexte, error, status);
+    throw error;
+  }
+  return data === true;
+}
+
+/**
+ * Appel d'une RPC du moteur rendant un SETOF date. Meme patron.
+ *
+ * NORMALISATION : PostgREST rend un tableau de chaines pour une fonction
+ * `RETURNS SETOF date`. On accepte aussi la forme « tableau d'objets » (celle
+ * des fonctions RETURNS TABLE) pour ne pas dependre d'un detail de serialisation
+ * qui a deja varie ailleurs dans ce projet — cf. la normalisation jumelle de
+ * clubService.getPalierCourant.
+ */
+async function appelerRpcJours(nomRpc, params, contexte) {
+  const { data, error, status } = await supabase.rpc(nomRpc, params);
+  if (error) {
+    logErreurSupabase(contexte, error, status);
+    throw error;
+  }
+  if (!Array.isArray(data)) return [];
+  return data
+    .map((ligne) => (typeof ligne === "string" ? ligne : ligne?.[nomRpc] ?? null))
+    .filter(Boolean);
+}
+
+/**
+ * Cette CHAMBRE est-elle libre du `arrivee` au `depart` ?
+ *
+ * ⚠ SEJOUR, PAS ENSEMBLE DE NUITS : `depart` est EXCLU. Les nuits concernees
+ * sont `arrivee` .. `depart - 1` — on ne dort pas le soir du depart.
+ *
+ * @param {string} chambreId
+ * @param {Date|string} arrivee
+ * @param {Date|string} depart
+ * @returns {Promise<boolean>}
+ */
+export async function estDisponible(chambreId, arrivee, depart) {
+  return appelerRpcBooleen(
+    "est_disponible",
+    { p_chambre_id: chambreId, p_arrivee: versJour(arrivee), p_depart: versJour(depart) },
+    "[disponibilitesService] estDisponible:",
+  );
+}
+
+/**
+ * Ce CHATEAU peut-il accueillir un sejour du `arrivee` au `depart` ?
+ * Vrai si AU MOINS UNE de ses chambres est libre sur TOUTE la plage.
+ *
+ * ⚠⚠ C'EST LA FONCTION QUI AUTORISE. `joursDisponiblesChateau` PEINT un
+ * calendrier ; celle-ci VALIDE une plage. Les deux ne disent pas la meme chose,
+ * et confondre leurs roles produirait une survente :
+ *
+ *     nuit 1   chambre A libre, chambre B prise
+ *     nuit 2   chambre A prise, chambre B libre
+ *     -> le calendrier rend LES DEUX NUITS (une chambre libre chaque soir)
+ *     -> et pourtant chateauDisponible(nuit1, nuit3) est FAUX
+ *        aucune chambre ne couvre le sejour entier
+ *
+ * ⚠ UN ECRAN QUI LAISSE SELECTIONNER UNE PLAGE DANS LE CALENDRIER DOIT LA
+ * REVALIDER ICI avant de proposer une reservation.
+ *
+ * @param {string} chateauId
+ * @param {Date|string} arrivee
+ * @param {Date|string} depart
+ * @returns {Promise<boolean>}
+ */
+export async function chateauDisponible(chateauId, arrivee, depart) {
+  return appelerRpcBooleen(
+    "chateau_disponible",
+    { p_chateau_id: chateauId, p_arrivee: versJour(arrivee), p_depart: versJour(depart) },
+    "[disponibilitesService] chateauDisponible:",
+  );
+}
+
+/**
+ * Les NUITS libres d'une CHAMBRE dans [du, au].
+ *
+ * ⚠ LES DEUX BORNES SONT INCLUSES — ce sont des nuits, pas un sejour. Le lien
+ * avec `estDisponible` porte donc un decalage d'un jour, et c'est l'erreur la
+ * plus facile a commettre ici :
+ *
+ *     estDisponible(ch, A, D)  <=>  joursDisponiblesChambre(ch, A, D - 1)
+ *                                   contient les D - A nuits
+ *
+ * @param {string} chambreId
+ * @param {Date|string} du
+ * @param {Date|string} au
+ * @returns {Promise<string[]>} jours "YYYY-MM-DD", tries. ⚠ Des CHAINES, pas
+ *   des Date : reconvertir rouvrirait la question de fuseau que versJour ferme.
+ *   La RPC leve (22023) au-dela de 366 jours de fenetre.
+ */
+export async function joursDisponiblesChambre(chambreId, du, au) {
+  return appelerRpcJours(
+    "jours_disponibles_chambre",
+    { p_chambre_id: chambreId, p_du: versJour(du), p_au: versJour(au) },
+    "[disponibilitesService] joursDisponiblesChambre:",
+  );
+}
+
+/**
+ * Les NUITS ou le CHATEAU a AU MOINS UNE chambre libre, dans [du, au].
+ *
+ * ⚠⚠ CETTE FONCTION PEINT, ELLE N'AUTORISE PAS. La chambre qui rend une nuit
+ * libre peut CHANGER d'une nuit a l'autre : il ne s'ensuit pas qu'un sejour
+ * couvrant ces nuits soit reservable (cf. l'exemple des deux nuits dans
+ * `chateauDisponible`). L'appelant DOIT revalider la plage choisie par
+ * `chateauDisponible` avant de proposer une reservation.
+ *
+ * Ce n'est pas un defaut : c'est ce que « au moins une chambre ce soir-la »
+ * veut dire. Ne montrer que les nuits couvertes par une MEME chambre sur tout
+ * un mois n'aurait aucun sens pour un calendrier.
+ *
+ * @param {string} chateauId
+ * @param {Date|string} du
+ * @param {Date|string} au
+ * @returns {Promise<string[]>} jours "YYYY-MM-DD", tries.
+ */
+export async function joursDisponiblesChateau(chateauId, du, au) {
+  return appelerRpcJours(
+    "jours_disponibles_chateau",
+    { p_chateau_id: chateauId, p_du: versJour(du), p_au: versJour(au) },
+    "[disponibilitesService] joursDisponiblesChateau:",
+  );
 }

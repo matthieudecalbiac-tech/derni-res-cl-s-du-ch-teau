@@ -306,7 +306,7 @@ Ordre de composition, pour les nuits `[arrivée, départ)` :
 | **2.1** ✅ | colonne `dispo_geree` + COMMENT corrigés + `admin_upsert_chateau` + toggle admin | non |
 | **2.2** ✅ | `est_disponible` + `chateau_disponible` — SQL, `SECURITY DEFINER` | non |
 | **2.3** ✅ | `jours_disponibles_chambre` + `_chateau` — `SETOF date`, pour le calendrier | non |
-| 2.4 | wrapper JS — **nouvelle** fonction, les trois existantes intactes | non |
+| **2.4** ✅ | wrapper JS — quatre **nouvelles** fonctions, les trois existantes intactes | non |
 | 2.5 | contrôle des dates dans `demande-reservation` | **oui** |
 
 ⚠ **2.5 est le seul gain de sûreté du lot** : aujourd'hui l'Edge Function ne regarde **pas les dates du tout** — ses trois `ERR_INDISPO` portent sur le château, la chambre et le module.
@@ -384,6 +384,40 @@ nuit 2   chambre A prise, chambre B libre
 #### La garde d'horizon lève, contrairement aux bornes de 2.2
 
 366 jours maximum, sinon `22023`. ⚠ L'asymétrie est voulue : `est_disponible` rend `false` sur une plage aberrante — « non disponible » est une réponse honnête. Ici un **ensemble vide se lirait « rien n'est libre »**, réponse *fausse* et indiscernable d'un mois complet. Une fenêtre inversée rend en revanche l'ensemble vide **sans lever** : un intervalle vide n'a légitimement aucune nuit.
+
+### L'étape 2.4 — le wrapper JS, et un verrou de fuseau (23 août 2026)
+
+`disponibilitesService` porte désormais **deux moitiés**, et un bandeau les sépare dans le fichier :
+
+```
+moitié HISTORIQUE   chateauxDisponibles · datesAvecOffre · predicatDateOuverte
+                    -> proxy editorial `urgence`. INTACTE jusqu'a l'etape 4.
+moitié MOTEUR       estDisponible · chateauDisponible
+                    joursDisponiblesChambre · joursDisponiblesChateau
+                    -> quatre wrappers minces sur les RPC de 2.2 / 2.3
+```
+
+⚠ **Les deux coexistent volontairement.** Ce sont les historiques que l'écran consomme aujourd'hui ; poser le moteur à côté, testé, **avant** de débrancher le proxy — pas l'inverse. Aucun composant n'appelle encore la seconde moitié.
+
+#### ⚠⚠ ON N'ENVOIE JAMAIS UN OBJET `Date` À UNE RPC
+
+PostgREST le sérialiserait en ISO **UTC** ; le cast `::date` côté Postgres peut alors rendre **le jour précédent** selon l'heure et le fuseau du visiteur.
+
+```
+1er septembre, 00 h 30 heure locale (UTC+2)
+  toISOString()  ->  "2026-08-31T22:30:00Z"   le MOIS precedent
+  versJour()     ->  "2026-09-01"             les composantes LOCALES
+```
+
+⚠ **Ce module a déjà payé ce bug une fois** — cf. le commentaire de `minuit()` : *« une règle de disponibilité ne peut pas dépendre de l'heure à laquelle on la lit »*. `versJour()` ferme la question, et un test le verrouille **avec le contre-exemple `toISOString` écrit noir sur blanc**. Un tel défaut ne casse rien visiblement : il décale une journée, parfois, pour certains.
+
+`cleJour()` a donc deux rôles désormais : clé interne du `Set`, et **format de transport** vers Postgres.
+
+#### Ce que le test unitaire ne couvre pas, et pourquoi
+
+**La règle métier n'est pas retestée en JS.** Elle vit en SQL et elle est prouvée là-bas — 16/16 et 11/11 **en base réelle**. La rejouer avec un client mocké ne prouverait que la qualité du mock. Le test JS verrouille le **contrat d'appel** : noms de RPC, noms de paramètres, format de date, normalisation du retour, propagation de l'erreur.
+
+⚠ **Les trois fonctions historiques ne sont pas couvertes non plus** : les tester figerait ce qu'on veut retirer à l'étape 4.
 
 #### Convention : les RPC métier ne sont PAS rétro-portées
 
