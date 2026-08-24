@@ -263,7 +263,7 @@ export const FIXTURE_VAUX = {
     { id: "am-vaux-2", chateau_id: UUID_VAUX, type: "service", nom: "Wi-Fi", description: null, icone: "📶", inclus: true, prix_supplement_cents: null, duree_minutes: null, ordre: 1 },
   ],
 
-  // Pas d'offre Module B — uniquement Module A (Vitrine Permanente)
+  // Pas d'offre Module B — uniquement Module A (Vitrines)
   offres: [
     {
       id: "offre-vaux-a-1",

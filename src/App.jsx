@@ -72,7 +72,7 @@ import AuthCallback from "./components/auth/AuthCallback";
 // La distinction n'est pas theorique : quand l'ecran naviguait lui-meme, le clic
 // sur une carte fermait PUIS naviguait, et les deux navigations se couraient
 // apres — on atterrissait sur l'accueil au lieu de la vitrine.
-// Ecran des Vitrines permanentes, servi par `/vitrines`.
+// Ecran des Vitrines, servi par `/vitrines`.
 //
 // ⚠ LE CALQUE IMBRIQUE RESTE. Cliquer un chateau y ouvre `VitrineChateau`
 // PAR-DESSUS, avec l'animation de porte — etat local du composant, que la route

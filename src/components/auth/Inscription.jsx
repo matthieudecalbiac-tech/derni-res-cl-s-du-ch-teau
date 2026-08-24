@@ -122,7 +122,7 @@ export default function Inscription() {
               </p>
             </div>
             <div className="ins-avantage">
-              <h3 className="ins-avantage-titre">Vitrines permanentes</h3>
+              <h3 className="ins-avantage-titre">Les Vitrines</h3>
               <p className="ins-avantage-desc">
                 L'accès aux châteaux d'exception sélectionnés par notre équipe.
               </p>

@@ -22,7 +22,7 @@ export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
     {
       num: "02",
       icone: "/icon-demeure.png",
-      titre: "Les Vitrines Permanentes",
+      titre: "Les Vitrines",
       desc: "Les demeures à réserver toute l'année, en direct avec les familles.",
       lien: "Découvrir les demeures →", // Audit Fondation J2 (P1-1) : « 31 demeures » retiré
       illustration: "/offre-vitrines.png",

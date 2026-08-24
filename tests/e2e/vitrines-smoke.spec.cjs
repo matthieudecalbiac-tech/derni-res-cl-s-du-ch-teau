@@ -1,7 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
 /**
- * Tests E2E · Vitrines permanentes — filet de securite AVANT la refonte Prop 3.
+ * Tests E2E · Les Vitrines — filet de securite AVANT la refonte Prop 3.
  *
  * POURQUOI CE FICHIER EXISTE. Comme Dernieres Cles avant lui, cet ecran n'avait
  * AUCUNE couverture : le grep `vit-page` sur tests/ ne retournait rien. C'est le
@@ -61,7 +61,7 @@ async function attendreCartes(page) {
   await expect(page.locator('.vit-carte').first()).toBeVisible({ timeout: 15000 });
 }
 
-test.describe('Vitrines permanentes · filet avant refonte Prop 3', () => {
+test.describe('Les Vitrines · filet avant refonte Prop 3', () => {
   test.beforeEach(async ({ page }) => {
     await ouvrirVitrines(page);
   });

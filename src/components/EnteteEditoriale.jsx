@@ -3,7 +3,7 @@ import BoutonRetour from "./BoutonRetour";
 import "../styles/entete-editoriale.css";
 
 // En-tête éditorial PARTAGÉ (histoire + personnage). Reprend le topbar des
-// Vitrines Permanentes (charte) : médaillon fleur de lys + « Les Clés du
+// Vitrines (charte) : médaillon fleur de lys + « Les Clés du
 // Château » (clic → accueil), et le nom de section en or italique à droite.
 // Composant unique plutôt qu'un markup dupliqué inline (comme vit-topbar/em-topbar).
 export default function EnteteEditoriale({ titreSection }) {
