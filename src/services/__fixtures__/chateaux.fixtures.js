@@ -38,6 +38,10 @@ export const FIXTURE_BRIOTTIERES = {
   // la fixture de l'aller-retour, et un `false` passerait même si le mapper
   // renvoyait une constante. Seul un `true` prouve que la valeur voyage.
   dispo_geree: true,
+  // Une date, pas null : comme pour dispo_geree, un null passerait meme si le
+  // mapper renvoyait une constante. Seule une VALEUR prouve que l aller-retour
+  // la transporte.
+  dispo_ouverte_jusqu_a: "2027-12-31",
   distance_paris: 135,
   distance_paris_label: "2h15 de Paris",
   urgence: "J-10",
