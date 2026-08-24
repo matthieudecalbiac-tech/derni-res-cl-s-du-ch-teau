@@ -519,9 +519,31 @@ Le test 10 a rougi : il attendait `ouverte_horizon` sur une nuit que **son propr
 
 ⚠ **Et la relecture de ce rouge a révélé un trou que rien n'aurait signalé** : le test de cohérence partait de l'horizon lui-même, donc ne couvrait que « = » et « > ». Aucune nuit strictement **dans** l'horizon n'était confrontée entre les deux fonctions. Fenêtre décalée de deux jours ; les trois positions sont couvertes.
 
-### ⚠ À FAIRE quand l'UI arrivera (3.4/3.5)
+### ✅ FAIT en 3.4a — le toggle réécrit, et le trou qu'il cachait
 
-**Le toggle de 2.1 devra être réécrit.** Son avertissement dit *« toute date non saisie est fermée »* — **faux dans l'horizon** depuis le 24 août. Activer la gestion devra demander de **poser un horizon en même temps**, sinon le château se ferme entièrement.
+Cette section demandait de réécrire l'avertissement du toggle de 2.1, devenu **faux**
+(*« toute date non saisie est fermée »* — or dans l'horizon, une date non saisie est
+**ouverte**). C'est fait, et le chantier a révélé plus grave que le texte.
+
+⚠ **L'horizon n'était saisissable NULLE PART.** 3.1 avait posé
+`chateaux.dispo_ouverte_jusqu_a`, `est_disponible` la lisait — et **aucun écran ne
+permettait de lui donner une valeur**. Un château passé en `dispo_geree` avec un
+horizon `NULL` a un calendrier **entièrement fermé**, sans que rien ne le dise : le
+drapeau donne l'impression d'avoir activé quelque chose alors que rien n'est ouvert.
+Le seul remède était un `UPDATE` en SQL Editor.
+
+Le champ est désormais dans la fiche admin, et **l'avertissement du drapeau est dérivé
+de l'état en trois versions** — c'est lui qui porte le garde-fou :
+
+| état | ce que l'écran dit |
+|---|---|
+| décoché | le château suit le proxy `urgence` historique |
+| coché · horizon **vide** | ⚠ **« Aucune date n'est ouverte »** — le calendrier est fermé |
+| coché · horizon posé | les dates sont ouvertes jusqu'au *(date lisible)* |
+
+⚠ **`formatJourLisible` découpe la chaîne à la main**, jamais `new Date("YYYY-MM-DD")`
+— que la spec interprète en **UTC**, ce qui affiche la veille à l'est de Greenwich.
+Même piège que `jourISO` / `versJour`, déjà payé une fois par ce dépôt.
 
 ### Le plan restant
 
@@ -529,9 +551,51 @@ Le test 10 a rougi : il attendait `ouverte_horizon` sur une nuit que **son propr
 |---|---|---|
 | **3.1** ✅ | RPC d'écriture + lecture d'édition + horizon | SQL |
 | **3.2** ✅ | lecture « mes châteaux / mes chambres » — `chatelainService.getMesChateaux()` | service |
-| 3.3 | `CalendrierSaisie` — trois états, sélection de plage, **souris et doigt** | composant |
-| 3.4 | second onglet du dashboard châtelain | écran en service |
-| 3.5 | `/admin/chateaux/:id/disponibilites` | additif |
+| **3.3** ✅ | `CalendrierSaisie` — trois états, sélection de plage, **souris et doigt** | composant |
+| **3.4** ✅ | second onglet du dashboard châtelain (+ l'horizon devient saisissable) | écran en service |
+| **3.5** ✅ | `PanneauDisponibilites` extrait, puis `/admin/chateaux/:id/disponibilites` | additif |
+
+**L'étape 3 est close** (PR #151, #152, #153 — 24 août 2026). Les dates se saisissent
+désormais des deux côtés, sur le même composant et la même table.
+
+### ⚠⚠ `fontainebleau` est le CHÂTEAU DE DÉMONSTRATION DU MOTEUR — état volontaire
+
+**Ne pas prendre cet état pour un accident, et ne pas le « corriger » en passant.**
+
+```
+statut                  brouillon        -> INVISIBLE du public, la RLS le filtre
+dispo_geree             true             -> le SEUL chateau gere du parc
+dispo_ouverte_jusqu_a   2027-12-31
+disponibilites          blocages de test ecrits depuis les deux ecrans
+chateau_owners          AUCUN            -> le rattachement temporaire a ete retire
+```
+
+**Pourquoi il existe.** Le seul rattachement de propriété réel du parc est
+`chateau-de-la-riviere` — **publié, mais ni géré ni pourvu d'un horizon**. Il ne
+permet donc de tester *aucun* chemin d'écriture. `fontainebleau` a été rattaché
+temporairement au compte châtelain pour valider 3.4c, puis **détaché** une fois
+l'étape close : la propriété était fausse, l'état de gestion, lui, est utile.
+
+⚠ **Conséquence à connaître avant de chercher une panne** : `fontainebleau`
+**n'apparaît plus dans l'espace châtelain** (`getMesChateaux` lit `chateau_owners`).
+Il ne s'atteint que par `/admin/chateaux/:id/disponibilites`. Ce n'est pas une
+régression de 3.5 — c'est le retrait du rattachement de test.
+
+⚠ **Deux échéances où il faudra le défaire**, et elles n'appellent pas le même geste :
+
+- **avant une publication éventuelle** — un château servi ne doit pas porter des
+  blocages posés pour l'exemple ;
+- **avant l'étape 4** *si* on veut un parc vierge pour mesurer la bascule du proxy
+  `urgence`. ⚠ Mais réfléchir avant : c'est aussi le seul château sur lequel la
+  bascule peut se **comparer**, `dispo_geree` étant faux partout ailleurs.
+
+```sql
+-- Le jour où l'on veut le rendre vierge (les blocages seuls) :
+DELETE FROM public.disponibilites d
+USING public.chambres ch, public.chateaux c
+WHERE d.chambre_id = ch.id AND ch.chateau_id = c.id
+  AND c.slug = 'fontainebleau';
+```
 
 ### L'étape 3.2 — `getMesChateaux()`, et une inversion de rôle à ne pas « harmoniser »
 
@@ -556,6 +620,83 @@ tests-mes-chateaux  role endosse PENDANT LES LECTURES  -> EPROUVER la RLS
 ⚠ **Et le cas qui compte est le BROUILLON.** La policy étant une disjonction, un test sur des châteaux publiés seuls est satisfait par le premier terme : il passerait au vert **même si `is_chatelain_of(id)` disparaissait**. Comme aucun châtelain n'est lié à un brouillon en base, le test en pose un temporairement, l'éprouve, et le retire — dans le même bloc `DO`, donc annulé proprement si le bloc lève.
 
 ⚠ **Un client obtient `[]`, pas `42501`.** La RLS ne refuse pas, elle ne rend rien. Un écran qui lirait « pas d'erreur » comme « accès accordé » afficherait **une page vide plutôt qu'un refus** — à traiter en 3.4.
+
+### Les étapes 3.3 → 3.5 — les écrans, et cinq pièges qui ne vivent QUE là
+
+⚠ **Cette section existe parce que ces pièges n'étaient écrits nulle part où on les lirait.** Ils vivaient dans des messages de commit et des corps de PR — c'est-à-dire hors de portée au moment d'agir. Relevé par l'audit global du 24 août 2026, qui a mesuré : `OngletDisponibilites`, `AdminChateauDisponibilites` et `utils/calendrierSaisie.js` avaient **zéro mention** dans ce fichier.
+
+#### Qui fait quoi — cinq objets, une phrase chacun
+
+```
+utils/calendrierSaisie.js        la REGLE, sans DOM : aplatir un etat, borner une
+                                 plage, compter des nuits, choisir l'ecriture
+CalendrierSaisie.jsx             la GRILLE : un mois, le geste, rien d'autre
+PanneauDisponibilites.jsx        le COEUR : chambre, mois, lecture, ecriture, garde
+chatelain/OngletDisponibilites   l'HOTE chatelain : « quels sont MES domaines »
+admin/AdminChateauDisponibilites l'HOTE admin : le chateau de l'URL
+```
+
+**La frontière** : les hôtes savent **QUI** regarde (`getMesChateaux` passe par la RLS, `getChateauAdminById` par `is_admin`), le cœur ne connaît que **des dates**. Il ne cherche pas son château, il le **reçoit**.
+
+#### ⚠ PIÈGE 1 — `touch-action: none` est PERMANENT, et les marges sont le scroll
+
+La grille refuse le défilement tactile. **On ne peut pas poser cette propriété « seulement pendant le glissement »** : le navigateur tranche au `touchstart`, avant de savoir ce que le doigt va faire. `pan-y` ne sauve rien non plus — une sélection sur plusieurs semaines est verticale.
+
+**La conséquence est portée par la DISPOSITION** : sélecteurs au-dessus, barre d'action et pied en dessous. **Ce sont ces zones qui donnent la surface pour attraper la page.**
+
+⚠ **Les retirer « pour gagner de la place » rendrait la page impossible à faire défiler sur téléphone**, et rien en CSS ni en test ne le signalerait.
+
+#### ⚠ PIÈGE 2 — « Ouvrir » EFFACE, il n'écrit JAMAIS `poser(true)`
+
+```
+bloquer   poser_disponibilites(..., est_disponible = false)   ecrit une ligne
+ouvrir    retirer_disponibilites(...)                          EFFACE la ligne
+```
+
+⚠ **Une ligne `est_disponible = true` est IMMUNE À L'HORIZON.** C'est une propriété voulue — elle permet d'ouvrir un mariage réservé deux ans à l'avance sans déplacer l'horizon — mais employée comme « rouvrir », elle sèmerait des nuits ouvertes **au-delà** de l'horizon, que plus rien ne refermerait.
+
+La règle vit dans `actionPourSelection` (`utils/calendrierSaisie.js`), testée unitairement. **Ne pas la ré-implémenter en `if/else` « parce que c'est plus court ».**
+
+#### ⚠ PIÈGE 3 — bornes INCLUSIVES à la saisie, EXCLUSIVES au séjour
+
+```
+poser_ / retirer_ / jours_disponibles_*   du 12 au 18 = SEPT nuits   [du, au]
+est_disponible(chambre, A, D)             un SEJOUR, depart EXCLU     [A, D)
+```
+
+**On ne dort pas le soir du départ.** Confondre les deux laisserait la **dernière nuit** d'une période bloquée **ouverte** — et le défaut ne se verrait qu'à la réservation. Le test 12 de `tests-saisie-disponibilites.sql` confronte les deux fonctions plutôt que de les relire.
+
+#### ⚠ PIÈGE 4 — deux hôtes, UN cœur
+
+`PanneauDisponibilites` est monté par l'espace **châtelain** *et* par l'écran **admin**. **Toute modification touche les deux**, et l'un des deux est un écran en service sans filet E2E.
+
+⚠ Son CSS (`panneau-disponibilites.css`, préfixe `pdi-`) a dû **sortir** de `chatelain.css` pour cette raison : `AdminLayout` ne charge que `admin.css`, les classes `che-` y auraient été **purement absentes** — dont celles qui portent les marges du piège 1. **Ne pas les y remettre.**
+
+#### ⚠⚠ PIÈGE 5 — le geste tactile ne se vérifie QUE sur un vrai téléphone
+
+**Aucun outil dont ce dépôt dispose ne le reproduit.** Ni Playwright, ni un émulateur : la latence tactile, les gestes système au bord de l'écran, le `pointercancel` d'un appel entrant n'y existent pas.
+
+**→ Toute modification de `CalendrierSaisie.jsx`, de `calendrier-saisie.css` ou de `panneau-disponibilites.css` exige une re-validation MANUELLE sur un appareil réel.** C'est un coût permanent, à prévoir avant de planifier — pas une précaution facultative.
+
+Ce qu'il faut y voir : le doigt-glisser sélectionne, la sélection **bute** sur l'horizon (`plageLimitee`), l'écriture **persiste après rechargement**, et **la page défile autour de la grille**.
+
+⚠ Précédent : l'extraction du cœur (3.5a) était un déplacement prouvé mécaniquement — six écarts, tout le reste byte-identique — et elle a **quand même** été re-validée au doigt. Le point le plus exposé était le CSS changeant de feuille et de préfixe.
+
+#### ⚠ La cible des tests SQL est DYNAMIQUE — fragilité latente depuis le décor
+
+`tests-est-disponible.sql` et `tests-saisie-disponibilites.sql` choisissent leur cible **au moment de l'exécution** : *le premier château à ≥ 2 chambres, les brouillons d'abord, par ordre de slug*.
+
+**Mesuré le 24 août : c'est `chantilly`** — le tri par slug le place avant `fontainebleau`.
+
+⚠ **Mais le commentaire de `tests-est-disponible.sql` (ligne 327) affirme que « `orig_horizon` vaut NULL sur les 13 châteaux », et c'est FAUX depuis le décor** : `fontainebleau` porte `2027-12-31`. Si `chantilly` perdait une chambre ou changeait de slug, la cible deviendrait `fontainebleau` — et les tests passeraient **par coïncidence d'offsets** (les fenêtres sont à `CURRENT_DATE + 600` et `+900`, donc au-delà de cet horizon), pas pour la raison que le commentaire invoque.
+
+**Fragilité LATENTE, pas active.** À savoir avant de conclure quoi que ce soit d'un rouge sur ces fichiers : **lire d'abord la ligne `SETUP`**, qui nomme la cible retenue et son état d'origine.
+
+#### ⚠ À FAIRE — fixer la commission de `chateau-de-la-riviere`
+
+`0,00 %`, module actif, sur un château **publié**. **C'est assumé, pas oublié** : la négociation n'a pas eu lieu, et Matthieu ajustera le taux.
+
+⚠ **À fixer AVANT toute ouverture commerciale réelle** — sinon une réservation encaissée ne rapporterait rien, exactement le trou que `commissionService.js` documente déjà (« deux châteaux publiés ont encaissé 0 % sans que rien ne le signale »). L'écran `/admin/commissions` existe ; il reste à s'en servir.
 
 ### ⚠ Micro-dette — `chateau_owners` n'a ni ordre ni domaine principal
 
@@ -1730,6 +1871,24 @@ Notés à chaud pour ne pas se perdre. **Aucun n'a de périmètre établi** : ce
 - **[Phase 6.x] Pass éditorial Tanguy — sémantique images Pierrefonds** : Pierrefonds (forteresse arthurienne médiévale néo-gothique) reçoit en Sprint S1 Phase 5 deux URLs Unsplash au caractère plus Renaissance/classique (`photo-1566073771259-6a8506099945` + `photo-1520250497591-112f2f40a3f4`) au lieu de photos médiévales authentiques. À remplacer au pass éditorial Tanguy.
 
 - **[Sprint S2 ou S5] Audit exhaustif violations a11y "serious"** : 30 violations a11y "serious" actuellement absorbées par baseline (`max=30 actuel=30`, tangent). Distribution probable : `color-contrast` (micro-textes or-sur-crème, eyebrows opacity 0.55, Cormorant italic gris clair) + `aria-prohibited-attr` iframe YouTube. Audit dédié à programmer pour identifier et corriger ou tracer chacune. Pas bloquant CI mais hygiène. ~2-3 h audit + ~5-10 h fix CSS tokens Tanguy.
+
+### ⚠ PORTÉE DU RESPONSIVE — l'espace admin en est EXCLU (décision du 24 août 2026)
+
+L'exigence « desktop **et** mobile, les deux testés, les deux validés » vaut pour le **visiteur** et pour le **châtelain**. ⚠ **Elle ne vaut PAS pour l'espace admin.**
+
+`/admin/*` est un **back-office**, utilisé depuis un poste de travail. Personne n'éditera dix-sept sections de fiche ou une grille de commissions au pouce. **Ne pas investir dans son responsive** — ni CSS, ni tests, ni relecture mobile.
+
+⚠ **Deux conséquences à ne pas confondre.** Le **châtelain**, lui, est mobile par nature : il bloque une semaine depuis son téléphone, entre deux services. Son espace reste soumis à l'exigence complète — et `PanneauDisponibilites` étant partagé par les deux (cf. piège 4), **son responsive est requis par l'hôte châtelain, pas par l'hôte admin**. Le retirer « puisque l'admin n'en a pas besoin » casserait l'autre.
+
+### ⚠ BUG À CORRIGER — redirection post-connexion, MOBILE UNIQUEMENT
+
+**Vu le 24 août 2026.** Sur **mobile seulement** — desktop se comporte correctement —, après avoir validé « Connecter » depuis un compte **admin ou châtelain**, on atterrit sur la **home** au lieu de l'espace concerné.
+
+⚠ **Ce n'est pas le défaut réparé le 19 août** (`utils/cheminAuth.js`, la destination posée par les onze points d'entrée) : celui-là est validé en production, et le parcours desktop passe. Ici seul le mobile dévie, ce qui écarte la logique de destination — elle est commune aux deux.
+
+**Piste, non vérifiée** : un problème de **timing** entre l'établissement de la session et la redirection, plus visible sur mobile (réseau plus lent, cycle de vie de l'onglet différent). ⚠ **À mesurer avant de coder** — deux fois cette semaine une cause « évidente » n'a pas résisté à la mesure.
+
+**Non bloquant aujourd'hui** : l'admin est desktop-only (ci-dessus), et le châtelain peut naviguer à la main vers son tableau de bord. ⚠ **Le devient le jour où un châtelain découvre la plateforme depuis son téléphone** — sa première impression serait « ça ne marche pas ».
 
 ### Dette responsive mobile (Sprint S5+ ou pré-prod)
 
