@@ -51,15 +51,21 @@ export default function VitrinePermanente({ onClose, onAccueil }) {
           <img src="/L1.png" alt="" aria-hidden="true" className="vit-topbar-embleme" />
           <img src="/L2.png" alt="Les Clés du Château" className="vit-topbar-wordmark" />
         </button>
-        <span className="vit-topbar-titre">Vitrines permanentes</span>
+        <span className="vit-topbar-titre">Vitrines</span>
       </header>
 
       <div className="vit-hero">
         <div className="vit-hero-bg" />
         <div className="vit-hero-grille">
           <div className="vit-hero-titrecol">
-            <p className="vit-fil">Accueil <span>&rsaquo;</span> Les Vitrines Permanentes</p>
-            <h1 className="vit-titre">Les Vitrines<br />Permanentes</h1>
+            <p className="vit-fil">Accueil <span>&rsaquo;</span> Les Vitrines</p>
+            {/* ⚠ UNE SEULE LIGNE DEPUIS LE RENOMMAGE, et le <br /> est parti avec
+                « Permanentes ». Le titre était composé en BLOC de deux lignes à
+                4,4 rem : il perd la moitié de sa masse face à la colonne d'intro,
+                restée entière. Aucune seconde ligne n'a été inventée — écrire un
+                nom d'offre que personne n'a validé serait pire que le déséquilibre.
+                Si le titre paraît maigre à l'écran, c'est un arbitrage de Tanguy. */}
+            <h1 className="vit-titre">Les Vitrines</h1>
           </div>
           <div className="vit-hero-introcol">
             <p className="vit-surtitre">Patrimoine &middot; France &middot; Histoire</p>

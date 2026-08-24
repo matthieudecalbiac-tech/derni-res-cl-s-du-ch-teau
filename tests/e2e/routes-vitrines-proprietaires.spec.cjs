@@ -41,11 +41,11 @@ async function parLeMenu(page, libelle) {
 
 test.describe('Temps 2 · le menu mene aux ecrans de catalogue', () => {
 
-  test('depuis /resultats, « Vitrines permanentes » mene a /vitrines', async ({ page }) => {
+  test('depuis /resultats, « Vitrines » mene a /vitrines', async ({ page }) => {
     await page.goto(DEPART);
     await attendreContenu(page, '.pr-carte--cliquable');
 
-    await parLeMenu(page, /Vitrines permanentes/i);
+    await parLeMenu(page, /Vitrines/i);
 
     await page.waitForURL(/\/vitrines/, { timeout: 15000 });
     expect(new URL(page.url()).pathname).toBe('/vitrines');
@@ -77,7 +77,7 @@ test.describe('Temps 2 · le menu mene aux ecrans de catalogue', () => {
     // produit le defaut.
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    await parLeMenu(page, /Vitrines permanentes/i);
+    await parLeMenu(page, /Vitrines/i);
     await page.waitForURL(/\/vitrines/, { timeout: 15000 });
     await expect(page.locator('.vit-topbar')).toBeVisible({ timeout: 15000 });
   });

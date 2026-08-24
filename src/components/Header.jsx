@@ -8,7 +8,7 @@ const MENU_ITEMS = [
   {
     id: "vitrines",
     icone: "◆",
-    titre: "Vitrines permanentes",
+    titre: "Vitrines",
     description: "Découvrez nos châteaux partenaires — histoire, famille, territoire et chambres disponibles.",
     action: "vitrines",
     couleur: "default",

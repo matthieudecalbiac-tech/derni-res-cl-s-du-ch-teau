@@ -28,7 +28,7 @@ const BURGER = '.header-burger';
 // Les quatre entrees de catalogue et leur destination. `club` n'y figure pas :
 // sa destination depend de la session (voir next-connexion-club.spec.cjs).
 const ENTREES = [
-  { libelle: /Vitrines permanentes/i, chemin: '/vitrines',       temoin: '.vit-topbar' },
+  { libelle: /Vitrines/i, chemin: '/vitrines',       temoin: '.vit-topbar' },
   { libelle: /Derni[eè]res Cl[eé]s/i, chemin: '/dernieres-cles', temoin: '.dk-topbar' },
   { libelle: /À propos|A propos/i,    chemin: '/a-propos',       temoin: '.ap-overlay' },
   // ⚠ « Proprietaires » est MASQUEE sous 768 px, et c'est voulu : `header.css`

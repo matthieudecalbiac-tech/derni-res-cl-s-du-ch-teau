@@ -35,7 +35,7 @@ test.describe('Auth Phase B · email + mot de passe (UI/routing)', () => {
 
     // Les 4 cartes d'avantages (contrat actuel)
     await expect(page.getByRole('heading', { level: 3, name: 'Offres confidentielles' })).toBeVisible();
-    await expect(page.getByRole('heading', { level: 3, name: 'Vitrines permanentes' })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 3, name: 'Les Vitrines' })).toBeVisible();
     await expect(page.getByRole('heading', { level: 3, name: 'Une fidélité qui se mérite' })).toBeVisible();
     await expect(page.getByRole('heading', { level: 3, name: 'Des demeures vivantes' })).toBeVisible();
 

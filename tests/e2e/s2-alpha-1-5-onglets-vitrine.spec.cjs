@@ -280,11 +280,11 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
 
-    // Ouvrir le burger menu (le bouton "Vitrines permanentes" y est rangé)
+    // Ouvrir le burger menu (le bouton "Vitrines" y est rangé)
     await page.getByRole('button', { name: /Ouvrir le menu/i }).click();
 
-    // Cliquer sur l'item "Vitrines permanentes" du sous-menu
-    const itemVitrines = page.locator('button.hm-item').filter({ hasText: /Vitrines permanentes/i });
+    // Cliquer sur l'item "Vitrines" du sous-menu
+    const itemVitrines = page.locator('button.hm-item').filter({ hasText: /Vitrines/i });
     await expect(itemVitrines).toBeVisible({ timeout: 5000 });
     await itemVitrines.click();
 
