@@ -29,7 +29,9 @@ const BURGER = '.header-burger';
 // sa destination depend de la session (voir next-connexion-club.spec.cjs).
 const ENTREES = [
   { libelle: /Vitrines/i, chemin: '/vitrines',       temoin: '.vit-topbar' },
-  { libelle: /Derni[eè]res Cl[eé]s/i, chemin: '/dernieres-cles', temoin: '.dk-topbar' },
+  // ⚠ « Les Dernieres Cles » retiree : l'entree de menu ET la route n'existent
+  //   plus (offre reservee aux connectes, dans le Club). A restaurer avec elles.
+  //   { libelle: /Derni[eè]res Cl[eé]s/i, chemin: '/dernieres-cles', temoin: '.dk-topbar' },
   { libelle: /À propos|A propos/i,    chemin: '/a-propos',       temoin: '.ap-overlay' },
   // ⚠ « Proprietaires » est MASQUEE sous 768 px, et c'est voulu : `header.css`
   //   s'en tient a quatre entrees en mobile. Le test le sait et se skippe.

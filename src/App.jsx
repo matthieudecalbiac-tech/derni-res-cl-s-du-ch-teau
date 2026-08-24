@@ -118,6 +118,11 @@ function RouteProprietaires() {
   );
 }
 
+// ⚠ EN VEILLE — plus monte par aucune route depuis le passage des Dernieres
+//   Cles au Club. Conserve INTACT, avec son import : reactiver l'ecran ne
+//   demande que de restaurer la ligne <Route path="/dernieres-cles"> plus bas.
+//   ⚠ Ne pas « nettoyer » cette fonction en la croyant morte : elle est
+//   dormante, et c'est une decision.
 function RouteDernieresCles() {
   const revenir = useRetour();
   const navigate = useNavigate();
@@ -216,10 +221,7 @@ function App() {
                 </div>
               </div>
             </section>
-            <BandeauOffres
-              onOuvrirDernieres={() => navigate("/dernieres-cles")}
-              onOuvrirVitrines={() => navigate("/vitrines")}
-            />
+            <BandeauOffres onOuvrirVitrines={() => navigate("/vitrines")} />
             <UneDeLaSemaine
               onOuvrirChateau={ouvrirChateau}
               /* « Voir tout » du carrousel mobile -> catalogue complet. Le lien est
@@ -227,9 +229,16 @@ function App() {
                  desktop. */
               onVoirTout={() => navigate("/vitrines")}
             />
+            {/* ⚠ LE CTA « Voir toutes les demeures → » MENAIT AUX DERNIERES
+                CLES, ET C'ETAIT DEJA FAUX AVANT CE CHANTIER : son libelle dit
+                « demeures », qui sont Les Vitrines. On le rebranche sur
+                /vitrines plutot que de le retirer — il sort du chemin des
+                Dernieres Cles ET cesse de mentir. La prop garde son nom cote
+                HeureAuxDemeures : la renommer toucherait un composant que rien
+                d'autre n'oblige a bouger. */}
             <HeureAuxDemeures
               onOuvrirChateau={ouvrirChateau}
-              onOuvrirDernieres={() => navigate("/dernieres-cles")}
+              onOuvrirDernieres={() => navigate("/vitrines")}
             />
             {/* Bandeau « Bientot l'application » : rendu en permanence, masque
                 au-dessus du seuil par banniere-app.css. */}
@@ -331,14 +340,20 @@ function App() {
       <Route path="/personnage/:slug" element={<PagePersonnage />} />
       <Route path="/histoire" element={<PageHistoire />} />
       <Route path="/resultats" element={<PageResultats />} />
-      {/* Les Dernieres Cles ne sont plus un calque de l'accueil mais un ECRAN.
-          Depuis une route (`/resultats`), un calque d'`App` est inatteignable —
-          `<Routes>` est exclusif — et les boutons du Header y retombaient sur
-          l'accueil. Une URL leur donne une destination qui vaut partout.
-          Une SEULE voie : les trois sites d'ouverture naviguent, aucun ne monte
-          plus de calque. Deux chemins vers un meme ecran, c'est la dualite qui
-          avait produit le defaut. */}
-      <Route path="/dernieres-cles" element={<RouteDernieresCles />} />
+      {/* ⚠ LA ROUTE /dernieres-cles EST RETIREE — EN VEILLE, PAS SUPPRIMEE.
+          Les Dernieres Cles deviennent une offre RESERVEE AUX CONNECTES, a
+          l'interieur du Club : elles n'ont plus d'ecran public a elles.
+          `RouteDernieresCles` et son import restent en place juste au-dessus,
+          prets a etre rebranches — restaurer cette ligne suffit.
+
+          ⚠ UNE URL EN FAVORI TOMBE DESORMAIS SUR LA 404, et c'est le
+          comportement voulu : mieux vaut une porte qui dit qu'elle n'existe
+          plus qu'une porte qui ouvre sur un ecran vide.
+
+          Le commentaire d'origine expliquait pourquoi cet ecran etait devenu
+          une ROUTE plutot qu'un calque (les boutons du Header retombaient sur
+          l'accueil depuis /resultats). Ce raisonnement reste vrai et vaut pour
+          les trois routes ci-dessous — il n'est pas perdu. */}
       <Route path="/vitrines" element={<RouteVitrines />} />
       <Route path="/proprietaires" element={<RouteProprietaires />} />
       <Route path="/a-propos" element={<RouteAPropos />} />

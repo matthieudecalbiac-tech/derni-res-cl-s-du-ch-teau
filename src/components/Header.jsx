@@ -13,14 +13,16 @@ const MENU_ITEMS = [
     action: "vitrines",
     couleur: "default",
   },
-  {
-    id: "dernieres",
-    icone: "◆",
-    titre: "Les Dernières Clés",
-    description: "Séjours à court terme dans les plus beaux domaines à moins de 3h de Paris.",
-    action: "dernieres",
-    couleur: "default",
-  },
+  // ⚠ L'ENTREE « Les Dernieres Cles » EST RETIREE — EN VEILLE, PAS SUPPRIMEE.
+  //   Les Dernieres Cles ne sont plus un module public autonome : elles
+  //   deviennent une offre RESERVEE AUX CONNECTES, a l'interieur du Club.
+  //   Le composant, sa feuille et son service restent en place, prets a etre
+  //   rebranches. Pour reactiver : restaurer ce bloc ET la ligne
+  //   `action === "dernieres"` dans handleAction.
+  //
+  //   { id: "dernieres", icone: "◆", titre: "Les Dernières Clés",
+  //     description: "Séjours à court terme dans les plus beaux domaines à moins de 3h de Paris.",
+  //     action: "dernieres", couleur: "default" },
   {
     id: "apropos",
     icone: "·",
@@ -79,9 +81,11 @@ export default function Header() {
   const fermer = () => setMenuOuvert(false);
 
   const handleAction = (action) => {
-    // CINQ ENTREES, CINQ DESTINATIONS. Plus de callback : chacune a une URL.
+    // QUATRE ENTREES, QUATRE DESTINATIONS. Plus de callback : chacune a une URL.
+    // ⚠ « dernieres » est retiree avec son entree de menu (cf. plus haut). La
+    //   route /dernieres-cles n'existe plus non plus : la reactiver demande de
+    //   restaurer les deux, dans App.jsx et ici.
     if (action === "vitrines") navigate("/vitrines");
-    else if (action === "dernieres") navigate("/dernieres-cles");
     else if (action === "apropos") navigate("/a-propos");
     else if (action === "proprietaires") navigate("/proprietaires");
     // Un visiteur qui vient au Club A DEJA UN COMPTE le plus souvent : on le

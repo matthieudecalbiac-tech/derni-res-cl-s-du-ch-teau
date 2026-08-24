@@ -85,7 +85,13 @@ export default function OngletsNiveau1({ chateau, actif, isClubMember, onChange,
   // Piece 1a : les trois onglets sont toujours visibles. Un onglet sans offre
   // s'affiche quand meme — l'etat vide est gere par son contenu. La restriction
   // membre du Club s'applique au click (modale stub d'auth), pas au rendu.
-  const onglets = ["permanent", "dernieresCles", "club"];
+  // ⚠ « dernieresCles » RETIRE DE LA LISTE, ET IL FALLAIT LE FAIRE
+  //   EXPLICITEMENT : le commentaire six lignes plus haut le dit — un onglet
+  //   « s'affiche quand meme, l'etat vide est gere par son contenu ». Vider ses
+  //   offres en base ne l'aurait donc PAS cache : il serait reste, vide.
+  //   Les cles restent dans LIBELLES / PHRASES_BANDEAU / ICONES : elles ne
+  //   coutent rien et servent la reactivation.
+  const onglets = ["permanent", "club"];
 
   const handleClick = (m) => {
     if (m === "club" && !isClubMember) {

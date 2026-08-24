@@ -26,8 +26,12 @@
   color: #1A2D5A; text-align: center; margin: 0 auto 36px;
 }
 
+/* ⚠ DEUX COLONNES depuis le passage des Dernieres Cles au Club. A `repeat(3)`
+   avec deux cartes, la troisieme colonne restait VIDE a l'interieur du cadre :
+   la grille porte une bordure, le trou se serait vu. Restaurer `repeat(3, 1fr)`
+   en meme temps que la carte en veille de BandeauOffres.jsx. */
 .bandeau-offres-grille {
-  display: grid; grid-template-columns: repeat(3, 1fr);
+  display: grid; grid-template-columns: repeat(2, 1fr);
   border: 1px solid rgba(26,45,90,0.14);
   max-width: 1200px; margin: 0 auto;
 }

@@ -74,7 +74,10 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     expect(await modale.locator('.vc4-permanent-chambre').count()).toBeGreaterThanOrEqual(2);
   });
 
-  test('Test 2 · ?onglet=dernieresCles : offre B affichée', async ({ page }) => {
+  // ⚠ EN SOMMEIL — l'onglet dernieresCles n'existe plus, et l'URL replie sur permanent.
+  //   Reactiver quand les Dernieres Cles redeviennent publiques : elles sont
+  //   desormais une offre RESERVEE AUX CONNECTES, dans le Club.
+  test.skip('Test 2 · ?onglet=dernieresCles : offre B affichée', async ({ page }) => {
     await page.goto('/chateau/les-briottieres?onglet=dernieresCles');
     await page.waitForLoadState('domcontentloaded');
 
@@ -95,7 +98,10 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(cards.first()).toBeVisible({ timeout: 8000 });
   });
 
-  test('Test 3 · ?onglet=dernieresCles&offre=<id> : highlight', async ({ page }) => {
+  // ⚠ EN SOMMEIL — meme cause que le test 2 : la cible du highlight n'est plus rendue.
+  //   Reactiver quand les Dernieres Cles redeviennent publiques : elles sont
+  //   desormais une offre RESERVEE AUX CONNECTES, dans le Club.
+  test.skip('Test 3 · ?onglet=dernieresCles&offre=<id> : highlight', async ({ page }) => {
     // On lit l'id de la premiere offre reelle dans le DOM, plutot que de le coder
     // en dur : le test valide le mecanisme de highlight, pas une donnee de la base.
     await page.goto('/chateau/les-briottieres?onglet=dernieresCles');
@@ -322,7 +328,10 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
   // Phase 6.x (le wrapper ongletsN1Ref, trop court pour position:sticky). Il
   // n'avait donc plus de sujet, et son sujet n'existe plus.
 
-  test('Test 12 · Switch de module préserve hero + navigation thèmes (R3)', async ({ page }) => {
+  // ⚠ EN SOMMEIL — son switch de module passe par dernieresCles, retire de la barre laterale.
+  //   Reactiver quand les Dernieres Cles redeviennent publiques : elles sont
+  //   desormais une offre RESERVEE AUX CONNECTES, dans le Club.
+  test.skip('Test 12 · Switch de module préserve hero + navigation thèmes (R3)', async ({ page }) => {
     // Sprint S2-α.1.5-FIX : régression R3 (architecture "vues séparées" perçue)
     // — l'architecture en code est correcte : Hero + N2 sont toujours rendus,
     // indépendamment du module actif. Seule la section module change.
@@ -361,7 +370,10 @@ test.describe('S2-α.1.5 · vitrine onglets 2 niveaux', () => {
     await expect(modale.locator('[data-onglet-contenu="permanent"]')).toHaveCount(0);
   });
 
-  test('Test 13 · FIX D : DernieresCles overlay → click château → /chateau/:slug?onglet=dernieresCles', async ({ page }) => {
+  // ⚠ EN SOMMEIL — l'overlay DernieresCles n'a plus de route ni d'entree de menu.
+  //   Reactiver quand les Dernieres Cles redeviennent publiques : elles sont
+  //   desormais une offre RESERVEE AUX CONNECTES, dans le Club.
+  test.skip('Test 13 · FIX D : DernieresCles overlay → click château → /chateau/:slug?onglet=dernieresCles', async ({ page }) => {
     // Sprint S2-α.1.5 FIX D : depuis l'overlay DernieresCles (qui liste les
     // châteaux avec offres Module B), un click sur une carte doit ouvrir la
     // vitrine routée /chateau/:slug?onglet=dernieresCles (et pas l'overlay

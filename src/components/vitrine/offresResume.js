@@ -16,7 +16,12 @@ import { formaterPrix } from "../../services/_mapping";
 // deux composants restent autonomes.
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const MODULES = ["permanent", "dernieresCles", "club"];
+// ⚠ « dernieresCles » retire : la barre laterale « LES OFFRES » en faisait une
+//   CARTE cliquable de chaque vitrine — un septieme chemin public, que la seule
+//   lecture des ecrans ne montrait pas. Le reste du module (phraseCarte,
+//   detailModule, le comptage) est conserve et fonctionne : restaurer cette
+//   entree suffit a rendre la carte.
+export const MODULES = ["permanent", "club"];
 
 // ── TROIS ETATS DANS UN SEUL EMPLACEMENT ────────────────────────────────────
 //

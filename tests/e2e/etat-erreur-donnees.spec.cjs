@@ -79,7 +79,13 @@ test.describe('Quand la donnee ne vient pas', () => {
     await expect(page.locator('.vit-grille')).toHaveCount(0);
   });
 
-  test('DERNIERES CLES — l\'erreur, et aucun chiffre au-dessus', async ({ page }) => {
+  // ⚠ EN SOMMEIL AVEC LA ROUTE /dernieres-cles, qui n'existe plus (offre
+  //   reservee aux connectes, dans le Club). Le corps est conserve tel quel :
+  //   ce qu'il garde — « un compteur ne doit jamais s'afficher AU-DESSUS d'un
+  //   message de panne » — reste vrai et devra etre re-garde a la reactivation.
+  //   ⚠ Non transposable a /vitrines : cet ecran n'a pas de `.dk-liste-header`,
+  //   et le transposer a l'aveugle aurait produit un test toujours vert.
+  test.skip('DERNIERES CLES — l\'erreur, et aucun chiffre au-dessus', async ({ page }) => {
     // Le compteur annoncerait « 0 domaine disponible » AU-DESSUS du message de
     // panne : deux phrases qui se contredisent, dont la premiere est fausse.
     await couperLaDonnee(page);
