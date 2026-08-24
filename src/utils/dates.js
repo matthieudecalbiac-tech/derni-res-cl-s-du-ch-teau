@@ -38,6 +38,27 @@ export function genererGrilleMois(premierJourMois) {
 }
 
 /**
+ * Une Date -> le jour "YYYY-MM-DD", construit sur les composantes LOCALES.
+ *
+ * ⚠ NE JAMAIS PASSER PAR toISOString(). Elle convertit en UTC : le 1er septembre
+ * a 00h30 heure de Paris y devient "2026-08-31T22:30:00Z", soit LE MOIS
+ * PRECEDENT. Ce depot a deja paye ce bug — cf. le commentaire de `minuit()` dans
+ * disponibilitesService : « une regle de disponibilite ne peut pas dependre de
+ * l'heure a laquelle on la lit ».
+ *
+ * ⚠ DUPLICATION CONNUE : `cleJour()` dans disponibilitesService fait la meme
+ * chose, et y est volontairement PRIVEE (cf. son commentaire). Les unifier
+ * demanderait de toucher un module valide en production ; c'est trace plutot que
+ * fait en passant. Si l'une des deux change, l'AUTRE AUSSI.
+ *
+ * @param {Date} d
+ * @returns {string} "YYYY-MM-DD"
+ */
+export function jourISO(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/**
  * Formate une date en francais court : "lun. 5 mai".
  * @param {Date} d
  * @returns {string}

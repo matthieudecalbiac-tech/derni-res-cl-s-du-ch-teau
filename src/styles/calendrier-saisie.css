@@ -1,0 +1,298 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   LCC — Calendrier de SAISIE (étape 3.3b)
+
+   Charte : navy var(--bleu-nuit) #0d1628 · or var(--or) #C09840
+            crème var(--lcc-creme) #FAF6EE
+   Aucune couleur en dur qui existe déjà en token — cf. CLAUDE.md § Styles.
+
+   ⚠ QUATRE APPARENCES, ET LEUR HIÉRARCHIE VISUELLE EST UNE DÉCISION :
+
+     disponible    crème, bord discret       -> l'état NORMAL, il ne crie pas
+     bloque        gris hachuré désaturé     -> une DÉCISION du châtelain
+     vendu         or, cadenas               -> un FAIT, il ne se discute pas
+     hors_horizon  gris pâle, sans contraste -> une LIMITE, pas un état
+
+   ⚠ `hors_horizon` est volontairement le MOINS visible des quatre. Il doit se
+   lire « le calendrier s'arrête là », pas « cette nuit est fermée » : une nuit
+   hors horizon s'ouvre en déplaçant l'horizon du château, jamais en cliquant la
+   case. Lui donner un gris franc l'aurait fait passer pour un blocage.
+
+   ⚠ MOBILE D'ABORD SUR LA CIBLE TACTILE. Le token --hm-tap (44 px, posé au
+   chantier mobile du 22 août) est le plancher : sept colonnes sur un écran de
+   375 px laissent ~48 px, on tient — mais de peu. Toute réduction de la grille
+   doit se mesurer, pas s'estimer.
+
+   ⚠ --hm-tap N'EST DÉFINI QUE SOUS LE POINT DE RUPTURE MOBILE de global.css.
+   D'où le `var(--hm-tap, 44px)` partout ici : sur desktop le token n'existe
+   pas, et sans repli la propriété tomberait. Le repli vaut la même valeur que
+   le token — ce n'est pas une seconde décision, c'est la même.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.csa-wrap {
+  font-family: var(--font-ui);
+  color: var(--bleu-nuit);
+  user-select: none; /* un glissement de sélection ne doit pas surligner du texte */
+}
+
+/* ── Navigation de mois ─────────────────────────────────────────────────── */
+
+.csa-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.csa-nav-label {
+  font-family: var(--font-titre);
+  font-size: var(--t-md);
+  color: var(--bleu-nuit);
+  text-transform: capitalize;
+  letter-spacing: 0.01em;
+}
+
+.csa-nav-btn {
+  /* ⚠ Cible tactile pleine : une flèche de navigation est ce qu'on touche le
+     plus souvent sur mobile, et c'est la plus facile à sous-dimensionner. */
+  min-width: var(--hm-tap, 44px);
+  min-height: var(--hm-tap, 44px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--creme-chaud);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--bleu-nuit);
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.csa-nav-btn:hover { border-color: var(--or); }
+.csa-nav-btn:focus-visible { outline: 2px solid var(--or); outline-offset: 2px; }
+
+/* ── Le verrou (château hors gestion, ou piloté ailleurs un jour) ────────── */
+
+.csa-verrou {
+  margin: 0 0 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border-left: 3px solid var(--or);
+  background: var(--lcc-creme);
+  font-size: var(--t-xs);
+  color: var(--gris-fonce);
+}
+
+.csa-wrap--verrouille .csa-grille { opacity: 0.72; }
+
+/* ── La grille ──────────────────────────────────────────────────────────── */
+
+.csa-grille {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+
+  /* ⚠⚠ PERMANENT, ET C'EST UNE CORRECTION DU PLAN INITIAL. On avait prévu de
+     poser `touch-action: none` PENDANT le glissement seulement, pour ne pas
+     bloquer le defilement de la page. C'est impossible : le navigateur decide
+     scroll-ou-pas au TOUCHSTART, en lisant le touch-action ALORS EN VIGUEUR.
+     Le poser dans le gestionnaire pointerdown arrive trop tard — le geste part
+     en defilement et le navigateur emet un pointercancel.
+
+     `pan-y` ne sauve rien non plus : il rendrait le defilement vertical au
+     navigateur, or selectionner une plage qui traverse plusieurs semaines EST
+     un mouvement vertical. On perdrait le geste principal.
+
+     ⚠ CONSEQUENCE POUR L'ECRAN HOTE (3.4) : on ne peut pas faire defiler la
+     page en posant le doigt SUR la grille. Elle ne doit donc jamais occuper
+     toute la hauteur de l'ecran — il faut de la marge autour pour attraper le
+     defilement. A verifier sur un vrai telephone, pas sur un emulateur. */
+  touch-action: none;
+}
+
+.csa-entete {
+  text-align: center;
+  font-size: var(--t-xs);
+  letter-spacing: 0.06em;
+  color: var(--gris);
+  padding-bottom: 4px;
+}
+
+.csa-case {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  /* aspect-ratio garde des cases carrées quelle que soit la largeur, et
+     min-height tient le plancher tactile sur les écrans étroits. */
+  aspect-ratio: 1 / 1;
+  min-height: var(--hm-tap, 44px);
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: var(--t-sm);
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+
+.csa-case:focus-visible { outline: 2px solid var(--or); outline-offset: 1px; }
+.csa-case:disabled { cursor: default; }
+
+.csa-num { font-variant-numeric: tabular-nums; }
+
+/* Les jours des mois voisins : une case vide, pas un état. */
+.csa-case--horsmois { visibility: hidden; }
+
+/* ── 1. DISPONIBLE — l'état normal, il ne crie pas ──────────────────────── */
+
+.csa-case--disponible {
+  background: var(--lcc-creme);
+  border-color: var(--creme-chaud);
+  color: var(--bleu-nuit);
+}
+
+.csa-case--disponible:hover { border-color: var(--or); }
+
+/* ── 2. BLOQUÉ — une décision du châtelain, lisible d'un coup d'œil ──────── */
+
+.csa-case--bloque {
+  /* Hachures désaturées : elles disent « barré » sans emprunter au vocabulaire
+     de l'erreur (pas de rouge — ce n'est pas une faute, c'est un choix). */
+  background-color: #e9e6e0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent 0 5px,
+    rgba(13, 22, 40, 0.16) 5px 7px
+  );
+  border-color: #d8d3c9;
+  color: var(--gris-fonce);
+}
+
+.csa-case--bloque:hover { border-color: var(--or); }
+
+/* ── 3. VENDU — un fait, il ne se discute pas ───────────────────────────── */
+
+.csa-case--vendu {
+  background: var(--or);
+  border-color: var(--or-sombre);
+  color: var(--bleu-nuit);
+  font-weight: 600;
+}
+
+/* ⚠ Pas de :hover : la case est inerte, et le curseur ne doit rien promettre. */
+
+.csa-cadenas {
+  width: 10px;
+  height: 12px;
+  opacity: 0.85;
+}
+
+/* ── 4. HORS HORIZON — une limite, pas un état ──────────────────────────── */
+
+.csa-case--hors_horizon {
+  background: transparent;
+  border-color: transparent;
+  /* Le chiffre reste lisible, mais tout juste : la case existe, elle n'invite
+     à rien. C'est le moins contrasté des quatre, délibérément. */
+  color: var(--gris-clair);
+}
+
+/* ── La sélection en cours — liseré or ──────────────────────────────────── */
+/* Posé dès 3.3b bien qu'il ne serve qu'au tap : 3.3c ne fera que l'étendre à
+   la plage survolée pendant le glissement. */
+
+.csa-case--selection {
+  border-color: var(--or);
+  box-shadow: inset 0 0 0 1px var(--or);
+}
+
+.csa-case--selection.csa-case--vendu { box-shadow: none; }
+
+/* ── Mobile ─────────────────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .csa-grille { gap: 3px; }
+
+  .csa-case {
+    font-size: var(--t-xs);
+    /* ⚠ min-height CONSERVÉ à --hm-tap : on resserre les gouttières et la
+       typographie, JAMAIS la cible tactile. C'est la règle de l'échelle
+       mobile du 22 août — le raffinement ne descend pas sous ce seuil. */
+  }
+
+  .csa-nav-label { font-size: var(--t-sm); }
+}
+
+/* ── Mouvement réduit ───────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .csa-case,
+  .csa-nav-btn { transition: none; }
+}
+
+/* ── La barre d'actions (3.3c) ──────────────────────────────────────────── */
+/* Apparaît sous la grille quand une sélection existe. En flux, PAS en position
+   fixe : une barre flottante masquerait les dernières semaines sur un écran
+   étroit, précisément au moment où le châtelain veut les voir. */
+
+.csa-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  margin-top: 0.9rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--creme-chaud);
+  border-radius: 6px;
+  background: var(--lcc-creme);
+}
+
+.csa-actions-libelle {
+  margin: 0;
+  font-size: var(--t-sm);
+  color: var(--gris-fonce);
+  font-variant-numeric: tabular-nums;
+}
+
+.csa-actions-btns { display: flex; gap: 0.5rem; }
+
+.csa-btn {
+  min-height: var(--hm-tap, 44px);
+  padding: 0 0.95rem;
+  border: 1px solid var(--creme-chaud);
+  border-radius: 4px;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.csa-btn:hover { border-color: var(--or); }
+.csa-btn:focus-visible { outline: 2px solid var(--or); outline-offset: 2px; }
+
+/* ⚠ « Bloquer » est l'action PRIMAIRE — c'est le geste courant du châtelain
+   (fermer ce qu'il ne loue pas). « Ouvrir » est la correction, plus rare : elle
+   reste secondaire. L'or ne se donne qu'une fois par barre. */
+.csa-btn--primaire {
+  background: var(--or);
+  border-color: var(--or-sombre);
+  color: var(--bleu-nuit);
+  font-weight: 600;
+}
+
+.csa-btn--primaire:hover { background: var(--or-clair); }
+
+@media (max-width: 640px) {
+  .csa-actions { flex-direction: column; align-items: stretch; }
+  .csa-actions-btns { justify-content: stretch; }
+  /* Trois boutons à parts égales : au doigt, on vise mal une cible étroite. */
+  .csa-btn { flex: 1; padding: 0 0.5rem; }
+}
