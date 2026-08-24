@@ -4,23 +4,26 @@ import { useNavigate } from "react-router-dom";
 import { cheminAuth, NEXT_CLUB } from "../utils/cheminAuth";
 import "../styles/bandeau-offres.css";
 
-export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
+// ⚠ `onOuvrirDernieres` a ete RETIREE de la signature avec la carte qu'elle
+//   servait. A restaurer en meme temps que le bloc en veille ci-dessous.
+export default function BandeauOffres({ onOuvrirVitrines }) {
   const { compteurs, loading, error } = useCompteurs();
   const navigate = useNavigate();
   const [ref, visible] = useScrollAnimation(0.2);
 
+  // ⚠ DEUX OFFRES DEPUIS LE PASSAGE DES DERNIERES CLES AU CLUB. La carte
+  //   « Les Dernieres Cles » est EN VEILLE, pas supprimee — elles deviennent une
+  //   offre reservee aux connectes, a l'interieur du Club. Pour reactiver :
+  //   restaurer le bloc ci-dessous, renumeroter, et remettre « Trois » a
+  //   l'exergue + repeat(3, 1fr) a la grille (cf. bandeau-offres.css).
+  //
+  //   { num: "01", icone: "/icon-cle.png", titre: "Les Dernières Clés",
+  //     desc: "Les chambres ouvertes cette semaine, à court terme.",
+  //     lien: "Les Dernières Clés du moment →",
+  //     illustration: "/offre-dernieres.png", action: "dernieres" },
   const OFFRES = [
     {
       num: "01",
-      icone: "/icon-cle.png",
-      titre: "Les Dernières Clés",
-      desc: "Les chambres ouvertes cette semaine, à court terme.",
-      lien: "Les Dernières Clés du moment →",
-      illustration: "/offre-dernieres.png",
-      action: "dernieres",
-    },
-    {
-      num: "02",
       icone: "/icon-demeure.png",
       titre: "Les Vitrines",
       desc: "Les demeures à réserver toute l'année, en direct avec les familles.",
@@ -29,7 +32,7 @@ export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
       action: "vitrines",
     },
     {
-      num: "03",
+      num: "02",
       icone: "/icon-couronne.png",
       titre: "Le Club des Châtelains",
       desc: "Les séjours confidentiels, réservés aux membres.",
@@ -40,8 +43,7 @@ export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
   ];
 
   const gererClic = (action) => {
-    if (action === "dernieres") onOuvrirDernieres?.();
-    else if (action === "vitrines") onOuvrirVitrines?.();
+    if (action === "vitrines") onOuvrirVitrines?.();
     else if (action === "club") navigate(cheminAuth("/inscription", NEXT_CLUB));
   };
 
@@ -49,7 +51,10 @@ export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
     <section className={"bandeau-offres" + (visible ? " bandeau-offres--visible" : "")} ref={ref}>
       <div className="bandeau-offres-orne">
         <span className="bandeau-offres-orne-ligne bandeau-offres-orne-ligne--g" />
-        <span className="bandeau-offres-orne-texte">Trois façons de</span>
+        {/* ⚠ « Deux » depuis le passage des Dernieres Cles au Club : l'exergue
+            COMPTE les cartes rendues juste dessous. La laisser a « Trois »
+            aurait fait mentir l'accueil sur sa propre grille. */}
+        <span className="bandeau-offres-orne-texte">Deux façons de</span>
         <span className="bandeau-offres-orne-ligne bandeau-offres-orne-ligne--d" />
       </div>
       <h2 className="bandeau-offres-titre-section">Franchir le seuil</h2>
@@ -59,7 +64,12 @@ export default function BandeauOffres({ onOuvrirDernieres, onOuvrirVitrines }) {
           <button
             key={o.num}
             type="button"
-            className={`bandeau-offres-cellule ${i === 1 ? "bandeau-offres-cellule--centre" : ""}`}
+            /* ⚠ `--centre` RETIRE, PAS DEPLACE. Ce modificateur posait un fond
+               or sur la cellule du MILIEU — a trois cartes, les Vitrines. A
+               deux cartes il n'y a plus de milieu : le garder sur l'index 1
+               aurait donne au CLUB une mise en avant que personne n'a decidee.
+               A restaurer avec la troisieme carte, pas avant. */
+            className="bandeau-offres-cellule"
             onClick={() => gererClic(o.action)}
             style={{ transitionDelay: `${0.25 + i * 0.15}s` }}
           >

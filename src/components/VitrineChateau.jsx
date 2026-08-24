@@ -138,8 +138,15 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
   const offreCible = mode === "route" ? searchParams.get("offre") : null;
 
   // Fallback : club si non-membre → permanent (URL conservée mais contenu différent)
-  const moduleEffectif =
-    moduleParam === "club" && !isClubMember ? "permanent" : moduleParam;
+  //
+  // ⚠ LA MEME GARDE COUVRE DESORMAIS « dernieresCles », ET C'EST EXACTEMENT LA
+  //   SEMANTIQUE VOULUE : les Dernieres Cles deviennent une offre RESERVEE AUX
+  //   CONNECTES, dans le Club. Retirer l'onglet ne suffisait pas — une URL
+  //   `?onglet=dernieresCles` gardee en favori aurait continue de rendre
+  //   ContenuDernieresCles. Aucune regle nouvelle n'est ecrite ici : on etend
+  //   le repli deja en place pour le Club.
+  const moduleReserve = moduleParam === "club" || moduleParam === "dernieresCles";
+  const moduleEffectif = moduleReserve && !isClubMember ? "permanent" : moduleParam;
 
   const chambre = chateau.chambres?.[chambreIdx];
   const prixFinal = chateau.prixBarre
@@ -389,7 +396,10 @@ export default function VitrineChateau({ chateau, onClose, mode = "modal" }) {
     return null;
   };
 
-  const MODULES_SEO = ["permanent", "dernieresCles", "club"];
+  // ⚠ « dernieresCles » retire : ces liens sont INDEXABLES. Les laisser aurait
+  //   invite les moteurs sur un onglet qui n'existe plus — et qui, pour un
+  //   visiteur non connecte, replie desormais sur « permanent ».
+  const MODULES_SEO = ["permanent", "club"];
 
   return (
     <div className={"vc3-overlay " + (visible ? "vc3-visible" : "vc3-hidden")}>
