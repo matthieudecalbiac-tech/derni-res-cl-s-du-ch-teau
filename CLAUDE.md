@@ -311,7 +311,7 @@ Ordre de composition, pour les nuits `[arrivée, départ)` :
 
 ⚠ **2.5 est le seul gain de sûreté du lot** : aujourd'hui l'Edge Function ne regarde **pas les dates du tout** — ses trois `ERR_INDISPO` portent sur le château, la chambre et le module.
 
-⚠ **L'ordre est contraint** : la saisie (étape 3) doit exister **avant** qu'un château passe à `true`, sinon on le ferme. Et l'étape 4 — retirer le proxy `urgence` des trois fonctions historiques — ne peut venir qu'une fois tous les châteaux servis basculés.
+⚠ **L'ordre est contraint** : la saisie (étape 3) doit exister **avant** qu'un château passe à `true`, sinon on le ferme. ~~Et l'étape 4 — retirer le proxy `urgence` des trois fonctions historiques — ne peut venir qu'une fois tous les châteaux servis basculés.~~ ✅ **L'étape 4 est ACCOMPLIE côté écran depuis le 24 août**, et pas comme prévu : le retrait des Dernières Clés du public a rendu les trois fonctions **inatteignables**, sans qu'une ligne bouge. Cf. § Simplification de l'offre.
 
 ### ⚠ `admin_upsert_chateau` : sept réémissions, et une liste blanche
 
@@ -391,7 +391,10 @@ nuit 2   chambre A prise, chambre B libre
 
 ```
 moitié HISTORIQUE   chateauxDisponibles · datesAvecOffre · predicatDateOuverte
-                    -> proxy editorial `urgence`. INTACTE jusqu'a l'etape 4.
+                    -> proxy editorial `urgence`. INTACTE, et desormais
+                       SANS AUCUN CONSOMMATEUR (24 aout) : DernieresCles
+                       etait le seul, et il a quitte le public.
+                       ⚠ EN VEILLE, PAS MORTE — cf. § Simplification de l'offre.
 moitié MOTEUR       estDisponible · chateauDisponible
                     joursDisponiblesChambre · joursDisponiblesChateau
                     -> quatre wrappers minces sur les RPC de 2.2 / 2.3
@@ -417,7 +420,7 @@ PostgREST le sérialiserait en ISO **UTC** ; le cast `::date` côté Postgres pe
 
 **La règle métier n'est pas retestée en JS.** Elle vit en SQL et elle est prouvée là-bas — 16/16 et 11/11 **en base réelle**. La rejouer avec un client mocké ne prouverait que la qualité du mock. Le test JS verrouille le **contrat d'appel** : noms de RPC, noms de paramètres, format de date, normalisation du retour, propagation de l'erreur.
 
-⚠ **Les trois fonctions historiques ne sont pas couvertes non plus** : les tester figerait ce qu'on veut retirer à l'étape 4.
+⚠ **Les trois fonctions historiques ne sont pas couvertes non plus** : les tester figerait ce qu'on veut retirer à l'étape 4. ⚠ **Et depuis le 24 août elles n'ont plus aucun consommateur** — ne pas écrire de test pour elles maintenant : ce serait garder un code que rien n'appelle.
 
 ### L'étape 2.5 — le contrôle des dates, et le `GRANT` qui l'aurait rendu inerte (23 août 2026)
 
@@ -585,9 +588,9 @@ régression de 3.5 — c'est le retrait du rattachement de test.
 
 - **avant une publication éventuelle** — un château servi ne doit pas porter des
   blocages posés pour l'exemple ;
-- **avant l'étape 4** *si* on veut un parc vierge pour mesurer la bascule du proxy
-  `urgence`. ⚠ Mais réfléchir avant : c'est aussi le seul château sur lequel la
-  bascule peut se **comparer**, `dispo_geree` étant faux partout ailleurs.
+- ~~**avant l'étape 4** *si* on veut un parc vierge pour mesurer la bascule du proxy
+  `urgence`.~~ ⚠ **Caduque** : l'étape 4 s'est accomplie côté écran le 24 août, sans
+  bascule à mesurer. Il n'y a plus d'échéance de ce côté — reste la première.
 
 ```sql
 -- Le jour où l'on veut le rendre vierge (les blocages seuls) :
@@ -740,6 +743,70 @@ Mesure du 22 août sur les **sept** demeures servies :
 - **Aucune fonction ne prend une PLAGE.** `chateauxDisponibles` ne regarde que la date d'**arrivée** ; la durée n'entre nulle part. Réserver trois nuits demandera une **quatrième fonction**, pas seulement un nouveau corps.
 - **`chateaux.mode_dispo` n'existe pas.** Mesuré : `column chateaux.mode_dispo does not exist`. Sa seule trace du dépôt est une **comparaison en commentaire** dans la migration `mode_paiement`. Ce n'est pas un placeholder d'architecture, c'est une intention mentionnée en passant.
 - **Aucune UI de saisie.** Douze écrans admin, un dashboard châtelain, **aucun calendrier éditable**. Les trois composants calendrier du dépôt sont en lecture, côté visiteur. Seules les **policies** d'écriture existent (`disponibilites_write_chatelain_admin`) — la sécurité du chemin est prête avant le chemin.
+
+## Simplification de l'offre — 3 modules publics → 2 (24 août 2026)
+
+**Décision de Matthieu, qui a autorité sur l'offre.** Le site ne présente plus que **Les Vitrines** et **le Club**. Les **Dernières Clés** cessent d'être un module public autonome : elles deviennent une **offre réservée aux connectés**, à l'intérieur du Club.
+
+```
+volet 1  « Vitrine permanente » -> « Vitrines »        PR #155
+volet 2+3  les Dernieres Cles quittent le public       PR #156 + 1 UPDATE
+```
+
+⚠ **Rien n'a été supprimé.** `DernieresCles.jsx`, `CalendrierDK`, `ContenuDernieresCles`, `dernieres-cles.css`, `offresService`, `MODULE_B_ID` et les colonnes `img_`/`accroche_barre_dernieres_cles` sont **en veille**, et chaque retrait porte en commentaire **le geste exact de sa réactivation**.
+
+⚠ **Le renommage n'a touché que le NOM PUBLIC.** La clé technique `"permanent"` — colonnes `img_barre_permanent`, classes `.vc4-permanent-*`, sélecteurs de test, `MODULES[]` — est **inchangée**. La renommer exigerait une migration de colonnes **et** une réémission d'`admin_upsert_chateau` (le piège des sept réémissions), pour zéro gain visible.
+
+⚠ **La marque n'est pas le module.** `index.html` et `global.css` portent « Les Dernières Clés du Château » : c'est le **nom du site** — le dépôt lui-même s'appelle ainsi. **Aucun `sed` global** sur cette chaîne.
+
+### ⚠⚠ `modules.requires_auth_role` est un PIÈGE — la colonne n'est lue par PERSONNE
+
+**Le plan validé prévoyait de réserver le module B par `UPDATE modules SET requires_auth_role = 'client'`.** La mesure l'a démenti à temps :
+
+```
+grep requires_auth_role sur src/ + supabase/  ->  4 resultats
+  schema.sql   la declaration de colonne
+  schema.sql   son COMMENT
+  seed.sql     la liste de colonnes de l'INSERT
+  (aucun lecteur)
+```
+
+⚠ **Son propre `COMMENT` porte le préfixe `[Plugeable]`** — la convention maison pour « déclaré, jamais branché ». Et `offres.requires_role` annonce : *« Hérité de `modules.requires_auth_role` par défaut »* — **cet héritage n'est implémenté nulle part.**
+
+⚠ **L'`UPDATE` serait passé sans erreur et n'aurait rien changé.** C'est le pire mode de panne : celui qu'on prend pour un succès.
+
+**LE VRAI LEVIER, ligne par ligne :**
+
+```sql
+UPDATE public.offres SET requires_role = 'client' WHERE module_id = <module>;
+```
+
+Appliqué par la RLS, `policies.sql:655` :
+
+```sql
+CREATE POLICY offres_select_visible ON public.offres FOR SELECT USING (
+  (visible = true AND (requires_role IS NULL OR auth.uid() IS NOT NULL))
+  OR public.is_chatelain_of(chateau_id) OR public.is_admin()
+);
+```
+
+⚠ **La policy ne teste PAS le rôle**, seulement `auth.uid() IS NOT NULL` : **toute personne connectée** voit l'offre, pas seulement un « client ». C'est déjà le comportement du Club, et c'est cohérent avec « le Club est gratuit ».
+
+⚠ **Cet `UPDATE` coupe aussi le prix barré de la vitrine publique** : `applyOffreModuleB` ne trouve plus d'offre, `chateau.prixBarre` vaut `null`, le hero retombe sur `prixDepart`. **Vérifié en production sur Briottières.**
+
+⚠ **Mais il ne coupe AUCUN chemin en dur.** Menu, carte d'accueil, route, onglet, liens SEO, CTA, carte de barre latérale : **sept**, tous en code. **L'ordre est donc contraint — le code d'abord, la base ensuite** ; l'inverse ouvre une fenêtre où les portes mènent au vide.
+
+### ✅ L'ÉTAPE 4 DU MOTEUR EST ACCOMPLIE — côté écran, sans qu'une ligne ait bougé
+
+**Ne plus la chercher dans la liste des choses à faire.**
+
+`DernieresCles.jsx` était le **seul consommateur** des trois fonctions historiques de `disponibilitesService` — `chateauxDisponibles`, `datesAvecOffre`, `predicatDateOuverte`, celles qui portent le **proxy éditorial `urgence`**. Retirer son chemin public les a rendues **inatteignables**.
+
+⚠ **C'est exactement ce que l'étape 4 devait produire**, et elle l'obtient **sans toucher au code** — donc sans le risque qu'elle portait.
+
+⚠ **NE PAS les supprimer pour autant.** Elles restent en veille avec le reste du module : les effacer casserait la réactivation. **Le proxy `urgence` n'est plus servi ; il n'est pas mort.**
+
+⚠ **Ce qui reste vrai de l'étape 4** : le jour où les Dernières Clés reviendraient au public, ces trois fonctions **redeviendraient servantes**, et il faudrait alors les brancher sur le moteur — pas sur `urgence`. La dette n'est pas éteinte, elle est **dormante**, comme le module.
 
 ## Anti-survente & modèle de paiement cible (22 août 2026)
 
