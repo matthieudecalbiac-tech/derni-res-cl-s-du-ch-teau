@@ -17,11 +17,139 @@
 .une-semaine-intro-sep { width: 54px; height: 1px; background: rgba(192,152,64,0.6); margin-bottom: 26px; position: relative; z-index: 1; }
 .une-semaine-intro-txt { font-family: 'Crimson Pro', Georgia, serif; font-size: 15px; line-height: 1.75; color: #3A4456; max-width: 300px; margin: 0 0 18px; position: relative; z-index: 1; }
 
-.une-semaine-liste { display: flex; flex-direction: column; gap: 30px; }
-.une-semaine-carte { position: relative; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid rgba(26,45,90,0.16); border-radius: 6px; overflow: hidden; background: rgba(251,247,243,0.5); }
-.une-semaine-photo { position: relative; min-height: 340px; overflow: hidden; background-color: #E8E0D0; /* repli si images[] est vide */ }
+/* ══════════════════════════════════════════════════════════════════════════
+   LE CARROUSEL — desormais AUX DEUX TAILLES (refonte home, section 3)
+   ══════════════════════════════════════════════════════════════════════════
+   Avant : une COLONNE de cartes HORIZONTALES en desktop, un carrousel de
+   cartes verticales en mobile seulement. La DA demande des cartes verticales
+   en carrousel partout — le patron mobile monte donc en desktop, et la carte
+   se retourne.
+
+   ⚠ LE DEFILEMENT RESTE CELUI DU NAVIGATEUR. Aucun gestionnaire de geste,
+   aucun `touch-action: none` : le doigt, la molette et l'inertie du systeme
+   font tout. C'est l'inverse exact de CalendrierSaisie, qui capture le
+   pointeur PARCE QU'IL SELECTIONNE — un carrousel veut defiler.
+
+   ⚠ LE DEBORD EST VOLONTAIRE (arbitrage du 24 aout). Trois cartes qui
+   tiendraient pile ne defileraient jamais, et le focus central n'aurait rien
+   a suivre. L'apercu de la carte suivante EST l'invitation a faire defiler.  */
+
+.une-semaine-liste {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  /* ⚠ RESPIRATION VERTICALE, ET ELLE N'EST PAS DECORATIVE. `overflow-x: auto`
+     force `overflow-y` a `auto` (la spec interdit un seul axe visible) : tout
+     ce qui depasse en hauteur est ROGNE. Cette reserve accueille l'ombre
+     aujourd'hui, et l'agrandissement de la carte centrale en 3b.
+     ⚠ A REDIMENSIONNER en 3b avec le facteur d'echelle retenu. */
+  padding-block: 18px;
+  /* Le padding lateral fait respirer la premiere et la derniere carte : sans
+     lui, elles collent au bord une fois calees par le snap. */
+  padding-inline: 2px;
+}
+.une-semaine-liste::-webkit-scrollbar { display: none; }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LES FLECHES — le SEUL moyen de defiler a la souris
+   ══════════════════════════════════════════════════════════════════════════
+   ⚠ Mesure : le carrousel deborde (scrollWidth 869 contre clientWidth 645) et
+   il EST defilable. Mais `scrollbar-width: none` lui retire la barre, et la
+   molette d'une souris classique defile VERTICALEMENT : sans ces boutons, la
+   carte suivante etait inatteignable au clic. La barre reste masquee — c'est
+   le choix de DA — donc les fleches ne sont pas un confort, elles sont
+   l'unique voie. Ne pas les retirer sans rendre la barre.
+
+   Hors du conteneur defilant : dedans, elles auraient defile avec les cartes. */
+.une-semaine-carrousel { min-width: 0; }
+
+.une-semaine-fleches {
+  display: flex; justify-content: flex-end; gap: 8px;
+  margin-bottom: 10px;
+}
+/* ⚠ CONTRASTE FRANC A L'ETAT ACTIF. La premiere version posait un glyphe or
+   clair (#A8884E) sur un fond creme (#FAF6EE) : deux valeurs claires l'une sur
+   l'autre, illisibles pour un bouton de navigation. Le cercle garde l'or —
+   c'est la charte — mais PLEIN, et le chevron passe en NAVY. */
+.une-semaine-fleche {
+  width: 40px; height: 40px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1.5px solid #C09840; border-radius: 50%;
+  background: transparent; color: #1A2D5A;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 22px; line-height: 1;
+  cursor: pointer;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+}
+.une-semaine-fleche:hover:not(:disabled) {
+  background: #C09840; color: var(--lcc-creme); border-color: #C09840;
+}
+.une-semaine-fleche:focus-visible { outline: 2px solid #C09840; outline-offset: 3px; }
+/* ⚠ DESACTIVEES, PAS MASQUEES. Les retirer du flux ferait sauter la paire d'un
+   cote a l'autre a chaque extremite ; grisees, elles disent aussi qu'on est au
+   bout — une information que la disparition supprime.
+   ⚠ 0,45 et non 0,28 : a 0,28 un bouton REELLEMENT desactive etait indiscernable
+   d'une absence, et c'est ce qui a masque le defaut des bornes. */
+.une-semaine-fleche:disabled { opacity: 0.45; cursor: default; }
+
+/* ⚠ L'ITEM EST LA CIBLE DU SNAP, et sa geometrie ne bouge JAMAIS. Le `scale`
+   de 3b vivra sur la carte, a l'interieur : il ne peut donc pas deplacer un
+   point d'ancrage. */
+/* ⚠ LARGEUR CALCULEE, PAS FIXE — et c'est ce qui rend le debord INTENTIONNEL.
+   A 300 px fixes, la troisieme carte se faisait trancher a ~35 % : une
+   demi-carte coupee net, qui se lit comme un accident et non comme une
+   invitation. Et la proportion coupee variait avec la largeur de l'ecran,
+   puisque le conteneur bougeait et pas la carte.
+
+   Ici la carte se DEDUIT du conteneur : deux cartes pleines, deux gouttieres,
+   et un liseré de 48 px — soit ~14 % de la suivante, CONSTANT a toute largeur.
+        2 x carte + 2 x 24 (gouttiere) + 48 (lisere) = 100 %
+   Le `clamp` borne les extremes : la carte ne devient ni etriquee sur un
+   petit portable, ni demesuree sur un tres grand ecran.                     */
+.une-semaine-item {
+  flex: 0 0 clamp(260px, calc((100% - 96px) / 2), 400px);
+  scroll-snap-align: center;
+  display: flex;
+}
+
+.une-semaine-carte {
+  position: relative;
+  display: flex; flex-direction: column;
+  width: 100%;
+  border: 1px solid rgba(26,45,90,0.16); border-radius: 6px;
+  overflow: hidden; background: rgba(251,247,243,0.5);
+}
+/* ══════════════════════════════════════════════════════════════════════════
+   LE CADRE PHOTO — un RATIO, pas une hauteur en pixels
+   ══════════════════════════════════════════════════════════════════════════
+   ⚠ MESURE DU 24 AOUT, sur les trois demeures a la une :
+        chateau-de-la-riviere      1600 x 569    ratio 2,81
+        les-briottieres            2999 x 1440   ratio 2,08
+        chateau-de-saint-paterne   1200 x 800    ratio 1,50
+   Les sources n'ont RIEN de commun. Le cadre etait a 300 x 236, soit un ratio
+   de 1,27 — presque carre : un panorama a 2,81 y perdait plus de la moitie de
+   sa largeur, tandis qu'une source a 1,50 devait etre fortement agrandie pour
+   couvrir. D'ou l'impression que l'une des photos etait « plus grande ».
+
+   ⚠ LA BOITE ETAIT DEJA IDENTIQUE POUR LES TROIS — hauteur fixe et
+   `object-fit: cover`. Ce qui differait n'etait pas la taille du cadre mais le
+   RECADRAGE, et aucun CSS ne peut l'annuler : `cover` rogne toujours l'exces,
+   et l'exces depend de la source. Ce qu'on peut faire, c'est choisir un cadre
+   qui rogne DOUCEMENT.
+
+   3/2 est ce cadre : il epouse exactement la source la moins panoramique
+   (aucun rognage sur Saint-Paterne) et ne prend aux deux autres qu'une part
+   de LARGEUR — le rognage le plus naturel pour de l'architecture.
+
+   ⚠ ET LE RATIO REMPLACE LES DEUX HAUTEURS EN DUR : le cadre se deduit
+   desormais de la largeur de la carte, donc il est LE MEME en desktop et en
+   mobile. C'etait 236 px d'un cote, 150 px de l'autre — deux cadrages
+   differents pour une meme photo.                                            */
+.une-semaine-photo { position: relative; aspect-ratio: 3 / 2; height: auto; flex: 0 0 auto; overflow: hidden; background-color: #E8E0D0; /* repli si images[] est vide */ }
 .une-semaine-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
-.une-semaine-infos { position: relative; display: flex; flex-direction: column; justify-content: center; padding: 38px 44px; overflow: hidden; }
+.une-semaine-infos { position: relative; display: flex; flex-direction: column; flex: 1 1 auto; padding: 26px 24px 24px; overflow: hidden; }
 .une-semaine-meta { font-family: 'Crimson Pro', Georgia, serif; font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: #A8884E; margin-bottom: 16px; position: relative; z-index: 1; }
 .une-semaine-nom { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.7rem, 2.4vw, 2.4rem); font-weight: 400; line-height: 1.05; color: #1A2D5A; margin: 0 0 18px; max-width: 300px; position: relative; z-index: 1; }
 .une-semaine-accroche { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 16px; font-style: italic; color: #3A4456; line-height: 1.6; max-width: 340px; margin: 0 0 24px; position: relative; z-index: 1; }
@@ -40,19 +168,50 @@
   .une-semaine-intro-sep { align-self: center; }
   .une-semaine-intro-txt { max-width: 460px; }
 }
-/* ⚠ « Voir tout » et points de pagination : MOBILE UNIQUEMENT.
-   UneDeLaSemaine.jsx les rend en permanence ; masques ici pour que le desktop
-   soit STRICTEMENT inchange. */
-.une-semaine-voirtout,
-.une-semaine-points { display: none; }
-
-@media (max-width: 760px) {
-  .une-semaine-carte { grid-template-columns: 1fr; }
-  .une-semaine-photo { min-height: 240px; }
-  .une-semaine-infos { padding: 30px 26px; }
-  .une-semaine-pied { flex-direction: column; align-items: flex-start; gap: 16px; }
-  .une-semaine-nom, .une-semaine-accroche { max-width: none; }
+/* ⚠ VISIBLES AUX DEUX TAILLES depuis la refonte (ils etaient mobile
+   seulement). Le bouton ne fait pas doublon avec le CTA des cartes : une
+   demeure d'un cote, le catalogue de l'autre. Les points, eux, redeviennent
+   utiles des lors que le desktop defile aussi. */
+.une-semaine-voirtout {
+  display: inline-flex; align-items: center; gap: 8px;
+  margin-top: 6px;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
+  color: #A8884E; background: transparent; border: none; padding: 0;
+  cursor: pointer; white-space: nowrap;
+  transition: letter-spacing 0.25s ease, color 0.25s ease;
 }
+.une-semaine-voirtout:hover { letter-spacing: 0.36em; color: #C09840; }
+/* Le libelle court ne sort qu'en mobile (cf. le commentaire du composant). */
+.une-semaine-voirtout-court { display: none; }
+
+/* Les points vivaient DANS la media query mobile : ils remontent au niveau de
+   base, le desktop defilant aussi. ⚠ Ils restent des INDICATEURS et non des
+   commandes — `aria-hidden` cote composant, aucun bouton : le carrousel se
+   manipule au doigt ou a la molette, et le lecteur d'ecran parcourt les cartes
+   elles-memes, deja dans le flux. */
+.une-semaine-points {
+  display: flex; justify-content: center; gap: 7px; margin-top: 16px;
+}
+.une-semaine-point {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(192, 152, 64, 0.30);
+  transition: background 0.25s, transform 0.25s;
+}
+.une-semaine-point--actif { background: #C09840; transform: scale(1.35); }
+
+/* ⚠ La carte est VERTICALE et etroite (300 px) aux deux tailles depuis la
+   refonte : les largeurs maximales heritees de la carte large, et le pied en
+   ligne, ne tiennent plus. Ils sont neutralises ICI, hors media query — le
+   bloc 760 qui les portait visait une grille a deux colonnes qui n'existe
+   plus. */
+.une-semaine-nom { max-width: none; font-size: 1.45rem; margin-bottom: 12px; }
+.une-semaine-accroche { max-width: none; font-size: 15px; margin-bottom: 18px; }
+.une-semaine-filet { margin-bottom: 18px; }
+.une-semaine-meta { margin-bottom: 12px; font-size: 10px; letter-spacing: 0.22em; }
+/* Prix et CTA l'un SOUS l'autre : cote a cote dans 300 px, le CTA passait a la
+   ligne de toute facon, mais sans alignement. */
+.une-semaine-pied { flex-direction: column; align-items: flex-start; gap: 14px; margin-top: auto; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    HOME MOBILE — seuil 768 px : la liste devient un CARROUSEL horizontal.
@@ -78,6 +237,8 @@
   .une-semaine-intro-txt { display: none; }
   .une-semaine-eyebrow { grid-column: 1; margin-bottom: 4px; font-size: var(--hm-t-eyebrow); letter-spacing: 0.32em; }
   .une-semaine-titre { grid-column: 1; font-size: var(--hm-t-titre-m); line-height: 1.06; margin: 0; }
+  .une-semaine-voirtout-long { display: none; }
+  .une-semaine-voirtout-court { display: inline; }
   .une-semaine-voirtout {
     display: inline-flex; align-items: center; gap: 6px;
     grid-column: 2; grid-row: 1 / span 2; align-self: center;
@@ -87,38 +248,29 @@
     cursor: pointer; white-space: nowrap; min-height: var(--hm-tap);
   }
 
+  /* ⚠ LA LISTE EST DEJA UN CARROUSEL AUX DEUX TAILLES : il ne reste ici que
+     ce qui est PROPRE au mobile — gouttiere plus serree, marges au bord de
+     l'ecran, et une carte en pourcentage plutot qu'en pixels. */
   .une-semaine-liste {
-    flex-direction: row;
     gap: 12px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    /* Le padding lateral fait respirer la premiere et la derniere carte : sans
-       lui, elles collent au bord de l'ecran une fois calees par le snap. */
-    padding: 2px 16px 4px;
-    scrollbar-width: none;
-    /* Le translateX(44px) d'entree n'a plus lieu d'etre : dans un conteneur
-       defilant il decalerait le point de depart du snap. */
+    padding: 12px 16px 4px;
     scroll-padding: 0 16px;
   }
-  .une-semaine-liste::-webkit-scrollbar { display: none; }
 
-  .une-semaine-carte {
+  .une-semaine-item {
     /* 76 % et non 82 : la carte suivante se devine davantage sur le bord droit,
        ce qui annonce le defilement sans fleche ni consigne. */
     flex: 0 0 76%;
-    scroll-snap-align: center;
-    grid-template-columns: 1fr;
+  }
+  .une-semaine-carte {
     border-radius: var(--hm-r-s);
     border-color: var(--hm-filet);
-    /* Neutralise l'entree laterale : elle est incompatible avec le scroll-snap
-       (la carte arriverait decalee dans son propre conteneur defilant). */
-    transform: none !important;
-    opacity: 1 !important;
-    transition: none !important;
   }
-  /* Photo nettement moins haute : c'est elle qui donnait a la carte son air
-     encombrant. 150 px suffisent a poser la demeure sans occuper l'ecran. */
-  .une-semaine-photo { min-height: 150px; }
+  /* ⚠ PLUS DE HAUTEUR EN DUR ICI. Elle valait 150 px, contre 236 en desktop :
+     deux cadrages differents pour la meme photo, et c'est ce qui faisait
+     paraitre une demeure « plus grande » que les autres. Le cadre 3/2 defini
+     plus haut se deduit de la largeur de la carte — il suit donc le mobile
+     tout seul, avec le MEME recadrage qu'en desktop. */
   .une-semaine-infos { padding: 14px 15px 15px; }
   .une-semaine-meta { font-size: 9px; letter-spacing: 0.24em; margin-bottom: 9px; }
   .une-semaine-nom { font-size: var(--hm-t-titre-s); margin-bottom: 8px; line-height: 1.12; }
@@ -163,22 +315,37 @@
 .une-semaine-intro-sep  { transition-delay: 0.30s; }
 .une-semaine-intro-txt  { transition-delay: 0.38s; }
 
-.une-semaine-carte {
+/* ⚠⚠ L'ENTREE DES CARTES PERD SON DEPLACEMENT — ET LE DEPOT LE SAVAIT DEJA.
+   Elle entrait en `translateX(44px)`. Le bloc mobile l'annulait a coups de
+   `!important`, avec ce motif : « incompatible avec le scroll-snap — la carte
+   arriverait DECALEE dans son propre conteneur defilant ». C'etait juste.
+   ⚠ Le desktop devient a son tour un conteneur defilant : la meme
+   incompatibilite l'atteint. Un `translateX` residuel y decalerait le point
+   d'ancrage du snap au chargement.
+
+   Le deplacement part donc, LA CASCADE RESTE : les delais par index sont
+   inchanges, portes sur l'ITEM, et l'apparition se fait en FONDU echelonne.
+   ⚠ C'est le seul ecart au « on porte la cascade telle quelle » — et il est
+   force par le carrousel, pas choisi. Une opacite ne deplace rien, donc elle
+   ne peut pas fausser le snap.
+
+   ⚠ Corollaire : l'annulation `!important` du bloc mobile n'a plus d'objet et
+   a ete retiree. Ne pas la reintroduire « par prudence » : elle masquerait
+   desormais l'entree au lieu de la corriger.                                */
+.une-semaine-item {
   opacity: 0;
-  transform: translateX(44px);
-  transition: opacity 0.85s cubic-bezier(0.22, 0.61, 0.36, 1),
-              transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: opacity 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .une-semaine--visible .une-semaine-embleme,
 .une-semaine--visible .une-semaine-eyebrow,
 .une-semaine--visible .une-semaine-titre,
 .une-semaine--visible .une-semaine-intro-sep,
-.une-semaine--visible .une-semaine-intro-txt,
-.une-semaine--visible .une-semaine-carte {
+.une-semaine--visible .une-semaine-intro-txt {
   opacity: 1;
   transform: translateX(0);
 }
+.une-semaine--visible .une-semaine-item { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
   .une-semaine-embleme,
@@ -186,7 +353,7 @@
   .une-semaine-titre,
   .une-semaine-intro-sep,
   .une-semaine-intro-txt,
-  .une-semaine-carte {
+  .une-semaine-item {
     opacity: 1;
     transform: none;
     transition: none;
