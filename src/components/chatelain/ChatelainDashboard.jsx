@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Modale from "../Modale";
+import OngletDisponibilites from "./OngletDisponibilites";
 import {
   getDemandesChatelain,
   repondreDemande,
@@ -321,14 +322,15 @@ export default function ChatelainDashboard() {
         aria-labelledby="che-onglet-dispos"
         hidden={onglet !== "dispos"}
       >
-        {/* ⚠ PLACEHOLDER DE L'ÉTAPE 3.4b, REMPLACÉ PAR 3.4c DANS LA MÊME PR.
-            Il n'atteindra donc JAMAIS un vrai châtelain : les trois étapes de
-            3.4 partent ensemble. S'il devait partir seul un jour, ce texte est
-            écrit pour être lu par quelqu'un qui attend un calendrier — factuel,
-            sans promesse de date. */}
-        <p className="che-note">
-          Le calendrier de vos disponibilités s'affichera ici.
-        </p>
+        {/* ⚠ TOUT LE CALENDRIER VIT DANS SON PROPRE FICHIER, et cette ligne est
+            la SEULE que l'étape 3.4c ajoute à un écran en service. Le composant
+            porte ses états, ses appels et ses garde-fous ; le dashboard n'a
+            qu'à le monter.
+            ⚠ Il est monté INCONDITIONNELLEMENT, comme le panneau Demandes : le
+            `hidden` du parent suffit à le masquer, et le démonter à chaque
+            aller-retour d'onglet relancerait getMesChateaux ET la lecture du
+            mois — deux requêtes pour rien, à chaque bascule. */}
+        <OngletDisponibilites />
       </div>
 
       {/* Décision actée : on la fait confirmer avant d'écrire quoi que ce soit.
