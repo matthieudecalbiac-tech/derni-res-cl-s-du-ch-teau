@@ -221,3 +221,48 @@
   justify-content: flex-end;
   gap: 10px;
 }
+
+/* ── Onglets de l'espace (étape 3.4b) ─────────────────────────────────────
+   Sobres : deux mots soulignés, pas des pastilles. Un espace de travail
+   patrimonial n'a pas de barre d'onglets de logiciel — cf. CLAUDE.md, jamais
+   « dashboard SaaS B2B ».                                                    */
+
+.che-onglets {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 28px;
+  border-bottom: 1px solid rgba(192, 152, 64, 0.3);
+}
+
+.che-onglet {
+  /* Cible tactile pleine : c'est la première chose qu'un châtelain touche en
+     arrivant sur son espace depuis un téléphone. */
+  min-height: var(--hm-tap, 44px);
+  padding: 0 18px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--t-sm);
+  letter-spacing: 0.02em;
+  color: var(--gris-fonce);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.che-onglet:hover { color: var(--bleu-nuit); }
+.che-onglet:focus-visible { outline: 2px solid var(--or); outline-offset: -2px; }
+
+/* Le trait d'or sous l'onglet actif descend SUR la ligne de séparation : les
+   2 px du bord recouvrent le 1 px du conteneur, sans décaler la ligne de base. */
+.che-onglet--actif {
+  color: var(--bleu-nuit);
+  border-bottom-color: var(--or);
+  font-weight: 600;
+}
+
+@media (max-width: 640px) {
+  .che-onglets { margin-bottom: 20px; }
+  /* Deux onglets à parts égales : au doigt, on vise mal une cible étroite. */
+  .che-onglet { flex: 1; padding: 0 8px; }
+}

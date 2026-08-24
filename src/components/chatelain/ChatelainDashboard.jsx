@@ -31,7 +31,23 @@ function formatEuros(cents) {
   return (Math.round(cents ?? 0) / 100).toLocaleString("fr-FR") + " €";
 }
 
+// Les deux onglets de l'espace. Une liste plutôt que deux constantes : la
+// navigation au clavier (flèches ← →) a besoin d'un ORDRE, et le dupliquer
+// entre le rendu et le gestionnaire aurait suffi à les désynchroniser.
+const ONGLETS = [
+  { id: "demandes", libelle: "Demandes" },
+  { id: "dispos", libelle: "Disponibilités" },
+];
+
 export default function ChatelainDashboard() {
+  // ⚠ LE SEUL ÉTAT AJOUTÉ PAR L'ÉTAPE 3.4b. Tout le reste du composant est
+  //   inchangé : l'effet de chargement vit sur le COMPOSANT, pas sur le
+  //   sous-arbre rendu — envelopper le JSX dans une condition ne le démonte
+  //   pas, ne le relance pas, et ne touche ni au drapeau `cancelled` ni au ref
+  //   `monte`. C'est ce qui rend ce commit sûr sur un écran sans filet.
+  const [onglet, setOnglet] = useState("demandes");
+  const tablisteRef = useRef(null);
+
   const [demandes, setDemandes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [erreur, setErreur] = useState(null);
@@ -84,6 +100,33 @@ export default function ChatelainDashboard() {
         setAvis((precedent) => precedent ?? "La liste n'a pas pu être rafraîchie. Rechargez la page.");
       }
     }
+  }
+
+  // ⚠ CHANGER D'ONGLET FERME LA MODALE. Sans cela, une confirmation ouverte
+  //   resterait affichée PAR-DESSUS l'onglet Disponibilités : `confirmation`
+  //   vit sur le composant, pas sur le panneau. Et `fermerConfirmation` remet
+  //   TOUS ses sous-états à zéro, comme le veut la convention du projet.
+  //
+  // ⚠ ET ON NE CHANGE PAS D'ONGLET PENDANT UN APPEL EN VOL. `traitement` veut
+  //   dire qu'une réponse est partie vers la base ; quitter l'onglet ferait
+  //   revenir le châtelain sur un statut qu'il croirait non enregistré.
+  //   `fermerConfirmation` s'en garde déjà, on garde le même verrou ici.
+  function changerOnglet(id) {
+    if (traitement) return;
+    fermerConfirmation();
+    setOnglet(id);
+  }
+
+  // Navigation au clavier de la barre d'onglets (motif WAI-ARIA : les flèches
+  // circulent, Tab sort de la barre).
+  function surToucheOnglets(e) {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    const i = ONGLETS.findIndex((o) => o.id === onglet);
+    const pas = e.key === "ArrowRight" ? 1 : ONGLETS.length - 1;
+    const suivant = ONGLETS[(i + pas) % ONGLETS.length];
+    changerOnglet(suivant.id);
+    tablisteRef.current?.querySelector(`#che-onglet-${suivant.id}`)?.focus();
   }
 
   function ouvrirConfirmation(id, decision) {
@@ -151,9 +194,55 @@ export default function ChatelainDashboard() {
   return (
     <div className="che-page">
       <header className="che-tete">
-        <p className="che-eyebrow">Espace châtelain</p>
-        <h1 className="che-titre">Vos demandes de séjour</h1>
+        {/* ⚠ LE TITRE A CHANGÉ, ET C'EST LE SEUL ENDROIT OÙ L'EXISTANT BOUGE.
+            Il disait « Vos demandes de séjour » — le nom d'UN des deux onglets.
+            Avec deux onglets, le titre doit nommer l'ESPACE ; « Espace
+            châtelain », qui était l'eyebrow, monte donc d'un cran. */}
+        <p className="che-eyebrow">Les Clés du Château</p>
+        <h1 className="che-titre">Espace châtelain</h1>
       </header>
+
+      <div
+        className="che-onglets"
+        role="tablist"
+        aria-label="Sections de l'espace châtelain"
+        ref={tablisteRef}
+        onKeyDown={surToucheOnglets}
+      >
+        {ONGLETS.map((o) => {
+          const actif = onglet === o.id;
+          return (
+            <button
+              key={o.id}
+              id={`che-onglet-${o.id}`}
+              type="button"
+              role="tab"
+              aria-selected={actif}
+              aria-controls={`che-panneau-${o.id}`}
+              // Un seul onglet est atteignable par Tab : les flèches circulent
+              // à l'intérieur de la barre. C'est le motif WAI-ARIA.
+              tabIndex={actif ? 0 : -1}
+              className={"che-onglet" + (actif ? " che-onglet--actif" : "")}
+              onClick={() => changerOnglet(o.id)}
+            >
+              {o.libelle}
+            </button>
+          );
+        })}
+      </div>
+
+      <div
+        id="che-panneau-demandes"
+        role="tabpanel"
+        aria-labelledby="che-onglet-demandes"
+        hidden={onglet !== "demandes"}
+      >
+      {/* ⚠ `hidden` PLUTÔT QU'UN RENDU CONDITIONNEL. Démonter la liste
+          perdrait la position de défilement et rejouerait les animations à
+          chaque aller-retour ; surtout, cela rendrait le comportement de
+          l'onglet Demandes DIFFÉRENT de ce qu'il est aujourd'hui — or ce
+          commit doit le laisser identique. Rien ici n'est coûteux à garder
+          monté : c'est une liste, déjà chargée. */}
 
       {avis && <p className="che-avis">{avis}</p>}
 
@@ -224,8 +313,27 @@ export default function ChatelainDashboard() {
           ))}
         </ul>
       )}
+      </div>
 
-      {/* Décision actée : on la fait confirmer avant d'écrire quoi que ce soit. */}
+      <div
+        id="che-panneau-dispos"
+        role="tabpanel"
+        aria-labelledby="che-onglet-dispos"
+        hidden={onglet !== "dispos"}
+      >
+        {/* ⚠ PLACEHOLDER DE L'ÉTAPE 3.4b, REMPLACÉ PAR 3.4c DANS LA MÊME PR.
+            Il n'atteindra donc JAMAIS un vrai châtelain : les trois étapes de
+            3.4 partent ensemble. S'il devait partir seul un jour, ce texte est
+            écrit pour être lu par quelqu'un qui attend un calendrier — factuel,
+            sans promesse de date. */}
+        <p className="che-note">
+          Le calendrier de vos disponibilités s'affichera ici.
+        </p>
+      </div>
+
+      {/* Décision actée : on la fait confirmer avant d'écrire quoi que ce soit.
+          ⚠ La modale reste HORS des deux panneaux : elle est pilotée par
+          `confirmation`, qui vit sur le composant. `changerOnglet` la ferme. */}
       <Modale
         ouvert={confirmation !== null}
         onClose={fermerConfirmation}
