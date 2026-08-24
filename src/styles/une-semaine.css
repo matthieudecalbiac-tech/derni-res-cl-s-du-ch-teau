@@ -153,9 +153,32 @@
 }
 .une-semaine-carte--centre {
   transform: scale(1.055);
+  /* La BAGUE DOREE, doublee d'une ombre portee douce. ⚠ La bague est un
+     box-shadow et non une `border` : une bordure qui apparait decalerait la
+     mise en page, et ne se transitionne pas. Meme choix qu'a la section 1. */
   box-shadow: 0 0 0 1px rgba(192,152,64,0.42),
               0 14px 34px -16px rgba(13,22,40,0.32);
 }
+
+/* ── Le badge « Selection » — il suit la carte centrale, en fondu ──────────
+   ⚠ TOUJOURS RENDU, revele par l'opacite. Monte et demonte au fil du
+   defilement, il claquerait a chaque changement de focus au lieu de se
+   fondre — et le fondu est tout ce qui le rend discret.
+   `pointer-events: none` : il flotte au-dessus de la photo, il ne doit pas
+   voler le clic du CTA ni gener le geste tactile sur le carrousel. */
+.une-semaine-badge {
+  position: absolute; top: 14px; left: 14px; z-index: 2;
+  padding: 5px 12px;
+  border: 1px solid rgba(192,152,64,0.55); border-radius: 2px;
+  background: rgba(250,246,238,0.92);
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 9.5px; letter-spacing: 0.26em; text-transform: uppercase;
+  color: #8B6914;
+  opacity: 0; transform: translateY(-4px);
+  transition: opacity 0.45s ease-out, transform 0.45s ease-out;
+  pointer-events: none;
+}
+.une-semaine-carte--centre .une-semaine-badge { opacity: 1; transform: translateY(0); }
 
 .une-semaine-carte {
   position: relative;
@@ -394,6 +417,11 @@
      est mise en avant. Meme regle qu a la section 1. */
   .une-semaine-carte { transition: none; }
   .une-semaine-carte--centre { transform: none; }
+  /* ⚠ LE BADGE RESTE, mais sans fondu ni glissement : c'est une INDICATION,
+     pas une animation. Le neutraliser aurait retire un signal a ceux qui en
+     ont le plus besoin — la bague seule devrait alors tout porter. */
+  .une-semaine-badge { transition: none; transform: none; }
+  .une-semaine-carte--centre .une-semaine-badge { transform: none; }
 
   .une-semaine-embleme,
   .une-semaine-eyebrow,

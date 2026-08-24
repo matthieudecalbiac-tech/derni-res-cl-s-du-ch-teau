@@ -225,6 +225,15 @@ export default function UneDeLaSemaine({ onOuvrirChateau, onVoirTout }) {
                 style={{ transitionDelay: `${0.35 + i * 0.12}s` }}
               >
               <article className={"une-semaine-carte" + (i === centre ? " une-semaine-carte--centre" : "")}>
+                {/* ⚠ LE BADGE SUIT LA CARTE CENTRALE, et il est DECORATIF.
+                    `aria-hidden` n'est pas une precaution de style : un texte
+                    qui saute d'une carte a l'autre a chaque defilement serait
+                    re-annonce sans arret par un lecteur d'ecran. C'est un
+                    signe visuel — l'information « selection » est deja portee
+                    par l'eyebrow de la section, lu une seule fois.
+                    ⚠ Rendu EN PERMANENCE, revele par l'opacite : monte et
+                    demonte, il apparaitrait d'un coup au lieu de se fondre. */}
+                <span className="une-semaine-badge" aria-hidden="true">Sélection</span>
                 <div className="une-semaine-photo">
                   {chateau.images?.[0] && <img src={chateau.images[0]} alt={chateau.nom} loading="lazy" />}
                 </div>
