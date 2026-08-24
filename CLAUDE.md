@@ -457,6 +457,84 @@ Déploiement **manuel** : `./node_modules/.bin/supabase functions deploy demande
 
 ⚠ **Il n'y a pas de « version précédente » à restaurer côté Supabase** : le rollback consiste à redéployer depuis un commit antérieur. D'où la discipline retenue ici — **commiter avant de déployer**, pour que ce point de retour existe.
 
+## Étape 3 — la SAISIE des disponibilités (24 août 2026)
+
+Le moteur (2.1→2.5) **lit** les dates. L'étape 3 construit de quoi les **écrire**.
+
+### ⚠ La décision produit, nommée honnêtement : un opt-OUT BORNÉ
+
+*« Le châtelain ne fait que bloquer, le reste est ouvert »* — le geste Airbnb. ⚠ **Ce n'est pas une préservation de l'opt-in décidé le 23 août, c'est son remplacement.** L'argument d'alors était : *un oubli en opt-in ferme une date (rattrapable), un oubli en opt-out en ouvre une (on promet une nuit qu'on ne peut pas tenir)*. Avec ce geste, un châtelain qui oublie de bloquer **ouvre**. On l'accepte — un calendrier qu'il faut remplir pour exister ne sera jamais rempli — et **l'horizon est la borne qui rend ce risque fini**.
+
+### Pourquoi une colonne, et pas 365 lignes par chambre
+
+L'alternative était de matérialiser des lignes `true` sur un horizon glissant. **Écartée, et pas pour le volume** : 62 chambres (44 publiées) font ~22 600 lignes/an, négligeable face aux 8 Go du plan Pro. Écartée pour **l'entretien** — un horizon qui glisse demande un **cron**.
+
+⚠⚠ **Et le mode de panne de ce cron aurait été SILENCIEUX.** S'il s'arrête, les dates lointaines cessent d'être réservables, une par jour, sans erreur ni log ni test rouge. On s'en apercevrait à la baisse des demandes. Sur un moteur de réservation, c'est le pire mode de panne possible — et ce dépôt porte déjà la dette « le cron n'est pas versionné ».
+
+**Le choix retenu échange un risque permanent et silencieux contre une migration ponctuelle sur une fonction prouvée.**
+
+### `chateaux.dispo_ouverte_jusqu_a` — les trois états d'une nuit
+
+```
+ligne est_disponible = false   FERMEE   le chatelain a bloque
+ligne est_disponible = true    OUVERTE  ouverture explicite
+PAS DE LIGNE                   OUVERTE  si nuit <= dispo_ouverte_jusqu_a
+                               FERMEE   au-dela
+```
+
+⚠ **Rétrocompatible par construction.** `est_disponible` a gagné **une** branche : `COALESCE(d.est_disponible, v_horizon IS NOT NULL AND g.nuit::date <= v_horizon)` et un `LEFT JOIN`. Quand l'horizon est `NULL`, le second terme vaut `false` — **exactement** ce que produisait le `JOIN` interne, qui éliminait la nuit du compte. **Les seize tests de 2.2 sont passés INCHANGÉS**, parité #142 comprise : la rétrocompatibilité est prouvée par exécution, pas par raisonnement.
+
+⚠ **Les trois fonctions filles héritent sans une ligne de plus** — elles appellent `est_disponible`, elles ne la copient pas. Dividende de la décision de 2.3.
+
+#### Deux propriétés émergentes
+
+- **Une ligne `true` est plus forte que l'horizon** : on peut ouvrir une date lointaine — un mariage réservé deux ans à l'avance — sans déplacer l'horizon. Gardé par un test.
+- **Le calendrier s'arrête de lui-même à l'horizon** : `jours_disponibles_*` cesse de rendre des nuits au-delà, sans que cette limite soit codée nulle part. ⚠ Cohérent, mais un lecteur pourrait le prendre pour un défaut.
+
+### Les RPC d'écriture — et pourquoi, alors que l'écriture directe était ouverte
+
+Mesuré : la policy `disponibilites_write_chatelain_admin` **et** le `GRANT INSERT/UPDATE/DELETE TO authenticated` existent. Un `.from("disponibilites").upsert(…)` depuis le front **aurait fonctionné**. Ce n'est donc pas un choix de sécurité — elle était déjà tenue.
+
+- ⚠ **L'atomicité** : « je bloque du 12 au 18 » = sept lignes. Un upsert client qui échoue à mi-chemin laisse une période **à moitié bloquée**, et l'écran affiche ce qu'il croit avoir écrit.
+- ⚠ **La règle ne doit pas vivre dans le composant** — le contrat de `disponibilitesService` l'interdit. Faire calculer la liste des jours par le client, c'est exactement cela.
+- **Un aller-retour au lieu de trente**, sur un réseau mobile.
+
+```
+poser_disponibilites(chambre, du, au, est_disponible, prix?)  -> integer
+retirer_disponibilites(chambre, du, au)                       -> integer
+calendrier_edition_chambre(chambre, du, au)                   -> table (6 etats)
+```
+
+⚠ **BORNES INCLUSIVES** — « du 12 au 18 » = **sept** nuits. C'est la convention de `jours_disponibles_*`, **pas** celle d'`est_disponible` (qui prend un séjour, départ exclu). Se tromper laisserait la **dernière nuit** d'une période bloquée ouverte, et le défaut ne se verrait qu'à la réservation.
+
+⚠ **Ces fonctions LÈVENT sur une fenêtre invalide**, là où `est_disponible` rend `false`. Là, c'était un **écran qui interroge** ; ici c'est une **écriture**, et « 0 nuit écrite » se lirait « c'est fait ».
+
+⚠ **Le prix spécial est PRÉSERVÉ** (`COALESCE`), sinon bloquer une date **effacerait un tarif saisi** — perte silencieuse sur une colonne que personne ne regarde. Limite assumée : on ne peut donc pas *effacer* un prix par `poser_` ; il faut `retirer_` puis reposer.
+
+⚠ **`GRANT` à `authenticated` SEUL, jamais `anon`** — contrairement aux lectures de 2.2/2.3. Deux écrivent, la troisième expose **l'occupation**. Le `GRANT` à `anon` se justifiait par un retour sans rien à fuiter ; ce n'est plus le cas.
+
+### ⚠ Un rouge instructif, gardé dans le test
+
+Le test 10 a rougi : il attendait `ouverte_horizon` sur une nuit que **son propre décor** plaçait trois jours après l'horizon. **La fonction avait raison, l'assertion avait tort.** Le décor a été gardé tel quel — la fenêtre chevauche délibérément l'horizon — et le test est devenu **le gardien de la frontière** : borne `<=` incluse, ligne explicite plus forte que l'horizon, nuit au-delà sans ligne.
+
+⚠ **Et la relecture de ce rouge a révélé un trou que rien n'aurait signalé** : le test de cohérence partait de l'horizon lui-même, donc ne couvrait que « = » et « > ». Aucune nuit strictement **dans** l'horizon n'était confrontée entre les deux fonctions. Fenêtre décalée de deux jours ; les trois positions sont couvertes.
+
+### ⚠ À FAIRE quand l'UI arrivera (3.4/3.5)
+
+**Le toggle de 2.1 devra être réécrit.** Son avertissement dit *« toute date non saisie est fermée »* — **faux dans l'horizon** depuis le 24 août. Activer la gestion devra demander de **poser un horizon en même temps**, sinon le château se ferme entièrement.
+
+### Le plan restant
+
+| | | |
+|---|---|---|
+| **3.1** ✅ | RPC d'écriture + lecture d'édition + horizon | SQL |
+| 3.2 | lecture « mes châteaux / mes chambres » — ⚠ **brique manquante**, `chateau_owners` n'est lu par aucun code du front | service |
+| 3.3 | `CalendrierSaisie` — trois états, sélection de plage, **souris et doigt** | composant |
+| 3.4 | second onglet du dashboard châtelain | écran en service |
+| 3.5 | `/admin/chateaux/:id/disponibilites` | additif |
+
+⚠ **Ne pas ajouter le calendrier comme 18ᵉ section d'`AdminChateauEdition`** : ce formulaire est un **REPLACE** qui envoie l'état complet à `admin_upsert_chateau`. Y mêler une saisie par plages ferait deux modèles d'écriture dans un même écran.
+
 #### Convention : les RPC métier ne sont PAS rétro-portées
 
 Vérifié le 23 août avant de le faire à tort. `schema.sql` ne contient **qu'une** fonction (`trigger_set_timestamp`) ; `policies.sql` n'en contient que **quatre** (les helpers RLS `is_admin`, `is_chatelain`, `is_chatelain_of`, `handle_new_user`). Toutes les RPC métier — `admin_upsert_chateau`, `repondre_demande`, `count_sejours_confirmes`, `admin_set_commission`, et désormais `est_disponible` / `chateau_disponible` — vivent **uniquement dans leurs migrations**, et ne sont mentionnées ailleurs qu'en commentaire.

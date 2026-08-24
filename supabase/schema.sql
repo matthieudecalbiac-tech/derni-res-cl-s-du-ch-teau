@@ -246,6 +246,11 @@ CREATE TABLE IF NOT EXISTS public.chateaux (
   -- pour ce château ; true = elle fait foi, absence de ligne = indisponible.
   dispo_geree                 boolean      NOT NULL DEFAULT false,
 
+  -- Horizon d'ouverture par défaut (migration 2026-08-24). NULL = aucune
+  -- ouverture par défaut, comportement historique. Une date = en mode géré, une
+  -- nuit SANS LIGNE jusqu'à cette date vaut OUVERTE ; au-delà, fermée.
+  dispo_ouverte_jusqu_a       date,
+
   -- Cycle de vie éditorial : on prépare, on diffuse, on retire sans détruire.
   -- Un bootstrap neuf n'a pas d'existant à sauver : le défaut est 'brouillon'.
   -- (La migration 2026-07-10 crée la colonne en 'publie' puis bascule le défaut,
@@ -275,6 +280,8 @@ COMMENT ON COLUMN public.chateaux.date_disponible IS
   '[Plugeable] Prochaine date de disponibilité affichée. Dérivable de disponibilites en MVP.';
 COMMENT ON COLUMN public.chateaux.mode_paiement IS
   'Mode de paiement du CHÂTEAU (pas du voyageur) : un châtelain accepte les cartes ou non. sur_place | en_ligne. en_ligne DÉCLARÉ mais NON IMPLÉMENTÉ (Stripe non branché, immatriculation Atout France non faite). Cf. migration 2026-07-17-mode-paiement.';
+COMMENT ON COLUMN public.chateaux.dispo_ouverte_jusqu_a IS
+  'Horizon d''ouverture par défaut, en mode géré. NULL = aucune ouverture par défaut : seules les lignes disponibilites à true ouvrent (comportement d''avant le 24 août 2026). Une DATE = les nuits SANS LIGNE jusqu''à elle incluse valent OUVERTES, au-delà FERMÉES. ⚠ Le châtelain ne saisit alors QUE ses blocages (geste « Airbnb ») — c''est un opt-OUT BORNÉ, nommé comme tel : un oubli de blocage OUVRE une nuit. L''horizon est la borne qui rend ce risque fini. ⚠ Une ligne à true reste PLUS FORTE que l''horizon : on peut ouvrir une date lointaine sans déplacer l''horizon.';
 COMMENT ON COLUMN public.chateaux.dispo_geree IS
   'Opt-in du moteur de disponibilité. false (défaut) = la table disponibilites est IGNORÉE pour ce château, comportement historique (proxy éditorial urgence). true = la table FAIT FOI, et une date SANS LIGNE vaut INDISPONIBLE. ⚠ Basculer à true un château dont le calendrier n''est pas rempli le FERME entièrement : la bascule se fait APRÈS saisie, château par château (cf. piège 1 de l''audit disponibilités du 22 août 2026).';
 
