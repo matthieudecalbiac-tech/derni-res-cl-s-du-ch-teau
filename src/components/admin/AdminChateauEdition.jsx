@@ -14,6 +14,23 @@ import ChampPersonnage from "../ChampPersonnage";
 
 const LIBELLE_STATUT = { brouillon: "Brouillon", publie: "Publié", archive: "Archivé" };
 
+// "2027-12-31" -> "31 décembre 2027", pour le message sous le drapeau.
+//
+// ⚠ DÉCOUPAGE MANUEL, PAS `new Date("2027-12-31")`. La spec interprète cette
+// forme en UTC : relue en heure locale à l'ouest de Greenwich, elle rendrait le
+// 30. Le même piège que celui qui a coûté `versJour()` au calendrier de saisie —
+// ici la valeur n'est qu'affichée, mais afficher une date fausse dans un
+// avertissement sur les dates serait le pire endroit pour l'introduire.
+const MOIS_LISIBLES = [
+  "janvier", "février", "mars", "avril", "mai", "juin",
+  "juillet", "août", "septembre", "octobre", "novembre", "décembre",
+];
+function formatJourLisible(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || "");
+  if (!m) return iso || "—";
+  return `${Number(m[3])} ${MOIS_LISIBLES[Number(m[2]) - 1]} ${m[1]}`;
+}
+
 // Édition d'un château (chantier admin, brique 4b : base + 4 tables filles).
 // Les filles (chambres/timeline/alentours/amenities) sont chargées en forme
 // React via getChateauAdminById, éditées ici comme des listes dynamiques, et
@@ -123,6 +140,10 @@ function formFromChateau(c) {
     ordreHome: c.ordreHome ?? null,
     modePaiement: c.modePaiement ?? "sur_place",
     dispoGeree: c.dispoGeree === true,
+    // ⚠ "" et non null : <input type="date"> est contrôlé, et une valeur null
+    //   le ferait passer en non-contrôlé (avertissement React, puis perte de la
+    //   saisie). Le retour à null se fait à la sauvegarde, par videOuNull.
+    dispoOuverteJusquA: c.dispoOuverteJusquA ?? "",
     coordonnees: {
       lat: c.coordonnees?.lat ?? "",
       lng: c.coordonnees?.lng ?? "",
@@ -198,6 +219,11 @@ function preparerBase(form) {
     ordreHome: entierOuNull(form.ordreHome),
     modePaiement: form.modePaiement,
     dispoGeree: form.dispoGeree === true,
+    // ⚠ videOuNull : vider le champ envoie NULL, pas "". Et NULL veut dire
+    //   « aucune ouverture par défaut » — donc, en mode géré, un calendrier
+    //   entièrement fermé. Ce n'est pas un effacement anodin, et le message
+    //   sous le champ le dit.
+    dispoOuverteJusquA: videOuNull(form.dispoOuverteJusquA),
     coordonnees: {
       lat: nbOuNull(form.coordonnees.lat),
       lng: nbOuNull(form.coordonnees.lng),
@@ -599,18 +625,58 @@ export default function AdminChateauEdition() {
             <span className="adm-champ-aide">Section « Découvrez aussi » : plus petit = affiché en premier ; vide = à la fin.</span>
           </label>
           <ChampSelect label="Mode de paiement" value={form.modePaiement} options={MODES_PAIEMENT} onChange={setChamp("modePaiement")} />
-          {/* Opt-in du moteur de disponibilité. DORMANT tant que `estDisponible`
-              n'existe pas (étape 2.2) : cocher aujourd'hui ne change rien à
-              l'écran. L'avertissement est là dès maintenant parce qu'il sera
-              vrai avant qu'on repasse par ici — et qu'un interrupteur qui ferme
-              un château en silence n'a rien à faire dans un formulaire. */}
+          {/* ── Gestion des disponibilités : le drapeau ET son horizon ──
+              Les deux vont ensemble, et c'est pourquoi ils sont côte à côte :
+              le message juste sous le premier dépend de la valeur du second.
+
+              ⚠ L'AVERTISSEMENT D'ORIGINE ÉTAIT DEVENU FAUX. Il disait « toute
+              date non saisie est fermée » — vrai en 2.1, faux depuis l'horizon
+              du 24 août : DANS l'horizon, une date non saisie est OUVERTE. Le
+              message est désormais dérivé de l'état, en trois versions.
+
+              ⚠ GARDE PMS, PRÉVU SANS ÊTRE CONSTRUIT : le jour où un château
+              serait piloté par un logiciel tiers, c'est ici que se poserait le
+              troisième cas — et côté écran, l'hôte du calendrier passerait
+              `editable={false}` à CalendrierSaisie, dont la prop existe déjà.
+              Aucune colonne n'est créée pour cela : `chateaux.mode_dispo`
+              n'existe pas, et on ne crée pas une colonne pour un besoin qui
+              n'existe pas encore. */}
           <div className="adm-champ">
             <ChampCase label="Gestion des disponibilités activée" checked={form.dispoGeree} onChange={setCheck("dispoGeree")} />
             <span className="adm-champ-aide">
-              Décoché : les dates ouvertes sont déduites comme aujourd'hui. Coché : le calendrier
-              saisi par le châtelain fait foi, et <strong>toute date non saisie est fermée</strong> —
-              n'activer qu'une fois le calendrier rempli, sous peine de rendre le château
-              inréservable. Réversible à tout moment.
+              {!form.dispoGeree ? (
+                <>
+                  Décoché : les dates ouvertes sont déduites comme aujourd'hui, sans calendrier.
+                  Réversible à tout moment.
+                </>
+              ) : !form.dispoOuverteJusquA ? (
+                <>
+                  ⚠ <strong>Aucune date n'est ouverte</strong> : la gestion est activée mais aucun
+                  horizon n'est posé, donc ce château n'est réservable à aucune date. Renseignez
+                  « Dates ouvertes jusqu'au » ci-dessous.
+                </>
+              ) : (
+                <>
+                  Le château est réservable jusqu'au{" "}
+                  <strong>{formatJourLisible(form.dispoOuverteJusquA)}</strong>, sauf les périodes
+                  que le châtelain bloque depuis son calendrier. Au-delà de cette date, rien n'est
+                  ouvert.
+                </>
+              )}
+            </span>
+          </div>
+          <div className="adm-champ">
+            <Champ
+              label="Dates ouvertes jusqu'au"
+              type="date"
+              value={form.dispoOuverteJusquA}
+              onChange={setChamp("dispoOuverteJusquA")}
+            />
+            <span className="adm-champ-aide">
+              Jusqu'où le château accepte des séjours. Le châtelain n'a plus qu'à bloquer ses
+              périodes prises — tout le reste est ouvert. ⚠ <strong>Vider ce champ ferme le
+              calendrier entièrement</strong> tant que la gestion est activée. Sans effet si elle
+              ne l'est pas.
             </span>
           </div>
         </section>

@@ -136,6 +136,20 @@ export function mapChateauBase(row) {
     // avant `estDisponible` (2.2). Exposé dès maintenant pour que le formulaire
     // admin puisse le lire et l'écrire.
     dispoGeree: row.dispo_geree === true,
+    // L'horizon d'ouverture par défaut (étape 3.1 en base, câblé ici en 3.4a).
+    //
+    // ⚠ LA COLONNE EXISTAIT DEPUIS LE 24 AOÛT SANS ÊTRE LUE NI ÉCRITE PAR CE
+    // MAPPER. Le chemin admin passe par SELECT_FULL (`*`) -> mapChateauBase ->
+    // chateauToRow -> p_base : sans ces deux lignes, un champ de formulaire
+    // aurait lu `undefined` à l'ouverture ET n'aurait rien envoyé à la
+    // sauvegarde. Le même piège qu'en 2.1 (la ligne manquante dans l'UPDATE de
+    // la RPC), mais à l'autre bout de la chaîne.
+    //
+    // ⚠ Reste une CHAÎNE "YYYY-MM-DD" de bout en bout : la colonne est un
+    // `date`, PostgREST la rend ainsi, et <input type="date"> l'attend ainsi.
+    // Aucune conversion, donc aucune question de fuseau ici — contrairement au
+    // calendrier de saisie, où `versJour` a dû être écrit.
+    dispoOuverteJusquA: nullable(row.dispo_ouverte_jusqu_a),
     coordonnees: {
       lat: nullable(row.coordonnees_lat),
       lng: nullable(row.coordonnees_lng),
@@ -658,6 +672,7 @@ const CHAMP_VERS_COLONNE = {
   accentTheme: "accent_theme",
   modePaiement: "mode_paiement",
   dispoGeree: "dispo_geree",
+  dispoOuverteJusquA: "dispo_ouverte_jusqu_a",
   // Re-séparation de la distance (mapChateauBase fusionne les deux colonnes).
   distanceParis: "distance_paris_label",
   distanceParisMinutes: "distance_paris",
