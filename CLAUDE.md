@@ -528,10 +528,40 @@ Le test 10 a rougi : il attendait `ouverte_horizon` sur une nuit que **son propr
 | | | |
 |---|---|---|
 | **3.1** ✅ | RPC d'écriture + lecture d'édition + horizon | SQL |
-| 3.2 | lecture « mes châteaux / mes chambres » — ⚠ **brique manquante**, `chateau_owners` n'est lu par aucun code du front | service |
+| **3.2** ✅ | lecture « mes châteaux / mes chambres » — `chatelainService.getMesChateaux()` | service |
 | 3.3 | `CalendrierSaisie` — trois états, sélection de plage, **souris et doigt** | composant |
 | 3.4 | second onglet du dashboard châtelain | écran en service |
 | 3.5 | `/admin/chateaux/:id/disponibilites` | additif |
+
+### L'étape 3.2 — `getMesChateaux()`, et une inversion de rôle à ne pas « harmoniser »
+
+**Une lecture plate, pas une RPC** — parce que `chateaux_select_public` fait `statut = 'publie' OR is_chatelain_of(id) OR is_admin()`. Le deuxième terme suffit : un châtelain voit ses châteaux **même en brouillon** à travers l'embed. Aucune règle à porter côté serveur ; le patron maison réserve les RPC à ce qui porte une règle ou une garde.
+
+⚠ **Ce que ce service ne fait PAS : filtrer.** Pas de `.eq("user_id", …)`. C'est la RLS qui décide, et un filtre applicatif **masquerait** un défaut de policy au lieu de le révéler.
+
+⚠ **`chateaux!inner`** — sans lui, un lien vers un château masqué par la RLS produit une ligne fantôme `chateaux: null` au lieu de disparaître. Piège déjà connu du dépôt (`SELECT_PERSONNAGE_FICHE`).
+
+⚠ **Le tri est fait en JS, délibérément.** PostgREST sait ordonner un embed, mais la syntaxe dépend de la version sur un embed à deux niveaux — et surtout, **un tri délégué au serveur serait invisible du test unitaire**. Le mock rend les chambres en désordre et le test vérifie qu'elles ressortent triées. `ordre` étant nullable, le repli est `Infinity` : une chambre non ordonnée finit **en dernier**, pas en tête.
+
+#### ⚠⚠ `tests-mes-chateaux.sql` inverse le rôle — et c'est tout son sens
+
+```
+tests 2.5 / 3.1   role `authenticated` autour des APPELS seulement,
+                  verifications en postgres  -> CONTOURNER la RLS
+tests-mes-chateaux  role endosse PENDANT LES LECTURES  -> EPROUVER la RLS
+```
+
+**En `postgres` (`BYPASSRLS`), les six `SELECT` rendraient tout et les verdicts passeraient au vert en ne prouvant rien.** Quiconque « harmoniserait » ce fichier sur le patron des autres le viderait de son sens **sans qu'aucun verdict ne change**. C'est écrit en tête du fichier.
+
+⚠ **Et le cas qui compte est le BROUILLON.** La policy étant une disjonction, un test sur des châteaux publiés seuls est satisfait par le premier terme : il passerait au vert **même si `is_chatelain_of(id)` disparaissait**. Comme aucun châtelain n'est lié à un brouillon en base, le test en pose un temporairement, l'éprouve, et le retire — dans le même bloc `DO`, donc annulé proprement si le bloc lève.
+
+⚠ **Un client obtient `[]`, pas `42501`.** La RLS ne refuse pas, elle ne rend rien. Un écran qui lirait « pas d'erreur » comme « accès accordé » afficherait **une page vide plutôt qu'un refus** — à traiter en 3.4.
+
+### ⚠ Micro-dette — `chateau_owners` n'a ni ordre ni domaine principal
+
+La table autorise **plusieurs domaines par châtelain** (`UNIQUE (user_id, chateau_id)`), mais ne porte **aucune** notion d'ordre ni de château principal. `getMesChateaux()` trie donc **par nom**, faute de mieux.
+
+**Sans effet aujourd'hui** : un seul lien de propriété existe en base (mesuré le 24 août — `chateau-de-la-riviere`, publié, 5 chambres ; les douze autres châteaux n'ont aucun propriétaire). ⚠ À traiter le jour où un châtelain aura plusieurs domaines : l'ordre alphabétique n'est pas celui de son attention.
 
 ⚠ **Ne pas ajouter le calendrier comme 18ᵉ section d'`AdminChateauEdition`** : ce formulaire est un **REPLACE** qui envoie l'état complet à `admin_upsert_chateau`. Y mêler une saisie par plages ferait deux modèles d'écriture dans un même écran.
 
