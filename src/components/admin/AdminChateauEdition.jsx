@@ -524,6 +524,12 @@ export default function AdminChateauEdition() {
             </button>
           )}
           <Link to={`/admin/chateaux/${id}/apercu`} className="adm-btn">Prévisualiser</Link>
+          {/* ⚠ LA SEULE LIGNE QUE 3.5b AJOUTE À UN FICHIER EN SERVICE. Le
+              calendrier est un écran à part (cf. la route) ; on y entre d'ici,
+              comme pour l'aperçu, et de nulle part ailleurs — la liste des
+              châteaux n'offre qu'un « Éditer » par ligne, et lui ajouter une
+              colonne alourdirait un tableau pour un flux rare. */}
+          <Link to={`/admin/chateaux/${id}/disponibilites`} className="adm-btn">Disponibilités</Link>
           <Link to="/admin/chateaux" className="adm-lien">← Retour à la liste</Link>
         </div>
       </div>

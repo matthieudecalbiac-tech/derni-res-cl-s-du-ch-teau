@@ -1,0 +1,111 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Panneau de saisie des disponibilités (étape 3.5a)
+   ═══════════════════════════════════════════════════════════════════════════
+   ⚠ CE BLOC VIENT DE chatelain.css, ET IL A DÛ EN SORTIR. Il y portait le
+   préfixe `che-` (châtelain) alors que le panneau sert désormais DEUX hôtes :
+   l'onglet du châtelain et l'écran admin. Le problème n'était pas seulement le
+   nom : `chatelain.css` n'est importé QUE par les composants du dashboard, et
+   AdminLayout ne charge que `admin.css` — côté admin, les classes auraient été
+   purement ABSENTES, et le panneau se serait affiché sans mise en forme.
+
+   La feuille est donc importée par le composant lui-même, comme le veut la
+   convention du dépôt (un CSS par composant). Le panneau ne dépend plus de la
+   feuille de l'un de ses hôtes.
+
+   ⚠ La grille de CalendrierSaisie porte `touch-action: none` en permanence :
+   on ne peut pas faire défiler la page en posant le doigt dessus. Les zones
+   ci-dessous — sélecteurs au-dessus, pied en dessous — sont ce qui donne la
+   surface pour l'attraper. Ne pas les supprimer « pour gagner de la place ».
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Les deux génériques que le panneau CONSOMME ──────────────────────────
+   Recopiés de chatelain.css, où ils restent pour les états qui n'ont pas
+   suivi (le chargement des domaines, leur erreur). ⚠ `che-erreur` n'est PAS
+   repris : le panneau ne l'emploie nulle part — il n'affiche pas d'erreur de
+   chargement, il reçoit un château déjà chargé. Le porter ici créerait du CSS
+   mort dès la première ligne d'un fichier neuf.                              */
+
+.pdi-note {
+  color: var(--gris-fonce);
+  font-family: var(--font-editorial), serif;
+  font-size: 1.05rem;
+}
+
+.pdi-avis {
+  margin: 0 0 20px;
+  padding: 10px 14px;
+  border-left: 2px solid var(--or);
+  background: rgba(192, 152, 64, 0.08);
+  font-family: var(--font-editorial), serif;
+  font-size: 1.05rem;
+  color: var(--bleu-nuit);
+}
+
+/* ── Les sélecteurs ───────────────────────────────────────────────────── */
+
+.pdi-tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.pdi-domaine {
+  margin: 0;
+  font-family: var(--font-titre), serif;
+  font-size: var(--t-md);
+  color: var(--bleu-nuit);
+}
+
+.pdi-champ {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 180px;
+}
+
+.pdi-label {
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  color: var(--gris-fonce);
+}
+
+.pdi-select {
+  min-height: var(--hm-tap, 44px);
+  padding: 0 10px;
+  border: 1px solid var(--creme-chaud);
+  border-radius: 4px;
+  background: transparent;
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+}
+
+.pdi-select:focus-visible { outline: 2px solid var(--or); outline-offset: 2px; }
+.pdi-select:disabled { opacity: 0.6; }
+
+/* Le bloc d'attente tient la MÊME hauteur que la grille : six rangées de
+   44 px, leurs gouttières, l'en-tête des jours et la barre de navigation.
+   Sans lui, changer de mois ferait sauter toute la page. */
+.pdi-attente {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  border: 1px dashed var(--creme-chaud);
+  border-radius: 6px;
+}
+
+.pdi-pied {
+  margin: 16px 0 0;
+  font-size: var(--t-xs);
+  color: var(--gris-fonce);
+}
+
+@media (max-width: 640px) {
+  .pdi-tete { gap: 12px; }
+  /* Les deux sélecteurs prennent toute la largeur : au doigt, un select étroit
+     est difficile à ouvrir, et la place ne manque pas ici. */
+  .pdi-champ { flex: 1 1 100%; min-width: 0; }
+}
