@@ -12,7 +12,9 @@ export default function UneDeLaSemaine({ onOuvrirChateau, onVoirTout }) {
   // desktop la liste est une colonne non defilable — le handler ne se declenche
   // jamais et l'etat reste a 0.
   const listeRef = useRef(null);
-  const [actif, setActif] = useState(0);
+  // Index de la carte CENTREE — mesure exacte (cf. majCentre). Alimente le
+  // grossissement de la carte au focus ET les points de pagination.
+  const [centre, setCentre] = useState(0);
   // ── LES FLECHES ───────────────────────────────────────────────────────────
   // ⚠ POURQUOI ELLES EXISTENT, ET CE N'EST PAS UN ORNEMENT. Le carrousel
   //   deborde bien (mesure : scrollWidth 869 contre clientWidth 645) et il est
@@ -35,9 +37,41 @@ export default function UneDeLaSemaine({ onOuvrirChateau, onVoirTout }) {
     return premier.getBoundingClientRect().width + gouttiere;
   };
 
+  // ⚠⚠ LA CARTE CENTREE SE MESURE, ELLE NE SE DEDUIT PAS D'UNE DIVISION.
+  //   L'ancien calcul faisait scrollLeft / (scrollWidth / nbEnfants) : une
+  //   heuristique qui suppose des cartes de largeur egale, sans gouttiere ni
+  //   reserve laterale. Elle derivait deja sur les points de pagination, et
+  //   elle serait FAUSSE ici — la reserve laterale decale tout.
+  //   On prend la carte dont le CENTRE est le plus proche du centre du
+  //   conteneur : exact quelles que soient largeurs, gouttieres et paddings.
+  const majCentre = () => {
+    const el = listeRef.current;
+    if (!el) return;
+    // ⚠⚠ ON COMPARE DES RECTANGLES ECRAN, PAS `offsetLeft` CONTRE `scrollLeft`.
+    //   Premiere version : `offsetLeft + offsetWidth/2` face a
+    //   `scrollLeft + clientWidth/2`. DEUX ESPACES DE COORDONNEES DIFFERENTS —
+    //   `offsetLeft` se mesure depuis l'`offsetParent`, et la liste n'etant pas
+    //   positionnee, cet ancetre n'est PAS le conteneur defilant. L'ecart
+    //   constant ainsi introduit designait toujours la meme carte : mesure du
+    //   24 aout, le focus restait a l'index 0 apres un defilement de 300 px.
+    //   `getBoundingClientRect` ramene tout le monde dans l'espace de l'ecran,
+    //   quel que soit le positionnement CSS.
+    const boite = el.getBoundingClientRect();
+    const cible = boite.left + boite.width / 2;
+    let meilleur = 0;
+    let ecartMin = Infinity;
+    [...el.children].forEach((n, i) => {
+      const r = n.getBoundingClientRect();
+      const ecart = Math.abs(r.left + r.width / 2 - cible);
+      if (ecart < ecartMin) { ecartMin = ecart; meilleur = i; }
+    });
+    setCentre(meilleur);
+  };
+
   const majBornes = () => {
     const el = listeRef.current;
     if (!el) return;
+    majCentre();
     const max = el.scrollWidth - el.clientWidth;
     // ⚠ Tolerance d'1 px : `scrollLeft` est fractionnaire (zoom, DPI), et une
     //   comparaison stricte laisserait la fleche active sur un reste de 0,4 px.
@@ -98,11 +132,7 @@ export default function UneDeLaSemaine({ onOuvrirChateau, onVoirTout }) {
     if (rafRef.current) return;
     rafRef.current = requestAnimationFrame(() => {
       rafRef.current = 0;
-      majBornes();
-      const el = listeRef.current;
-      if (!el || el.scrollWidth <= el.clientWidth) return;
-      const pas = el.scrollWidth / Math.max(1, el.children.length);
-      setActif(Math.round(el.scrollLeft / pas));
+      majBornes();   // pose les bornes ET la carte centree
     });
   };
 
@@ -194,7 +224,7 @@ export default function UneDeLaSemaine({ onOuvrirChateau, onVoirTout }) {
                 className="une-semaine-item"
                 style={{ transitionDelay: `${0.35 + i * 0.12}s` }}
               >
-              <article className="une-semaine-carte">
+              <article className={"une-semaine-carte" + (i === centre ? " une-semaine-carte--centre" : "")}>
                 <div className="une-semaine-photo">
                   {chateau.images?.[0] && <img src={chateau.images[0]} alt={chateau.nom} loading="lazy" />}
                 </div>
@@ -233,7 +263,7 @@ export default function UneDeLaSemaine({ onOuvrirChateau, onVoirTout }) {
         {selection.length > 1 && (
           <div className="une-semaine-points" aria-hidden="true">
             {selection.map((c, i) => (
-              <span key={c.id} className={"une-semaine-point" + (i === actif ? " une-semaine-point--actif" : "")} />
+              <span key={c.id} className={"une-semaine-point" + (i === centre ? " une-semaine-point--actif" : "")} />
             ))}
           </div>
         )}

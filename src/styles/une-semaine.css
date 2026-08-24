@@ -46,10 +46,31 @@
      ce qui depasse en hauteur est ROGNE. Cette reserve accueille l'ombre
      aujourd'hui, et l'agrandissement de la carte centrale en 3b.
      ⚠ A REDIMENSIONNER en 3b avec le facteur d'echelle retenu. */
-  padding-block: 18px;
-  /* Le padding lateral fait respirer la premiere et la derniere carte : sans
-     lui, elles collent au bord une fois calees par le snap. */
-  padding-inline: 2px;
+  padding-block: 26px;
+
+  /* ══════════════════════════════════════════════════════════════════════
+     LA RESERVE LATERALE — sans elle, l'effet n'existe pas a l'arrivee
+     ══════════════════════════════════════════════════════════════════════
+     ⚠ `scrollLeft` ne descend pas sous 0 : SANS reserve, la PREMIERE carte ne
+     peut JAMAIS atteindre le centre, donc jamais etre agrandie — et au
+     chargement le centre du conteneur tombe dans la GOUTTIERE, si bien
+     qu'AUCUNE carte n'est mise en avant. La section s'afficherait plate au
+     moment precis ou la plupart des visiteurs la voient.
+
+     La reserve vaut la demi-largeur restante : chaque carte, premiere et
+     derniere comprises, peut alors se caler au centre.
+
+     ⚠ COUT ASSUME (arbitrage du 24 aout) : au repos on voit UNE carte centree
+     entre deux apercus, non plus deux cartes pleines. Si la section parait
+     vide, on ELARGIT la carte — on ne retire pas la reserve.
+
+     ⚠ LA LARGEUR DE CARTE NE DEPEND PLUS DU CONTENEUR (elle etait en
+     `calc(100% ...)`). Un pourcentage de plus dans le padding aurait rendu le
+     calcul circulaire : le padding se resout sur le bloc conteneur, la
+     flex-basis sur la boite de contenu — qui vient justement d'etre reduite
+     par ce padding. En vw, aucune boucle.                                   */
+  --carte: clamp(250px, 24vw, 330px);
+  padding-inline: max(2px, calc((100% - var(--carte)) / 2));
 }
 .une-semaine-liste::-webkit-scrollbar { display: none; }
 
@@ -109,9 +130,31 @@
    Le `clamp` borne les extremes : la carte ne devient ni etriquee sur un
    petit portable, ni demesuree sur un tres grand ecran.                     */
 .une-semaine-item {
-  flex: 0 0 clamp(260px, calc((100% - 96px) / 2), 400px);
+  flex: 0 0 var(--carte);
   scroll-snap-align: center;
   display: flex;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LE FOCUS CENTRAL — le `scale` vit sur la CARTE, jamais sur l'item
+   ══════════════════════════════════════════════════════════════════════════
+   ⚠ L'ITEM porte la largeur et le point d'ancrage du snap : l'agrandir
+   deplacerait les positions de calage. La CARTE est a l'interieur, sa
+   transformation est purement PICTURALE — ni `offsetWidth`, ni `scrollWidth`,
+   ni les points de snap n'en savent rien.
+
+   ⚠ ET C'EST POURQUOI `padding-block` VAUT 26 px. `overflow-x: auto` force
+   `overflow-y` a `auto` : ce qui depasse en hauteur est ROGNE. Une carte de
+   ~420 px grandie de 5,5 % gagne ~23 px, soit ~12 px de chaque cote — plus
+   l'ombre portee. Reduire cette reserve reviendrait a trancher le haut et le
+   bas de la carte mise en avant.                                            */
+.une-semaine-carte {
+  transition: transform 0.45s ease-out, box-shadow 0.45s ease-out;
+}
+.une-semaine-carte--centre {
+  transform: scale(1.055);
+  box-shadow: 0 0 0 1px rgba(192,152,64,0.42),
+              0 14px 34px -16px rgba(13,22,40,0.32);
 }
 
 .une-semaine-carte {
@@ -257,11 +300,9 @@
     scroll-padding: 0 16px;
   }
 
-  .une-semaine-item {
-    /* 76 % et non 82 : la carte suivante se devine davantage sur le bord droit,
-       ce qui annonce le defilement sans fleche ni consigne. */
-    flex: 0 0 76%;
-  }
+  /* La carte suit le viewport ; la reserve laterale se deduit d ELLE, pas du
+     conteneur — meme raison qu en desktop (pas de calcul circulaire). */
+  .une-semaine-liste { --carte: 76vw; }
   .une-semaine-carte {
     border-radius: var(--hm-r-s);
     border-color: var(--hm-filet);
@@ -348,6 +389,12 @@
 .une-semaine--visible .une-semaine-item { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
+  /* ⚠ Le grossissement de la carte centrale est ANNULE, mais la BAGUE DOREE
+     RESTE : elle ne bouge pas, et c est le seul signal qui dise quelle carte
+     est mise en avant. Meme regle qu a la section 1. */
+  .une-semaine-carte { transition: none; }
+  .une-semaine-carte--centre { transform: none; }
+
   .une-semaine-embleme,
   .une-semaine-eyebrow,
   .une-semaine-titre,
