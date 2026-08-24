@@ -1872,6 +1872,24 @@ Notés à chaud pour ne pas se perdre. **Aucun n'a de périmètre établi** : ce
 
 - **[Sprint S2 ou S5] Audit exhaustif violations a11y "serious"** : 30 violations a11y "serious" actuellement absorbées par baseline (`max=30 actuel=30`, tangent). Distribution probable : `color-contrast` (micro-textes or-sur-crème, eyebrows opacity 0.55, Cormorant italic gris clair) + `aria-prohibited-attr` iframe YouTube. Audit dédié à programmer pour identifier et corriger ou tracer chacune. Pas bloquant CI mais hygiène. ~2-3 h audit + ~5-10 h fix CSS tokens Tanguy.
 
+### ⚠ PORTÉE DU RESPONSIVE — l'espace admin en est EXCLU (décision du 24 août 2026)
+
+L'exigence « desktop **et** mobile, les deux testés, les deux validés » vaut pour le **visiteur** et pour le **châtelain**. ⚠ **Elle ne vaut PAS pour l'espace admin.**
+
+`/admin/*` est un **back-office**, utilisé depuis un poste de travail. Personne n'éditera dix-sept sections de fiche ou une grille de commissions au pouce. **Ne pas investir dans son responsive** — ni CSS, ni tests, ni relecture mobile.
+
+⚠ **Deux conséquences à ne pas confondre.** Le **châtelain**, lui, est mobile par nature : il bloque une semaine depuis son téléphone, entre deux services. Son espace reste soumis à l'exigence complète — et `PanneauDisponibilites` étant partagé par les deux (cf. piège 4), **son responsive est requis par l'hôte châtelain, pas par l'hôte admin**. Le retirer « puisque l'admin n'en a pas besoin » casserait l'autre.
+
+### ⚠ BUG À CORRIGER — redirection post-connexion, MOBILE UNIQUEMENT
+
+**Vu le 24 août 2026.** Sur **mobile seulement** — desktop se comporte correctement —, après avoir validé « Connecter » depuis un compte **admin ou châtelain**, on atterrit sur la **home** au lieu de l'espace concerné.
+
+⚠ **Ce n'est pas le défaut réparé le 19 août** (`utils/cheminAuth.js`, la destination posée par les onze points d'entrée) : celui-là est validé en production, et le parcours desktop passe. Ici seul le mobile dévie, ce qui écarte la logique de destination — elle est commune aux deux.
+
+**Piste, non vérifiée** : un problème de **timing** entre l'établissement de la session et la redirection, plus visible sur mobile (réseau plus lent, cycle de vie de l'onglet différent). ⚠ **À mesurer avant de coder** — deux fois cette semaine une cause « évidente » n'a pas résisté à la mesure.
+
+**Non bloquant aujourd'hui** : l'admin est desktop-only (ci-dessus), et le châtelain peut naviguer à la main vers son tableau de bord. ⚠ **Le devient le jour où un châtelain découvre la plateforme depuis son téléphone** — sa première impression serait « ça ne marche pas ».
+
 ### Dette responsive mobile (Sprint S5+ ou pré-prod)
 
 **Détectée** : Sprint S1-δ Phase 4.7 (9 mai 2026) — Matthieu a testé en mode iPhone (375px) et tablet (768px) via Chrome DevTools Device Emulation.
