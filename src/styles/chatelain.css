@@ -266,3 +266,76 @@
   /* Deux onglets à parts égales : au doigt, on vise mal une cible étroite. */
   .che-onglet { flex: 1; padding: 0 8px; }
 }
+
+/* ── Onglet Disponibilités (étape 3.4c) ───────────────────────────────────
+   ⚠ La grille de CalendrierSaisie porte `touch-action: none` en permanence :
+   on ne peut pas faire défiler la page en posant le doigt dessus. Les zones
+   ci-dessous — sélecteurs au-dessus, pied en dessous — sont ce qui donne la
+   surface pour l'attraper. Ne pas les supprimer « pour gagner de la place ».  */
+
+.che-dispo-tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.che-dispo-domaine {
+  margin: 0;
+  font-family: var(--font-titre), serif;
+  font-size: var(--t-md);
+  color: var(--bleu-nuit);
+}
+
+.che-dispo-champ {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 180px;
+}
+
+.che-dispo-label {
+  font-size: var(--t-xs);
+  letter-spacing: 0.04em;
+  color: var(--gris-fonce);
+}
+
+.che-dispo-select {
+  min-height: var(--hm-tap, 44px);
+  padding: 0 10px;
+  border: 1px solid var(--creme-chaud);
+  border-radius: 4px;
+  background: transparent;
+  font-family: var(--font-ui), sans-serif;
+  font-size: var(--t-sm);
+  color: var(--bleu-nuit);
+}
+
+.che-dispo-select:focus-visible { outline: 2px solid var(--or); outline-offset: 2px; }
+.che-dispo-select:disabled { opacity: 0.6; }
+
+/* Le bloc d'attente tient la MÊME hauteur que la grille : six rangées de
+   44 px, leurs gouttières, l'en-tête des jours et la barre de navigation.
+   Sans lui, changer de mois ferait sauter toute la page. */
+.che-dispo-attente {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 360px;
+  border: 1px dashed var(--creme-chaud);
+  border-radius: 6px;
+}
+
+.che-dispo-pied {
+  margin: 16px 0 0;
+  font-size: var(--t-xs);
+  color: var(--gris-fonce);
+}
+
+@media (max-width: 640px) {
+  .che-dispo-tete { gap: 12px; }
+  /* Les deux sélecteurs prennent toute la largeur : au doigt, un select étroit
+     est difficile à ouvrir, et la place ne manque pas ici. */
+  .che-dispo-champ { flex: 1 1 100%; min-width: 0; }
+}
