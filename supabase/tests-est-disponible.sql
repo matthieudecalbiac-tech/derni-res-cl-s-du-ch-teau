@@ -31,6 +31,14 @@
 --   13-14  niveau château    une chambre libre suffit / toutes prises ferme
 --   15-16  ⚠ PARITÉ RÉELLE   l'INSERT passe quand la fonction dit oui,
 --                            l'INSERT est rejeté quand elle dit non
+--   17-20  horizon           sans ligne dans / hors horizon · ligne true
+--                            au-delà · nuit égale à l'horizon
+--
+-- ⚠ LES SEIZE PREMIERS N'ONT PAS ÉTÉ TOUCHÉS PAR L'AJOUT DU 24 AOÛT, et c'est
+-- le juge de la rétrocompatibilité de la branche horizon : la cible n'a pas
+-- d'horizon pendant qu'ils tournent, donc une nuit sans ligne reste FERMÉE —
+-- trait pour trait l'ancien comportement. La parité #142 est rejouée telle
+-- quelle. On ÉTEND, on ne réécrit pas.
 --
 -- ⚠⚠ LES TESTS 15-16 SONT LES PLUS IMPORTANTS, et ils ne relisent rien : ils
 -- CONFRONTENT la fonction à la contrainte en tentant une vraie écriture. Un
@@ -59,6 +67,7 @@ DECLARE
   cible_slug   text;
   cible_statut text;
   orig_geree   boolean;
+  orig_horizon date;   -- ⚠ AJOUT 2026-08-24 : restaure comme orig_geree
 
   chambres uuid[];
   ch1      uuid;
@@ -76,16 +85,17 @@ DECLARE
   n_resid int;
   n_dispo int;
   n_geres int;
+  v_horizon_fin date;
 BEGIN
 
   -- ══════════════════════════════════════════════════════════════════════
   -- SETUP
   -- ══════════════════════════════════════════════════════════════════════
-  SELECT c.id, c.slug, c.statut::text, c.dispo_geree
-    INTO cible_id, cible_slug, cible_statut, orig_geree
+  SELECT c.id, c.slug, c.statut::text, c.dispo_geree, c.dispo_ouverte_jusqu_a
+    INTO cible_id, cible_slug, cible_statut, orig_geree, orig_horizon
     FROM public.chateaux c
     JOIN public.chambres ch ON ch.chateau_id = c.id
-   GROUP BY c.id, c.slug, c.statut, c.dispo_geree
+   GROUP BY c.id, c.slug, c.statut, c.dispo_geree, c.dispo_ouverte_jusqu_a
   HAVING count(*) >= 2
    ORDER BY (c.statut = 'publie'), c.slug   -- brouillons d'abord
    LIMIT 1;
@@ -307,6 +317,50 @@ BEGIN
   );
 
   -- ══════════════════════════════════════════════════════════════════════
+  -- 17-20 — L'HORIZON D'OUVERTURE (ajout du 24 aout, etape 3.1)
+  --
+  -- Fenetre [base+80, base+90], libre de toute reservation. Mode GERE, horizon
+  -- pose a base+85. On teste nuit par nuit, via le sejour [N, N+1).
+  --
+  -- ⚠ LES SEIZE TESTS CI-DESSUS N'ONT PAS ETE TOUCHES. C'est le juge de la
+  --   retrocompatibilite : la cible n'a pas d'horizon pendant qu'ils tournent
+  --   (orig_horizon vaut NULL sur les 13 chateaux), donc le second terme du
+  --   COALESCE est faux et une nuit sans ligne reste FERMEE — trait pour trait
+  --   l'ancien comportement. La parite #142 (15-16) est rejouee telle quelle.
+  -- ══════════════════════════════════════════════════════════════════════
+  UPDATE public.chateaux
+     SET dispo_geree = true, dispo_ouverte_jusqu_a = base + 85
+   WHERE id = cible_id;
+
+  -- Une ligne true AU-DELA de l'horizon, pour le test 19.
+  INSERT INTO public.disponibilites (chambre_id, date, est_disponible)
+  VALUES (ch1, base + 88, true);
+
+  FOR t IN
+    SELECT * FROM (VALUES
+      ('17', 'sans ligne, DANS l horizon -> ouverte',        base + 81, true),
+      ('18', 'sans ligne, HORS horizon -> fermee',           base + 87, false),
+      ('19', 'ligne true AU-DELA de l horizon -> ouverte',   base + 88, true),
+      ('20', 'nuit EGALE a l horizon -> ouverte (borne <=)', base + 85, true)
+    ) AS v(num, descr, nuit, attendu)
+  LOOP
+    obtenu := public.est_disponible(ch1, t.nuit, t.nuit + 1);
+    INSERT INTO dispo_results VALUES (
+      t.num, t.descr, 'nuit=' || t.nuit || ' · attendu=' || t.attendu || ' · obtenu=' || obtenu,
+      CASE WHEN obtenu = t.attendu THEN 'PASS'
+           WHEN t.num = '19' THEN 'FAIL — l horizon ecrase une ouverture EXPLICITE : on ne pourrait plus ouvrir une date lointaine sans le deplacer'
+           WHEN t.num = '20' THEN 'FAIL — la borne de l horizon est EXCLUSIVE : le dernier jour annonce ouvert est ferme'
+           WHEN t.num = '18' THEN 'FAIL — l horizon ne borne rien : le chateau serait reservable a l infini'
+           ELSE 'FAIL' END
+    );
+  END LOOP;
+
+  -- Retour a l'etat non gere pour ne rien laisser derriere.
+  UPDATE public.chateaux
+     SET dispo_geree = false, dispo_ouverte_jusqu_a = NULL
+   WHERE id = cible_id;
+
+  -- ══════════════════════════════════════════════════════════════════════
   -- NETTOYAGE — disponibilites d'abord, puis reservations, puis le drapeau.
   -- ⚠ Rien n'a ete cree hors de ces trois endroits : ces fonctions ne
   --   declenchent aucun email (contrairement a repondre_demande), il n'y a donc
@@ -321,7 +375,9 @@ BEGIN
      AND user_id = client
      AND date_arrivee >= borne;
 
-  UPDATE public.chateaux SET dispo_geree = orig_geree WHERE id = cible_id;
+  UPDATE public.chateaux
+     SET dispo_geree = orig_geree, dispo_ouverte_jusqu_a = orig_horizon
+   WHERE id = cible_id;
 
   -- ── PROPRETE — calculee ICI, pas dans un SELECT final (le SQL Editor
   --    n'affiche que le dernier resultat, et il doit montrer les verdicts).
@@ -335,13 +391,18 @@ BEGIN
   --   sur un compte global a zero : le jour ou un chateau sera legitimement en
   --   gestion, un tel critere rougirait a tort.
   SELECT dispo_geree INTO obtenu FROM public.chateaux WHERE id = cible_id;
+  SELECT dispo_ouverte_jusqu_a INTO v_horizon_fin FROM public.chateaux WHERE id = cible_id;
 
   INSERT INTO dispo_results VALUES (
-    'PROPRETE', 'residus + drapeau de la cible restaure',
+    'PROPRETE', 'residus + drapeau et horizon de la cible restaures',
     n_resid || ' reservation(s) · ' || n_dispo || ' ligne(s) disponibilites · '
       || 'cible dispo_geree=' || obtenu::text || ' (origine=' || coalesce(orig_geree::text, 'false') || ')'
+      || ' · horizon=' || coalesce(v_horizon_fin::text, 'NULL')
+      || ' (origine=' || coalesce(orig_horizon::text, 'NULL') || ')'
       || ' · ' || n_geres || ' chateau(x) gere(s) au total',
-    CASE WHEN n_resid = 0 AND n_dispo = 0 AND obtenu IS NOT DISTINCT FROM orig_geree THEN 'PASS'
+    CASE WHEN n_resid = 0 AND n_dispo = 0
+          AND obtenu IS NOT DISTINCT FROM orig_geree
+          AND v_horizon_fin IS NOT DISTINCT FROM orig_horizon THEN 'PASS'
          ELSE 'FAIL — ⚠ residu : supprimer les lignes au-dela de ' || borne
               || ' et remettre dispo_geree a ' || coalesce(orig_geree::text, 'false')
               || ' sur ' || coalesce(cible_slug, '?') END
