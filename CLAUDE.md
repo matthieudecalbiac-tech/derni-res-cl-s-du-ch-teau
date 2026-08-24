@@ -519,9 +519,31 @@ Le test 10 a rougi : il attendait `ouverte_horizon` sur une nuit que **son propr
 
 ⚠ **Et la relecture de ce rouge a révélé un trou que rien n'aurait signalé** : le test de cohérence partait de l'horizon lui-même, donc ne couvrait que « = » et « > ». Aucune nuit strictement **dans** l'horizon n'était confrontée entre les deux fonctions. Fenêtre décalée de deux jours ; les trois positions sont couvertes.
 
-### ⚠ À FAIRE quand l'UI arrivera (3.4/3.5)
+### ✅ FAIT en 3.4a — le toggle réécrit, et le trou qu'il cachait
 
-**Le toggle de 2.1 devra être réécrit.** Son avertissement dit *« toute date non saisie est fermée »* — **faux dans l'horizon** depuis le 24 août. Activer la gestion devra demander de **poser un horizon en même temps**, sinon le château se ferme entièrement.
+Cette section demandait de réécrire l'avertissement du toggle de 2.1, devenu **faux**
+(*« toute date non saisie est fermée »* — or dans l'horizon, une date non saisie est
+**ouverte**). C'est fait, et le chantier a révélé plus grave que le texte.
+
+⚠ **L'horizon n'était saisissable NULLE PART.** 3.1 avait posé
+`chateaux.dispo_ouverte_jusqu_a`, `est_disponible` la lisait — et **aucun écran ne
+permettait de lui donner une valeur**. Un château passé en `dispo_geree` avec un
+horizon `NULL` a un calendrier **entièrement fermé**, sans que rien ne le dise : le
+drapeau donne l'impression d'avoir activé quelque chose alors que rien n'est ouvert.
+Le seul remède était un `UPDATE` en SQL Editor.
+
+Le champ est désormais dans la fiche admin, et **l'avertissement du drapeau est dérivé
+de l'état en trois versions** — c'est lui qui porte le garde-fou :
+
+| état | ce que l'écran dit |
+|---|---|
+| décoché | le château suit le proxy `urgence` historique |
+| coché · horizon **vide** | ⚠ **« Aucune date n'est ouverte »** — le calendrier est fermé |
+| coché · horizon posé | les dates sont ouvertes jusqu'au *(date lisible)* |
+
+⚠ **`formatJourLisible` découpe la chaîne à la main**, jamais `new Date("YYYY-MM-DD")`
+— que la spec interprète en **UTC**, ce qui affiche la veille à l'est de Greenwich.
+Même piège que `jourISO` / `versJour`, déjà payé une fois par ce dépôt.
 
 ### Le plan restant
 
@@ -529,9 +551,51 @@ Le test 10 a rougi : il attendait `ouverte_horizon` sur une nuit que **son propr
 |---|---|---|
 | **3.1** ✅ | RPC d'écriture + lecture d'édition + horizon | SQL |
 | **3.2** ✅ | lecture « mes châteaux / mes chambres » — `chatelainService.getMesChateaux()` | service |
-| 3.3 | `CalendrierSaisie` — trois états, sélection de plage, **souris et doigt** | composant |
-| 3.4 | second onglet du dashboard châtelain | écran en service |
-| 3.5 | `/admin/chateaux/:id/disponibilites` | additif |
+| **3.3** ✅ | `CalendrierSaisie` — trois états, sélection de plage, **souris et doigt** | composant |
+| **3.4** ✅ | second onglet du dashboard châtelain (+ l'horizon devient saisissable) | écran en service |
+| **3.5** ✅ | `PanneauDisponibilites` extrait, puis `/admin/chateaux/:id/disponibilites` | additif |
+
+**L'étape 3 est close** (PR #151, #152, #153 — 24 août 2026). Les dates se saisissent
+désormais des deux côtés, sur le même composant et la même table.
+
+### ⚠⚠ `fontainebleau` est le CHÂTEAU DE DÉMONSTRATION DU MOTEUR — état volontaire
+
+**Ne pas prendre cet état pour un accident, et ne pas le « corriger » en passant.**
+
+```
+statut                  brouillon        -> INVISIBLE du public, la RLS le filtre
+dispo_geree             true             -> le SEUL chateau gere du parc
+dispo_ouverte_jusqu_a   2027-12-31
+disponibilites          blocages de test ecrits depuis les deux ecrans
+chateau_owners          AUCUN            -> le rattachement temporaire a ete retire
+```
+
+**Pourquoi il existe.** Le seul rattachement de propriété réel du parc est
+`chateau-de-la-riviere` — **publié, mais ni géré ni pourvu d'un horizon**. Il ne
+permet donc de tester *aucun* chemin d'écriture. `fontainebleau` a été rattaché
+temporairement au compte châtelain pour valider 3.4c, puis **détaché** une fois
+l'étape close : la propriété était fausse, l'état de gestion, lui, est utile.
+
+⚠ **Conséquence à connaître avant de chercher une panne** : `fontainebleau`
+**n'apparaît plus dans l'espace châtelain** (`getMesChateaux` lit `chateau_owners`).
+Il ne s'atteint que par `/admin/chateaux/:id/disponibilites`. Ce n'est pas une
+régression de 3.5 — c'est le retrait du rattachement de test.
+
+⚠ **Deux échéances où il faudra le défaire**, et elles n'appellent pas le même geste :
+
+- **avant une publication éventuelle** — un château servi ne doit pas porter des
+  blocages posés pour l'exemple ;
+- **avant l'étape 4** *si* on veut un parc vierge pour mesurer la bascule du proxy
+  `urgence`. ⚠ Mais réfléchir avant : c'est aussi le seul château sur lequel la
+  bascule peut se **comparer**, `dispo_geree` étant faux partout ailleurs.
+
+```sql
+-- Le jour où l'on veut le rendre vierge (les blocages seuls) :
+DELETE FROM public.disponibilites d
+USING public.chambres ch, public.chateaux c
+WHERE d.chambre_id = ch.id AND ch.chateau_id = c.id
+  AND c.slug = 'fontainebleau';
+```
 
 ### L'étape 3.2 — `getMesChateaux()`, et une inversion de rôle à ne pas « harmoniser »
 
