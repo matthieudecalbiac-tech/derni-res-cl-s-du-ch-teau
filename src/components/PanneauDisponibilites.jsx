@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import CalendrierSaisie from "./CalendrierSaisie";
 import { jourISO } from "../utils/dates";
+import { actionPourSelection } from "../utils/calendrierSaisie";
 import {
   calendrierEditionChambre,
   poserDisponibilites,
@@ -174,17 +175,45 @@ export default function PanneauDisponibilites({
 
   // ── Écrire ────────────────────────────────────────────────────────────────
   async function ecrire(action, plage) {
-    if (!chambreId || !plage || traitement) return;
+    if (!chambreId || traitement) return;
+
+    // ⚠ LA RÈGLE VIENT DE `actionPourSelection`, ET DOIT CONTINUER D'EN VENIR.
+    //   Ce qui suit ressemble à un if/else qu'on pourrait « simplifier » en
+    //   testant `action` directement — c'est EXACTEMENT ce qui existait ici, et
+    //   c'est ce qui avait rendu la fonction testée INERTE : l'audit du 24 août
+    //   a mesuré qu'elle n'était appelée nulle part, la règle vivant en double.
+    //
+    //   La différence n'est pas cosmétique. Ici on DISPATCHE un nom de RPC vers
+    //   son wrapper ; là-bas on DÉCIDE quelle écriture correspond à quel geste.
+    //   ⚠ C'est la DÉCISION qui est testée — « ouvrir » n'écrit JAMAIS
+    //   poser(true), parce qu'une ligne `true` serait IMMUNE À L'HORIZON et que
+    //   plus rien ne la refermerait. Le dispatch, lui, n'a rien à prouver.
+    //
+    //   ⚠ Et la JSDoc d'`actionPourSelection` annonce déjà son évolution : le
+    //   jour où les tarifs seront éditables, « ouvrir » deviendra conditionnel.
+    //   Ce changement se fera là-bas — il faut qu'il arrive JUSQU'ICI.
+    //
+    // ⚠ APPELÉE AVANT setTraitement(true), ET CE N'EST PAS UN DÉTAIL DE STYLE :
+    //   placée après, le `return` sur `null` laisserait `traitement` à true POUR
+    //   TOUJOURS — écran verrouillé, sans erreur ni message. Le `finally` ne
+    //   rattrape que ce qui entre dans le `try`.
+    const act = actionPourSelection(action, plage);
+
+    // ⚠ null = geste inconnu, ou plage incomplète : on ne fait RIEN. L'ancien
+    //   `else` appelait `retirer` pour TOUTE action non « bloquer » — un geste
+    //   inattendu aurait EFFACÉ des blocages. Cette fonction couvre aussi mieux
+    //   la plage que l'ancienne garde (`du` ET `au`, pas seulement `plage`),
+    //   d'où son retrait de la ligne ci-dessus : deux gardes pour un même fait
+    //   finissent par diverger.
+    if (!act) return;
+
     setTraitement(true);
     setAvis(null);
     try {
-      if (action === "bloquer") {
-        await poserDisponibilites(chambreId, plage.du, plage.au, false);
+      if (act.rpc === "poser") {
+        await poserDisponibilites(chambreId, act.du, act.au, act.estDisponible);
       } else {
-        // ⚠ « Ouvrir » EFFACE le blocage, il n'écrit pas de ligne. Cf.
-        //   actionPourSelection : poser une ligne `true` produirait des nuits
-        //   IMMUNES à l'horizon.
-        await retirerDisponibilites(chambreId, plage.du, plage.au);
+        await retirerDisponibilites(chambreId, act.du, act.au);
       }
       // ⚠ RE-LIRE, JAMAIS DE MUTATION OPTIMISTE. Même discipline que
       //   confirmer() -> rafraichir() dans le dashboard : c'est la BASE qui
