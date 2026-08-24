@@ -19,7 +19,7 @@ const { test, expect } = require('@playwright/test');
  *
  * ── LA PORTE D'ENTREE ────────────────────────────────────────────────────────
  * Meme raisonnement que pour Dernieres Cles : `BandeauOffres` est en
- * `display:none` sous 768 (bandeau-offres.css:128), donc la porte desktop
+ * `display:none` sous 768 (bandeau-offres.css, media 768), donc la porte desktop
  * n'existe pas en mobile. Le menu du Header, lui, n'a aucun `display:none` et
  * expose un attribut STABLE `data-id="vitrines"` — un libelle editorial se
  * reecrit, un data-id non.
