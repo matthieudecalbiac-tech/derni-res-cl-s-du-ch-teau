@@ -239,12 +239,28 @@ function versJour(d) {
  * des mois plus tard. Une seule ecriture du patron, un seul endroit ou l'oublier.
  */
 async function appelerRpcBooleen(nomRpc, params, contexte) {
+  return (await appelerRpcBrut(nomRpc, params, contexte)) === true;
+}
+
+/**
+ * Le patron maison, ECRIT UNE SEULE FOIS : appel, journalisation avec `status`,
+ * `throw error` brut, et le `data` rendu tel quel a l'appelant qui le normalise.
+ *
+ * ⚠ EXTRAIT A L'ETAPE 3.3d, quand les fonctions d'ECRITURE ont porte le nombre
+ * de copies de ce patron a CINQ dans un seul fichier. C'est exactement ce que
+ * l'etape 2.4 disait vouloir eviter en creant deux helpers : « une seule
+ * ecriture du patron, un seul endroit ou l'oublier ». Trois copies de plus
+ * auraient contredit cette raison meme.
+ * Les deux helpers de 2.4 delèguent desormais ici — un changement de six
+ * lignes, couvert par les seize tests de contrat existants.
+ */
+async function appelerRpcBrut(nomRpc, params, contexte) {
   const { data, error, status } = await supabase.rpc(nomRpc, params);
   if (error) {
     logErreurSupabase(contexte, error, status);
     throw error;
   }
-  return data === true;
+  return data;
 }
 
 /**
@@ -257,11 +273,7 @@ async function appelerRpcBooleen(nomRpc, params, contexte) {
  * clubService.getPalierCourant.
  */
 async function appelerRpcJours(nomRpc, params, contexte) {
-  const { data, error, status } = await supabase.rpc(nomRpc, params);
-  if (error) {
-    logErreurSupabase(contexte, error, status);
-    throw error;
-  }
+  const data = await appelerRpcBrut(nomRpc, params, contexte);
   if (!Array.isArray(data)) return [];
   return data
     .map((ligne) => (typeof ligne === "string" ? ligne : ligne?.[nomRpc] ?? null))
@@ -366,4 +378,140 @@ export async function joursDisponiblesChateau(chateauId, du, au) {
     { p_chateau_id: chateauId, p_du: versJour(du), p_au: versJour(au) },
     "[disponibilitesService] joursDisponiblesChateau:",
   );
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ÉCRIRE — la saisie des disponibilités (étape 3.3d)
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// Les trois RPC posées à l'étape 3.1 n'avaient AUCUN appelant JS : 3.2 avait
+// câblé la lecture « mes châteaux », mais rien n'écrivait. Ces trois wrappers
+// comblent le trou.
+//
+// ⚠ ILS VIVENT ICI, PAS DANS chatelainService, et ce n'est pas un détail de
+// rangement : l'écran admin de l'étape 3.5 appellera EXACTEMENT les mêmes. La
+// garde des RPC est `is_chatelain_of(chateau) OR is_admin()` — une seule
+// fonction sert les deux acteurs. Les mettre chez le châtelain aurait forcé
+// l'admin à traverser un module qui ne le concerne pas.
+//
+// ⚠ MÊME VERROU DE FUSEAU que la moitié moteur : tout passe par `versJour()`,
+// jamais un objet Date. Cf. son commentaire — PostgREST sérialiserait en ISO
+// UTC et le cast `::date` pourrait rendre LE JOUR PRÉCÉDENT.
+//
+// ⚠ AUCUNE ERREUR N'EST DISCRIMINÉE. Les RPC lèvent 22023 (fenêtre invalide),
+// P0002 (chambre introuvable) et 42501 (ni châtelain ni admin) — mais aucune
+// n'est un cas métier que l'UI rattrape : l'écran ne propose que les chambres
+// du châtelain, et il borne lui-même ses fenêtres. Chacune serait un DÉFAUT, et
+// un défaut doit remonter tel quel plutôt que d'être habillé en message.
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Écrit une plage de NUITS — ⚠ BORNES INCLUSES, comme la RPC : « du 12 au 18 »
+ * fait SEPT nuits.
+ *
+ * ⚠ CE N'EST PAS LA FONCTION D'« OUVRIR ». Le calendrier de saisie n'appelle
+ * celle-ci QUE pour bloquer (`estDisponible = false`) : ouvrir, c'est effacer
+ * l'exception, donc `retirerDisponibilites`. Poser une ligne `true` reste
+ * possible — la RPC le permet, et c'est ainsi qu'on ouvrirait une date au-delà
+ * de l'horizon — mais aucune interface ne le fait aujourd'hui, et le faire
+ * réintroduirait des lignes IMMUNES à l'horizon (cf. actionPourSelection dans
+ * utils/calendrierSaisie.js).
+ *
+ * ⚠ Le prix spécial est PRÉSERVÉ côté SQL s'il n'est pas passé (COALESCE) :
+ * bloquer une date n'efface pas son tarif. Pour l'effacer, il faut
+ * `retirerDisponibilites` puis reposer.
+ *
+ * @param {string} chambreId
+ * @param {Date|string} du
+ * @param {Date|string} au
+ * @param {boolean} estDisponible
+ * @param {number|null} [prixSpecialCents]
+ * @returns {Promise<number>} nombre de nuits écrites.
+ */
+export async function poserDisponibilites(chambreId, du, au, estDisponible, prixSpecialCents = null) {
+  const data = await appelerRpcBrut(
+    "poser_disponibilites",
+    {
+      p_chambre_id: chambreId,
+      p_du: versJour(du),
+      p_au: versJour(au),
+      p_est_disponible: estDisponible === true,
+      p_prix_special_cents: prixSpecialCents,
+    },
+    "[disponibilitesService] poserDisponibilites:",
+  );
+  return typeof data === "number" ? data : 0;
+}
+
+/**
+ * Efface les lignes d'une plage de NUITS — bornes incluses.
+ *
+ * ⚠ C'EST LA FONCTION D'« OUVRIR », et le verbe est trompeur : on n'ouvre pas en
+ * écrivant, on ouvre en RETIRANT le blocage. La nuit revient à « non
+ * renseignée » et retombe sous l'horizon du château. `disponibilites` ne
+ * contient ainsi QUE des blocages — le modèle « Airbnb », et le seul qui ne
+ * fasse pas gonfler la table à l'usage.
+ *
+ * ⚠ Cela n'ouvre RIEN au-delà de l'horizon : une nuit sans ligne y reste
+ * fermée. Le calendrier de saisie ne laisse pas sélectionner ces nuits-là,
+ * c'est ce qui rend la sémantique cohérente (cf. `plageLimitee`).
+ *
+ * ⚠ EFFACE AUSSI le prix spécial de ces nuits. Sans conséquence aujourd'hui —
+ * aucune interface n'écrit de prix — mais à revoir le jour où les tarifs
+ * deviendront éditables.
+ *
+ * @returns {Promise<number>} nombre de lignes supprimées.
+ */
+export async function retirerDisponibilites(chambreId, du, au) {
+  const data = await appelerRpcBrut(
+    "retirer_disponibilites",
+    { p_chambre_id: chambreId, p_du: versJour(du), p_au: versJour(au) },
+    "[disponibilitesService] retirerDisponibilites:",
+  );
+  return typeof data === "number" ? data : 0;
+}
+
+/**
+ * L'état BRUT du calendrier d'une chambre, nuit par nuit, pour l'écran de
+ * SAISIE. Bornes incluses, 366 jours maximum (la RPC lève au-delà).
+ *
+ * ⚠ À NE PAS CONFONDRE AVEC `joursDisponiblesChambre`. Celle-là rend le
+ * résultat COMPOSÉ — « libre ou non » — et sert à peindre un calendrier
+ * PUBLIC. Celle-ci dit POURQUOI une nuit est fermée, ce dont le châtelain a
+ * besoin : « j'ai bloqué » ne se corrige pas comme « c'est vendu », et la
+ * seconde, il ne peut pas la rouvrir.
+ *
+ * ⚠ Elle EXPOSE L'OCCUPATION. C'est pourquoi la RPC est réservée à
+ * `authenticated` avec sa garde interne, là où les lectures publiques de 2.2 et
+ * 2.3 sont ouvertes à `anon`.
+ *
+ * Les six états rendus (`vendue`, `bloquee`, `ouverte_explicite`,
+ * `hors_gestion`, `ouverte_horizon`, `non_renseignee`) sont aplatis en quatre
+ * apparences par `aplatirEtat` — dans utils/calendrierSaisie.js, pas ici : ce
+ * service transporte, il n'interprète pas.
+ *
+ * @returns {Promise<Array<{nuit: string, etat: string, ligneExiste: boolean,
+ *   ligneOuverte: boolean|null, dansHorizon: boolean, vendue: boolean,
+ *   prixSpecialCents: number|null}>>}
+ */
+export async function calendrierEditionChambre(chambreId, du, au) {
+  const data = await appelerRpcBrut(
+    "calendrier_edition_chambre",
+    { p_chambre_id: chambreId, p_du: versJour(du), p_au: versJour(au) },
+    "[disponibilitesService] calendrierEditionChambre:",
+  );
+  if (!Array.isArray(data)) return [];
+  return data.map((l) => ({
+    nuit: l.nuit,
+    etat: l.etat,
+    ligneExiste: l.ligne_existe === true,
+    // ⚠ `ligne_ouverte` est NULL quand aucune ligne n'existe — un troisième
+    //   état, pas un booléen. Le forcer en false ferait passer « je n'ai rien
+    //   dit » pour « j'ai fermé ».
+    ligneOuverte: l.ligne_ouverte ?? null,
+    dansHorizon: l.dans_horizon === true,
+    vendue: l.vendue === true,
+    prixSpecialCents: l.prix_special_cents ?? null,
+  }));
 }
