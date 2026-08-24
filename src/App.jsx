@@ -39,6 +39,7 @@ import AdminChateaux from "./components/admin/AdminChateaux";
 import AdminChateauNouveau from "./components/admin/AdminChateauNouveau";
 import AdminChateauEdition from "./components/admin/AdminChateauEdition";
 import AdminChateauApercu from "./components/admin/AdminChateauApercu";
+import AdminChateauDisponibilites from "./components/admin/AdminChateauDisponibilites";
 import AdminPersonnages from "./components/admin/AdminPersonnages";
 import AdminPersonnageEdition from "./components/admin/AdminPersonnageEdition";
 import AdminReservations from "./components/admin/AdminReservations";
@@ -305,6 +306,12 @@ function App() {
         <Route path="chateaux/nouveau" element={<AdminChateauNouveau />} />
         <Route path="chateaux/:id" element={<AdminChateauEdition />} />
         <Route path="chateaux/:id/apercu" element={<AdminChateauApercu />} />
+        {/* Sœur d'apercu : même :id, même garde héritée de la route parente.
+            ⚠ Un écran à part, PAS une 18ᵉ section d'AdminChateauEdition — ce
+            formulaire est un REPLACE tout-ou-rien, la saisie de dates est
+            incrémentale ; les mêler ferait deux modèles d'écriture au même
+            endroit. */}
+        <Route path="chateaux/:id/disponibilites" element={<AdminChateauDisponibilites />} />
         <Route path="personnages" element={<AdminPersonnages />} />
         <Route path="personnages/:id" element={<AdminPersonnageEdition />} />
         <Route path="reservations" element={<AdminReservations />} />

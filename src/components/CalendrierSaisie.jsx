@@ -53,7 +53,10 @@ import "../styles/calendrier-saisie.css";
  *   aujourd'hui il passera `dispoGeree` ; le jour où un PMS pilotera un domaine,
  *   il passera false avec le motif d'alors. Le composant n'a pas à connaître la
  *   raison, seulement l'interdit.
- * @param {string|null} [motifNonEditable]
+ * @param {React.ReactNode} [motifNonEditable] - ⚠ un NŒUD, pas seulement une
+ *   chaîne : depuis 3.5b l'écran admin y met un <Link> vers la fiche (l'admin
+ *   peut lever l'interdit, contrairement au châtelain). Le motif est rendu tel
+ *   quel dans un <p> — un <a> y est valide.
  */
 const JOURS = ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"];
 

@@ -67,12 +67,24 @@ function bornesDuMois(mois) {
  *   active mais l'horizon absent. ⚠ Deux textes DIFFÉRENTS selon l'hôte : le
  *   châtelain ne peut pas poser l'horizon (on l'oriente vers LCC), l'admin le
  *   peut (on lui donne le lien vers la fiche).
+ * @param {(jusquA: string) => React.ReactNode} [piedHorizon] - la phrase du
+ *   pied, quand un horizon est posé. ⚠ SON DÉFAUT EST LE TEXTE D'ORIGINE, en
+ *   voix châtelain (« Vos dates ») : 3.5a l'avait déplacé tel quel plutôt que
+ *   de le neutraliser, pour rester un déplacement littéral. L'admin, qui n'est
+ *   pas le propriétaire, passe le sien. Le panneau ne formate pas la date — il
+ *   la donne, l'hôte écrit la phrase autour.
  */
 export default function PanneauDisponibilites({
   chateau,
   selecteurDomaine = null,
   motifHorsGestion,
   motifHorizonManquant,
+  piedHorizon = (jusquA) => (
+    <>
+      Vos dates sont ouvertes jusqu&apos;au <strong>{jusquA}</strong>. Bloquez les
+      périodes que vous ne louez pas — tout le reste reste réservable.
+    </>
+  ),
 }) {
   const chambres = chateau?.chambres ?? [];
 
@@ -289,16 +301,9 @@ export default function PanneauDisponibilites({
       )}
 
       {chateau.dispoGeree && chateau.dispoOuverteJusquA && (
-        // ⚠ TEXTE DÉPLACÉ TEL QUEL — voix châtelain (« Vos dates »). Il ne
-        //   convient pas à l'admin, qui n'est pas le propriétaire : 3.5b en
-        //   fera une prop dont le DÉFAUT sera cette phrase, pour que le
-        //   châtelain garde la sienne au mot près. Le neutraliser ici aurait
-        //   fait de 3.5a autre chose qu'un déplacement.
-        <p className="pdi-pied">
-          Vos dates sont ouvertes jusqu'au{" "}
-          <strong>{chateau.dispoOuverteJusquA}</strong>. Bloquez les périodes que vous ne
-          louez pas — tout le reste reste réservable.
-        </p>
+        // La phrase vient de l'hôte (cf. `piedHorizon`) : le châtelain garde
+        // « Vos dates », l'admin parle du domaine à la troisième personne.
+        <p className="pdi-pied">{piedHorizon(chateau.dispoOuverteJusquA)}</p>
       )}
     </div>
   );
