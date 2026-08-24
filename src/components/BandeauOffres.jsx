@@ -71,14 +71,32 @@ export default function BandeauOffres({ onOuvrirVitrines }) {
                A restaurer avec la troisieme carte, pas avant. */
             className="bandeau-offres-cellule"
             onClick={() => gererClic(o.action)}
+            /* ⚠ CE DELAI EST CELUI DE L'APPARITION AU SCROLL, et il reste ICI,
+               sur la cellule, inchange. Ne pas le deplacer sur le voile
+               ci-dessous : c'est ce qui garantit que la cascade d'entree
+               (0,25 s puis 0,40 s) survit a l'ajout du survol. */
             style={{ transitionDelay: `${0.25 + i * 0.15}s` }}
           >
-            <span className="bandeau-offres-num">{o.num}</span>
-            <img className="bandeau-offres-illu" src={o.illustration} alt="" aria-hidden="true" />
-            <img className="bandeau-offres-icone-img" src={o.icone} alt="" aria-hidden="true" />
-            <h3 className="bandeau-offres-titre">{o.titre}</h3>
-            <p className="bandeau-offres-desc">{o.desc}</p>
-            <span className="bandeau-offres-lien">{o.lien}</span>
+            {/* ⚠⚠ UN VOILE INTERIEUR, ET CE N'EST PAS UN CAPRICE DE MARKUP.
+                L'apparition au scroll anime `opacity` ET `transform` SUR LA
+                CELLULE, en 0,85 s et avec un delai inline par index. Le survol
+                veut animer LES MEMES DEUX PROPRIETES, en 0,4 s et SANS delai.
+                Sur un seul element, les deux se disputeraient : le voisin
+                s'estomperait en 0,85 s, avec 0,25 a 0,40 s de retard — un
+                survol qui traine, sans que rien ne le signale.
+
+                Deux elements, deux jeux de proprietes : la CELLULE garde
+                l'entree, le VOILE porte le survol. Le conflit devient
+                structurellement impossible, et la cascade n'a pas a etre
+                reattribuee — elle n'a pas bouge. */}
+            <span className="bandeau-offres-voile">
+              <span className="bandeau-offres-num">{o.num}</span>
+              <img className="bandeau-offres-illu" src={o.illustration} alt="" aria-hidden="true" />
+              <img className="bandeau-offres-icone-img" src={o.icone} alt="" aria-hidden="true" />
+              <h3 className="bandeau-offres-titre">{o.titre}</h3>
+              <p className="bandeau-offres-desc">{o.desc}</p>
+              <span className="bandeau-offres-lien">{o.lien}</span>
+            </span>
           </button>
         ))}
       </div>

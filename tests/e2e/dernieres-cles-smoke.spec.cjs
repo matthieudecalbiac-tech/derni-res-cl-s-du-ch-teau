@@ -23,7 +23,7 @@ const { test, expect } = require('@playwright/test');
  * home, le menu du Header, et HeureAuxDemeures. Une seule est utilisable aux
  * deux tailles :
  *
- *   BandeauOffres     `display: none` sous 768 (bandeau-offres.css:128)
+ *   BandeauOffres     `display: none` sous 768 (bandeau-offres.css, media 768)
  *   HeureAuxDemeures  ses medaillons sont masques sous 768 (precedent connu)
  *   Header burger     AUCUN display:none — visible a toutes les largeurs
  *

@@ -45,7 +45,86 @@
 }
 .bandeau-offres-cellule:last-child { border-right: none; }
 .bandeau-offres-cellule--centre { background: rgba(192,152,64,0.06); }
-.bandeau-offres-cellule:hover { background: rgba(192,152,64,0.09); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LE VOILE — l'enveloppe interieure qui porte TOUT le survol
+   ══════════════════════════════════════════════════════════════════════════
+   ⚠⚠ POURQUOI UN SECOND ELEMENT. L'apparition au scroll anime `opacity` ET
+   `transform` SUR LA CELLULE, en 0,85 s, avec un `transition-delay` INLINE
+   par index (0,25 s puis 0,40 s). Le survol veut animer LES MEMES DEUX
+   PROPRIETES, en 0,45 s et SANS delai.
+
+   Sur un seul element c'est impossible : `transition-delay` inline s'applique
+   a TOUTES les proprietes de la liste, et une declaration inline ne se
+   surcharge qu'a coups de `!important`. Le voisin se serait estompe en
+   0,85 s, avec un quart de seconde de retard — un survol qui traine, sans
+   que rien ne le signale.
+
+   Deux elements, deux jeux de proprietes : la CELLULE garde l'entree, le
+   VOILE porte le survol. Le conflit devient structurellement impossible, et
+   la cascade d'apparition n'a pas eu a etre reattribuee — elle n'a pas bouge.
+
+   ⚠ COROLLAIRE : ne JAMAIS ajouter une propriete de survol sur
+   `.bandeau-offres-cellule`. Elle heriterait du delai d'entree.            */
+
+.bandeau-offres-voile {
+  display: flex; flex-direction: column; align-items: center;
+  width: 100%;
+  /* Le voile est legerement RENTRE dans la cellule : la bague doree du survol
+     doit se lire comme un cadre autour du contenu, pas comme un doublon de la
+     bordure de grille collee dessus. */
+  padding: 4px 2px;
+  border-radius: 3px;
+  background: transparent;
+  /* Bague a 0 % d'opacite au repos, et non `none` : une couleur qui s'eclaire
+     se transitionne, une bague qui apparait ne se transitionne pas. */
+  box-shadow: 0 0 0 1px rgba(192,152,64,0), 0 0 0 0 rgba(13,22,40,0);
+  transition: opacity 0.45s ease-out,
+              transform 0.45s ease-out,
+              box-shadow 0.45s ease-out,
+              background 0.45s ease-out;
+}
+
+/* ⚠ `hover: hover` ET `pointer: fine` — DEUX conditions, pas une. La premiere
+   exclut le tactile ; la seconde exclut les pointeurs grossiers (stylet, TV,
+   certains hybrides) ou un survol se declencherait sans intention. La section
+   est deja `display:none` sous 768 px : c'est une seconde ceinture, pour les
+   tablettes larges et les portables tactiles. */
+@media (hover: hover) and (pointer: fine) {
+
+  /* ── L'AUTRE carte cede la lumiere : elle s'efface, elle NE BOUGE PAS ──
+     Le selecteur porte sur la GRILLE, pas sur la cellule : c'est le seul
+     moyen d'atteindre la carte NON survolee. */
+  .bandeau-offres-grille:hover .bandeau-offres-voile { opacity: 0.55; }
+
+  /* ── La carte survolee : elle se souleve, se cerne d'or, se rechauffe ──
+     Meme specificite que la regle ci-dessus (deux classes + une
+     pseudo-classe) : c'est l'ORDRE DE SOURCE qui la fait gagner. ⚠ Ne pas
+     remonter ce bloc au-dessus du precedent. */
+  .bandeau-offres-cellule:hover .bandeau-offres-voile {
+    opacity: 1;
+    transform: translateY(-3px);
+    background: rgba(192,152,64,0.05);
+    box-shadow: 0 0 0 1px rgba(192,152,64,0.42),
+                0 10px 26px -12px rgba(13,22,40,0.30);
+  }
+
+  /* L'icone se rechauffe d'un cheveu. 1,03 — au-dela, le geste devient une
+     annonce. */
+  .bandeau-offres-icone-img { transition: transform 0.45s ease-out; }
+  .bandeau-offres-cellule:hover .bandeau-offres-icone-img { transform: scale(1.03); }
+
+  /* ⚠ Le focus clavier recoit le MEME traitement que le survol : la cellule
+     est un <button>, elle se parcourt a la tabulation. Sans cela, l'effet
+     n'existerait que pour la souris. */
+  .bandeau-offres-cellule:focus-visible .bandeau-offres-voile {
+    opacity: 1;
+    transform: translateY(-3px);
+    background: rgba(192,152,64,0.05);
+    box-shadow: 0 0 0 1px rgba(192,152,64,0.42),
+                0 10px 26px -12px rgba(13,22,40,0.30);
+  }
+}
 
 .bandeau-offres-num {
   font-family: 'Playfair Display', Georgia, serif;
@@ -114,6 +193,19 @@
     transform: none;
     transition: none;
   }
+
+  /* ⚠ LE SURVOL EST NEUTRALISE, PAS SEULEMENT RALENTI. Les trois gestes qui
+     bougent — le soulevement, l'echelle de l'icone, et l'effacement du voisin
+     (une opacite qui varie EST un mouvement percu) — sont annules.
+     ⚠ LA BAGUE DOREE, ELLE, RESTE : elle ne bouge pas, et c'est le seul
+     signal qui dise a ces utilisateurs quelle carte est visee. La retirer
+     aurait supprime l'affordance en croyant supprimer l'animation. */
+  .bandeau-offres-voile { transition: none; }
+  .bandeau-offres-grille:hover .bandeau-offres-voile { opacity: 1; }
+  .bandeau-offres-cellule:hover .bandeau-offres-voile,
+  .bandeau-offres-cellule:focus-visible .bandeau-offres-voile { transform: none; }
+  .bandeau-offres-icone-img,
+  .bandeau-offres-cellule:hover .bandeau-offres-icone-img { transition: none; transform: none; }
 }
 
 /* ══════════════════════════════════════════════════════════════════════════
