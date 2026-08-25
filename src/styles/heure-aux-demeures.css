@@ -12,49 +12,229 @@
 .da-titre { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(2.4rem, 4.5vw, 4rem); font-weight: 400; color: #1A2D5A; margin: 0 0 18px; letter-spacing: 0.01em; }
 .da-intro { font-family: 'Crimson Pro', Georgia, serif; font-size: 15px; line-height: 1.7; color: #3A4456; max-width: 420px; margin: 0 auto; }
 
-.da-grille { display: grid; grid-template-columns: 1fr auto 1fr; gap: 48px; align-items: center; position: relative; z-index: 1; }
-.da-col { display: flex; flex-direction: column; gap: 44px; }
-.da-centre { display: flex; align-items: center; justify-content: center; }
-.da-embleme { width: clamp(150px, 16vw, 230px); height: auto; background: transparent !important; }
+/* ══════════════════════════════════════════════════════════════════════════
+   LE CARROUSEL — remplace la composition a axe central (refonte, section 2)
+   ══════════════════════════════════════════════════════════════════════════
+   Avant : une grille `1fr auto 1fr` — trois medaillons a gauche, l'embleme
+   horloge au centre, trois a droite en `row-reverse`, et un septieme isole en
+   bas. La DA demande un carrousel de cartes rectangulaires : tout ce bloc
+   disparait, embleme compris.
 
-.da-medaillon { display: flex; align-items: center; gap: 20px; cursor: pointer; background: transparent; border: none; text-align: left; transition: transform 0.25s ease; }
-.da-medaillon:hover { transform: translateY(-3px); }
-.da-col--d .da-medaillon { flex-direction: row-reverse; text-align: right; }
+   ⚠ MEME PLOMBERIE QUE « Les cles a la une », VOLONTAIREMENT DUPLIQUEE POUR
+   L'INSTANT (decision du 24 aout, voie c) : on ne rouvre pas une section qui
+   vient d'etre validee a l'ecran pour la partager sous pression. L'extraction
+   d'un carrousel commun est le CHANTIER SUIVANT, mene a froid avec DEUX
+   references qui marchent. ⚠ Dette NOMMEE — cf. CLAUDE.md.
 
-.da-photo { width: 132px; height: 132px; border-radius: 50%; overflow: hidden; background-color: #E8E0D0; flex-shrink: 0; border: 1px solid rgba(192,152,64,0.5); box-shadow: 0 0 0 4px rgba(251,247,243,0.55); }
-.da-photo img { width: 100%; height: 100%; object-fit: cover; }
+   ⚠ CARTES PETITES ET NOMBREUSES, contrairement a la section 3 : la DA en
+   montre CINQ de front (la centrale agrandie, deux de chaque cote). Sur
+   1208 px utiles, cinq cartes et quatre gouttieres de 20 px donnent ~225 px.
 
-/* Or CANONIQUE de la charte (#C09840) assombri en #8B6914 pour atteindre AA sur
-   creme (etait ~3.4:1, seuil 4.5). Deviation de marque -> a valider avec Tanguy. */
-.da-num { display: block; font-family: 'Playfair Display', Georgia, serif; font-size: 16px; color: #8B6914; margin-bottom: 6px; }
-.da-nom { font-family: 'Playfair Display', Georgia, serif; font-size: clamp(1.15rem, 1.6vw, 1.5rem); font-weight: 400; color: #1A2D5A; line-height: 1.1; margin: 0 0 10px; }
-.da-desc { font-family: 'Crimson Pro', Georgia, serif; font-size: 13px; font-style: italic; color: #3A4456; line-height: 1.55; max-width: 230px; margin: 0; }
-.da-col--d .da-desc { margin-left: auto; }
+   ⚠ LE DEFILEMENT RESTE CELUI DU NAVIGATEUR — aucun gestionnaire de geste.   */
 
-.da-bas { display: flex; justify-content: center; margin-top: 32px; position: relative; z-index: 1; }
-.da-bas .da-medaillon { flex-direction: column; text-align: center; gap: 14px; }
-.da-bas .da-desc { max-width: 320px; }
+.da-carrousel { min-width: 0; }
+
+/* Les fleches — hors du conteneur defilant, en haut a droite (comme la
+   section 3). ⚠ Desactivees et non masquees aux extremites : les retirer du
+   flux ferait sauter la paire, et le gris DIT qu'on est au bout. */
+.da-fleches { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px; }
+.da-fleche {
+  width: 38px; height: 38px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1.5px solid #C09840; border-radius: 50%;
+  background: transparent; color: #1A2D5A;
+  font-family: 'Playfair Display', Georgia, serif; font-size: 21px; line-height: 1;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease, opacity 0.3s ease;
+}
+.da-fleche:hover:not(:disabled) { background: #C09840; color: var(--lcc-creme); }
+.da-fleche:focus-visible { outline: 2px solid #C09840; outline-offset: 3px; }
+.da-fleche:disabled { opacity: 0.45; cursor: default; }
+
+/* ⚠ LE FOCUS CENTRAL — le `scale` vit sur la CARTE, jamais sur l'item, qui
+   porte le point d'ancrage du snap. La transformation est purement picturale :
+   ni offsetWidth, ni scrollWidth, ni les positions de calage n'en savent rien.
+   ⚠ Le facteur est plus discret qu'en section 3 (1,045 contre 1,055) : les
+   cartes sont petites et nombreuses, un grossissement identique y paraitrait
+   brusque. */
+.da-carte { transition: transform 0.45s ease-out, box-shadow 0.45s ease-out; }
+/* ⚠ L ETAT EST PORTE PAR L ITEM, PAS PAR LA CARTE — et ce n est pas cosmetique.
+   La lys ciblait la carte via `:has()` : le selecteur MATCHAIT (verifie au
+   querySelectorAll) et la specificite donnait opacity 1, mais la valeur
+   CALCULEE restait 0 — `:has()` n etait pas re-evalue quand la classe changeait
+   apres le premier calcul de style. Une classe posee sur l ITEM se comporte
+   comme n importe quelle classe React, et l item porte deja tout l etat
+   (largeur, snap, entree). */
+.da-item--centre .da-carte {
+  transform: scale(1.045);
+  box-shadow: 0 0 0 1px rgba(192,152,64,0.42),
+              0 12px 30px -14px rgba(13,22,40,0.30);
+}
+
+.da-liste {
+  display: flex; flex-direction: row;
+  gap: 20px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+
+  /* ⚠ RESERVE VERTICALE, PAS DECORATIVE. `overflow-x: auto` force
+     `overflow-y` a `auto` : ce qui depasse en hauteur est ROGNE. Elle doit
+     absorber, en 2c, le grossissement de la carte centrale, son ombre ET la
+     fleur de lys posee au-dessus. Dimensionnee au rendu, pas au juge. */
+  padding-block: 34px 22px;
+
+  /* ⚠ RESERVE LATERALE PLEINE (arbitrage du 24 aout) : `scrollLeft` ne
+     descend pas sous 0, donc sans elle la PREMIERE carte ne pourrait jamais
+     se centrer — ni la derniere. Les sept doivent pouvoir etre mises en avant.
+     Contrepartie assumee : du vide aux deux extremites, rare parce que le
+     carrousel s'ouvrira sur la carte du MILIEU (2b).
+     ⚠ La largeur de carte est en `vw` et NON en `calc(100% ...)` : un
+     pourcentage ici rendrait le calcul circulaire — le padding se resout sur
+     le bloc conteneur, la flex-basis sur la boite de contenu, que ce padding
+     vient justement de reduire. */
+  --carte: clamp(190px, 17vw, 240px);
+  padding-inline: max(2px, calc((100% - var(--carte)) / 2));
+}
+.da-liste::-webkit-scrollbar { display: none; }
+
+/* ⚠ L'ITEM EST LA CIBLE DU SNAP : sa geometrie ne bouge jamais.
+   `position: relative` : c'est lui qui ancre la fleur de lys. */
+.da-item {
+  flex: 0 0 var(--carte);
+  scroll-snap-align: center;
+  display: flex;
+  position: relative;
+}
+
+/* ── La fleur de lys, au-dessus de la carte centrale ──────────────────────
+   ⚠ CREATION ASSUMEE : aucune fleur de lys n'est animee sur l'accueil
+   aujourd'hui — celle du hero est mobile-only et n'a pas d'animation propre.
+   ⚠ Elle est posee sur l'ITEM et non sur la carte : celle-ci porte
+   `overflow: hidden` et le `scale`, la lys y serait rognee ET grandirait avec.
+   Ici elle flotte au-dessus, a taille constante.
+   ⚠ Sa hauteur est absorbee par le `padding-block` de la liste, porte a 34 px
+   pour elle : sans cette reserve, `overflow-y: auto` la trancherait net. */
+.da-lys {
+  position: absolute; top: -20px; left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  color: #C09840; font-size: 15px; line-height: 1;
+  opacity: 0;
+  transition: opacity 0.45s ease-out, transform 0.45s ease-out;
+  pointer-events: none;
+}
+.da-item--centre .da-lys {
+  opacity: 1; transform: translateX(-50%) translateY(0);
+}
+
+/* ── Le pied : l'invitation et l'indicateur ───────────────────────────────── */
+.da-pied {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  margin-top: 14px;
+}
+.da-invite {
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 10px; letter-spacing: 0.26em; text-transform: uppercase;
+  color: #9B9282;
+}
+
+.da-carte {
+  position: relative;               /* ancre du ::after etendu du lien */
+  display: flex; flex-direction: column;
+  width: 100%;
+  border: 1px solid rgba(26,45,90,0.16); border-radius: 5px;
+  overflow: hidden; background: rgba(251,247,243,0.5);
+}
+
+/* ⚠ CADRE 3/2, LE MEME QU'A LA SECTION 3 — et pour la meme raison : les
+   sources vont de 1,50 a 2,81 de ratio, un cadre presque carre rognait
+   brutalement les panoramas. Un ratio suit la largeur de la carte, donc il
+   reste identique quelle que soit la taille d'ecran. */
+.da-photo {
+  position: relative; aspect-ratio: 3 / 2; flex: 0 0 auto;
+  overflow: hidden; background-color: #E8E0D0;
+  border-radius: 0; border: none; box-shadow: none;
+}
+.da-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+
+.da-corps { display: flex; flex-direction: column; flex: 1 1 auto; padding: 16px 16px 15px; }
+
+/* ⚠⚠ CES TROIS REGLES AVAIENT DISPARU, ET RIEN NE L'AVAIT SIGNALE. Le
+   remplacement du bloc « composition » (de .da-grille a .da-cta-wrap) les a
+   emportees au passage — elles vivaient dedans — et les trois `replace()`
+   censes les reajuster n'ont alors plus rien trouve : des NO-OP silencieux.
+   Le build restait vert, les accolades equilibrees, le contenu present : ni la
+   compilation ni ma mesure DOM ne regardaient si le TEXTE etait style.
+   ⚠ Verifier qu'une regle EXISTE, pas seulement que le fichier compile.       */
+
+.da-num {
+  display: block; font-family: 'Playfair Display', Georgia, serif;
+  font-size: 14px; color: #8B6914; margin-bottom: 8px;
+}
+.da-nom {
+  font-family: 'Playfair Display', Georgia, serif; font-size: 1.15rem;
+  font-weight: 400; color: #1A2D5A; line-height: 1.12; margin: 0 0 9px;
+}
+
+/* ⚠ ACCROCHE TRONQUEE A DEUX LIGNES. Mesure : la carte montait a 482 px de
+   haut pour 196 de large — beaucoup trop elancee — et c'est l'accroche qui
+   prenait la place, sa longueur variant d'une demeure a l'autre.
+
+   ⚠ ON TRONQUE PLUTOT QU'ON N'ELARGIT : une carte plus large casserait le
+   « cinq de front » de la DA. La largeur fixe la densite du carrousel, la
+   hauteur ne fixe rien.
+
+   ⚠ DEUX LIGNES FIXES, ET NON « environ deux ». `-webkit-line-clamp` coupe au
+   nombre de lignes RENDUES : les sept cartes gardent la meme hauteur quelle que
+   soit la longueur du texte, ce qui aligne « Voir la demeure » sur une meme
+   ligne d'un bout a l'autre du carrousel. Le prefixe -webkit- reste la forme
+   portable aujourd'hui. */
+.da-desc {
+  font-family: 'Crimson Pro', Georgia, serif; font-size: 12.5px; font-style: italic;
+  color: #3A4456; line-height: 1.5; margin: 0 0 14px;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+/* ⚠ UNE SEULE CIBLE, MAIS GRANDE. Le `::after` etendu du bouton couvre toute
+   la carte : un seul arret de tabulation, et pourtant tout le rectangle est
+   cliquable. Sans lui, la cible se reduirait au petit lien — une regression
+   par rapport au medaillon entierement cliquable d'avant. */
+.da-lien {
+  position: relative; align-self: flex-start; margin-top: auto;
+  background: transparent; border: none; padding: 0; cursor: pointer;
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase;
+  color: #A8884E;
+  transition: letter-spacing 0.25s ease, color 0.25s ease;
+}
+.da-lien::after { content: ""; position: absolute; inset: 0; }
+.da-carte:hover .da-lien { letter-spacing: 0.3em; color: #C09840; }
+.da-lien:focus-visible { outline: 2px solid #C09840; outline-offset: 3px; }
+/* Le `::after` deborde la carte : c'est lui qui doit recevoir le contour. */
+.da-lien:focus-visible::after { outline: 2px solid #C09840; outline-offset: -2px; }
 
 .da-cta-wrap { text-align: center; margin-top: 38px; position: relative; z-index: 1; }
 .da-cta { display: inline-block; padding: 15px 40px; border: none; border-top: 1px solid rgba(192,152,64,0.45); border-bottom: 1px solid rgba(192,152,64,0.45); background: transparent; font-family: 'Crimson Pro', Georgia, serif; font-size: 11px; letter-spacing: 0.34em; text-transform: uppercase; color: #8B6914; cursor: pointer; transition: letter-spacing 0.25s ease, color 0.25s ease, border-color 0.25s ease; }
 .da-cta:hover { letter-spacing: 0.4em; color: #C09840; border-top-color: #C09840; border-bottom-color: #C09840; }
 
+/* ⚠ LES DEUX PALIERS 980 / 560 NE DECRIVAIENT QUE LA GRILLE A TROIS COLONNES
+   (repli en une colonne, embleme remonte, colonne droite redressee). Cette
+   grille n'existe plus : ces regles visaient des selecteurs MORTS. Le
+   carrousel, lui, se redimensionne seul par --carte, exprimee en vw.
+   ⚠ Rappel : la section est de toute facon `display: none` sous 768 px. */
 @media (max-width: 980px) {
-  .da-grille { grid-template-columns: 1fr; gap: 36px; }
-  .da-centre { order: -1; }
-  .da-col--d .da-medaillon { flex-direction: row; text-align: left; }
-  .da-col--d .da-desc { margin-left: 0; }
-}
-@media (max-width: 560px) {
-  .da-wrap { padding: 38px 22px 42px; }
-  .da-medaillon, .da-col--d .da-medaillon { flex-direction: column; text-align: center; }
-  .da-desc { max-width: none; }
+  .da-wrap { padding: 44px 28px 48px; }
 }
 
 /* ── Animation au scroll : tete/cadran fade, colonnes G<-gauche / D<-droite, hover-safe ── */
+/* ⚠ CASCADE RE-ESPACEE. L'embleme central a disparu avec la grille, et il
+   portait un cran (0,25 s) : le laisser aurait creuse un trou dans la
+   sequence. Les cartes entrent ensuite, par index (delai inline).
+   ⚠ ET L'ENTREE DES CARTES N'A PLUS DE DEPLACEMENT : un `translateX` est
+   incompatible avec un conteneur `scroll-snap` — la carte arriverait decalee
+   dans son propre defilement. Meme constat qu'a la section 3. */
 .da-tete,
-.da-embleme,
-.da-bas,
 .da-cta-wrap {
   opacity: 0;
   transform: translateY(28px);
@@ -62,48 +242,40 @@
               transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .da-tete      { transition-delay: 0s; }
-.da-embleme   { transition-delay: 0.25s; }
-.da-bas       { transition-delay: 0.7s; }
-.da-cta-wrap  { transition-delay: 0.8s; }
+.da-cta-wrap  { transition-delay: 0.75s; }
 
-/* Medaillons : on anime les ENFANTS (.da-photo/.da-texte), pas .da-medaillon
-   (qui garde son transform de hover translateY intact). */
-.da-col--g .da-photo,
-.da-col--g .da-texte {
+/* ⚠ L'ITEM PORTE L'ENTREE, ET EN FONDU SEUL. Les colonnes gauche/droite
+   entraient en `translateX(∓40px)` — impossible ici : la liste est un
+   conteneur `scroll-snap`, un deplacement lateral y decalerait le point de
+   depart du calage. Une opacite ne deplace rien.
+   ⚠ Le delai est INLINE, par index (0,30 s puis +0,07 s) : il comble le cran
+   libere par l'embleme disparu, sans trou dans la sequence. */
+.da-item {
   opacity: 0;
-  transform: translateX(-40px);
-  transition: opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1),
-              transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.da-col--d .da-photo,
-.da-col--d .da-texte {
-  opacity: 0;
-  transform: translateX(40px);
-  transition: opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1),
-              transform 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: opacity 0.8s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .journal-demeures--visible .da-tete,
-.journal-demeures--visible .da-embleme,
-.journal-demeures--visible .da-bas,
-.journal-demeures--visible .da-cta-wrap,
-.journal-demeures--visible .da-col--g .da-photo,
-.journal-demeures--visible .da-col--g .da-texte,
-.journal-demeures--visible .da-col--d .da-photo,
-.journal-demeures--visible .da-col--d .da-texte {
+.journal-demeures--visible .da-cta-wrap {
   opacity: 1;
-  transform: translateX(0) translateY(0);
+  transform: translateY(0);
 }
+.journal-demeures--visible .da-item { opacity: 1; }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Le grossissement est annule, la BAGUE DOREE reste : elle ne bouge pas, et
+     c est le seul signal qui dise quelle carte est mise en avant. */
+  .da-carte { transition: none; }
+  /* La lys reste VISIBLE mais sans fondu ni glissement, comme la bague et la
+     phrase : ce sont des INDICATIONS, pas des animations. */
+  .da-lys { transition: none; transform: translateX(-50%); }
+  .da-item--centre .da-lys { transform: translateX(-50%); }
+  .da-item--centre .da-carte { transform: none; }
+
   .da-tete,
-  .da-embleme,
-  .da-bas,
   .da-cta-wrap,
-  .da-col--g .da-photo,
-  .da-col--g .da-texte,
-  .da-col--d .da-photo,
-  .da-col--d .da-texte {
+  .da-item,
+  .da-photo {
     opacity: 1;
     transform: none;
     transition: none;
