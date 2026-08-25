@@ -229,16 +229,24 @@ function App() {
                  desktop. */
               onVoirTout={() => navigate("/vitrines")}
             />
-            {/* ⚠ LE CTA « Voir toutes les demeures → » MENAIT AUX DERNIERES
-                CLES, ET C'ETAIT DEJA FAUX AVANT CE CHANTIER : son libelle dit
-                « demeures », qui sont Les Vitrines. On le rebranche sur
-                /vitrines plutot que de le retirer — il sort du chemin des
-                Dernieres Cles ET cesse de mentir. La prop garde son nom cote
-                HeureAuxDemeures : la renommer toucherait un composant que rien
-                d'autre n'oblige a bouger. */}
+            {/* ⚠ CE CTA MENAIT AUX DERNIERES CLES, ET C'ETAIT DEJA FAUX AVANT
+                LA SIMPLIFICATION DE L'OFFRE : son libelle dit « demeures », qui
+                sont Les Vitrines. Il a ete rebranche sur /vitrines plutot que
+                retire — il sort du chemin des Dernieres Cles ET cesse de mentir.
+
+                ⚠ LA PROP AVAIT D'ABORD GARDE SON NOM, `onOuvrirDernieres`, au
+                motif que la renommer aurait touche un composant que rien
+                n'obligeait a bouger. CE MOTIF A DISPARU : la refonte de la
+                section 2 a rouvert HeureAuxDemeures de fond en comble. Le nom
+                designait un module retire du public — il est donc aligne sur
+                `onVoirTout`, deja employe par UneDeLaSemaine pour le meme
+                geste. Deux sections, une seule prop pour « aller au catalogue ».
+
+                ⚠ Le libelle visible, lui, ne change pas : « Voir toutes les
+                demeures → ». */}
             <HeureAuxDemeures
               onOuvrirChateau={ouvrirChateau}
-              onOuvrirDernieres={() => navigate("/vitrines")}
+              onVoirTout={() => navigate("/vitrines")}
             />
             {/* Bandeau « Bientot l'application » : rendu en permanence, masque
                 au-dessus du seuil par banniere-app.css. */}
