@@ -137,9 +137,34 @@ export default function UneDeLaSemaine({ onOuvrirChateau, onVoirTout }) {
   };
 
   useEffect(() => () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); }, []);
-  // Vedettes curatées par l'admin (case "Une de la semaine"). Fallback si aucune
-  // n'est cochée : les publiés non-démo (4 premiers) — la section n'est jamais vide.
-  const vedettes = chateaux.filter((c) => c.uneDeLaSemaine && !c.isDemoMock);
+  // Vedettes curatées par l’admin (champ « Ordre à la une »). Repli si aucune
+  // n’a de rang : les publiés non-démo (4 premiers) — la section n’est jamais vide.
+  // ⚠⚠ LE FILTRE **ET** LE TRI — l'un sans l'autre ne sert a rien. Avant le
+  //   25 aout, `une_de_la_semaine` etait un booleen : il disait QUI etait a la
+  //   une, jamais dans quel ORDRE, et les vedettes sortaient dans l'ordre du
+  //   catalogue (est_la_une, puis nom). `ordre_une` porte desormais les deux.
+  //   ⚠ Sans le `sort` ci-dessous, la migration livrerait des rangs que RIEN
+  //   NE LIRAIT : les trois demeures s'afficheraient quand meme, dans le
+  //   desordre, et aucune erreur ne le signalerait.
+  //
+  // ⚠ `!= null` et non un test de verite : le rang 0 est un entier valide que
+  //   `if (c.ordreUne)` ecarterait silencieusement.
+  //
+  // ⚠ Le comparateur est celui d'`HeureAuxDemeures` — meme convention pour les
+  //   deux sections. Le `?? Infinity` y est REDONDANT (le filtre a deja ecarte
+  //   les null) et il est garde volontairement : il rend le tri independant du
+  //   filtre, donc incassable si celui-ci change. Le departage par nom traite
+  //   les rangs en double, TOLERES par la base — le formulaire admin edite un
+  //   chateau a la fois et ne peut pas savoir qu'un autre porte deja ce rang.
+  const vedettes = chateaux
+    .filter((c) => c.ordreUne != null && !c.isDemoMock)
+    .slice()
+    .sort((a, b) => {
+      const oa = a.ordreUne ?? Infinity;
+      const ob = b.ordreUne ?? Infinity;
+      if (oa !== ob) return oa - ob;
+      return a.nom.localeCompare(b.nom);
+    });
   const selection = vedettes.length > 0 ? vedettes : chateaux.filter((c) => !c.isDemoMock).slice(0, 4);
 
   if (selection.length === 0) return null;

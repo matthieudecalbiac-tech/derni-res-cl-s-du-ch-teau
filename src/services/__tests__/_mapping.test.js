@@ -459,7 +459,7 @@ describe("chateauToRow (mapper inverse — colonnes chateaux)", () => {
     "distance_paris_label", "distance_paris", "urgence", "histoire", "description",
     "region_narrative", "region_histoire", "chiffres_cles", "images",
     "video_background_youtube_id", "est_la_une", "is_demo_mock", "hero_night_stars",
-    "une_de_la_semaine", "ordre_home", "mode_paiement", "dispo_geree", "dispo_ouverte_jusqu_a",
+    "ordre_une", "ordre_home", "mode_paiement", "dispo_geree", "dispo_ouverte_jusqu_a",
     "img_hero", "img_journal_histoire", "img_journal_proprietaires", "img_journal_services",
     "img_barre_permanent", "img_barre_dernieres_cles", "img_barre_club",
     "accroche_journal_histoire", "accroche_journal_proprietaires", "accroche_journal_services",
