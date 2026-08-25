@@ -136,7 +136,7 @@ function formFromChateau(c) {
     estLaUne: c.estLaUne === true,
     isDemoMock: c.isDemoMock === true,
     heroNightStars: c.heroNightStars === true,
-    uneDeLaSemaine: c.uneDeLaSemaine === true,
+    ordreUne: c.ordreUne ?? null,
     ordreHome: c.ordreHome ?? null,
     modePaiement: c.modePaiement ?? "sur_place",
     dispoGeree: c.dispoGeree === true,
@@ -215,7 +215,7 @@ function preparerBase(form) {
     estLaUne: form.estLaUne === true,
     isDemoMock: form.isDemoMock === true,
     heroNightStars: form.heroNightStars === true,
-    uneDeLaSemaine: form.uneDeLaSemaine === true,
+    ordreUne: entierOuNull(form.ordreUne),
     ordreHome: entierOuNull(form.ordreHome),
     modePaiement: form.modePaiement,
     dispoGeree: form.dispoGeree === true,
@@ -622,9 +622,19 @@ export default function AdminChateauEdition() {
         <section className="adm-section">
           <h2 className="adm-section-titre">Mise en avant</h2>
           <ChampCase label="À la une (vitrine premium)" checked={form.estLaUne} onChange={setCheck("estLaUne")} />
-          <ChampCase label="Une de la semaine (vedette)" checked={form.uneDeLaSemaine} onChange={setCheck("uneDeLaSemaine")} />
           <ChampCase label="Château de démonstration" checked={form.isDemoMock} onChange={setCheck("isDemoMock")} />
           <ChampCase label="Étoiles overlay nuit" checked={form.heroNightStars} onChange={setCheck("heroNightStars")} />
+          {/* ⚠ DEUX ORDRES, DEUX SEMANTIQUES DU VIDE — ET C'EST LE PIEGE DE CET
+              ECRAN. Les deux champs se ressemblent, mais « vide » n'y veut pas
+              dire la meme chose :
+                ordre a la une   vide = PAS a la une du tout
+                ordre (home)     vide = affiche, mais EN FIN de liste
+              Les aides ci-dessous le disent chacune ; ne pas les uniformiser. */}
+          <label className="adm-champ">
+            <span className="adm-champ-label">Ordre à la une</span>
+            <input className="adm-input" type="number" value={form.ordreUne ?? ""} onChange={setChamp("ordreUne")} />
+            <span className="adm-champ-aide">Section « Les clés à la une » : plus petit = plus haut ; vide = pas à la une.</span>
+          </label>
           <label className="adm-champ">
             <span className="adm-champ-label">Ordre d'affichage (home)</span>
             <input className="adm-input" type="number" value={form.ordreHome ?? ""} onChange={setChamp("ordreHome")} />

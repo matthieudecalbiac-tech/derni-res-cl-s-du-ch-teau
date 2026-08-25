@@ -126,7 +126,10 @@ export function mapChateauBase(row) {
     estLaUne: row.est_la_une === true,
     isDemoMock: row.is_demo_mock === true,
     heroNightStars: row.hero_night_stars === true,
-    uneDeLaSemaine: row.une_de_la_semaine === true,
+    // ⚠ RANG, PLUS BOOLEEN (2026-08-25). NULL = pas a la une ; 1..n = position.
+    //   `nullable` et non `?? 0` : un 0 se lirait comme un rang, et le filtre
+    //   `!= null` le garderait a la une.
+    ordreUne: nullable(row.ordre_une),
     ordreHome: nullable(row.ordre_home),
     couleurTheme: nullable(row.couleur_theme),
     accentTheme: nullable(row.accent_theme),
@@ -666,7 +669,7 @@ const CHAMP_VERS_COLONNE = {
   estLaUne: "est_la_une",
   isDemoMock: "is_demo_mock",
   heroNightStars: "hero_night_stars",
-  uneDeLaSemaine: "une_de_la_semaine",
+  ordreUne: "ordre_une",
   ordreHome: "ordre_home",
   couleurTheme: "couleur_theme",
   accentTheme: "accent_theme",
