@@ -304,7 +304,7 @@ dispo_geree   boolean NOT NULL DEFAULT false   -> DEUX etats seulement
 |---|---|---|
 | **P1** ✅ | `prix_sejour` en SQL + `GRANT` (⚠ **`service_role`**, l'oubli de 2.5) + 8 tests | ⚠ oui |
 | **P2** ✅ | `prixService` — wrapper mince, **ne calcule rien** | non |
-| P3 | ⚠ `demande-reservation` facture par la RPC | non |
+| **P3** ✅ | ⚠ `demande-reservation` facture par la RPC — **et REFUSE sur échec** | non |
 | P4 | affichage du total réel + correction de `VitrineChateau:783` | non |
 | P5 | ⚠ **calendrier tarifaire châtelain — le point de non-retour** | non |
 | P6 | prix de base éditable par le châtelain | non |
@@ -314,6 +314,31 @@ dispo_geree   boolean NOT NULL DEFAULT false   -> DEUX etats seulement
 ⚠ **P3 avant P4** : si l'affichage lisait la nouvelle règle avant la facturation, on montrerait un total que le serveur n'enregistrerait pas. L'inverse est sans risque.
 
 ⚠ **`demande-reservation` REFUSE sur échec de la RPC** — l'inverse du contrôle de dates de 2.5, qui **ouvrait**. Là c'était une amélioration d'expérience adossée à la contrainte d'exclusion ; ici c'est un **montant** : mieux vaut une demande qui échoue qu'une demande à un prix faux. **Ne pas « harmoniser » les deux gardes.**
+
+### P3 — ce qui est en service depuis le 25 août, et ses quatre verrous
+
+Le § 4 de `demande-reservation` **ne calcule plus rien** : il appelle `prix_sejour`. Les deux gardes voisins sont désormais **inverses**, à vingt lignes d'écart, et c'est écrit sur place en toutes lettres.
+
+| erreur | réponse | pourquoi |
+|---|---|---|
+| `22023` — plage refusée | **400**, message de dates du § 2 | c'est une saisie |
+| tout le reste | **500**, `ERR_GENERIC` | c'est une panne |
+
+⚠ **PAS `ERR_DATES_PRISES`** : ces dates ne sont pas prises par quelqu'un d'autre, elles sont **invalides**. Confondre les deux enverrait le visiteur chercher d'autres dates alors que c'est sa plage qui ne tient pas.
+
+⚠⚠ **AUCUN REPLI SUR L'ANCIENNE FORMULE.** La tentation, en lisant « on refuse », est d'ajouter un `?? nbNuits * chambre.prix_cents` « pour ne pas perdre la demande » — ce serait rétablir la divergence *afficher ≠ facturer*, et **de la pire façon : elle ne se manifesterait que les jours de panne**. Trois verrous **structurels** la rendent difficile :
+
+1. le garde a le **refus pour défaut** (à l'inverse du § 3 bis, où le défaut est le passage) ;
+2. ⚠ **`prix_cents` et `cleaning_fee_cents` ont été RETIRÉS du `SELECT` de la chambre** — ce n'est pas du ménage, c'est le verrou : **aucune valeur de repli n'existe plus dans la portée** ;
+3. `reservations.prix_total_cents` est `NOT NULL` + `CHECK (> 0)` — un montant absent ne peut pas s'enregistrer en silence.
+
+⚠ **Le chemin de refus est atteignable depuis le vrai formulaire** : `prix_sejour` borne à **366 nuits**, et **62 chambres sur 62 n'ont pas de `max_stay_nights`** (mesuré le 25 août). Une demande de 400 nuits franchit toutes les gardes du § 2 et exerce le refus — **sans toucher au moindre droit**. ⚠ Un `REVOKE` temporaire du `GRANT` `service_role` exercerait l'autre branche, mais **en retirant un droit en production** : à éviter.
+
+⚠ **Neutralité prouvée par MESURE, pas par raisonnement** : 62 chambres × 3 fenêtres = **186 comparaisons, 186 identiques**, et **0 ligne `disponibilites` porte un `prix_special_cents`** (18 lignes en base, toutes des blocages de test). Le test ② de `tests-P3-prix-edge.sql` rejoue cette comparaison. ⚠ **Il rougira légitimement au premier tarif saisi en P5 — le lire alors comme une régression serait un contresens.**
+
+⚠ **Ce que le fichier de test NE prouve PAS** : il n'exécute pas le code Deno. Il prouve la fonction SQL et **prépare le décor du test manuel**, seul moment où l'Edge tourne pour de vrai. **Niveau de preuve de 2.5** ; le TROU 3 du sous-audit C reste ouvert, **ni aggravé ni comblé**. ⚠ Poser l'infra Deno/CI est un **chantier à part** — l'accrocher au wagon du code le plus sensible mêlerait deux risques.
+
+⚠ **Ordre de livraison** : commit **puis** déploiement manuel. Il n'existe **pas de version précédente à restaurer** côté Supabase — le point de retour, c'est le commit.
 
 ### ⚠ Un défaut connu, à corriger en P4
 

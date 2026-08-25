@@ -6,7 +6,12 @@
 // (signInWithOtp ne crée pas de session synchrone). auth.uid() n'existe donc
 // pas. Cette fonction tourne en service_role : elle BYPASSE la RLS et les CHECK
 // applicatifs. Elle est le SEUL rempart — elle RE-VALIDE tout ce que la RLS et
-// les contraintes auraient validé, et RECALCULE le prix côté serveur.
+// les contraintes auraient validé, et NE PREND JAMAIS un montant du client.
+//
+// ⚠ LE PRIX N'EST PLUS CALCULÉ ICI (P3, 25 août 2026) : il vient de la fonction
+// SQL `prix_sejour`, appelée AUSSI par le front pour afficher. Une seule source,
+// donc « afficher = facturer » par construction — cf. § 4. Un échec de cette
+// lecture REFUSE la demande ; c'est l'inverse du § 3 bis, et c'est voulu.
 //
 // La COMMISSION LCC est recalculée ici pour la même raison que le prix : le taux
 // (chateau_modules.commission_pct_negociee) n'est jamais exposé au front, et un
@@ -204,7 +209,12 @@ Deno.serve(async (req) => {
 
   const { data: chambre, error: chErr } = await supabase
     .from("chambres")
-    .select("id, chateau_id, capacite, prix_cents, cleaning_fee_cents, min_stay_nights, max_stay_nights")
+    // ⚠ NI prix_cents NI cleaning_fee_cents depuis P3 : le prix ne se lit plus
+    //   sur la chambre, il vient de `prix_sejour` (§ 4). Les retirer n'est pas
+    //   du ménage — c'est le VERROU 2 du § 4 : aucune valeur de repli ne doit
+    //   exister dans la portée, sans quoi un `?? nbNuits * chambre.prix_cents`
+    //   s'écrirait tout seul le jour d'une panne.
+    .select("id, chateau_id, capacite, min_stay_nights, max_stay_nights")
     .eq("id", chambreId)
     .maybeSingle();
   if (chErr) {
@@ -284,12 +294,95 @@ Deno.serve(async (req) => {
   }
 
   // ─────────────────────────────────────────────────────────
-  // 4. PRIX RECALCULÉ SERVEUR (le prix client est ignoré)
+  // 4. PRIX FACTURÉ — par prix_sejour, la SOURCE UNIQUE (P3)
   // ─────────────────────────────────────────────────────────
-  const prixTotalCents = nbNuits * chambre.prix_cents + (chambre.cleaning_fee_cents ?? 0);
-  if (!(prixTotalCents > 0)) {
-    console.error("[demande-reservation] prix recalculé <= 0", { nbNuits, prix: chambre.prix_cents });
-    return fail(500, ERR_GENERIC);
+  // Le montant n'est plus calculé ici. Il vient de la fonction SQL
+  // `prix_sejour` — celle-là même que le front appellera pour AFFICHER (P4).
+  // Littéralement la même fonction pour les deux : c'est ce qui rend
+  // « afficher = facturer » vrai PAR CONSTRUCTION, et non par vigilance.
+  //
+  // ⚠ Deux codes qui « calculent pareil » ne garantissent rien ; un seul, si.
+  //   La formule qui vivait ici — nbNuits * prix_cents + cleaning_fee — était
+  //   juste, et elle serait devenue fausse au premier prix_special_cents saisi
+  //   par un châtelain : on aurait montré un tarif et facturé l'autre.
+  //
+  // ⚠ `nbNuits` RESTE UTILISÉ plus haut (min_stay_nights / max_stay_nights,
+  //   § 3). Il cesse seulement d'entrer dans le prix.
+  //
+  // ⚠ AUCUNE CONVERSION DE DATE : dateArrivee / dateDepart sont déjà
+  //   "YYYY-MM-DD", validés par regex en § 2. Même raison qu'en § 3 bis — le
+  //   piège de fuseau qui a coûté un bug au front n'existe pas ici.
+  //
+  // ⚠ Le GRANT EXECUTE à `service_role` posé par la migration P1
+  //   (2026-08-25-prix-sejour.sql) sert ICI, et nulle part ailleurs : cette
+  //   fonction est le seul appelant serveur. Sans lui, 42501 à chaque demande.
+  //
+  // ═══════════════════════════════════════════════════════════════════════
+  // ⚠⚠ NE PAS HARMONISER CE GARDE AVEC CELUI DU § 3 bis — ILS SONT INVERSES
+  // ═══════════════════════════════════════════════════════════════════════
+  // Vingt lignes plus haut, `est_disponible` en échec fait OUVRIR : le contrôle
+  // des dates est une AMÉLIORATION D'EXPÉRIENCE, adossée à la contrainte
+  // d'exclusion qui tranche à la confirmation. Transformer une erreur de
+  // lecture transitoire en panne du tunnel serait un mal plus grand.
+  //
+  // ⚠ ICI C'EST UN MONTANT, ET ON REFUSE. Mieux vaut une demande qui échoue
+  //   qu'une demande enregistrée à un prix faux : la ligne `reservations` est
+  //   DURABLE, elle part dans trois emails, elle porte la commission, et c'est
+  //   elle que le châtelain confirmera. Un mauvais montant ne se rattrape pas
+  //   à la confirmation — il s'y exécute.
+  //
+  // ⚠⚠ ET SURTOUT : AUCUN REPLI SUR L'ANCIENNE FORMULE. La tentation, en
+  //   lisant « on refuse », sera d'ajouter un `?? nbNuits * chambre.prix_cents`
+  //   « pour ne pas perdre la demande ». Ce serait rétablir exactement la
+  //   divergence afficher != facturer que tout ce chantier ferme — et de la
+  //   pire façon, puisqu'elle ne se manifesterait que les jours de panne.
+  //
+  // Trois autres verrous rendent l'oubli difficile, et ils sont structurels :
+  //   1. le garde ci-dessous a le REFUS POUR DÉFAUT (à l'inverse du § 3 bis,
+  //      où le défaut est le passage) ;
+  //   2. aucune valeur de repli n'existe dans la portée — retirer le garde ne
+  //      rendrait pas l'ancien prix, mais `null` ;
+  //   3. `reservations.prix_total_cents` est NOT NULL + CHECK (> 0) : un
+  //      montant absent ne peut pas s'enregistrer en silence.
+  // ═══════════════════════════════════════════════════════════════════════
+  const { data: prixRpc, error: prixErr } = await supabase.rpc("prix_sejour", {
+    p_chambre_id: chambreId,
+    p_arrivee: dateArrivee,
+    p_depart: dateDepart,
+  });
+
+  // Number() pour la même raison qu'en § 5 bis : PostgREST sérialise un entier
+  // tantôt en nombre, tantôt en chaîne. `Number(null)` vaut 0 — d'où le
+  // isInteger + le > 0 qui suivent, seuls garants qu'un retour vide ne devienne
+  // pas « séjour à 0 € ».
+  const prixTotalCents = Number(prixRpc);
+
+  if (prixErr || !Number.isInteger(prixTotalCents) || prixTotalCents <= 0) {
+    // ⚠ 22023 = la fonction a REFUSÉ la plage (départ <= arrivée, arrivée
+    //   passée, séjour > 366 nuits, chambre introuvable). C'est une SAISIE, pas
+    //   une panne — d'où un 400, et le message de dates DÉJÀ employé en § 2.
+    //
+    // ⚠ CE N'EST PAS UN CAS D'ÉCOLE : `prix_sejour` borne à 366 nuits, et
+    //   AUCUNE chambre du parc ne porte de max_stay_nights (62/62 à NULL,
+    //   mesuré le 25 août). Un séjour de 400 nuits franchit donc toutes les
+    //   gardes du § 2 et arrive ici. C'est aussi le moyen d'exercer ce chemin
+    //   de refus depuis le vrai formulaire, sans toucher à aucun droit.
+    //
+    // ⚠ PAS ERR_DATES_PRISES : ces dates ne sont pas prises par quelqu'un
+    //   d'autre, elles sont invalides. Confondre les deux enverrait le visiteur
+    //   chercher d'autres dates alors que c'est sa plage qui ne tient pas.
+    const plageRefusee = prixErr?.code === "22023";
+    console.error(
+      `[demande-reservation] prix_sejour — demande REFUSÉE (${plageRefusee ? "plage invalide" : "échec de lecture"})`,
+      {
+        chambre: chambreId,
+        sejour: `${dateArrivee}->${dateDepart}`,
+        erreur: prixErr?.message ?? `retour inattendu (${JSON.stringify(prixRpc)})`,
+      },
+    );
+    return plageRefusee
+      ? fail(400, "Les dates de séjour sont invalides.")
+      : fail(500, ERR_GENERIC);
   }
 
   // ─────────────────────────────────────────────────────────
