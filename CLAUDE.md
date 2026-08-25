@@ -259,6 +259,68 @@ UNIQUE (chambre_id, date)     RLS : select public · write chatelain_of / admin
 
 > **RÈGLE INCHANGÉE : remplir la table AVANT toute bascule.** ⚠ Elle n'est plus seulement une consigne : depuis l'étape 2.1, la bascule est une **opération de données** (`dispo_geree = true`, château par château) et non plus un changement de code global. La structure porte le garde-fou.
 
+## Le PRIX — une seule source, et où la brancher (25 août 2026)
+
+**Modèle tranché** : le châtelain fixe le prix de sa chambre, **c'est ce que le client paie**. Pas de commission détaillée à l'écran ; le taux (`chateau_modules.commission_pct_negociee`) reste **invisible du client** et ne sert qu'à la répartition, **bloquée par Stripe qui n'existe pas**.
+
+```
+prix d'une nuit N  =  COALESCE(disponibilites.prix_special_cents, chambres.prix_cents)
+prix du sejour     =  SOMME des nuits [arrivee, depart)  +  cleaning_fee_cents UNE FOIS
+```
+
+### ⚠⚠ `prix_sejour` est l'UNIQUE lecteur — la source se décide en SQL, JAMAIS en JS
+
+Le front l'appelle pour **afficher**, `demande-reservation` pour **facturer** : **littéralement la même fonction**. C'est ce qui rend *« afficher = facturer »* vrai **par construction** et non par vigilance. ⚠ **Deux codes qui « calculent pareil » ne garantissent rien ; un seul code, si.**
+
+⚠ **`prixService` est la façade du FRONT, pas la seule porte.** `demande-reservation` est en **Deno**, déployée séparément, **sans accès à `src/`** — elle appelle la RPC en direct, et il n'y a pas d'autre option. **Une branche de mode posée en JS ne serait donc vue que par l'affichage** :
+
+```
+FRONT  prixService -> voit le mode -> AFFICHE le prix PMS
+EDGE   RPC directe -> ignore le mode -> FACTURE le prix interne
+```
+
+⚠ **Ce serait la divergence afficher ≠ facturer, réintroduite au pire endroit.** Toute nouvelle source de prix se branche **en SQL**.
+
+### ⚠ Le PMS sera un ÉCRIVAIN, pas un chemin de lecture
+
+Le modèle de disponibilité est **hybride** à terme : la plupart des châteaux en **interne**, certains **synchronisés** avec leur PMS (un seul utilise Thaïs aujourd'hui — les systèmes réels restent à inventorier).
+
+**→ Un PMS écrira ses tarifs dans `disponibilites.prix_special_cents`, et `prix_sejour` en restera l'unique lecteur.** ⚠ **Zéro changement chez les consommateurs** — et une fonction SQL appelant une API externe en synchrone serait de toute façon une mauvaise idée dans un calcul de prix.
+
+### ⚠ `chateaux.mode_dispo` n'existe pas — et `dispo_geree` ne peut pas en tenir lieu
+
+```
+mode_dispo    ABSENTE. Seule trace : deux COMMENTAIRES.
+dispo_geree   boolean NOT NULL DEFAULT false   -> DEUX etats seulement
+```
+
+`dispo_geree` dit *« la table LCC fait foi »* contre *« proxy historique »* — **pas** *« interne contre PMS »*. Un booléen ne peut pas porter un troisième état.
+
+**À ajouter le jour du PMS** : une vraie colonne (enum), ⚠ **avec réémission auto-prouvée d'`admin_upsert_chateau`** — le piège des sept réémissions, dont la parade est écrite et éprouvée. **Coût connu et borné.**
+
+### Le découpage P1 → P6, et son garde-fou central
+
+| | | base ? |
+|---|---|---|
+| **P1** ✅ | `prix_sejour` en SQL + `GRANT` (⚠ **`service_role`**, l'oubli de 2.5) + 8 tests | ⚠ oui |
+| **P2** ✅ | `prixService` — wrapper mince, **ne calcule rien** | non |
+| P3 | ⚠ `demande-reservation` facture par la RPC | non |
+| P4 | affichage du total réel + correction de `VitrineChateau:783` | non |
+| P5 | ⚠ **calendrier tarifaire châtelain — le point de non-retour** | non |
+| P6 | prix de base éditable par le châtelain | non |
+
+⚠⚠ **Tant qu'aucun `prix_special_cents` n'existe, chaque étape est un NO-OP en valeur.** On peut brancher facturation puis affichage **sans changer un centime** — et **n'ouvrir la saisie qu'une fois les deux alignés**. Même garde-fou que *« remplir la table avant toute bascule »*.
+
+⚠ **P3 avant P4** : si l'affichage lisait la nouvelle règle avant la facturation, on montrerait un total que le serveur n'enregistrerait pas. L'inverse est sans risque.
+
+⚠ **`demande-reservation` REFUSE sur échec de la RPC** — l'inverse du contrôle de dates de 2.5, qui **ouvrait**. Là c'était une amélioration d'expérience adossée à la contrainte d'exclusion ; ici c'est un **montant** : mieux vaut une demande qui échoue qu'une demande à un prix faux. **Ne pas « harmoniser » les deux gardes.**
+
+### ⚠ Un défaut connu, à corriger en P4
+
+`VitrineChateau:783` affiche **le nom de la chambre choisie** accolé à `prixFinal`, qui vient de **l'offre Module B** — pas de cette chambre. Aujourd'hui masqué (Stripe n'encaisse rien, une seule offre B, et depuis le volet 2 elle est réservée aux connectés donc `prixBarre` est `null` pour un anonyme). ⚠ **Deviendrait un mensonge tarifaire dès qu'un prix spécial existera.**
+
+⚠ **Et au lien dur du sous-audit B — *pas d'encaissement avant des disponibilités réelles* — il faut adjoindre celui-ci : PAS D'ENCAISSEMENT AVANT QUE LE PRIX AFFICHÉ SOIT LE PRIX FACTURÉ.**
+
 ## Moteur de disponibilité — les décisions, et l'étape 2.1 (23 août 2026)
 
 Trois questions tranchées avant d'écrire la moindre ligne du moteur. Elles engagent tout le futur paiement : `estDisponible` sera consultée par l'écran **et** par le serveur au moment d'encaisser.
