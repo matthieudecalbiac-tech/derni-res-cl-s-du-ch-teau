@@ -3,7 +3,7 @@ import { useChateaux } from "../hooks/useChateaux";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import "../styles/heure-aux-demeures.css";
 
-export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres }) {
+export default function HeureAuxDemeures({ onOuvrirChateau, onVoirTout }) {
   const { chateaux } = useChateaux();
   const [ref, visible] = useScrollAnimation(0.15);
 
@@ -232,7 +232,7 @@ export default function HeureAuxDemeures({ onOuvrirChateau, onOuvrirDernieres })
           <button
             type="button"
             className="da-cta"
-            onClick={() => onOuvrirDernieres?.()}
+            onClick={() => onVoirTout?.()}
           >
             Voir toutes les demeures →
           </button>
