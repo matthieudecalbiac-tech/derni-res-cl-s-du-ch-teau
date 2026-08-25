@@ -1646,6 +1646,36 @@ Si le fail concerne **uniquement un navigateur** et **sans précédent dans l'hi
 
 Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne quand la dette est résolue, ou la déplacer dans Historique des chantiers.
 
+### ⚠⚠ La plomberie du carrousel existe en DEUX exemplaires — dette NOMMÉE, extraction planifiée
+
+**Refonte home, 24-25 août 2026.** `UneDeLaSemaine` (« Les clés à la une ») et `HeureAuxDemeures` (« Découvrez aussi ») portent **la même plomberie de carrousel, copiée**, et non une abstraction partagée :
+
+```
+callback ref + ResizeObserver     l'attache au noeud, contre l'early-return async
+detection du centre par rect      getBoundingClientRect, jamais offsetLeft
+pasCarte() mesure dans le DOM     --carte est en vw, une constante mentirait
+fleches + bornes a 1 px + rAF
+reserve laterale + --carte en vw  (anti-circularite du padding en %)
+scale sur la CARTE, jamais l'item (qui porte le snap)
+padding-block anti-rognage        overflow-x:auto force overflow-y:auto
+```
+
+⚠ **C'est un choix, pas un oubli — la « voie c ».** Extraire *pendant* la construction de la section 2 aurait rouvert la section 3, **validée à l'écran la veille**, sous la pression du chantier en cours. Dupliquer définitivement aurait laissé deux copies diverger en silence. La voie retenue : **copier maintenant, extraire à froid ensuite**, quand **deux références qui marchent** permettent de prouver que l'extraction ne casse rien.
+
+⚠ **RÈGLE EN VIGUEUR JUSQU'À L'EXTRACTION : toute correction faite dans l'une doit être reportée dans l'autre.** Elle est écrite en tête des deux fichiers, mais elle ne tient que si on la lit — d'où cette entrée.
+
+⚠ **Et cette plomberie a coûté cher à mettre au point** : quatre correctifs successifs sur la seule section 3 (deps `[]`, `rAF`, `ResizeObserver` dans un effet, puis enfin la callback ref). C'est précisément ce qui rend la duplication dangereuse **et** l'extraction délicate : le prochain qui corrigera l'un des deux exemplaires doit savoir que l'autre existe.
+
+**→ Chantier suivant : extraire un composant de carrousel commun, brancher les deux sections dessus, re-valider les deux à l'écran.** ⚠ Desktop **et** mobile pour la section 3 ; desktop seul pour la section 2, qui est `display: none` sous 768 px.
+
+### ⚠ Sur ce carrousel, la mesure automatisée MENT — quatre fois vérifié
+
+Playwright et l'automatisation navigateur ont rapporté, sur ces deux sections : le **clic des flèches sans effet** (`scrollLeft` 0 → 0), le **focus qui ne suit pas** au défilement, un **`scale` calculé à 1** et une **opacité de fleur de lys à 0** — alors que **tout fonctionnait à la souris et au doigt**, vérifié par Matthieu à chaque fois.
+
+⚠ **Ne pas conclure d'un test synthétique sur ce composant.** Les causes plausibles — clic sans activation utilisateur, `prefers-reduced-motion` forcé dans le navigateur d'automatisation — n'ont pas été isolées. **Le jugement est visuel, sur un vrai navigateur.**
+
+⚠ Corollaire pour un futur filet E2E : **écrire un test qui vérifie ces effets produirait probablement un rouge permanent** sans défaut réel.
+
 - ~~**[Phase 1.x] Filtre baseline-check console-errors**~~ ✅ Résolue (Chantier 1.8, 7 mai 2026, commits `700bc69` + `8caf238`) — `IGNORE_PATTERNS` CDN externes posés (videos.pexels.com, images.pexels.com, images.unsplash.com, api.open-meteo.com, www.youtube.com, i.ytimg.com) + corrélation URL temporelle pour erreurs orphelines (fenêtre 5 sec, capte les "Failed to load resource: net::ERR_FAILED" et "429 Too Many Requests" sans URL exposée par Playwright). Calibré empiriquement sur l'artefact CI e52da93 : 63 occurrences → 1-2 résiduelles (96% bruit éliminé). `qa-baseline.json:console-errors.erreurs.max` resserré 3→2, `avertissements.max` resserré 3→1. Resserrement final à 0/0 conditionné par résolution Phase 4.4 (compute-pressure iframe YouTube) + Phase 4.x #9 bri-1.avif.
 
 - ~~**[Phase 1.x] Trou couverture C1 — responses 4xx/5xx orphelines**~~ ✅ Résolue (Chantier 1.10, 7 mai 2026, commit `76c0dc2`) — listener `page.on('response', ...)` ajouté dans `console-errors.cjs:325-342`. Si `status >= 400` ET URL non filtrée par `estBruit()`, push event avec `urlEchouee` dans `events[]`. La corrélation URL du listener console (lignes 263-294) matche désormais automatiquement les responses 4xx/5xx. Validation empirique locale Windows mobile-safari : 0 erreur, 0 avertissement, pas de double-comptage observé. Pas de calibration baseline (`erreurs.max=1` reste correct, absorbe `compute-pressure` Chromium local — resserrement à 0 conditionné par résolution Phase 4.4 vidéo HTML5).
