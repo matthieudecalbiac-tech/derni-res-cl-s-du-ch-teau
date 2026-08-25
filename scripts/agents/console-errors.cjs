@@ -94,6 +94,25 @@ const IGNORE_PATTERNS = [
   /api\.open-meteo\.com/i,
   /www\.youtube\.com/i,
   /i\.ytimg\.com/i,
+  // ⚠ TROISIEME HOTE DU LECTEUR YOUTUBE, apres youtube.com et i.ytimg.com.
+  // Le lecteur embarque de `chateau.videoBackground` (Le Blanc Buisson) charge
+  // `static.doubleclick.net/instream/ad_status.js`, et c'est la CSP de YOUTUBE
+  // ELLE-MEME — en mode Report-Only — qui le refuse et rapporte le message dans
+  // notre console. Bruit tiers de bout en bout : ni notre hote, ni notre script,
+  // ni notre CSP.
+  //
+  // Mesure du 2026-08-25 (run main #32840155738) : mobile-safari seul, premiere
+  // occurrence du depot, sur les 11 runs `main` precedents tous verts.
+  //
+  // ⚠ CE N'EST PAS UN ASSOUPLISSEMENT DE SEUIL. `console-errors.erreurs.max`
+  // reste a 0 : on retire du bruit d'un hote tiers, on ne baisse aucune barre.
+  // Meme doctrine que les huit motifs au-dessus (Chantier 1.8).
+  //
+  // ⚠ MEME PEREMPTION que /compute-pressure/i plus bas et que IFRAMES_TIERS de
+  // a11y-axe.cjs : a retirer le jour ou la video passera en HTML5 natif servie
+  // depuis /public/ — dette Phase 4.4, tracee dans CLAUDE.md. Ce filtre ne
+  // masque aucune dette applicative ; la dette, c'est d'embarquer le lecteur.
+  /static\.doubleclick\.net/i,
   // Polices Google — chargees par CDN depuis index.html (cf. CLAUDE.md
   // § Styles). Meme nature que les six au-dessus : hote externe, variance
   // reseau du runner, aucun rapport avec le code du site. `fonts.googleapis`
