@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
 import { useChateaux } from "../hooks/useChateaux";
+import { useCarrousel } from "../hooks/useCarrousel";
 import { useScrollAnimation } from "../hooks/useScrollAnimation";
 import { derivePrix } from "../utils/derivePrix";
 import "../styles/une-semaine.css";
@@ -7,136 +7,16 @@ import "../styles/une-semaine.css";
 export default function UneDeLaSemaine({ onOuvrirChateau, onVoirTout }) {
   const { chateaux, loading, error } = useChateaux();
   const [ref, visible] = useScrollAnimation(0.2);
-  // Index de la carte au centre du carrousel MOBILE. Purement presentationnel :
-  // il n'alimente que les points de pagination, masques au-dessus du seuil. En
-  // desktop la liste est une colonne non defilable — le handler ne se declenche
-  // jamais et l'etat reste a 0.
-  const listeRef = useRef(null);
-  // Index de la carte CENTREE — mesure exacte (cf. majCentre). Alimente le
-  // grossissement de la carte au focus ET les points de pagination.
-  const [centre, setCentre] = useState(0);
-  // ── LES FLECHES ───────────────────────────────────────────────────────────
-  // ⚠ POURQUOI ELLES EXISTENT, ET CE N'EST PAS UN ORNEMENT. Le carrousel
-  //   deborde bien (mesure : scrollWidth 869 contre clientWidth 645) et il est
-  //   defilable — mais `scrollbar-width: none`, promu du mobile, lui retire la
-  //   BARRE, et la molette d'une souris classique defile VERTICALEMENT. Au
-  //   doigt et au trackpad tout marchait ; a la souris, la carte suivante etait
-  //   INATTEIGNABLE. Les fleches sont ce moyen-la, et elles seules.
-  const [bornes, setBornes] = useState({ debut: true, fin: true });
-  const rafRef = useRef(0);
-
-  // ⚠ LE PAS EST MESURE DANS LE DOM, JAMAIS CODE EN DUR. La largeur d'une carte
-  //   vient d'un `clamp(...calc(100% ...))` : elle change avec le conteneur, a
-  //   chaque redimensionnement. Une constante mentirait des le premier resize —
-  //   le clic sauterait une demi-carte, ou deux.
-  const pasCarte = () => {
-    const el = listeRef.current;
-    const premier = el?.children?.[0];
-    if (!el || !premier) return 0;
-    const gouttiere = parseFloat(getComputedStyle(el).columnGap) || 0;
-    return premier.getBoundingClientRect().width + gouttiere;
-  };
-
-  // ⚠⚠ LA CARTE CENTREE SE MESURE, ELLE NE SE DEDUIT PAS D'UNE DIVISION.
-  //   L'ancien calcul faisait scrollLeft / (scrollWidth / nbEnfants) : une
-  //   heuristique qui suppose des cartes de largeur egale, sans gouttiere ni
-  //   reserve laterale. Elle derivait deja sur les points de pagination, et
-  //   elle serait FAUSSE ici — la reserve laterale decale tout.
-  //   On prend la carte dont le CENTRE est le plus proche du centre du
-  //   conteneur : exact quelles que soient largeurs, gouttieres et paddings.
-  const majCentre = () => {
-    const el = listeRef.current;
-    if (!el) return;
-    // ⚠⚠ ON COMPARE DES RECTANGLES ECRAN, PAS `offsetLeft` CONTRE `scrollLeft`.
-    //   Premiere version : `offsetLeft + offsetWidth/2` face a
-    //   `scrollLeft + clientWidth/2`. DEUX ESPACES DE COORDONNEES DIFFERENTS —
-    //   `offsetLeft` se mesure depuis l'`offsetParent`, et la liste n'etant pas
-    //   positionnee, cet ancetre n'est PAS le conteneur defilant. L'ecart
-    //   constant ainsi introduit designait toujours la meme carte : mesure du
-    //   24 aout, le focus restait a l'index 0 apres un defilement de 300 px.
-    //   `getBoundingClientRect` ramene tout le monde dans l'espace de l'ecran,
-    //   quel que soit le positionnement CSS.
-    const boite = el.getBoundingClientRect();
-    const cible = boite.left + boite.width / 2;
-    let meilleur = 0;
-    let ecartMin = Infinity;
-    [...el.children].forEach((n, i) => {
-      const r = n.getBoundingClientRect();
-      const ecart = Math.abs(r.left + r.width / 2 - cible);
-      if (ecart < ecartMin) { ecartMin = ecart; meilleur = i; }
-    });
-    setCentre(meilleur);
-  };
-
-  const majBornes = () => {
-    const el = listeRef.current;
-    if (!el) return;
-    majCentre();
-    const max = el.scrollWidth - el.clientWidth;
-    // ⚠ Tolerance d'1 px : `scrollLeft` est fractionnaire (zoom, DPI), et une
-    //   comparaison stricte laisserait la fleche active sur un reste de 0,4 px.
-    setBornes({ debut: el.scrollLeft <= 1, fin: max <= 1 || el.scrollLeft >= max - 1 });
-  };
-
-  // ══════════════════════════════════════════════════════════════════════════
-  // ⚠⚠ CALLBACK REF — ET NON `ref={listeRef}` + useEffect
-  // ══════════════════════════════════════════════════════════════════════════
-  // TROIS CORRECTIFS DE TIMING ONT ECHOUE ICI avant celui-ci : deps `[]`, puis
-  // un `requestAnimationFrame`, puis un ResizeObserver dans un effet. Les trois
-  // butaient sur le MEME garde `if (!el) return`, et la mesure l'a prouve :
-  //     majAppels 2 · majRef "NULL" · bornes absente
-  // `majBornes` etait bien appelee — mais TOUJOURS avec une ref nulle.
+  // ⚠ TOUTE LA PLOMBERIE DU CARROUSEL VIT DESORMAIS DANS `useCarrousel`, et
+  //   elle y a ete DEPLACEE, pas reecrite : le hook contient le code que ce
+  //   fichier portait, au caractere pres (equivalence verifiee par script).
+  //   Ce qui reste ici est ce qui appartient a CETTE section : son markup, sa
+  //   feuille, ses fleches, son badge.
   //
-  // LA CAUSE N'ETAIT PAS LE MOMENT DE LA MESURE, C'ETAIT LE MOMENT OU LE NŒUD
-  // EXISTE. Pendant le chargement Supabase, `selection` est vide et le
-  // composant rend `null` : aucun `.une-semaine-liste` n'est monte, la ref
-  // reste nulle, et l'effet ne se rejoue plus ensuite.
-  //
-  // ⚠ LE DEPOT AVAIT DEJA RESOLU CE PROBLEME, dans `useScrollAnimation.js`
-  //   importe deux lignes plus haut : « Robuste face aux montages tardifs :
-  //   utilise une callback ref plutot qu'un objet ref. React appelle la
-  //   callback avec le nœud DES QU'IL EST MONTE (et avec null au demontage),
-  //   donc l'observer s'attache correctement meme si l'element n'existe pas au
-  //   premier render (cas des composants async a early-return, ex. data
-  //   Supabase pas encore chargee). » C'est notre cas, mot pour mot.
-  //
-  // ⚠ On observe AUSSI les cartes : la liste est un element de grille, sa
-  //   boite ne change pas quand les cartes arrivent — seul son contenu change.
-  const roRef = useRef(null);
-  const attacherListe = useCallback((node) => {
-    if (roRef.current) { roRef.current.disconnect(); roRef.current = null; }
-    listeRef.current = node;
-    if (!node) return;               // demontage : rien a observer
-    majBornes();
-    if (typeof ResizeObserver === "undefined") return;
-    const ro = new ResizeObserver(majBornes);
-    ro.observe(node);
-    for (const enfant of node.children) ro.observe(enfant);
-    roRef.current = ro;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const defiler = (sens) => {
-    const el = listeRef.current;
-    const pas = pasCarte();
-    if (!el || !pas) return;
-    // ⚠ Le defilement doux devient instantane pour qui refuse les animations —
-    //   meme regle que le reste de la section.
-    const doux = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    el.scrollBy({ left: sens * pas, behavior: doux ? "smooth" : "auto" });
-  };
-
-  const surDefilement = () => {
-    // ⚠ `scroll` tire a chaque frame : sans cet etranglement, on poserait un
-    //   setState par evenement pendant tout le geste.
-    if (rafRef.current) return;
-    rafRef.current = requestAnimationFrame(() => {
-      rafRef.current = 0;
-      majBornes();   // pose les bornes ET la carte centree
-    });
-  };
-
-  useEffect(() => () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); }, []);
+  // ⚠ SANS ARGUMENT : la section 3 ouvre sur la PREMIERE carte. L'ouverture au
+  //   milieu est le seul parametre du hook, et il sert a « Decouvrez aussi »,
+  //   dont la reserve laterale laisserait sinon une demi-page vide.
+  const { attacherListe, surDefilement, defiler, bornes, centre } = useCarrousel();
   // Vedettes curatées par l’admin (champ « Ordre à la une »). Repli si aucune
   // n’a de rang : les publiés non-démo (4 premiers) — la section n’est jamais vide.
   // ⚠⚠ LE FILTRE **ET** LE TRI — l'un sans l'autre ne sert a rien. Avant le

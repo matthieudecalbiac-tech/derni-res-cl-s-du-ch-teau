@@ -1646,6 +1646,20 @@ Si le fail concerne **uniquement un navigateur** et **sans précédent dans l'hi
 
 Liste des chantiers non bloquants identifiés. Mise à jour : retirer une ligne quand la dette est résolue, ou la déplacer dans Historique des chantiers.
 
+### ✅ RÉGLÉE le 25 août — `useCarrousel`, et ce que l'extraction a appris
+
+**La dette ci-dessous est REMBOURSÉE.** La plomberie vit dans **`src/hooks/useCarrousel.js`**, et les deux sections s'y branchent. ⚠ **La règle « toute correction dans l'une doit être reportée dans l'autre » n'a plus lieu d'être — ne pas la ré-appliquer.**
+
+**Un hook, pas un composant** : ce qui est commun est du **comportement** (refs, observateur, mesures DOM, deux états) ; ce qui diffère est du **markup et du CSS**. ⚠ **Le hook ne connaît AUCUN réglage — il les MESURE.** Ni `--carte`, ni la gouttière, ni le facteur d'échelle n'y entrent : ils vivent en CSS. **C'est la limite à ne pas franchir en ajoutant des paramètres.** Un seul existe : `ouvrirAuMilieu`.
+
+⚠⚠ **La non-régression a été prouvée par ÉQUIVALENCE TEXTUELLE, pas par test** — et c'est la leçon transposable. Le comportement de ces carrousels n'est pas mesurable (cf. la section suivante), mais **un code identique, si**. Le hook a été **extrait par script**, jamais retapé, puis confronté au code que chaque composant portait avant : **5 fonctions identiques au caractère près**, la sixième ne différant que du garde `ouvrirAuMilieu &&` — écart lui-même prouvé par égalité de chaînes.
+
+⚠ **Extraction en DEUX commits, jamais un** : à chaque étape une section restait **témoin**. Si l'une avait cassé et pas l'autre, l'écart aurait été localisable. En un seul commit, les deux seraient tombées ensemble.
+
+⚠ **Un bonus non prévu** : la section 2 n'annulait pas son `requestAnimationFrame` au démontage. Elle a hérité du nettoyage en se branchant — **1b-2 n'était donc pas un déplacement pur**.
+
+<details><summary>La dette, telle qu'elle était écrite (conservée : l'écart entre ce qu'on prévoyait et ce qui est arrivé instruit)</summary>
+
 ### ⚠⚠ La plomberie du carrousel existe en DEUX exemplaires — dette NOMMÉE, extraction planifiée
 
 **Refonte home, 24-25 août 2026.** `UneDeLaSemaine` (« Les clés à la une ») et `HeureAuxDemeures` (« Découvrez aussi ») portent **la même plomberie de carrousel, copiée**, et non une abstraction partagée :
@@ -1667,6 +1681,8 @@ padding-block anti-rognage        overflow-x:auto force overflow-y:auto
 ⚠ **Et cette plomberie a coûté cher à mettre au point** : quatre correctifs successifs sur la seule section 3 (deps `[]`, `rAF`, `ResizeObserver` dans un effet, puis enfin la callback ref). C'est précisément ce qui rend la duplication dangereuse **et** l'extraction délicate : le prochain qui corrigera l'un des deux exemplaires doit savoir que l'autre existe.
 
 **→ Chantier suivant : extraire un composant de carrousel commun, brancher les deux sections dessus, re-valider les deux à l'écran.** ⚠ Desktop **et** mobile pour la section 3 ; desktop seul pour la section 2, qui est `display: none` sous 768 px.
+
+</details>
 
 ### ⚠ Sur ce carrousel, la mesure automatisée MENT — quatre fois vérifié
 
